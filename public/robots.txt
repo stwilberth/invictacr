@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /login
+Disallow: /registro
+Disallow: /dashboard
+Disallow: /dashboard-admin
+Disallow: /checkout
+Disallow: /favoritos
+
+Sitemap: https://invictacostarica.com/sitemap.xml

@@ -1,0 +1,71 @@
+@props(['product'])
+@php
+    $productUrl = route('products.show', ['gender' => $product->genero ?? 'unisex', 'slug' => $product->slug]);
+    $whatsappLink = 'https://wa.me/50686711422?text=' . urlencode("Hola, me interesa el reloj Invicta {$product->modelo}: " . url($productUrl));
+    $priceAfterDiscount = $product->precio_venta * (1 - ($product->descuento ?? 0) / 100);
+    $model = preg_replace('/^invicta-/i', '', $product->modelo ?? '');
+    // Usar imagen local siempre, ignorar CDN externo
+    $imageUrl = $product->imagen && !str_starts_with($product->imagen, 'http')
+        ? $product->imagen
+        : asset("images/relojes/{$model}.jpg");
+@endphp
+
+<div class="group relative flex flex-col h-full bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-100 dark:border-white/5 hover:shadow-2xl hover:shadow-blue-500/10 transition-all duration-300 overflow-hidden">
+    <a href="{{ $productUrl }}" class="w-full pt-[100%] relative block">
+        <div class="absolute inset-0 flex items-center justify-center pt-1">
+            @if($imageUrl)
+                <img src="{{ $imageUrl }}" alt="{{ $product->title }}" class="max-w-full max-h-full object-contain" loading="lazy" />
+            @else
+                <div class="w-full h-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center">
+                    <span class="text-gray-400 dark:text-gray-500 text-sm">Sin imagen</span>
+                </div>
+            @endif
+        </div>
+
+        @if(($product->descuento ?? 0) > 0 && $product->precio_venta > 0)
+        <div class="absolute top-2 left-2 z-10">
+            <span class="inline-flex items-center rounded-full bg-red-600 px-2 py-1 text-[10px] font-black text-white shadow-lg border border-white/10">
+                -{{ $product->descuento }}%
+            </span>
+        </div>
+        @endif
+    </a>
+
+    <div class="p-1 md:p-2 flex flex-col flex-grow bg-slate-50 dark:bg-[#0a0f1c]/50">
+        <a href="{{ $productUrl }}" class="mb-3 flex-grow block hover:text-blue-600 transition-colors">
+            <h3 class="text-sm font-black text-slate-800 dark:text-white line-clamp-2 leading-tight uppercase tracking-tight group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors h-10">
+                Reloj Invicta {{ $product->coleccion && strtolower($product->coleccion) !== 'otros' ? $product->coleccion : '' }} {{ $product->modelo }}
+            </h3>
+        </a>
+        <div class="flex items-center gap-2 mb-3">
+            @if($product->size)
+            <span class="text-[10px] font-bold text-slate-500 dark:text-gray-400 bg-slate-200/50 dark:bg-white/5 px-2 py-0.5 rounded-md">{{ $product->size }}MM</span>
+            @endif
+            @if($product->tipo_movimiento)
+            <span class="text-[10px] font-bold text-slate-500 dark:text-gray-400 uppercase tracking-wider">{{ $product->tipo_movimiento }}</span>
+            @endif
+            <span class="text-[10px] font-bold text-slate-500 dark:text-gray-400 uppercase tracking-wider">{{ $product->genero }}</span>
+        </div>
+
+        <div class="my-2 text-right">
+            @if($product->precio_venta == 0)
+                <div class="py-1">
+                    <span class="text-xs font-bold px-2 py-0.5 bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 rounded-md">Próximamente</span>
+                </div>
+            @elseif($product->precio_venta > 0)
+                <div class="flex flex-col items-end w-full">
+                    <div class="flex items-baseline gap-2">
+                        <span class="text-xl font-black text-red-600 dark:text-red-500 tracking-tighter">₡{{ number_format($priceAfterDiscount, 0) }}</span>
+                        @if(($product->descuento ?? 0) > 0)
+                            <span class="text-xs font-bold text-slate-400 dark:text-gray-500 line-through">₡{{ number_format($product->precio_venta, 0) }}</span>
+                        @endif
+                    </div>
+                </div>
+            @else
+                <div class="py-1 text-right">
+                    <span class="text-xs font-bold px-2 py-0.5 bg-red-100 text-red-600 rounded-md">AGOTADO</span>
+                </div>
+            @endif
+        </div>
+    </div>
+</div>

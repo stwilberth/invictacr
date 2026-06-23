@@ -1,0 +1,83 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Product;
+
+class HomeController extends Controller
+{
+    const PRIORITY_MODELS = [
+        "49821",
+        "49573",
+        "48948",
+        "50638",
+        "50642",
+        "49895",
+        "50413",
+    ];
+
+    public function index()
+    {
+        $activeProducts = Product::where("activo", true)
+            ->where("precio_venta", ">", 0)
+            ->get();
+
+        $priorityProducts = $activeProducts
+            ->filter(function ($product) {
+                return in_array($product->modelo, self::PRIORITY_MODELS);
+            })
+            ->shuffle()
+            ->take(10);
+
+        if ($priorityProducts->count() < 10) {
+            $existingIds = $priorityProducts->pluck("id");
+            $fillers = $activeProducts
+                ->reject(fn($p) => $existingIds->contains($p->id))
+                ->shuffle()
+                ->take(10 - $priorityProducts->count());
+            $featuredProducts = $priorityProducts->concat($fillers);
+        } else {
+            $featuredProducts = $priorityProducts;
+        }
+
+        $discountProducts = $activeProducts
+            ->where("descuento", ">", 0)
+            ->sortByDesc("descuento")
+            ->take(4);
+
+        $categories = [
+            [
+                "name" => "Hombre",
+                "slug" => "hombre",
+                "image" => asset("images/banners/hombre.png"),
+            ],
+            [
+                "name" => "Mujer",
+                "slug" => "mujer",
+                "image" => asset("images/banners/mujer.png"),
+            ],
+            [
+                "name" => "Unisex",
+                "slug" => "unisex",
+                "image" => asset("images/banners/unisex.png"),
+            ],
+        ];
+
+        // Hero product: try Speedway 50413 first
+        $heroProduct =
+            $activeProducts->first(function ($p) {
+                return str_contains($p->modelo, "50413");
+            }) ?? $activeProducts->first();
+
+        return view(
+            "pages.home",
+            compact(
+                "featuredProducts",
+                "discountProducts",
+                "categories",
+                "heroProduct",
+                "activeProducts",
+            ),
+        );
+    }
+}
