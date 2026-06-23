@@ -1,32 +1,113 @@
-<x-app-layout title="Sobre Nosotros">
-    <div class="max-w-4xl mx-auto px-4 py-12">
-        <h1 class="text-3xl md:text-4xl font-black text-gray-900 dark:text-white uppercase tracking-tight mb-8 text-center">Sobre Nosotros</h1>
-        <div class="prose dark:prose-invert max-w-none">
-            <div class="p-8 bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-100 dark:border-white/5">
-                <h2 class="text-xl font-black text-gray-900 dark:text-white mb-4">Invicta Costa Rica</h2>
-                <p class="text-gray-600 dark:text-gray-300 mb-4">
-                    Somos una tienda costarricense especializada en la venta de relojes Invicta 100% originales.
-                    Ofrecemos los mejores precios del mercado con envío gratis a todo Costa Rica.
-                </p>
-                <p class="text-gray-600 dark:text-gray-300 mb-4">
-                    Nos apasiona ofrecer productos de calidad con un servicio al cliente excepcional.
-                    Todos nuestros relojes incluyen garantía real de 6 meses.
-                </p>
-                <div class="flex flex-wrap gap-4 mt-6">
-                    <div class="flex-1 min-w-[200px] p-4 bg-gray-50 dark:bg-gray-900 rounded-xl text-center">
-                        <span class="text-3xl font-black text-[#00C4FF]">+500</span>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">Clientes satisfechos</p>
+<x-app-layout title="Sobre Nosotros - Relojes Invicta Costa Rica">
+    <section class="bg-white dark:bg-[#0a0f1c] py-16 md:py-24">
+        <div class="max-w-7xl mx-auto px-4">
+            <x-page-title title="Sobre Nosotros" highlight="Nosotros" subtitle="Conoce la historia detrás de Invicta Costa Rica, un emprendimiento familiar basado en la honestidad y la pasión por los relojes." />
+
+            <div class="space-y-12">
+                <!-- Nuestra Historia -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-8">
+                    <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
+                        Nuestra Historia
+                    </h2>
+                    <p class="text-lg text-gray-600 dark:text-gray-300 leading-relaxed">
+                        <strong><em>InvictaCostaRica.com</em></strong> es un <strong><em>emprendimiento familiar desde nuestro hogar</em></strong>, dedicado a vender relojes Invicta originales. Ofrecemos un servicio <strong><em>cercano y confiable</em></strong>, con <strong><em>precios justos</em></strong> y atención directa a cada cliente. Nuestra prioridad es la <strong><em>honestidad, la transparencia y la calidad</em></strong> en todo lo que hacemos.
+                    </p>
+                </div>
+
+                <!-- Aviso Legal -->
+                <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-2xl p-6">
+                    <div class="flex items-start gap-4">
+                        <i class="fa-solid fa-scale-balanced text-red-600 dark:text-red-400 text-2xl mt-1"></i>
+                        <div>
+                            <h2 class="text-xl font-semibold text-red-800 dark:text-red-300 mb-2">Aviso Legal</h2>
+                            <p class="text-red-800 dark:text-red-300 leading-relaxed">
+                                <span class="font-bold">No somos distribuidores oficiales de Invicta.</span>
+                                Todos nuestros productos son originales importados y verificados por nuestro equipo especializado. El uso del nombre &quot;Invicta Costa Rica&quot; es únicamente para fines descriptivos.
+                            </p>
+                        </div>
                     </div>
-                    <div class="flex-1 min-w-[200px] p-4 bg-gray-50 dark:bg-gray-900 rounded-xl text-center">
-                        <span class="text-3xl font-black text-[#00C4FF]">+300</span>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">Modelos disponibles</p>
+                </div>
+
+                <!-- Garantías y Políticas -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-8">
+                    <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-6">Garantías y Políticas</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-green-50 dark:bg-green-900/20 p-6 rounded-xl border border-green-200 dark:border-green-900/30">
+                            <h3 class="text-lg font-semibold text-green-900 dark:text-green-300 mb-3">Garantía de Producto</h3>
+                            <ul class="list-disc list-inside space-y-2 text-green-800 dark:text-green-400">
+                                <li>Productos originales importados</li>
+                                <li>6 meses por defectos de fabricación</li>
+                                <li>Inspección completa de funcionamiento</li>
+                                <li>Garantía de satisfacción del cliente</li>
+                            </ul>
+                        </div>
+                        <div class="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-xl border border-blue-200 dark:border-blue-900/30">
+                            <h3 class="text-lg font-semibold text-blue-900 dark:text-blue-300 mb-3">Política de Devoluciones</h3>
+                            <ul class="list-disc list-inside space-y-2 text-blue-800 dark:text-blue-400">
+                                <li>Producto debe estar en estado original</li>
+                                <li>Costos de envío por cuenta del cliente</li>
+                                <li>Poseer factura o recibo de compra</li>
+                            </ul>
+                        </div>
                     </div>
-                    <div class="flex-1 min-w-[200px] p-4 bg-gray-50 dark:bg-gray-900 rounded-xl text-center">
-                        <span class="text-3xl font-black text-[#00C4FF]">6 meses</span>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">Garantía real</p>
+                </div>
+
+                <!-- Contacto -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-8">
+                    <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">Contáctanos</h2>
+                    <p class="text-lg text-gray-600 dark:text-gray-300 mb-6 leading-relaxed">
+                        ¿Tienes alguna pregunta o necesitas asesoría? No dudes en contactarnos. Estamos aquí para ayudarte.
+                    </p>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-6">
+                            <i class="fa-solid fa-whatsapp text-[#00C4FF] text-3xl mb-3"></i>
+                            <h3 class="font-semibold text-gray-900 dark:text-white mb-2">WhatsApp</h3>
+                            <p class="text-gray-600 dark:text-gray-400">+506 8671-1422</p>
+                            <p class="text-[10px] text-gray-400 dark:text-gray-500 uppercase font-bold mt-1">Atención inmediata</p>
+                        </div>
+                        <div class="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-6">
+                            <i class="fa-solid fa-envelope text-[#00C4FF] text-3xl mb-3"></i>
+                            <h3 class="font-semibold text-gray-900 dark:text-white mb-2">Email</h3>
+                            <p class="text-gray-600 dark:text-gray-400">wilberth@invictacostarica.com</p>
+                            <p class="text-[10px] text-gray-400 dark:text-gray-500 uppercase font-bold mt-1">Respuesta en 24h</p>
+                        </div>
+                        <div class="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-6">
+                            <i class="fa-solid fa-clock text-[#00C4FF] text-3xl mb-3"></i>
+                            <h3 class="font-semibold text-gray-900 dark:text-white mb-2">Horario de Atención</h3>
+                            <p class="text-gray-600 dark:text-gray-400">Lunes a Sábado</p>
+                            <p class="text-[10px] text-gray-400 dark:text-gray-500 uppercase font-bold mt-1">9:00 AM - 9:00 PM</p>
+                        </div>
                     </div>
                 </div>
             </div>
+
+            <!-- Reseñas de Clientes -->
+            <div class="mt-12 bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-8">
+                <div class="text-center mb-6">
+                    <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-2">Lo Que Dicen Nuestros Clientes</h2>
+                    <p class="text-gray-500 dark:text-gray-400 text-sm">Reseñas reales en video</p>
+                </div>
+                <div class="overflow-x-auto scrollbar-hide scroll-container flex gap-3 sm:gap-4 pb-2">
+                    @foreach(['1175093984', '1175094082', '1175094337', '1175094102', '1175094166', '1175094314', '1175094251', '1175094129'] as $vimeoId)
+                    <div class="flex-shrink-0 w-[240px] sm:w-[280px]">
+                        <div class="relative group cursor-pointer rounded-xl overflow-hidden shadow-lg bg-gray-100 dark:bg-gray-800">
+                            <img src="https://vumbnail.com/{{ $vimeoId }}.jpg" alt="Reseña de cliente" class="w-full aspect-video object-cover" loading="lazy" />
+                            <div class="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/10 transition-all">
+                                <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-white/90 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                    <i class="fa-solid fa-play text-gray-900 text-xl ml-1"></i>
+                                </div>
+                            </div>
+                            <a href="https://vimeo.com/{{ $vimeoId }}" target="_blank" rel="noopener" class="absolute inset-0 z-10"></a>
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+                <div class="text-center mt-6">
+                    <a href="/resenas" class="inline-flex items-center gap-2 text-[#00C4FF] font-semibold hover:underline">
+                        Ver todas las reseñas <i class="fa-solid fa-arrow-right text-sm"></i>
+                    </a>
+                </div>
+            </div>
         </div>
-    </div>
+    </section>
 </x-app-layout>
