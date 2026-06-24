@@ -12,7 +12,7 @@
     }
 @endphp
 
-<div class="text-center py-10 md:py-14 px-4">
+<div class="text-center py-4 md:py-8 px-4">
     <h1 class="text-2xl md:text-4xl font-black uppercase italic tracking-tighter text-slate-900 dark:text-white leading-none">
         @if($highlight)
             {{ $before }}<span class="text-[#00C4FF]">{{ $highlight }}</span>{{ $after }}

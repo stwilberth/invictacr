@@ -1,5 +1,5 @@
 <x-app-layout title="Garantía Real - Invicta Costa Rica">
-    <section class="bg-white dark:bg-[#0a0f1c] py-16 md:py-24">
+    <section class="bg-white dark:bg-[#0a0f1c] py-6 md:py-10">
         <div class="max-w-7xl mx-auto px-4">
             <x-page-title title="Garantía Real 6 Meses" highlight="Real" subtitle="Tu inversión está protegida. Ofrecemos un respaldo directo y transparente para que solo te preocupes por lucir tu nuevo Invicta." />
 

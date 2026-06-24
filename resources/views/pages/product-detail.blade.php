@@ -61,8 +61,8 @@
                 {{-- Desktop: Sticky media wrapper --}}
                 <div class="hidden lg:block lg:sticky lg:top-0">
                     <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden">
-                        <div class="aspect-square flex items-center justify-center p-8">
-                            <img src="{{ $product->imagen }}" alt="{{ $displayTitle }}" class="max-w-full max-h-full object-contain" loading="eager" />
+                        <div class="aspect-square flex items-center justify-center p-4">
+                            <img src="{{ $product->imagen }}" alt="{{ $displayTitle }}" class="w-full h-full object-contain" loading="eager" />
                         </div>
                     </div>
                 </div>
@@ -72,8 +72,8 @@
                     {{-- Image --}}
                     <div class="col-span-3">
                         <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden">
-                            <div class="aspect-square flex items-center justify-center p-1.5">
-                                <img src="{{ $product->imagen }}" alt="{{ $product->title }}" class="max-w-full max-h-full object-contain" id="main-image-mobile" loading="eager" />
+                            <div class="aspect-[4/5] flex items-center justify-center p-1">
+                                <img src="{{ $product->imagen }}" alt="{{ $product->title }}" class="w-full h-full object-contain" id="main-image-mobile" loading="eager" />
                             </div>
                         </div>
                     </div>
@@ -95,8 +95,14 @@
                         </a>
                         @endif
 
-                        {{-- Mobile inline specs card --}}
-                        <div class="flex flex-col gap-0 w-full mt-1.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/50 overflow-hidden">
+                        {{-- Mobile: Toggle specs button --}}
+                        <button type="button" onclick="toggleMobileSpecs()" class="w-full flex items-center justify-center gap-1 py-1.5 text-gray-700 dark:text-gray-300 rounded-xl font-bold uppercase tracking-tight text-[11px] transition-all bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10">
+                            <i class="fa-solid fa-list-ul text-[11px]" id="mobile-specs-icon"></i>
+                            <span id="mobile-specs-label">Ver detalles</span>
+                        </button>
+
+                        {{-- Mobile inline specs card (hidden by default) --}}
+                        <div id="mobile-specs-card" class="hidden flex-col gap-0 w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/50 overflow-hidden">
                             <div class="flex justify-between items-center px-2.5 py-1.5 border-b border-gray-100 dark:border-gray-700">
                                 <span class="text-[10px] text-gray-400 font-bold uppercase tracking-tight">Para</span>
                                 <span class="text-xs lg:text-sm font-semibold text-gray-800 dark:text-white capitalize">{{ $product->genero ?? 'Unisex' }}</span>
@@ -206,6 +212,7 @@
                             <a href="{{ $whatsappApartar }}" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-1 py-2 bg-blue-300 hover:bg-amber-600 text-white rounded-xl font-extrabold uppercase tracking-tight text-xs transition-all hover:-translate-y-0.5 active:scale-95 no-underline shadow-sm hover:shadow-md">
                                 <i class="fa-solid fa-hand-holding-dollar text-base"></i> Apartar
                             </a>
+
                         </div>
                         @endif
                     </div>
@@ -393,6 +400,26 @@
             var card = slider.querySelector(".flex-shrink-0");
             var step = card ? card.offsetWidth + 12 : 176;
             slider.scrollBy({ left: step * dir, behavior: "smooth" });
+        }
+
+        // Toggle mobile inline specs card
+        function toggleMobileSpecs() {
+            var card = document.getElementById("mobile-specs-card");
+            var label = document.getElementById("mobile-specs-label");
+            var icon = document.getElementById("mobile-specs-icon");
+            if (!card) return;
+            var isHidden = card.classList.contains("hidden");
+            if (isHidden) {
+                card.classList.remove("hidden");
+                card.classList.add("flex");
+                if (label) label.textContent = "Ocultar detalles";
+                if (icon) icon.className = "fa-solid fa-chevron-up text-[11px]";
+            } else {
+                card.classList.add("hidden");
+                card.classList.remove("flex");
+                if (label) label.textContent = "Ver detalles";
+                if (icon) icon.className = "fa-solid fa-list-ul text-[11px]";
+            }
         }
 
         document.addEventListener("DOMContentLoaded", function() {

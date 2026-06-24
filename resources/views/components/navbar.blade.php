@@ -13,7 +13,7 @@
                     <img src="{{ asset('logo.png') }}" alt="Invicta Costa Rica" class="h-8 md:h-11 w-auto" width="140" height="47" />
                     <div class="grid gap-1">
                         <p class="text-white/80 font-bold tracking-wider group-hover:text-white transition-colors">Invicta<span class="text-[#00C4FF]">CostaRica</span>.com</p>
-                        <p class="text-[11px] md:text-xs text-center">Tienda No Oficial</p>
+                        <p class="text-[11px] md:text-xs text-white/50 text-center">Tienda No Oficial</p>
                     </div>
                 </a>
             </div>
@@ -216,6 +216,11 @@
             theme: 'light',
             init() {
                 this.theme = localStorage.getItem('theme') || 'light';
+                if (this.theme === 'dark') {
+                    document.documentElement.classList.add('dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                }
             },
             toggleTheme() {
                 this.theme = this.theme === 'light' ? 'dark' : 'light';
