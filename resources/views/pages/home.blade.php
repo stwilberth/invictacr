@@ -107,15 +107,14 @@
                 <div class="overflow-x-auto scrollbar-hide scroll-container flex gap-3 sm:gap-4 pb-2">
                     @foreach(['1182052076', '1192763867', '1175093984', '1175094082', '1175094337', '1175094102', '1175094166', '1175094314'] as $vimeoId)
                     <div class="flex-shrink-0 w-[240px] sm:w-[280px]">
-                        <div class="relative group cursor-pointer rounded-xl overflow-hidden shadow-lg bg-gray-100 dark:bg-gray-800">
+                        <button type="button" onclick="openVimeoModal('{{ $vimeoId }}')" class="relative group cursor-pointer rounded-xl overflow-hidden shadow-lg bg-gray-100 dark:bg-gray-800 w-full text-left">
                             <img src="https://vumbnail.com/{{ $vimeoId }}.jpg" alt="Reseña de cliente" class="w-full aspect-video object-cover" loading="lazy" />
                             <div class="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/10 transition-all">
                                 <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-white/90 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
                                     <i class="fa-solid fa-play text-gray-900 text-xl ml-1"></i>
                                 </div>
                             </div>
-                            <a href="https://vimeo.com/{{ $vimeoId }}" target="_blank" rel="noopener" class="absolute inset-0 z-10"></a>
-                        </div>
+                        </button>
                     </div>
                     @endforeach
                 </div>
@@ -212,6 +211,18 @@
             </a>
         </div>
     </section>
+
+    <!-- Vimeo Video Modal -->
+    <div id="vimeoModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+        <div class="relative w-full max-w-3xl">
+            <button type="button" onclick="closeVimeoModal()" aria-label="Cerrar" class="absolute -top-10 right-0 text-white/80 hover:text-white text-2xl">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="relative w-full aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl">
+                <iframe id="vimeoFrame" src="" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen class="absolute inset-0 w-full h-full" frameborder="0"></iframe>
+            </div>
+        </div>
+    </div>
 
     @push('scripts')
     <style>
@@ -337,6 +348,26 @@
         if (document.hidden) pauseAuto();
         else restartAuto();
     });
+
+    // Vimeo Modal
+    const vimeoModal = document.getElementById('vimeoModal');
+    const vimeoFrame = document.getElementById('vimeoFrame');
+    function openVimeoModal(id) {
+        if (!vimeoModal || !vimeoFrame) return;
+        vimeoFrame.src = 'https://player.vimeo.com/video/' + id + '?autoplay=1&title=0&byline=0&portrait=0';
+        vimeoModal.classList.remove('hidden');
+        vimeoModal.classList.add('flex');
+        document.body.style.overflow = 'hidden';
+    }
+    function closeVimeoModal() {
+        if (!vimeoModal || !vimeoFrame) return;
+        vimeoFrame.src = '';
+        vimeoModal.classList.add('hidden');
+        vimeoModal.classList.remove('flex');
+        document.body.style.overflow = '';
+    }
+    vimeoModal?.addEventListener('click', (e) => { if (e.target === vimeoModal) closeVimeoModal(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeVimeoModal(); });
     </script>
     @endpush
 </x-app-layout>
