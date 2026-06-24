@@ -1,4 +1,8 @@
-<x-app-layout :title="$product->title" :description="$product->descripcion ?? 'Reloj Invicta ' . $product->modelo" :ogImage="$product->imagen" ogType="product">
+@php
+    $displayTitle = 'Reloj Invicta ' . ($product->coleccion && strtolower($product->coleccion) !== 'otros' ? $product->coleccion . ' ' : '') . ($product->genero && strtolower($product->genero) !== 'unisex' ? 'para ' . $product->genero . ' ' : '') . '(' . $product->modelo . ') - ' . $product->size . ' mm';
+    $seoTitle = $displayTitle . ' | Comprar en Costa Rica';
+@endphp
+<x-app-layout :title="$seoTitle" :description="$product->descripcion ?? 'Reloj Invicta ' . $product->modelo" :ogImage="$product->imagen" ogType="product">
     @php
         $isAgotado = ($product->stock ?? 0) <= 0;
         $isUpcoming = $product->precio_venta == 0 && !$isAgotado;
@@ -12,35 +16,34 @@
         $shareTitle = urlencode("¡Mira este reloj Invicta!: {$product->title}");
     @endphp
 
-    <div class="bg-white dark:bg-[#0a0f1c] min-h-screen">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 lg:py-4">
-            {{-- Breadcrumbs --}}
-            <nav class="flex items-center gap-1.5 text-xs lg:text-sm text-slate-400 dark:text-gray-500 mb-1.5 overflow-x-auto whitespace-nowrap pb-1">
-                <a href="/" class="hover:text-[#00C4FF] transition-colors">Inicio</a>
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                </svg>
-                <a href="/relojes" class="hover:text-[#00C4FF] transition-colors">Relojes</a>
-                @if($product->genero && strtolower($product->genero) !== 'unisex')
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                </svg>
-                <a href="/relojes/{{ $product->genero }}" class="hover:text-[#00C4FF] transition-colors capitalize">{{ $product->genero }}</a>
-                @endif
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                </svg>
-                <span class="text-white/60 dark:text-gray-400 font-medium truncate max-w-[200px]">{{ $product->modelo }}</span>
-            </nav>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 lg:py-4">
+        {{-- Breadcrumbs --}}
+        <nav class="flex items-center gap-1.5 text-xs lg:text-sm text-slate-400 dark:text-gray-500 mb-1.5 overflow-x-auto whitespace-nowrap pb-1">
+            <a href="/" class="hover:text-[#00C4FF] transition-colors">Inicio</a>
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+            <a href="/relojes" class="hover:text-[#00C4FF] transition-colors">Relojes</a>
+            @if($product->genero && strtolower($product->genero) !== 'unisex')
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+            <a href="/relojes/{{ $product->genero }}" class="hover:text-[#00C4FF] transition-colors capitalize">{{ $product->genero }}</a>
+            @endif
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+            <span class="text-white/60 dark:text-gray-400 font-medium truncate max-w-[200px]">{{ $product->modelo }}</span>
+        </nav>
 
-            {{-- Mobile: Title + Price above media --}}
-            <div class="lg:hidden mb-3">
-                <h1 class="text-md leading-snug font-black text-gray-800 dark:text-white tracking-tight mb-2 uppercase">
-                    Reloj Invicta {{ $product->coleccion && strtolower($product->coleccion) !== 'otros' ? $product->coleccion . ' ' : '' }}{{ $product->genero && strtolower($product->genero) !== 'unisex' ? 'para ' . $product->genero . ' ' : '' }}({{ $product->modelo }}) - {{ $product->size }} mm
-                </h1>
-
+        {{-- Mobile Header: Title above media --}}
+        <div class="lg:hidden">
+            <h1 class="text-md leading-snug font-black text-gray-800 dark:text-white tracking-tight mb-2 uppercase">
+                {{ $displayTitle }}
+            </h1>
+            <div class="flex items-center gap-2 flex-wrap">
                 @if($isUpcoming)
-                <div class="flex items-center gap-2 px-3 py-1 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/50 rounded-full w-fit">
+                <div class="flex items-center gap-2 px-3 py-1 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/50 rounded-full">
                     <span class="relative flex h-2 w-2">
                         <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
                         <span class="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
@@ -49,77 +52,95 @@
                 </div>
                 @endif
             </div>
+        </div>
 
-            {{-- Main Product Layout --}}
-            <div class="grid grid-cols-1 lg:grid-cols-12 items-start gap-3 lg:gap-8">
-                {{-- Left Column: Media --}}
-                <div class="lg:col-span-6 lg:sticky lg:top-0">
+        {{-- Main Product Layout --}}
+        <div class="grid grid-cols-1 lg:grid-cols-12 items-start gap-3 lg:gap-8">
+            {{-- Left Column: Media --}}
+            <div class="lg:col-span-6">
+                {{-- Desktop: Sticky media wrapper --}}
+                <div class="hidden lg:block lg:sticky lg:top-0">
                     <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden">
                         <div class="aspect-square flex items-center justify-center p-8">
-                            <img src="{{ $product->imagen }}" alt="{{ $product->title }}" class="max-w-full max-h-full object-contain" id="main-image" loading="eager" />
-                        </div>
-                    </div>
-
-                    @if($images->count() > 1)
-                    <div class="flex gap-3 overflow-x-auto pb-2 mt-3">
-                        @foreach($images as $index => $image)
-                        <button onclick="document.getElementById('main-image').src = '{{ $image }}'; document.querySelectorAll('.thumb-btn').forEach(b => b.classList.remove('border-[#00C4FF]')); this.classList.add('border-[#00C4FF]')"
-                                class="thumb-btn flex-shrink-0 w-20 h-20 rounded-xl border-2 {{ $index === 0 ? 'border-[#00C4FF]' : 'border-transparent' }} bg-white dark:bg-[#0f172a] overflow-hidden hover:border-[#00C4FF]/50 transition-colors">
-                            <img src="{{ $image }}" alt="" class="w-full h-full object-contain" loading="lazy" />
-                        </button>
-                        @endforeach
-                    </div>
-                    @endif
-
-                    {{-- Mobile: Quick specs card --}}
-                    <div class="lg:hidden flex flex-col gap-0 w-full mt-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/50 overflow-hidden">
-                        <div class="flex justify-between items-center px-2.5 py-1.5 border-b border-gray-100 dark:border-gray-700">
-                            <span class="text-[10px] text-gray-400 font-bold uppercase tracking-tight">Para</span>
-                            <span class="text-xs font-semibold text-gray-800 dark:text-white capitalize">{{ $product->genero ?? 'Unisex' }}</span>
-                        </div>
-                        <div class="flex justify-between items-center px-2.5 py-1.5 border-b border-gray-100 dark:border-gray-700">
-                            <span class="text-[10px] text-gray-400 font-bold uppercase tracking-tight">Caja</span>
-                            <span class="text-xs font-semibold text-gray-800 dark:text-white">{{ $product->size ? $product->size . 'mm' : 'N/A' }}</span>
-                        </div>
-                        <div class="flex justify-between items-center px-2.5 py-1.5 border-b border-gray-100 dark:border-gray-700">
-                            <span class="text-[10px] text-gray-400 font-bold uppercase tracking-tight">Tipo</span>
-                            <span class="text-xs font-semibold text-gray-800 dark:text-white capitalize">{{ $product->tipo_movimiento ?? 'Especial' }}</span>
-                        </div>
-                        <div class="flex justify-between items-center px-2.5 py-1.5">
-                            <span class="text-[10px] text-gray-400 font-bold uppercase tracking-tight">Agua</span>
-                            <span class="text-xs font-semibold text-gray-800 dark:text-white">{{ $product->resistencia_agua ? $product->resistencia_agua . 'm' : 'Resistente' }}</span>
-                        </div>
-                    </div>
-
-                    {{-- Mobile: Buy buttons --}}
-                    <div class="lg:hidden grid grid-cols-5 gap-1.5 mt-3">
-                        <div class="col-span-3">
-                            @if($isUpcoming)
-                            <span class="text-2xl font-black text-amber-500 tracking-tighter">Próximamente</span>
-                            @elseif(!$isAgotado)
-                            <span class="text-2xl font-black text-red-600 dark:text-red-400 tracking-tighter">₡{{ number_format($priceAfterDiscount, 0) }}</span>
-                            @endif
-                        </div>
-                        <div class="col-span-2 flex flex-col items-center justify-center gap-1.5">
-                            @if(!$isAgotado && !$isUpcoming)
-                            <a href="{{ $whatsappBuy }}" data-conversion="whatsapp-comprar" target="_blank" rel="noopener noreferrer" class="w-full flex items-center justify-center gap-1 py-2 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-xl font-extrabold uppercase tracking-tight text-xs transition-all active:scale-95 no-underline shadow-sm">
-                                <i class="fa-brands fa-whatsapp text-sm"></i> Comprar
-                            </a>
-                            <a href="{{ $whatsappApartar }}" data-conversion="whatsapp-apartar" target="_blank" rel="noopener noreferrer" class="w-full flex items-center justify-center gap-1 py-2 bg-blue-300 hover:bg-amber-600 text-white rounded-xl font-extrabold uppercase tracking-tight text-xs transition-all active:scale-95 no-underline shadow-sm">
-                                <i class="fa-solid fa-hand-holding-dollar text-sm"></i> Apartar
-                            </a>
-                            @endif
+                            <img src="{{ $product->imagen }}" alt="{{ $displayTitle }}" class="max-w-full max-h-full object-contain" loading="eager" />
                         </div>
                     </div>
                 </div>
 
-                {{-- Right Column: Buy Box --}}
-                <div class="lg:col-span-6 flex flex-col">
-                    {{-- Desktop Title Header --}}
-                    <div class="hidden lg:block mb-1">
-                        <h1 class="text-xl sm:text-2xl lg:text-3xl text-left font-black text-gray-800 dark:text-white tracking-tight leading-[1.1] mb-1 uppercase">
-                            Reloj Invicta {{ $product->coleccion && strtolower($product->coleccion) !== 'otros' ? $product->coleccion . ' ' : '' }}{{ $product->genero && strtolower($product->genero) !== 'unisex' ? 'para ' . $product->genero . ' ' : '' }}({{ $product->modelo }}) - {{ $product->size }} mm
-                        </h1>
+                {{-- Mobile: Side-by-side grid (image col-span-3, buy box col-span-2) --}}
+                <div class="lg:hidden grid grid-cols-5 gap-1.5">
+                    {{-- Image --}}
+                    <div class="col-span-3">
+                        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden">
+                            <div class="aspect-square flex items-center justify-center p-4">
+                                <img src="{{ $product->imagen }}" alt="{{ $product->title }}" class="max-w-full max-h-full object-contain" id="main-image-mobile" loading="eager" />
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Buy box (price, buttons, specs) --}}
+                    <div class="col-span-2 flex flex-col items-center justify-center gap-1.5">
+                        @if($isUpcoming)
+                        <span class="text-2xl font-black text-amber-500 tracking-tighter">Próx.</span>
+                        @elseif(!$isAgotado)
+                        <span class="text-2xl font-black text-red-600 dark:text-red-400 tracking-tighter">₡{{ number_format($priceAfterDiscount, 0) }}</span>
+                        @endif
+
+                        @if(!$isAgotado && !$isUpcoming)
+                        <a href="{{ $whatsappBuy }}" data-conversion="whatsapp-comprar" target="_blank" rel="noopener noreferrer" class="w-full flex items-center justify-center gap-1 py-2 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-xl font-extrabold uppercase tracking-tight text-xs min-[360px]:text-[13px] min-[390px]:text-sm transition-all active:scale-95 no-underline shadow-sm">
+                            <i class="fa-brands fa-whatsapp text-sm"></i> Comprar
+                        </a>
+                        <a href="{{ $whatsappApartar }}" data-conversion="whatsapp-apartar" target="_blank" rel="noopener noreferrer" class="w-full flex items-center justify-center gap-1 py-2 bg-blue-300 hover:bg-amber-600 text-white rounded-xl font-extrabold uppercase tracking-tight text-xs min-[360px]:text-[13px] min-[390px]:text-sm transition-all active:scale-95 no-underline shadow-sm">
+                            <i class="fa-solid fa-hand-holding-dollar text-sm"></i> Apartar
+                        </a>
+                        @endif
+
+                        {{-- Mobile inline specs card --}}
+                        <div class="flex flex-col gap-0 w-full mt-1.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/50 overflow-hidden">
+                            <div class="flex justify-between items-center px-2.5 py-1.5 border-b border-gray-100 dark:border-gray-700">
+                                <span class="text-[10px] text-gray-400 font-bold uppercase tracking-tight">Para</span>
+                                <span class="text-xs lg:text-sm font-semibold text-gray-800 dark:text-white capitalize">{{ $product->genero ?? 'Unisex' }}</span>
+                            </div>
+                            <div class="flex justify-between items-center px-2.5 py-1.5 border-b border-gray-100 dark:border-gray-700">
+                                <span class="text-[10px] text-gray-400 font-bold uppercase tracking-tight">Caja</span>
+                                <span class="text-xs lg:text-sm font-semibold text-gray-800 dark:text-white">{{ $product->size ? $product->size . 'mm' : 'N/A' }}</span>
+                            </div>
+                            <div class="flex justify-between items-center px-2.5 py-1.5 border-b border-gray-100 dark:border-gray-700">
+                                <span class="text-[10px] text-gray-400 font-bold uppercase tracking-tight">Tipo</span>
+                                <span class="text-xs lg:text-sm font-semibold text-gray-800 dark:text-white capitalize">{{ $product->tipo_movimiento === 'cuarzo' ? 'Batería' : ($product->tipo_movimiento ?? 'Especial') }}</span>
+                            </div>
+                            <div class="flex justify-between items-center px-2.5 py-1.5">
+                                <span class="text-[10px] text-gray-400 font-bold uppercase tracking-tight">Agua</span>
+                                <span class="text-xs lg:text-sm font-semibold text-gray-800 dark:text-white">{{ $product->resistencia_agua ? $product->resistencia_agua . 'm' : 'Resistente' }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                 {{-- Mobile: Relojes Similares slider (replaces thumbnail strip, since all watches have a single image) --}}
+                 @if($relatedProducts->count() > 0)
+                 <div class="lg:hidden mt-3">
+                     <h3 class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2 px-1">Relojes Similares</h3>
+                     <div class="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1 snap-x snap-mandatory scrollbar-hide">
+                        @foreach($relatedProducts as $related)
+                        <div class="flex-shrink-0 w-36 snap-start">
+                            <x-product-card :product="$related" />
+                        </div>
+                        @endforeach
+                    </div>
+                </div>
+                @endif
+
+            </div>
+
+            {{-- Right Column: Buy Box --}}
+            <div class="lg:col-span-6 flex flex-col">
+                {{-- Desktop Title Header --}}
+                <div class="hidden lg:block mb-1">
+                    <h1 class="text-xl sm:text-2xl lg:text-3xl text-left font-black text-gray-800 dark:text-white tracking-tight leading-[1.1] mb-1 uppercase">
+                        {{ $displayTitle }}
+                    </h1>
+                    <div class="flex items-center justify-center md:justify-start gap-3">
                         @if($isUpcoming)
                         <div class="flex items-center gap-2 px-4 py-1.5 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/50 rounded-full w-fit">
                             <span class="relative flex h-2 w-2">
@@ -130,258 +151,232 @@
                         </div>
                         @endif
                     </div>
+                </div>
 
-                    {{-- Tags --}}
-                    <div class="flex flex-wrap gap-2 mb-3">
-                        @if($product->size)
-                        <span class="text-xs font-bold text-gray-500 dark:text-gray-400 bg-slate-100 dark:bg-white/5 px-3 py-1.5 rounded-lg">{{ $product->size }}MM</span>
-                        @endif
-                        @if($product->tipo_movimiento)
-                        <span class="text-xs font-bold text-gray-500 dark:text-gray-400 bg-slate-100 dark:bg-white/5 px-3 py-1.5 rounded-lg uppercase">{{ $product->tipo_movimiento === 'cuarzo' ? 'Batería' : $product->tipo_movimiento }}</span>
-                        @endif
-                        @if($product->brazalete)
-                        <span class="text-xs font-bold text-gray-500 dark:text-gray-400 bg-slate-100 dark:bg-white/5 px-3 py-1.5 rounded-lg uppercase">{{ $product->brazalete }}</span>
-                        @endif
-                        @if($product->genero)
-                        <span class="text-xs font-bold text-gray-500 dark:text-gray-400 bg-slate-100 dark:bg-white/5 px-3 py-1.5 rounded-lg uppercase">{{ $product->genero }}</span>
-                        @endif
+                {{-- Agotado State --}}
+                @if($isAgotado)
+                <div class="bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/50 rounded-2xl p-6 text-center mb-10">
+                    <div class="w-12 h-12 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <i class="fa-solid fa-circle-xmark text-red-600 dark:text-red-400 text-2xl"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-red-700 dark:text-red-400 mb-1 leading-tight">Vendido / Agotado</h3>
+                    <p class="text-sm text-red-600/70 dark:text-red-300/60 mb-4">Este reloj ya no se encuentra en stock disponible.</p>
+                    <a href="{{ $product->coleccion && strtolower($product->coleccion) !== 'otros' ? url('/relojes?coleccion=' . urlencode($product->coleccion)) : url('/relojes') }}" class="inline-flex items-center text-sm font-bold text-red-700 dark:text-red-300 hover:underline gap-2">
+                        Ver similares{{ $product->coleccion && strtolower($product->coleccion) !== 'otros' ? ' en ' . $product->coleccion : '' }}
+                        <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                    </a>
+                </div>
+                @else
+                    {{-- Mobile shipping banner --}}
+                    <div class="w-full flex lg:hidden items-center justify-center gap-2 py-2 px-4 mt-2">
+                        <i class="fa-solid fa-truck text-[#00C4FF] text-xs"></i>
+                        <span class="text-[10px] font-bold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Envío Gratis y Pago contra entrega*</span>
                     </div>
 
-                    {{-- Agotado State --}}
-                    @if($isAgotado)
-                    <div class="bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/50 rounded-2xl p-6 text-center mb-10">
-                        <div class="w-12 h-12 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-3">
-                            <i class="fa-solid fa-circle-xmark text-red-600 dark:text-red-400 text-2xl"></i>
-                        </div>
-                        <h3 class="text-lg font-bold text-red-700 dark:text-red-400 mb-1 leading-tight">Vendido / Agotado</h3>
-                        <p class="text-sm text-red-600/70 dark:text-red-300/60 mb-4">Este reloj ya no se encuentra en stock disponible.</p>
-                        <a href="{{ $product->coleccion && strtolower($product->coleccion) !== 'otros' ? url('/relojes?coleccion=' . urlencode($product->coleccion)) : url('/relojes') }}" class="inline-flex items-center text-sm font-bold text-red-700 dark:text-red-300 hover:underline gap-2">
-                            Ver similares{{ $product->coleccion && strtolower($product->coleccion) !== 'otros' ? ' en ' . $product->coleccion : '' }}
-                            <i class="fa-solid fa-chevron-right text-[10px]"></i>
-                        </a>
-                    </div>
-                    @else
-                        {{-- Desktop Price & Action Buttons --}}
-                        <div class="hidden lg:flex flex-col items-start gap-2.5 mb-3.5">
-                            <div class="flex flex-col gap-1">
-                                @if($isUpcoming)
-                                <span class="text-2xl font-black text-amber-500 tracking-tighter uppercase">Próximamente</span>
-                                @else
-                                <div class="flex items-baseline gap-3">
-                                    <span class="text-2xl lg:text-3xl font-black text-red-600 dark:text-red-400 tracking-tighter">₡{{ number_format($priceAfterDiscount, 0) }}</span>
-                                    @if(($product->descuento ?? 0) > 0)
-                                    <div class="flex items-center gap-2">
-                                        <span class="text-xs text-gray-400 line-through font-medium">₡{{ number_format($product->precio_venta, 0) }}</span>
-                                        <span class="bg-red-600 text-white text-[9px] font-black px-1.5 py-0.5 rounded shadow-sm">-{{ $product->descuento }}%</span>
-                                    </div>
-                                    @endif
+                    {{-- Desktop Price & Action Buttons --}}
+                    <div class="hidden lg:flex flex-col items-start gap-2.5 mb-3.5">
+                        <div class="flex flex-col gap-1">
+                            @if($isUpcoming)
+                            <span class="text-2xl font-black text-amber-500 tracking-tighter uppercase">Próximamente</span>
+                            @else
+                            <div class="flex items-baseline gap-3">
+                                <span class="text-2xl lg:text-3xl font-black text-red-600 dark:text-red-400 tracking-tighter">₡{{ number_format($priceAfterDiscount, 0) }}</span>
+                                @if(($product->descuento ?? 0) > 0)
+                                <div class="flex items-center gap-2">
+                                    <span class="text-xs text-gray-400 line-through font-medium">₡{{ number_format($product->precio_venta, 0) }}</span>
+                                    <span class="bg-red-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded">-{{ $product->descuento }}%</span>
                                 </div>
                                 @endif
-                            </div>
-
-                            {{-- Shipping info --}}
-                            <div class="flex items-center gap-2 text-gray-600 dark:text-gray-300 bg-gray-50 dark:bg-gray-900/50 py-1.5 px-2.5 rounded-lg border border-gray-100 dark:border-gray-800">
-                                <i class="fa-solid fa-truck text-[#00C4FF] text-xs"></i>
-                                <span class="text-[10px] font-bold uppercase tracking-wider">Envío Gratis y Pago contra entrega*</span>
-                            </div>
-
-                            {{-- Desktop Action buttons --}}
-                            @if(!$isUpcoming)
-                            <div class="grid grid-cols-2 gap-2.5 w-full">
-                                <a href="{{ $whatsappBuy }}" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-1 py-2 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-xl font-extrabold uppercase tracking-tight text-xs transition-all hover:-translate-y-0.5 active:scale-95 no-underline shadow-sm hover:shadow-md">
-                                    <i class="fa-brands fa-whatsapp text-base"></i> Comprar
-                                </a>
-                                <a href="{{ $whatsappApartar }}" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-1 py-2 bg-blue-300 hover:bg-amber-600 text-white rounded-xl font-extrabold uppercase tracking-tight text-xs transition-all hover:-translate-y-0.5 active:scale-95 no-underline shadow-sm hover:shadow-md">
-                                    <i class="fa-solid fa-hand-holding-dollar text-base"></i> Apartar
-                                </a>
                             </div>
                             @endif
                         </div>
 
-                        {{-- Mobile shipping banner --}}
-                        <div class="w-full flex lg:hidden items-center justify-center gap-2 py-2 px-4">
+                        {{-- Shipping info --}}
+                        <div class="flex items-center gap-2 text-gray-600 dark:text-gray-300 bg-gray-50 dark:bg-gray-900/50 py-1.5 px-2.5 rounded-lg border border-gray-100 dark:border-gray-800">
                             <i class="fa-solid fa-truck text-[#00C4FF] text-xs"></i>
-                            <span class="text-[10px] font-bold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Envío Gratis y Pago contra entrega*</span>
+                            <span class="text-[10px] font-bold uppercase tracking-wider">Envío Gratis y Pago contra entrega*</span>
                         </div>
 
-                        {{-- Stock indicator --}}
-                        @if($product->stock > 0)
-                        <div class="flex items-center gap-2 text-sm text-green-600 dark:text-green-400">
-                            <i class="fa-solid fa-circle text-[8px]"></i>
-                            <span class="font-bold">En stock - Entrega inmediata en GAM</span>
+                        {{-- Desktop Action buttons --}}
+                        @if(!$isUpcoming)
+                        <div class="grid grid-cols-2 gap-2.5 w-full">
+                            <a href="{{ $whatsappBuy }}" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-1 py-2 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-xl font-extrabold uppercase tracking-tight text-xs transition-all hover:-translate-y-0.5 active:scale-95 no-underline shadow-sm hover:shadow-md">
+                                <i class="fa-brands fa-whatsapp text-base"></i> Comprar
+                            </a>
+                            <a href="{{ $whatsappApartar }}" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-1 py-2 bg-blue-300 hover:bg-amber-600 text-white rounded-xl font-extrabold uppercase tracking-tight text-xs transition-all hover:-translate-y-0.5 active:scale-95 no-underline shadow-sm hover:shadow-md">
+                                <i class="fa-solid fa-hand-holding-dollar text-base"></i> Apartar
+                            </a>
                         </div>
                         @endif
-                    @endif
-
-                    {{-- Description --}}
-                    @if($product->descripcion)
-                    <div class="mt-4">
-                        <h3 class="font-bold text-gray-900 dark:text-white mb-2 uppercase tracking-wider text-sm">Descripción</h3>
-                        <p class="text-gray-600 dark:text-gray-300 text-sm leading-relaxed">{{ $product->descripcion }}</p>
                     </div>
-                    @endif
+                @endif
 
-                    {{-- Tabbed Card: Compartir / Especificaciones --}}
-                    <div class="w-full rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 shadow-sm mb-3.5 mt-4">
-                        {{-- Tab Buttons --}}
-                        <div class="flex border-b border-gray-200 dark:border-gray-600" role="tablist">
-                            <button data-tab="share" class="product-tab-btn flex-1 flex items-center justify-center gap-2 py-1.5 px-3 text-xs md:text-sm font-medium transition-colors border-b-2 border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200" type="button">
-                                <i class="fa-solid fa-share-nodes text-xs"></i> Compartir
-                            </button>
-                            <button data-tab="specs" class="product-tab-btn flex-1 flex items-center justify-center gap-2 py-1.5 px-3 text-xs md:text-sm font-medium transition-colors border-b-2 border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200" type="button">
-                                <i class="fa-solid fa-list-ul text-xs"></i> Especificaciones
-                            </button>
-                        </div>
-
-                        {{-- Tab Panel: Compartir --}}
-                        <div data-tab-panel="share" class="product-tab-panel hidden" role="tabpanel">
-                            <div class="p-2 grid grid-cols-3 sm:grid-cols-6 gap-2">
-                                {{-- WhatsApp --}}
-                                <a href="https://api.whatsapp.com/send?text={{ $shareTitle }}%20{{ $shareUrl }}" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center gap-1 py-3 rounded-lg bg-[#25D366] text-white text-[11px] font-semibold hover:brightness-110 transition-all no-underline">
-                                    <i class="fa-brands fa-whatsapp text-lg"></i> WhatsApp
-                                </a>
-                                {{-- Facebook --}}
-                                <a href="https://www.facebook.com/sharer/sharer.php?u={{ $shareUrl }}&quote={{ $shareTitle }}" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center gap-1 py-3 rounded-lg bg-[#1877F2] text-white text-[11px] font-semibold hover:brightness-110 transition-all no-underline">
-                                    <i class="fa-brands fa-facebook text-lg"></i> Facebook
-                                </a>
-                                {{-- Twitter/X --}}
-                                <a href="https://twitter.com/intent/tweet?text={{ $shareTitle }}&url={{ $shareUrl }}" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center gap-1 py-3 rounded-lg bg-gray-900 text-white text-[11px] font-semibold hover:bg-gray-800 transition-all no-underline">
-                                    <i class="fa-brands fa-x-twitter text-lg"></i> X
-                                </a>
-                                {{-- Pinterest --}}
-                                <a href="https://pinterest.com/pin/create/button/?url={{ $shareUrl }}&description={{ $shareTitle }}&media={{ urlencode($product->imagen) }}" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center gap-1 py-3 rounded-lg bg-[#E60023] text-white text-[11px] font-semibold hover:brightness-110 transition-all no-underline">
-                                    <i class="fa-brands fa-pinterest text-lg"></i> Pinterest
-                                </a>
-                                {{-- Copy Link --}}
-                                <button type="button" onclick="copyProductUrl()" class="flex flex-col items-center gap-1 py-3 rounded-lg bg-gray-500 text-white text-[11px] font-semibold hover:bg-gray-600 transition-all">
-                                    <i class="fa-solid fa-link text-lg"></i> Copiar
-                                </button>
-                                {{-- Telegram --}}
-                                <a href="https://t.me/share/url?url={{ $shareUrl }}&text={{ $shareTitle }}" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center gap-1 py-3 rounded-lg bg-[#0088cc] text-white text-[11px] font-semibold hover:brightness-110 transition-all no-underline">
-                                    <i class="fa-brands fa-telegram text-lg"></i> Telegram
-                                </a>
-                            </div>
-                        </div>
-
-                        {{-- Tab Panel: Especificaciones --}}
-                        <div data-tab-panel="specs" class="product-tab-panel hidden" role="tabpanel">
-                            <div class="grid grid-cols-2">
-                                {{-- Género --}}
-                                <div class="p-2.5 border-b border-r border-gray-100 dark:border-gray-700 flex items-start gap-2">
-                                    <div class="mt-1 flex-shrink-0 w-7 h-7 rounded-lg bg-gray-50 dark:bg-gray-900 flex items-center justify-center text-gray-400">
-                                        <i class="fa-solid fa-venus-mars text-xs"></i>
-                                    </div>
-                                    <div>
-                                        <p class="text-[9px] text-gray-400 font-bold uppercase tracking-tight">Para</p>
-                                        <p class="text-xs font-bold text-gray-900 dark:text-white capitalize">{{ $product->genero ?? 'Unisex' }}</p>
-                                    </div>
-                                </div>
-                                {{-- Tamaño caja --}}
-                                <div class="p-2.5 border-b border-gray-100 dark:border-gray-700 flex items-start gap-2">
-                                    <div class="mt-1 flex-shrink-0 w-7 h-7 rounded-lg bg-gray-50 dark:bg-gray-900 flex items-center justify-center text-gray-400">
-                                        <i class="fa-solid fa-arrows-up-down-left-right text-xs"></i>
-                                    </div>
-                                    <div>
-                                        <p class="text-[9px] text-gray-400 font-bold uppercase tracking-tight">Caja</p>
-                                        <p class="text-xs font-bold text-gray-900 dark:text-white">{{ $product->size ? $product->size . 'mm' : 'N/A' }}</p>
-                                    </div>
-                                </div>
-                                {{-- Movimiento --}}
-                                <div class="p-2.5 border-r border-gray-100 dark:border-gray-700 flex items-start gap-2">
-                                    <div class="mt-1 flex-shrink-0 w-7 h-7 rounded-lg bg-gray-50 dark:bg-gray-900 flex items-center justify-center text-gray-400">
-                                        <i class="fa-solid fa-gear text-xs"></i>
-                                    </div>
-                                    <div>
-                                        <p class="text-[9px] text-gray-400 font-bold uppercase tracking-tight">Movimiento</p>
-                                        <p class="text-xs font-bold text-gray-900 dark:text-white capitalize line-clamp-1">{{ $product->tipo_movimiento === 'cuarzo' ? 'Batería' : ($product->tipo_movimiento ?? 'Especial') }}</p>
-                                    </div>
-                                </div>
-                                {{-- Resistencia al agua --}}
-                                <div class="p-2.5 flex items-start gap-2">
-                                    <div class="mt-1 flex-shrink-0 w-7 h-7 rounded-lg bg-gray-50 dark:bg-gray-900 flex items-center justify-center text-gray-400">
-                                        <i class="fa-solid fa-droplet text-xs"></i>
-                                    </div>
-                                    <div>
-                                        <p class="text-[9px] text-gray-400 font-bold uppercase tracking-tight">Agua</p>
-                                        <p class="text-xs font-bold text-gray-900 dark:text-white whitespace-nowrap">{{ $product->resistencia_agua ? $product->resistencia_agua . 'm' : 'Resistente' }}</p>
-                                    </div>
-                                </div>
-                                {{-- Colección --}}
-                                <div class="p-2.5 border-r border-gray-100 dark:border-gray-700 flex items-start gap-2">
-                                    <div class="mt-1 flex-shrink-0 w-7 h-7 rounded-lg bg-gray-50 dark:bg-gray-900 flex items-center justify-center text-gray-400">
-                                        <i class="fa-solid fa-layer-group text-xs"></i>
-                                    </div>
-                                    <div>
-                                        <p class="text-[9px] text-gray-400 font-bold uppercase tracking-tight">Colección</p>
-                                        <p class="text-xs font-bold text-gray-900 dark:text-white">{{ $product->coleccion ?? '—' }}</p>
-                                    </div>
-                                </div>
-                                {{-- Brazalete --}}
-                                <div class="p-2.5 flex items-start gap-2">
-                                    <div class="mt-1 flex-shrink-0 w-7 h-7 rounded-lg bg-gray-50 dark:bg-gray-900 flex items-center justify-center text-gray-400">
-                                        <i class="fa-solid fa-clock text-xs"></i>
-                                    </div>
-                                    <div>
-                                        <p class="text-[9px] text-gray-400 font-bold uppercase tracking-tight">Brazalete</p>
-                                        <p class="text-xs font-bold text-gray-900 dark:text-white capitalize">{{ $product->brazalete ?? '—' }}</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {{-- Próximamente Reservation Card --}}
-                    @if($isUpcoming)
-                    <div class="mb-8 p-5 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/10 dark:to-orange-900/10 rounded-2xl border border-amber-200 dark:border-amber-800/30">
-                        <h3 class="text-sm font-black text-amber-800 dark:text-amber-300 uppercase tracking-wide mb-4 flex items-center gap-2">
-                            <i class="fa-solid fa-star text-amber-500 animate-pulse"></i> Reserva tu unidad:
-                        </h3>
-                        <ul class="space-y-4 text-sm text-gray-700 dark:text-gray-300">
-                            <li class="flex items-start gap-3">
-                                <i class="fa-solid fa-check text-amber-500 mt-1"></i>
-                                <span><strong>Prioridad:</strong> Te avisaremos apenas el reloj llegue a bodega antes de publicarlo en redes.</span>
-                            </li>
-                            <li class="flex items-start gap-3">
-                                <i class="fa-solid fa-check text-amber-500 mt-1"></i>
-                                <span><strong>Congela el precio:</strong> Apártalo con solo <strong>₡{{ number_format(19000, 0) }}</strong> y asegura el precio de lanzamiento.</span>
-                            </li>
-                            <li class="flex items-start gap-3">
-                                <i class="fa-solid fa-check text-amber-500 mt-1"></i>
-                                <span><strong>Sin compromiso:</strong> Consulta la fecha estimada y detalles técnicos por WhatsApp.</span>
-                            </li>
-                        </ul>
-                        <a href="{{ $whatsappInfo }}" target="_blank" rel="noopener noreferrer" class="mt-4 flex items-center justify-center gap-2 w-full bg-amber-500 hover:bg-amber-600 text-white font-black text-sm uppercase tracking-wider px-6 py-3 rounded-xl transition-all duration-300 active:scale-95 shadow-lg">
-                            <i class="fa-brands fa-whatsapp text-lg"></i>
-                            <span>Consultar por WhatsApp</span>
-                        </a>
-                    </div>
-                    @endif
+                {{-- Description --}}
+                @if($product->descripcion)
+                <div class="mt-4">
+                    <h3 class="font-bold text-gray-900 dark:text-white mb-2 uppercase tracking-wider text-sm">Descripción</h3>
+                    <p class="text-gray-600 dark:text-gray-300 text-sm leading-relaxed">{{ $product->descripcion }}</p>
                 </div>
+                @endif
+
+                {{-- Tabbed Card: Compartir / Especificaciones --}}
+                <div class="w-full rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 shadow-sm mb-3.5 mt-4">
+                    {{-- Tab Buttons --}}
+                    <div class="flex border-b border-gray-200 dark:border-gray-600" role="tablist">
+                        <button data-tab="share" class="product-tab-btn flex-1 flex items-center justify-center gap-2 py-1.5 px-3 text-xs md:text-sm font-medium transition-colors border-b-2 border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200" type="button">
+                            <i class="fa-solid fa-share-nodes text-xs"></i> Compartir
+                        </button>
+                        <button data-tab="specs" class="product-tab-btn hidden lg:flex flex-1 items-center justify-center gap-2 py-1.5 px-3 text-xs md:text-sm font-medium transition-colors border-b-2 border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200" type="button">
+                            <i class="fa-solid fa-list-ul text-xs"></i> Especificaciones
+                        </button>
+                    </div>
+
+                    {{-- Tab Panel: Compartir --}}
+                    <div data-tab-panel="share" class="product-tab-panel hidden" role="tabpanel">
+                        <div class="p-2 grid grid-cols-3 sm:grid-cols-6 gap-2">
+                            <a href="https://api.whatsapp.com/send?text={{ $shareTitle }}%20{{ $shareUrl }}" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center gap-1 py-3 rounded-lg bg-[#25D366] text-white text-[11px] font-semibold hover:brightness-110 transition-all no-underline">
+                                <i class="fa-brands fa-whatsapp text-lg"></i> WhatsApp
+                            </a>
+                            <a href="https://www.facebook.com/sharer/sharer.php?u={{ $shareUrl }}&quote={{ $shareTitle }}" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center gap-1 py-3 rounded-lg bg-[#1877F2] text-white text-[11px] font-semibold hover:brightness-110 transition-all no-underline">
+                                <i class="fa-brands fa-facebook text-lg"></i> Facebook
+                            </a>
+                            <a href="https://twitter.com/intent/tweet?text={{ $shareTitle }}&url={{ $shareUrl }}" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center gap-1 py-3 rounded-lg bg-gray-900 text-white text-[11px] font-semibold hover:bg-gray-800 transition-all no-underline">
+                                <i class="fa-brands fa-x-twitter text-lg"></i> X
+                            </a>
+                            <a href="https://pinterest.com/pin/create/button/?url={{ $shareUrl }}&description={{ $shareTitle }}&media={{ urlencode($product->imagen) }}" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center gap-1 py-3 rounded-lg bg-[#E60023] text-white text-[11px] font-semibold hover:brightness-110 transition-all no-underline">
+                                <i class="fa-brands fa-pinterest text-lg"></i> Pinterest
+                            </a>
+                            <button type="button" onclick="copyProductUrl()" class="flex flex-col items-center gap-1 py-3 rounded-lg bg-gray-500 text-white text-[11px] font-semibold hover:bg-gray-600 transition-all">
+                                <i class="fa-solid fa-link text-lg"></i> Copiar
+                            </button>
+                            <a href="https://t.me/share/url?url={{ $shareUrl }}&text={{ $shareTitle }}" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center gap-1 py-3 rounded-lg bg-[#0088cc] text-white text-[11px] font-semibold hover:brightness-110 transition-all no-underline">
+                                <i class="fa-brands fa-telegram text-lg"></i> Telegram
+                            </a>
+                        </div>
+                    </div>
+
+                    {{-- Tab Panel: Especificaciones --}}
+                    <div data-tab-panel="specs" class="product-tab-panel hidden" role="tabpanel">
+                        <div class="grid grid-cols-2">
+                            <div class="p-2.5 border-b border-r border-gray-100 dark:border-gray-700 flex items-start gap-2">
+                                <div class="mt-1 flex-shrink-0 w-7 h-7 rounded-lg bg-gray-50 dark:bg-gray-900 flex items-center justify-center text-gray-400">
+                                    <i class="fa-solid fa-venus-mars text-xs"></i>
+                                </div>
+                                <div>
+                                    <p class="text-[9px] text-gray-400 font-bold uppercase tracking-tight">Para</p>
+                                    <p class="text-xs font-bold text-gray-900 dark:text-white capitalize">{{ $product->genero ?? 'Unisex' }}</p>
+                                </div>
+                            </div>
+                            <div class="p-2.5 border-b border-gray-100 dark:border-gray-700 flex items-start gap-2">
+                                <div class="mt-1 flex-shrink-0 w-7 h-7 rounded-lg bg-gray-50 dark:bg-gray-900 flex items-center justify-center text-gray-400">
+                                    <i class="fa-solid fa-arrows-up-down-left-right text-xs"></i>
+                                </div>
+                                <div>
+                                    <p class="text-[9px] text-gray-400 font-bold uppercase tracking-tight">Caja</p>
+                                    <p class="text-xs font-bold text-gray-900 dark:text-white">{{ $product->size ? $product->size . 'mm' : 'N/A' }}</p>
+                                </div>
+                            </div>
+                            <div class="p-2.5 border-r border-gray-100 dark:border-gray-700 flex items-start gap-2">
+                                <div class="mt-1 flex-shrink-0 w-7 h-7 rounded-lg bg-gray-50 dark:bg-gray-900 flex items-center justify-center text-gray-400">
+                                    <i class="fa-solid fa-gear text-xs"></i>
+                                </div>
+                                <div>
+                                    <p class="text-[9px] text-gray-400 font-bold uppercase tracking-tight">Movimiento</p>
+                                    <p class="text-xs font-bold text-gray-900 dark:text-white capitalize line-clamp-1">{{ $product->tipo_movimiento === 'cuarzo' ? 'Batería' : ($product->tipo_movimiento ?? 'Especial') }}</p>
+                                </div>
+                            </div>
+                            <div class="p-2.5 flex items-start gap-2">
+                                <div class="mt-1 flex-shrink-0 w-7 h-7 rounded-lg bg-gray-50 dark:bg-gray-900 flex items-center justify-center text-gray-400">
+                                    <i class="fa-solid fa-droplet text-xs"></i>
+                                </div>
+                                <div>
+                                    <p class="text-[9px] text-gray-400 font-bold uppercase tracking-tight">Agua</p>
+                                    <p class="text-xs font-bold text-gray-900 dark:text-white whitespace-nowrap">{{ $product->resistencia_agua ? $product->resistencia_agua . 'm' : 'Resistente' }}</p>
+                                </div>
+                            </div>
+                            <div class="p-2.5 border-r border-gray-100 dark:border-gray-700 flex items-start gap-2">
+                                <div class="mt-1 flex-shrink-0 w-7 h-7 rounded-lg bg-gray-50 dark:bg-gray-900 flex items-center justify-center text-gray-400">
+                                    <i class="fa-solid fa-layer-group text-xs"></i>
+                                </div>
+                                <div>
+                                    <p class="text-[9px] text-gray-400 font-bold uppercase tracking-tight">Colección</p>
+                                    <p class="text-xs font-bold text-gray-900 dark:text-white">{{ $product->coleccion ?? '—' }}</p>
+                                </div>
+                            </div>
+                            <div class="p-2.5 flex items-start gap-2">
+                                <div class="mt-1 flex-shrink-0 w-7 h-7 rounded-lg bg-gray-50 dark:bg-gray-900 flex items-center justify-center text-gray-400">
+                                    <i class="fa-solid fa-clock text-xs"></i>
+                                </div>
+                                <div>
+                                    <p class="text-[9px] text-gray-400 font-bold uppercase tracking-tight">Brazalete</p>
+                                    <p class="text-xs font-bold text-gray-900 dark:text-white capitalize">{{ $product->brazalete ?? '—' }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Desktop: Related products slider with nav buttons --}}
+                @if($relatedProducts->count() > 0)
+                <div class="hidden lg:block mt-4">
+                    <div class="flex items-center justify-between mb-3">
+                        <h2 class="text-lg font-black text-gray-900 dark:text-white uppercase tracking-tight">Productos Relacionados</h2>
+                        <div class="flex gap-1.5">
+                            <button type="button" onclick="scrollRelated(-1)" aria-label="Anterior" class="w-8 h-8 flex items-center justify-center rounded-full border border-gray-200 dark:border-gray-600 text-gray-400 hover:text-[#00C4FF] hover:border-[#00C4FF] transition-colors">
+                                <i class="fa-solid fa-chevron-left text-xs"></i>
+                            </button>
+                            <button type="button" onclick="scrollRelated(1)" aria-label="Siguiente" class="w-8 h-8 flex items-center justify-center rounded-full border border-gray-200 dark:border-gray-600 text-gray-400 hover:text-[#00C4FF] hover:border-[#00C4FF] transition-colors">
+                                <i class="fa-solid fa-chevron-right text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div id="related-slider" class="flex gap-3 overflow-x-auto pb-1 snap-x snap-mandatory scrollbar-hide" style="scroll-behavior: smooth;">
+                        @foreach($relatedProducts as $related)
+                        <div class="flex-shrink-0 w-40 snap-start">
+                            <x-product-card :product="$related" />
+                        </div>
+                        @endforeach
+                    </div>
+                </div>
+                @endif
+
+                {{-- Próximamente Reservation Card --}}
+                @if($isUpcoming)
+                <div class="mb-8 p-5 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/10 dark:to-orange-900/10 rounded-2xl border border-amber-200 dark:border-amber-800/30">
+                    <h3 class="text-sm font-black text-amber-800 dark:text-amber-300 uppercase tracking-wide mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-star text-amber-500 animate-pulse"></i> Reserva tu unidad:
+                    </h3>
+                    <ul class="space-y-4 text-sm text-gray-700 dark:text-gray-300">
+                        <li class="flex items-start gap-3">
+                            <i class="fa-solid fa-check text-amber-500 mt-1"></i>
+                            <span><strong>Prioridad:</strong> Te avisaremos apenas el reloj llegue a bodega antes de publicarlo en redes.</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <i class="fa-solid fa-check text-amber-500 mt-1"></i>
+                            <span><strong>Congela el precio:</strong> Apártalo con solo <strong>₡{{ number_format(19000, 0) }}</strong> y asegura el precio de lanzamiento.</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <i class="fa-solid fa-check text-amber-500 mt-1"></i>
+                            <span><strong>Sin compromiso:</strong> Consulta la fecha estimada y detalles técnicos por WhatsApp.</span>
+                        </li>
+                    </ul>
+                    <a href="{{ $whatsappInfo }}" target="_blank" rel="noopener noreferrer" class="mt-4 flex items-center justify-center gap-2 w-full bg-amber-500 hover:bg-amber-600 text-white font-black text-sm uppercase tracking-wider px-6 py-3 rounded-xl transition-all duration-300 active:scale-95 shadow-lg">
+                        <i class="fa-brands fa-whatsapp text-lg"></i>
+                        <span>Consultar por WhatsApp</span>
+                    </a>
+                </div>
+                @endif
             </div>
         </div>
     </div>
 
-    {{-- Related Products --}}
-    @if($relatedProducts->count() > 0)
-    <section class="bg-gray-50 dark:bg-gray-900 py-12">
-        <div class="max-w-7xl mx-auto px-4">
-            <h2 class="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tight mb-6">Productos Relacionados</h2>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-                @foreach($relatedProducts as $related)
-                    <x-product-card :product="$related" />
-                @endforeach
-            </div>
-        </div>
-    </section>
-    @endif
-
-    {{-- Floating WhatsApp buttons --}}
+    {{-- Floating WhatsApp buttons
     <div class="fixed bottom-6 right-6 z-50 flex flex-col gap-3">
         <a href="{{ $whatsappBuy }}" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#20bd5a] text-white font-bold text-xs uppercase tracking-wider px-5 py-3 rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 active:scale-95">
             <i class="fab fa-whatsapp text-lg"></i>
             <span class="hidden sm:inline">Comprar</span>
         </a>
-    </div>
+    </div> --}}
 
     <script>
         var pixelModel = "{{ $product->modelo }}";
@@ -391,6 +386,15 @@
 
     @push('scripts')
     <script>
+        // Related products slider navigation
+        function scrollRelated(dir) {
+            var slider = document.getElementById("related-slider");
+            if (!slider) return;
+            var card = slider.querySelector(".flex-shrink-0");
+            var step = card ? card.offsetWidth + 12 : 176;
+            slider.scrollBy({ left: step * dir, behavior: "smooth" });
+        }
+
         document.addEventListener("DOMContentLoaded", function() {
             // Product tabs (Compartir / Especificaciones)
             function initProductTabs() {
@@ -416,14 +420,25 @@
 
                 tabs.forEach(function(btn) {
                     btn.addEventListener("click", function() {
-                        if (btn.dataset.tab) setActive(btn.dataset.tab);
+                        if (!btn.dataset.tab) return;
+                        // Toggle: if already active, collapse; otherwise activate
+                        var isActive = btn.classList.contains("is-active");
+                        if (isActive) {
+                            // Collapse all
+                            tabs.forEach(function(b) {
+                                b.classList.remove("is-active", "border-[#00C4FF]", "text-[#00C4FF]", "font-bold");
+                                b.classList.add("border-transparent", "text-gray-500", "font-medium");
+                            });
+                            panels.forEach(function(panel) {
+                                panel.classList.add("hidden");
+                            });
+                        } else {
+                            setActive(btn.dataset.tab);
+                        }
                     });
                 });
 
-                // Activate first tab by default
-                if (tabs.length > 0 && tabs[0].dataset.tab) {
-                    setActive(tabs[0].dataset.tab);
-                }
+                // Both panels stay collapsed by default until user clicks a tab
             }
 
             initProductTabs();
@@ -445,7 +460,6 @@
                     }
                 });
             } else {
-                // Fallback
                 const ta = document.createElement("textarea");
                 ta.value = url;
                 ta.style.position = "fixed";

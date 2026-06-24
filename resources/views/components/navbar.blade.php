@@ -9,9 +9,12 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-14 md:h-20 items-center">
             <div class="flex-shrink-0 flex items-center justify-center mr-2 md:mr-8">
-                <a href="/" class="flex items-center gap-2 group">
+                <a href="/" class="flex items-center gap-2 group text-xs md:text-xl">
                     <img src="{{ asset('logo.png') }}" alt="Invicta Costa Rica" class="h-8 md:h-11 w-auto" width="140" height="47" />
-                    <span class="hidden lg:inline text-white/80 font-bold text-xs tracking-wider group-hover:text-white transition-colors">InvictaCostaRica.com</span>
+                    <div class="grid gap-1">
+                        <p class="text-white/80 font-bold tracking-wider group-hover:text-white transition-colors">Invicta<span class="text-[#00C4FF]">CostaRica</span>.com</p>
+                        <p class="text-[11px] md:text-xs text-center">Tienda No Oficial</p>
+                    </div>
                 </a>
             </div>
 
