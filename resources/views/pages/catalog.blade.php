@@ -37,13 +37,13 @@
                     x-transition:leave-end="-translate-x-full"
                     style="display:none;"
                 >
-                    <x-filter-form formId="filter-form-mobile" :showClose="true" />
+                    <x-filter-form formId="filter-form-mobile" :showClose="true" :gender="$gender" :filters="$filters" />
                 </aside>
 
                 {{-- Desktop sidebar --}}
                 <aside class="hidden md:block w-64 flex-shrink-0">
                     <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-4 md:p-6 sticky top-24 relative">
-                        <x-filter-form formId="filter-form" />
+                        <x-filter-form formId="filter-form" :gender="$gender" :filters="$filters" />
                     </div>
                 </aside>
 

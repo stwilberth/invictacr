@@ -1,4 +1,9 @@
-@props(['formId' => 'filter-form', 'showClose' => false])
+@props([
+    'formId' => 'filter-form',
+    'showClose' => false,
+    'gender' => null,
+    'filters' => [],
+])
 
 @if($showClose)
 <button type="button" onclick="closeFilters()" class="md:hidden absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 text-xl" aria-label="Cerrar filtros">
