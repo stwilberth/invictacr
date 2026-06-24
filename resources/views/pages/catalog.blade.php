@@ -11,7 +11,7 @@
             <x-page-title
                 :title="'Relojes Invicta' . ($gender ? ' para ' . ucfirst($gender) : '')"
                 :highlight="$gender ? ucfirst($gender) : null"
-                :subtitle="'Descubre los mejores relojes Invicta ' . ($gender ? 'para ' . $gender : 'originales') . '. ' . $products->total() . ' modelos con los mejores precios.'"
+                :subtitle="''"
             />
 
             <div class="flex flex-col md:flex-row gap-8 pb-12" x-data="{ filterOpen: false }">
@@ -49,6 +49,7 @@
 
                 <div class="flex-1 min-w-0">
                     {{-- Header with count and sorting --}}
+                    {{--
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
                         <div>
                             <p class="text-sm text-gray-500 dark:text-gray-400 font-medium">
@@ -66,6 +67,7 @@
                             </select>
                         </div>
                     </div>
+                    --}}
 
                     {{-- Active filter chips --}}
                     @php
