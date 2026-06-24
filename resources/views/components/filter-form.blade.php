@@ -5,6 +5,11 @@
     'filters' => [],
 ])
 
+@php
+    $isMobile = str_ends_with($formId, '-mobile');
+    $defaultOpen = $isMobile ? 'true' : 'false';
+@endphp
+
 @if($showClose)
 <button type="button" onclick="closeFilters()" class="md:hidden absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 text-xl" aria-label="Cerrar filtros">
     <i class="fa-solid fa-xmark"></i>
@@ -21,9 +26,12 @@
 
     {{-- Gender filter --}}
     @if(!$gender)
-    <div class="mb-4">
-        <h4 class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Género</h4>
-        <div class="space-y-1">
+    <div class="mb-2" x-data="{ open: {{ $defaultOpen }} }">
+        <button type="button" @click="open = !open" class="w-full flex items-center justify-between text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider py-2">
+            <span>Género</span>
+            <i class="fa-solid fa-chevron-down text-[10px] transition-transform" :class="{ 'rotate-180': open }"></i>
+        </button>
+        <div x-show="open" x-collapse class="space-y-1 pb-2">
             <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
                 <input type="radio" name="gender" value="" {{ !request('gender') ? 'checked' : '' }} onchange="document.getElementById('{{ $formId }}').submit()" class="text-[#00C4FF]">
                 <span>Todos</span>
@@ -40,9 +48,12 @@
 
     {{-- Color filter --}}
     @if($filters['colors']->count() > 0)
-    <div class="mb-4">
-        <h4 class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Color</h4>
-        <div class="space-y-1 max-h-40 overflow-y-auto">
+    <div class="mb-2" x-data="{ open: {{ $defaultOpen }} }">
+        <button type="button" @click="open = !open" class="w-full flex items-center justify-between text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider py-2">
+            <span>Color</span>
+            <i class="fa-solid fa-chevron-down text-[10px] transition-transform" :class="{ 'rotate-180': open }"></i>
+        </button>
+        <div x-show="open" x-collapse class="space-y-1 max-h-40 overflow-y-auto pb-2">
             <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
                 <input type="radio" name="color" value="" {{ !request('color') ? 'checked' : '' }} onchange="document.getElementById('{{ $formId }}').submit()" class="text-[#00C4FF]">
                 <span>Todos</span>
@@ -59,9 +70,12 @@
 
     {{-- Brazalete filter --}}
     @if($filters['brazaletes']->count() > 0)
-    <div class="mb-4">
-        <h4 class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Brazalete</h4>
-        <div class="space-y-1">
+    <div class="mb-2" x-data="{ open: {{ $defaultOpen }} }">
+        <button type="button" @click="open = !open" class="w-full flex items-center justify-between text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider py-2">
+            <span>Brazalete</span>
+            <i class="fa-solid fa-chevron-down text-[10px] transition-transform" :class="{ 'rotate-180': open }"></i>
+        </button>
+        <div x-show="open" x-collapse class="space-y-1 pb-2">
             <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
                 <input type="radio" name="brazalete" value="" {{ !request('brazalete') ? 'checked' : '' }} onchange="document.getElementById('{{ $formId }}').submit()" class="text-[#00C4FF]">
                 <span>Todos</span>
@@ -78,9 +92,12 @@
 
     {{-- Colección filter --}}
     @if(($filters['colecciones'] ?? collect())->count() > 0)
-    <div class="mb-4">
-        <h4 class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Colección</h4>
-        <div class="space-y-1 max-h-40 overflow-y-auto">
+    <div class="mb-2" x-data="{ open: {{ $defaultOpen }} }">
+        <button type="button" @click="open = !open" class="w-full flex items-center justify-between text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider py-2">
+            <span>Colección</span>
+            <i class="fa-solid fa-chevron-down text-[10px] transition-transform" :class="{ 'rotate-180': open }"></i>
+        </button>
+        <div x-show="open" x-collapse class="space-y-1 max-h-40 overflow-y-auto pb-2">
             <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
                 <input type="radio" name="coleccion" value="" {{ !request('coleccion') ? 'checked' : '' }} onchange="document.getElementById('{{ $formId }}').submit()" class="text-[#00C4FF]">
                 <span>Todas</span>
@@ -97,9 +114,12 @@
 
     {{-- Tipo de movimiento filter --}}
     @if(($filters['movimientos'] ?? collect())->count() > 0)
-    <div class="mb-4">
-        <h4 class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Movimiento</h4>
-        <div class="space-y-1">
+    <div class="mb-2" x-data="{ open: {{ $defaultOpen }} }">
+        <button type="button" @click="open = !open" class="w-full flex items-center justify-between text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider py-2">
+            <span>Movimiento</span>
+            <i class="fa-solid fa-chevron-down text-[10px] transition-transform" :class="{ 'rotate-180': open }"></i>
+        </button>
+        <div x-show="open" x-collapse class="space-y-1 pb-2">
             <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
                 <input type="radio" name="tipo_movimiento" value="" {{ !request('tipo_movimiento') ? 'checked' : '' }} onchange="document.getElementById('{{ $formId }}').submit()" class="text-[#00C4FF]">
                 <span>Todos</span>
@@ -116,9 +136,12 @@
 
     {{-- Size filter --}}
     @if(($filters['sizes'] ?? collect())->count() > 0)
-    <div class="mb-4">
-        <h4 class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Tamaño</h4>
-        <div class="space-y-1">
+    <div class="mb-2" x-data="{ open: {{ $defaultOpen }} }">
+        <button type="button" @click="open = !open" class="w-full flex items-center justify-between text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider py-2">
+            <span>Tamaño</span>
+            <i class="fa-solid fa-chevron-down text-[10px] transition-transform" :class="{ 'rotate-180': open }"></i>
+        </button>
+        <div x-show="open" x-collapse class="space-y-1 pb-2">
             <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
                 <input type="radio" name="size" value="" {{ !request('size') ? 'checked' : '' }} onchange="document.getElementById('{{ $formId }}').submit()" class="text-[#00C4FF]">
                 <span>Todos</span>
@@ -134,12 +157,17 @@
     @endif
 
     {{-- Price range filter --}}
-    <div class="mb-4">
-        <h4 class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Precio</h4>
-        <div class="flex items-center gap-2">
-            <input type="number" name="precio_min" placeholder="Desde" value="{{ request('precio_min') }}" class="w-full bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-gray-600 rounded-lg text-xs px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-[#00C4FF]/50" onchange="document.getElementById('{{ $formId }}').submit()" />
-            <span class="text-gray-400 text-xs">-</span>
-            <input type="number" name="precio_max" placeholder="Hasta" value="{{ request('precio_max') }}" class="w-full bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-gray-600 rounded-lg text-xs px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-[#00C4FF]/50" onchange="document.getElementById('{{ $formId }}').submit()" />
+    <div class="mb-2" x-data="{ open: {{ $defaultOpen }} }">
+        <button type="button" @click="open = !open" class="w-full flex items-center justify-between text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider py-2">
+            <span>Precio</span>
+            <i class="fa-solid fa-chevron-down text-[10px] transition-transform" :class="{ 'rotate-180': open }"></i>
+        </button>
+        <div x-show="open" x-collapse class="pb-2">
+            <div class="flex items-center gap-2">
+                <input type="number" name="precio_min" placeholder="Desde" value="{{ request('precio_min') }}" class="w-full bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-gray-600 rounded-lg text-xs px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-[#00C4FF]/50" onchange="document.getElementById('{{ $formId }}').submit()" />
+                <span class="text-gray-400 text-xs">-</span>
+                <input type="number" name="precio_max" placeholder="Hasta" value="{{ request('precio_max') }}" class="w-full bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-gray-600 rounded-lg text-xs px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-[#00C4FF]/50" onchange="document.getElementById('{{ $formId }}').submit()" />
+            </div>
         </div>
     </div>
 
