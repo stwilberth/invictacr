@@ -30,10 +30,10 @@
                     </a>
                 </div>
 
-                <button id="sliderPrev" class="absolute left-2 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-black/30 hover:bg-black/50 text-white rounded-full flex items-center justify-center transition-all backdrop-blur-sm">
+                <button id="sliderPrev" aria-label="Anterior" class="absolute left-2 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-black/30 hover:bg-black/50 text-white rounded-full flex items-center justify-center transition-all backdrop-blur-sm">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
                 </button>
-                <button id="sliderNext" class="absolute right-2 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-black/30 hover:bg-black/50 text-white rounded-full flex items-center justify-center transition-all backdrop-blur-sm">
+                <button id="sliderNext" aria-label="Siguiente" class="absolute right-2 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-black/30 hover:bg-black/50 text-white rounded-full flex items-center justify-center transition-all backdrop-blur-sm">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                 </button>
 
@@ -163,20 +163,40 @@
                 <h2 class="text-lg md:text-3xl font-bold text-gray-900 dark:text-white uppercase tracking-wider mb-1 md:mb-2">Explora Por Género</h2>
                 <p class="text-xs md:text-base text-gray-500 dark:text-gray-400">Encuentra el reloj perfecto para ti</p>
             </div>
-            <div class="flex md:grid md:grid-cols-3 gap-3 md:gap-8 overflow-x-auto md:overflow-visible snap-x snap-mandatory scrollbar-hide md:scrollbar-default pl-4 md:pl-0 pr-4 md:pr-0">
-                @foreach($categories as $cat)
-                <a href="/relojes/{{ $cat['slug'] }}" class="group relative block flex-shrink-0 w-[55vw] md:w-full aspect-[3/4] md:aspect-[3/4] overflow-hidden rounded-xl md:rounded-[2.5rem] shadow-xl hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 bg-gray-900 snap-start">
-                    <img src="{{ $cat['image'] }}" alt="{{ $cat['name'] }}" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-8">
+                <a href="/relojes/hombre" class="group relative block w-full aspect-[3/4] overflow-hidden rounded-xl md:rounded-[2.5rem] shadow-xl hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 bg-gray-900">
+                    <img src="{{ asset('images/banners/hombre.png') }}" alt="Hombre" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
                     <div class="absolute inset-0 z-20 flex flex-col items-center justify-center p-3 md:p-10 text-center">
-                        <h3 class="text-xl md:text-5xl font-black text-white uppercase leading-none mb-1 md:mb-4">{{ $cat['name'] }}</h3>
+                        <h3 class="text-xl md:text-5xl font-black text-white uppercase leading-none mb-1 md:mb-4">Hombre</h3>
                         <div class="flex items-center gap-2 text-white/70 font-semibold text-[10px] md:text-base group-hover:text-white transition-colors">
                             Ver Colección
-                            <i class="fa-solid fa-arrow-right text-xs md:text-sm group-hover:translate-x-1 transition-transform text-[#00C4FF]" />
+                            <i class="fa-solid fa-arrow-right text-xs md:text-sm group-hover:translate-x-1 transition-transform text-amber-500"></i>
                         </div>
                     </div>
                     <div class="absolute inset-0 border border-white/5 rounded-[1.5rem] md:rounded-[2.5rem] z-30 group-hover:border-white/20 transition-colors pointer-events-none"></div>
                 </a>
-                @endforeach
+                <a href="/relojes/mujer" class="group relative block w-full aspect-[3/4] overflow-hidden rounded-xl md:rounded-[2.5rem] shadow-xl hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 bg-gray-900">
+                    <img src="{{ asset('images/banners/mujer.png') }}" alt="Mujer" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                    <div class="absolute inset-0 z-20 flex flex-col items-center justify-center p-3 md:p-10 text-center">
+                        <h3 class="text-xl md:text-5xl font-black text-white uppercase leading-none mb-1 md:mb-4">Mujer</h3>
+                        <div class="flex items-center gap-2 text-white/70 font-semibold text-[10px] md:text-base group-hover:text-white transition-colors">
+                            Ver Colección
+                            <i class="fa-solid fa-arrow-right text-xs md:text-sm group-hover:translate-x-1 transition-transform text-rose-400"></i>
+                        </div>
+                    </div>
+                    <div class="absolute inset-0 border border-white/5 rounded-[1.5rem] md:rounded-[2.5rem] z-30 group-hover:border-white/20 transition-colors pointer-events-none"></div>
+                </a>
+                <a href="/relojes/unisex" class="group relative block w-full aspect-[3/4] overflow-hidden rounded-xl md:rounded-[2.5rem] shadow-xl hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 bg-gray-900">
+                    <img src="{{ asset('images/banners/unisex.png') }}" alt="Unisex" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                    <div class="absolute inset-0 z-20 flex flex-col items-center justify-center p-3 md:p-10 text-center">
+                        <h3 class="text-xl md:text-5xl font-black text-white uppercase leading-none mb-1 md:mb-4">Unisex</h3>
+                        <div class="flex items-center gap-2 text-white/70 font-semibold text-[10px] md:text-base group-hover:text-white transition-colors">
+                            Ver Colección
+                            <i class="fa-solid fa-arrow-right text-xs md:text-sm group-hover:translate-x-1 transition-transform text-emerald-400"></i>
+                        </div>
+                    </div>
+                    <div class="absolute inset-0 border border-white/5 rounded-[1.5rem] md:rounded-[2.5rem] z-30 group-hover:border-white/20 transition-colors pointer-events-none"></div>
+                </a>
             </div>
         </div>
     </section>
@@ -209,30 +229,37 @@
             display: none;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        .scroll-container.styled {
+            scrollbar-width: thin;
+            scrollbar-color: #00c4ff #f3f4f6;
+            padding-bottom: 20px;
         }
 
-        @keyframes shine {
-            0% { left: -100%; }
-            100% { left: 100%; }
+        .scroll-container.styled::-webkit-scrollbar {
+            height: 8px;
         }
 
-        .shine-effect::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 50%;
-            height: 100%;
-            background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0) 100%);
-            transform: skewX(-25deg);
-            animation: shine 3s infinite;
+        .scroll-container.styled::-webkit-scrollbar-track {
+            background: #f3f4f6;
+            border-radius: 10px;
         }
 
-        section {
-            animation: fadeIn 1s ease-out forwards;
+        .scroll-container.styled::-webkit-scrollbar-thumb {
+            background: #00c4ff;
+            border-radius: 10px;
+            border: 2px solid #f3f4f6;
+        }
+
+        .scroll-container.styled::-webkit-scrollbar-thumb:hover {
+            background: #00b0e6;
+        }
+
+        .dark .scroll-container.styled::-webkit-scrollbar-track {
+            background: #1f2937;
+        }
+
+        .dark .scroll-container.styled::-webkit-scrollbar-thumb {
+            border-color: #1f2937;
         }
     </style>
 
@@ -293,9 +320,22 @@
     });
 
     let autoInterval = setInterval(() => goTo(current + 1), 5000);
-    slider?.addEventListener('click', () => {
+    function restartAuto() {
         clearInterval(autoInterval);
         autoInterval = setInterval(() => goTo(current + 1), 5000);
+    }
+    function pauseAuto() {
+        clearInterval(autoInterval);
+    }
+    // Reiniciar el contador tras interacción
+    slider?.addEventListener('click', restartAuto);
+    // Pausar autoplay en hover
+    slider?.addEventListener('mouseenter', pauseAuto);
+    slider?.addEventListener('mouseleave', restartAuto);
+    // Pausar autoplay cuando la pestaña no es visible
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) pauseAuto();
+        else restartAuto();
     });
     </script>
     @endpush

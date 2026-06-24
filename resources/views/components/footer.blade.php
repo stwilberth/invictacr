@@ -8,7 +8,7 @@
             <h4 class="font-bold mb-2">Contacto</h4>
             <ul class="space-y-1">
                 <li>WhatsApp: <a href="https://wa.me/50686711422" class="hover:text-green-500 text-[#00C4FF]">8671-1422</a></li>
-                <li>Email: <a href="mailto:info@invictacostarica.com" class="hover:text-red-500 text-[#00C4FF]">info@invictacostarica.com</a></li>
+                <li>Email: <a href="mailto:wilberth@invictacostarica.com" class="hover:text-red-500 text-[#00C4FF]">info@invictacostarica.com</a></li>
                 <li>Facebook: <a href="https://www.facebook.com/invictacr" class="hover:text-blue-500 text-[#00C4FF]">Invictacr</a></li>
                 <li>TikTok: <a href="https://www.tiktok.com/@invictacr" class="hover:text-[#00C4FF] text-[#00C4FF]">@invictacr</a></li>
             </ul>

@@ -50,16 +50,19 @@ class HomeController extends Controller
                 "name" => "Hombre",
                 "slug" => "hombre",
                 "image" => asset("images/banners/hombre.png"),
+                "accent" => "text-amber-500",
             ],
             [
                 "name" => "Mujer",
                 "slug" => "mujer",
                 "image" => asset("images/banners/mujer.png"),
+                "accent" => "text-rose-400",
             ],
             [
                 "name" => "Unisex",
                 "slug" => "unisex",
                 "image" => asset("images/banners/unisex.png"),
+                "accent" => "text-emerald-400",
             ],
         ];
 

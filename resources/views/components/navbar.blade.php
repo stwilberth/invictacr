@@ -9,8 +9,9 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-14 md:h-20 items-center">
             <div class="flex-shrink-0 flex items-center justify-center mr-2 md:mr-8">
-                <a href="/" class="flex flex-col items-center group">
-                    <img src="{{ asset('logo.png') }}" alt="Invicta Costa Rica" class="h-10 md:h-14 w-auto" width="168" height="56" />
+                <a href="/" class="flex items-center gap-2 group">
+                    <img src="{{ asset('logo.png') }}" alt="Invicta Costa Rica" class="h-8 md:h-11 w-auto" width="140" height="47" />
+                    <span class="hidden lg:inline text-white/80 font-bold text-xs tracking-wider group-hover:text-white transition-colors">InvictaCostaRica.com</span>
                 </a>
             </div>
 
@@ -117,8 +118,9 @@
          x-transition:leave="transition ease-in duration-200"
          x-transition:leave-start="translate-y-0 opacity-100"
          x-transition:leave-end="-translate-y-4 opacity-0"
-         class="md:hidden absolute top-[56px] left-0 right-0 bg-[#0a0f1c] z-50 border-b border-white/10"
+         class="md:hidden fixed inset-0 top-[56px] bg-black/60 backdrop-blur-sm z-40"
          style="display: none;">
+        <div class="bg-[#0a0f1c] border-b border-white/10">
         <div class="pt-2 pb-6">
             <div class="flex items-center justify-between px-4 py-2 border-b border-white/5">
                 <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">Navegación</span>
@@ -197,6 +199,7 @@
                     </template>
                 </button>
             </div>
+        </div>
         </div>
     </div>
 </nav>

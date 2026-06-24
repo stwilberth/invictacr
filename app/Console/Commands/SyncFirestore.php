@@ -18,36 +18,41 @@ use Illuminate\Support\Facades\DB;
 
 class SyncFirestore extends Command
 {
-    protected $signature = 'firestore:sync {--fresh : Truncate all tables before importing}';
-    protected $description = 'Sync data from Firestore JSON exports to MariaDB';
+    protected $signature = "firestore:sync {--fresh : Truncate all tables before importing}";
+    protected $description = "Sync data from Firestore JSON exports to MariaDB";
 
     private string $exportDir;
 
     private array $importers = [
-        'products'         => 'importProducts',
-        'productos'        => 'importProductsAlias',
-        'invoices'         => 'importInvoices',
-        'clients'          => 'importClients',
-        'expenses'         => 'importExpenses',
-        'suscriptores'     => 'importSubscribers',
-        'settings'         => 'importSettings',
-        'combos'           => 'importCombos',
-        'marketing_tasks'  => 'importMarketingTasks',
-        'product_comments' => 'importProductComments',
-        'sync_logs'        => 'importSyncLogs',
+        "products" => "importProducts",
+        "productos" => "importProductsAlias",
+        "invoices" => "importInvoices",
+        "clients" => "importClients",
+        "expenses" => "importExpenses",
+        "suscriptores" => "importSubscribers",
+        "settings" => "importSettings",
+        "combos" => "importCombos",
+        "marketing_tasks" => "importMarketingTasks",
+        "product_comments" => "importProductComments",
+        "sync_logs" => "importSyncLogs",
     ];
 
     public function handle()
     {
-        $this->exportDir = dirname(base_path(), 1) . '/invictacostarica/firebase-export';
+        $this->exportDir =
+            dirname(base_path(), 1) . "/invictacostarica/firebase-export";
 
         if (!is_dir($this->exportDir)) {
-            $this->error("Firebase export directory not found at: {$this->exportDir}");
-            $this->warn('Make sure the invictacostarica (Astro) project is cloned alongside this one.');
+            $this->error(
+                "Firebase export directory not found at: {$this->exportDir}",
+            );
+            $this->warn(
+                "Make sure the invictacostarica (Astro) project is cloned alongside this one.",
+            );
             return 1;
         }
 
-        if ($this->option('fresh')) {
+        if ($this->option("fresh")) {
             $this->truncateAll();
         }
 
@@ -78,49 +83,73 @@ class SyncFirestore extends Command
 
         $this->normalizeImages();
 
-        $this->info('Sync completed!');
+        $this->info("Sync completed!");
     }
 
     private function truncateAll(): void
     {
-        $this->info('Truncating all tables...');
-        DB::statement('SET foreign_key_checks = 0');
+        $this->info("Truncating all tables...");
+        DB::statement("SET foreign_key_checks = 0");
         $tables = [
-            'products', 'clients', 'invoices', 'invoice_items', 'expenses',
-            'subscribers', 'settings', 'combos', 'marketing_tasks',
-            'sync_logs', 'product_comments', 'product_images', 'categories',
+            "products",
+            "clients",
+            "invoices",
+            "invoice_items",
+            "expenses",
+            "subscribers",
+            "settings",
+            "combos",
+            "marketing_tasks",
+            "sync_logs",
+            "product_comments",
+            "product_images",
+            "categories",
         ];
         foreach ($tables as $table) {
             DB::table($table)->truncate();
         }
-        DB::statement('SET foreign_key_checks = 1');
-        $this->info('All tables truncated.');
+        DB::statement("SET foreign_key_checks = 1");
+        $this->info("All tables truncated.");
     }
 
     private function normalizeImages(): void
     {
-        $this->info('Normalizing image paths...');
+        $this->info("Normalizing image paths...");
 
         // Fix ../../assets/relojes/ → /assets/relojes/
-        $fixed = DB::update("UPDATE products SET imagen = REPLACE(imagen, '../../assets/relojes/', '/assets/relojes/') WHERE imagen LIKE '%../../assets/relojes/%'");
-        $this->line("  Fixed relative paths (../../assets → /assets): {$fixed}");
+        $fixed = DB::update(
+            "UPDATE products SET imagen = REPLACE(imagen, '../../assets/relojes/', '/assets/relojes/') WHERE imagen LIKE '%../../assets/relojes/%'",
+        );
+        $this->line(
+            "  Fixed relative paths (../../assets → /assets): {$fixed}",
+        );
 
         // Fix CDN URLs → local path
-        $cdnRows = DB::select("SELECT id, modelo FROM products WHERE imagen LIKE 'https://cdn.invictawatch.com/%'");
+        $cdnRows = DB::select(
+            "SELECT id, modelo FROM products WHERE imagen LIKE 'https://cdn.invictawatch.com/%'",
+        );
         $count = 0;
         foreach ($cdnRows as $row) {
-            $model = preg_replace('/^invicta-/i', '', $row->modelo ?? '');
-            DB::update('UPDATE products SET imagen = ? WHERE id = ?', ["/assets/relojes/{$model}.jpg", $row->id]);
+            $model = preg_replace("/^invicta-/i", "", $row->modelo ?? "");
+            DB::update("UPDATE products SET imagen = ? WHERE id = ?", [
+                "/assets/relojes/{$model}.jpg",
+                $row->id,
+            ]);
             $count++;
         }
         $this->line("  Fixed CDN URLs: {$count}");
 
         // Fix empty images
-        $emptyRows = DB::select("SELECT id, modelo FROM products WHERE (imagen IS NULL OR imagen = '') AND modelo IS NOT NULL AND modelo != ''");
+        $emptyRows = DB::select(
+            "SELECT id, modelo FROM products WHERE (imagen IS NULL OR imagen = '') AND modelo IS NOT NULL AND modelo != ''",
+        );
         $count = 0;
         foreach ($emptyRows as $row) {
-            $model = preg_replace('/^invicta-/i', '', $row->modelo ?? '');
-            DB::update('UPDATE products SET imagen = ? WHERE id = ?', ["/assets/relojes/{$model}.jpg", $row->id]);
+            $model = preg_replace("/^invicta-/i", "", $row->modelo ?? "");
+            DB::update("UPDATE products SET imagen = ? WHERE id = ?", [
+                "/assets/relojes/{$model}.jpg",
+                $row->id,
+            ]);
             $count++;
         }
         $this->line("  Fixed empty images: {$count}");
@@ -130,12 +159,14 @@ class SyncFirestore extends Command
     {
         $count = 0;
         foreach ($data as $item) {
-            $modelo = $item['modelo'] ?? $item['id'] ?? null;
-            if (!$modelo) continue;
+            $modelo = $item["modelo"] ?? ($item["id"] ?? null);
+            if (!$modelo) {
+                continue;
+            }
 
             Product::updateOrCreate(
-                ['modelo' => $modelo],
-                $this->mapProductFields($item)
+                ["modelo" => $modelo],
+                $this->mapProductFields($item),
             );
             $count++;
         }
@@ -146,12 +177,14 @@ class SyncFirestore extends Command
     {
         $count = 0;
         foreach ($data as $item) {
-            $modelo = $item['modelo'] ?? $item['id'] ?? null;
-            if (!$modelo) continue;
+            $modelo = $item["modelo"] ?? ($item["id"] ?? null);
+            if (!$modelo) {
+                continue;
+            }
 
             Product::firstOrCreate(
-                ['modelo' => $modelo],
-                $this->mapProductFields($item)
+                ["modelo" => $modelo],
+                $this->mapProductFields($item),
             );
             $count++;
         }
@@ -160,29 +193,33 @@ class SyncFirestore extends Command
 
     private function mapProductFields(array $item): array
     {
-        $modelo = $item['modelo'] ?? $item['id'] ?? 'unknown';
+        $modelo = $item["modelo"] ?? ($item["id"] ?? "unknown");
         return [
-            'title'            => $item['title'] ?? "Invicta {$modelo}",
-            'slug'             => $item['slug'] ?? 'invicta-' . Str::slug($modelo),
-            'descripcion'      => $item['descripcion'] ?? null,
-            'color'            => $item['color'] ?? null,
-            'brazalete'        => $item['brazalete'] ?? null,
-            'coleccion'        => $item['coleccion'] ?? null,
-            'tipo_movimiento'  => $item['tipo_movimiento'] ?? null,
-            'size'             => $item['size'] ?? null,
-            'genero'           => $item['genero'] ?? null,
-            'caja'             => $item['caja'] ?? null,
-            'resistencia_agua' => $item['resistencia_agua'] ?? null,
-            'video'            => $item['video'] ?? null,
-            'precio_venta'     => $item['precio_venta'] ?? 0,
-            'precio_original'  => $item['precio_original'] ?? null,
-            'descuento'        => $item['descuento'] ?? 0,
-            'stock'            => $item['stock'] ?? 0,
-            'imagen'           => $item['imagen'] ?? null,
-            'isGif'            => $item['isGif'] ?? false,
-            'activo'           => ($item['stock'] ?? 0) > 0,
-            'imagenes_extra'   => isset($item['imagenes_extra']) ? (is_array($item['imagenes_extra']) ? json_encode($item['imagenes_extra']) : $item['imagenes_extra']) : null,
-            'vistas'           => $item['vistas'] ?? 0,
+            "title" => $item["title"] ?? "Invicta {$modelo}",
+            "slug" => $item["slug"] ?? "invicta-" . Str::slug($modelo),
+            "descripcion" => $item["descripcion"] ?? null,
+            "color" => $item["color"] ?? null,
+            "brazalete" => $item["brazalete"] ?? null,
+            "coleccion" => $item["coleccion"] ?? null,
+            "tipo_movimiento" => $item["tipo_movimiento"] ?? null,
+            "size" => $item["size"] ?? null,
+            "genero" => $item["genero"] ?? null,
+            "caja" => $item["caja"] ?? null,
+            "resistencia_agua" => $item["resistencia_agua"] ?? null,
+            "video" => $item["video"] ?? null,
+            "precio_venta" => $item["precio_venta"] ?? 0,
+            "precio_original" => $item["precio_original"] ?? null,
+            "descuento" => $item["descuento"] ?? 0,
+            "stock" => $item["stock"] ?? 0,
+            "imagen" => $item["imagen"] ?? null,
+            "isGif" => $item["isGif"] ?? false,
+            "activo" => ($item["stock"] ?? 0) > 0,
+            "imagenes_extra" => isset($item["imagenes_extra"])
+                ? (is_array($item["imagenes_extra"])
+                    ? json_encode($item["imagenes_extra"])
+                    : $item["imagenes_extra"])
+                : null,
+            "vistas" => $item["vistas"] ?? 0,
         ];
     }
 
@@ -191,17 +228,22 @@ class SyncFirestore extends Command
         $count = 0;
         foreach ($data as $item) {
             Invoice::updateOrCreate(
-                ['invoice_number' => $item['invoice_number'] ?? "INV-{$item['id']}"],
                 [
-                    'client_name'    => $item['client_name'] ?? $item['nombre_cliente'] ?? 'Cliente',
-                    'client_email'   => $item['client_email'] ?? null,
-                    'client_phone'   => $item['client_phone'] ?? null,
-                    'subtotal'       => $item['subtotal'] ?? 0,
-                    'discount'       => $item['discount'] ?? 0,
-                    'total'          => $item['total'] ?? 0,
-                    'status'         => $item['status'] ?? 'pending',
-                    'notes'          => $item['notes'] ?? null,
-                ]
+                    "invoice_number" =>
+                        $item["invoice_number"] ?? "INV-{$item["id"]}",
+                ],
+                [
+                    "client_name" =>
+                        $item["client_name"] ??
+                        ($item["nombre_cliente"] ?? "Cliente"),
+                    "client_email" => $item["client_email"] ?? null,
+                    "client_phone" => $item["client_phone"] ?? null,
+                    "subtotal" => $item["subtotal"] ?? 0,
+                    "discount" => $item["discount"] ?? 0,
+                    "total" => $item["total"] ?? 0,
+                    "status" => $item["status"] ?? "pending",
+                    "notes" => $item["notes"] ?? null,
+                ],
             );
             $count++;
         }
@@ -213,12 +255,16 @@ class SyncFirestore extends Command
         $count = 0;
         foreach ($data as $item) {
             Client::updateOrCreate(
-                ['email' => $item['email'] ?? 'no-email-' . $item['id']],
                 [
-                    'name'  => $item['name'] ?? $item['nombre'] ?? 'Cliente',
-                    'phone' => $item['phone'] ?? $item['telefono'] ?? null,
-                    'notes' => $item['notes'] ?? null,
-                ]
+                    "email" =>
+                        $item["email"] ?? "" ?:
+                        "no-email-" . ($item["id"] ?? uniqid()),
+                ],
+                [
+                    "name" => $item["name"] ?? ($item["nombre"] ?? "Cliente"),
+                    "phone" => $item["phone"] ?? ($item["telefono"] ?? null),
+                    "notes" => $item["notes"] ?? null,
+                ],
             );
             $count++;
         }
@@ -230,11 +276,13 @@ class SyncFirestore extends Command
         $count = 0;
         foreach ($data as $item) {
             Expense::create([
-                'description'  => $item['description'] ?? $item['descripcion'] ?? 'Gasto',
-                'amount'       => $item['amount'] ?? $item['monto'] ?? 0,
-                'category'     => $item['category'] ?? $item['categoria'] ?? null,
-                'expense_date' => $item['expense_date'] ?? $item['fecha'] ?? now(),
-                'notes'        => $item['notes'] ?? null,
+                "description" =>
+                    $item["description"] ?? ($item["descripcion"] ?? "Gasto"),
+                "amount" => $item["amount"] ?? ($item["monto"] ?? 0),
+                "category" => $item["category"] ?? ($item["categoria"] ?? null),
+                "expense_date" =>
+                    $item["expense_date"] ?? ($item["fecha"] ?? now()),
+                "notes" => $item["notes"] ?? null,
             ]);
             $count++;
         }
@@ -245,12 +293,14 @@ class SyncFirestore extends Command
     {
         $count = 0;
         foreach ($data as $item) {
-            $email = $item['email'] ?? $item['correo'] ?? null;
-            if (!$email) continue;
+            $email = $item["email"] ?? ($item["correo"] ?? null);
+            if (!$email) {
+                continue;
+            }
 
             Subscriber::firstOrCreate(
-                ['email' => $email],
-                ['active' => $item['active'] ?? $item['activo'] ?? true]
+                ["email" => $email],
+                ["active" => $item["active"] ?? ($item["activo"] ?? true)],
             );
             $count++;
         }
@@ -261,12 +311,20 @@ class SyncFirestore extends Command
     {
         $count = 0;
         foreach ($data as $item) {
-            $key = $item['key'] ?? $item['id'] ?? null;
-            if (!$key) continue;
+            $key = $item["key"] ?? ($item["id"] ?? null);
+            if (!$key) {
+                continue;
+            }
 
             Setting::updateOrCreate(
-                ['key' => $key],
-                ['value' => isset($item['value']) ? (is_array($item['value']) ? json_encode($item['value']) : $item['value']) : null]
+                ["key" => $key],
+                [
+                    "value" => isset($item["value"])
+                        ? (is_array($item["value"])
+                            ? json_encode($item["value"])
+                            : $item["value"])
+                        : null,
+                ],
             );
             $count++;
         }
@@ -278,12 +336,12 @@ class SyncFirestore extends Command
         $count = 0;
         foreach ($data as $item) {
             Combo::create([
-                'name'           => $item['name'] ?? $item['nombre'] ?? 'Combo',
-                'description'    => $item['description'] ?? null,
-                'price'          => $item['price'] ?? $item['precio'] ?? 0,
-                'original_price' => $item['original_price'] ?? null,
-                'image'          => $item['image'] ?? null,
-                'active'         => $item['active'] ?? $item['activo'] ?? true,
+                "name" => $item["name"] ?? ($item["nombre"] ?? "Combo"),
+                "description" => $item["description"] ?? null,
+                "price" => $item["price"] ?? ($item["precio"] ?? 0),
+                "original_price" => $item["original_price"] ?? null,
+                "image" => $item["image"] ?? null,
+                "active" => $item["active"] ?? ($item["activo"] ?? true),
             ]);
             $count++;
         }
@@ -294,15 +352,21 @@ class SyncFirestore extends Command
     {
         $count = 0;
         foreach ($data as $item) {
-            $product = Product::where('modelo', $item['productModelo'] ?? $item['producto'] ?? null)->first();
-            if (!$product) continue;
+            $product = Product::where(
+                "modelo",
+                $item["productModelo"] ?? ($item["producto"] ?? null),
+            )->first();
+            if (!$product) {
+                continue;
+            }
 
             ProductComment::create([
-                'product_id'  => $product->id,
-                'author_name' => $item['author_name'] ?? $item['usuario'] ?? 'Anónimo',
-                'content'     => $item['content'] ?? $item['comentario'] ?? '',
-                'rating'      => $item['rating'] ?? null,
-                'approved'    => $item['approved'] ?? true,
+                "product_id" => $product->id,
+                "author_name" =>
+                    $item["author_name"] ?? ($item["usuario"] ?? "Anónimo"),
+                "content" => $item["content"] ?? ($item["comentario"] ?? ""),
+                "rating" => $item["rating"] ?? null,
+                "approved" => $item["approved"] ?? true,
             ]);
             $count++;
         }
@@ -314,10 +378,14 @@ class SyncFirestore extends Command
         $count = 0;
         foreach ($data as $item) {
             SyncLog::create([
-                'type'    => $item['type'] ?? 'stock',
-                'status'  => $item['status'] ?? 'completed',
-                'message' => $item['message'] ?? null,
-                'details' => isset($item['details']) ? (is_array($item['details']) ? json_encode($item['details']) : $item['details']) : null,
+                "type" => $item["type"] ?? "stock",
+                "status" => $item["status"] ?? "completed",
+                "message" => $item["message"] ?? null,
+                "details" => isset($item["details"])
+                    ? (is_array($item["details"])
+                        ? json_encode($item["details"])
+                        : $item["details"])
+                    : null,
             ]);
             $count++;
         }
@@ -329,11 +397,15 @@ class SyncFirestore extends Command
         $count = 0;
         foreach ($data as $item) {
             MarketingTask::create([
-                'title'       => $item['title'] ?? $item['titulo'] ?? 'Tarea',
-                'description' => $item['description'] ?? null,
-                'status'      => $item['status'] ?? 'pending',
-                'type'        => $item['type'] ?? 'general',
-                'metadata'    => isset($item['metadata']) ? (is_array($item['metadata']) ? json_encode($item['metadata']) : $item['metadata']) : null,
+                "title" => $item["title"] ?? ($item["titulo"] ?? "Tarea"),
+                "description" => $item["description"] ?? null,
+                "status" => $item["status"] ?? "pending",
+                "type" => $item["type"] ?? "general",
+                "metadata" => isset($item["metadata"])
+                    ? (is_array($item["metadata"])
+                        ? json_encode($item["metadata"])
+                        : $item["metadata"])
+                    : null,
             ]);
             $count++;
         }
