@@ -68,11 +68,11 @@
                 </div>
 
                 {{-- Mobile: Side-by-side grid (image col-span-3, buy box col-span-2) --}}
-                <div class="lg:hidden grid grid-cols-5 gap-1.5">
+                <div class="lg:hidden grid grid-cols-5 gap-1">
                     {{-- Image --}}
                     <div class="col-span-3">
                         <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden">
-                            <div class="aspect-square flex items-center justify-center p-4">
+                            <div class="aspect-square flex items-center justify-center p-1.5">
                                 <img src="{{ $product->imagen }}" alt="{{ $product->title }}" class="max-w-full max-h-full object-contain" id="main-image-mobile" loading="eager" />
                             </div>
                         </div>
@@ -121,10 +121,10 @@
                  @if($relatedProducts->count() > 0)
                  <div class="lg:hidden mt-3">
                      <h3 class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2 px-1">Relojes Similares</h3>
-                     <div class="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1 snap-x snap-mandatory scrollbar-hide">
+                     <div class="flex gap-1.5 overflow-x-auto pb-2 -mx-1 px-1 snap-x snap-mandatory scrollbar-hide">
                         @foreach($relatedProducts as $related)
-                        <div class="flex-shrink-0 w-36 snap-start">
-                            <x-product-card :product="$related" />
+                        <div class="flex-shrink-0 w-24 snap-start">
+                            <x-product-card :product="$related" compact />
                         </div>
                         @endforeach
                     </div>
