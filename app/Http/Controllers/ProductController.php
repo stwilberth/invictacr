@@ -11,6 +11,9 @@ class ProductController extends Controller
     {
         $query = Product::where("activo", true)->where("precio_venta", ">", 0);
 
+        if ($request->filled("gender")) {
+            $query->where("genero", $request->gender);
+        }
         if ($request->filled("color")) {
             $query->where("color", $request->color);
         }
@@ -52,30 +55,11 @@ class ProductController extends Controller
 
         $products = $query->paginate(48)->withQueryString();
 
-        $filters = [
-            "colors" => Product::where("activo", true)
-                ->whereNotNull("color")
-                ->distinct()
-                ->pluck("color"),
-            "brazaletes" => Product::where("activo", true)
-                ->whereNotNull("brazalete")
-                ->distinct()
-                ->pluck("brazalete"),
-            "colecciones" => Product::where("activo", true)
-                ->whereNotNull("coleccion")
-                ->distinct()
-                ->pluck("coleccion"),
-            "movimientos" => Product::where("activo", true)
-                ->whereNotNull("tipo_movimiento")
-                ->distinct()
-                ->pluck("tipo_movimiento"),
-            "sizes" => collect(["35-39", "40-44", "45-49", "50+"]),
-        ];
+        $gender = $request->filled("gender") ? $request->gender : null;
 
-        return view(
-            "pages.catalog",
-            compact("products", "filters") + ["gender" => null],
-        );
+        $filters = $this->buildFilters($gender);
+
+        return view("pages.catalog", compact("products", "filters", "gender"));
     }
 
     public function byGender(Request $request, string $gender)
@@ -96,6 +80,15 @@ class ProductController extends Controller
         if ($request->filled("tipo_movimiento")) {
             $query->where("tipo_movimiento", $request->tipo_movimiento);
         }
+        if ($request->filled("size")) {
+            $query->where("size", $request->size);
+        }
+        if ($request->filled("precio_min")) {
+            $query->where("precio_venta", ">=", $request->precio_min);
+        }
+        if ($request->filled("precio_max")) {
+            $query->where("precio_venta", "<=", $request->precio_max);
+        }
 
         $sortField = match ($request->sort) {
             "price_asc" => ["precio_venta", "asc"],
@@ -108,30 +101,40 @@ class ProductController extends Controller
 
         $products = $query->paginate(48)->withQueryString();
 
-        $filters = [
-            "colors" => Product::where("activo", true)
-                ->where("genero", $gender)
+        $filters = $this->buildFilters($gender);
+
+        return view("pages.catalog", compact("products", "filters", "gender"));
+    }
+
+    /**
+     * Build the available filter options, optionally scoped by gender.
+     */
+    private function buildFilters(?string $gender = null): array
+    {
+        $base = Product::where("activo", true);
+        if ($gender) {
+            $base->where("genero", $gender);
+        }
+
+        return [
+            "colors" => (clone $base)
                 ->whereNotNull("color")
                 ->distinct()
                 ->pluck("color"),
-            "brazaletes" => Product::where("activo", true)
-                ->where("genero", $gender)
+            "brazaletes" => (clone $base)
                 ->whereNotNull("brazalete")
                 ->distinct()
                 ->pluck("brazalete"),
-            "colecciones" => Product::where("activo", true)
-                ->where("genero", $gender)
+            "colecciones" => (clone $base)
                 ->whereNotNull("coleccion")
                 ->distinct()
                 ->pluck("coleccion"),
-            "movimientos" => Product::where("activo", true)
-                ->where("genero", $gender)
+            "movimientos" => (clone $base)
                 ->whereNotNull("tipo_movimiento")
                 ->distinct()
                 ->pluck("tipo_movimiento"),
+            "sizes" => collect(["35-39", "40-44", "45-49", "50+"]),
         ];
-
-        return view("pages.catalog", compact("products", "filters", "gender"));
     }
 
     public function show(string $gender, string $slug)
