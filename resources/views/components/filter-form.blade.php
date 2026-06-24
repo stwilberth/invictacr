@@ -7,7 +7,16 @@
 
 @php
     $isMobile = str_ends_with($formId, '-mobile');
-    $defaultSection = $isMobile ? "'gender'" : 'null';
+    // Auto-open the section that has an active filter so the user sees their selection
+    $activeSection = null;
+    if (request('gender') || $gender) $activeSection = "'gender'";
+    elseif (request('color')) $activeSection = "'color'";
+    elseif (request('brazalete')) $activeSection = "'brazalete'";
+    elseif (request('coleccion')) $activeSection = "'coleccion'";
+    elseif (request('tipo_movimiento')) $activeSection = "'movimiento'";
+    elseif (request('size')) $activeSection = "'size'";
+    elseif (request('precio_min') || request('precio_max')) $activeSection = "'precio'";
+    $defaultSection = $activeSection ?? ($isMobile ? "'gender'" : 'null');
 @endphp
 
 @if($showClose)
@@ -31,7 +40,7 @@
             <span>Género</span>
             <i class="fa-solid fa-chevron-down text-[10px] transition-transform" :class="{ 'rotate-180': openSection === 'gender' }"></i>
         </button>
-        <div x-show="openSection === 'gender'" x-collapse class="space-y-1 pb-2">
+        <div x-show="openSection === 'gender'" x-cloak class="space-y-1 pb-2">
             <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
                 <input type="radio" name="gender" value="" {{ !request('gender') ? 'checked' : '' }} onchange="document.getElementById('{{ $formId }}').submit()" class="text-[#00C4FF]">
                 <span>Todos</span>
@@ -53,7 +62,7 @@
             <span>Color</span>
             <i class="fa-solid fa-chevron-down text-[10px] transition-transform" :class="{ 'rotate-180': openSection === 'color' }"></i>
         </button>
-        <div x-show="openSection === 'color'" x-collapse class="space-y-1 max-h-40 overflow-y-auto pb-2">
+        <div x-show="openSection === 'color'" x-cloak class="space-y-1 max-h-40 overflow-y-auto pb-2">
             <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
                 <input type="radio" name="color" value="" {{ !request('color') ? 'checked' : '' }} onchange="document.getElementById('{{ $formId }}').submit()" class="text-[#00C4FF]">
                 <span>Todos</span>
@@ -75,7 +84,7 @@
             <span>Brazalete</span>
             <i class="fa-solid fa-chevron-down text-[10px] transition-transform" :class="{ 'rotate-180': openSection === 'brazalete' }"></i>
         </button>
-        <div x-show="openSection === 'brazalete'" x-collapse class="space-y-1 pb-2">
+        <div x-show="openSection === 'brazalete'" x-cloak class="space-y-1 pb-2">
             <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
                 <input type="radio" name="brazalete" value="" {{ !request('brazalete') ? 'checked' : '' }} onchange="document.getElementById('{{ $formId }}').submit()" class="text-[#00C4FF]">
                 <span>Todos</span>
@@ -97,7 +106,7 @@
             <span>Colección</span>
             <i class="fa-solid fa-chevron-down text-[10px] transition-transform" :class="{ 'rotate-180': openSection === 'coleccion' }"></i>
         </button>
-        <div x-show="openSection === 'coleccion'" x-collapse class="space-y-1 max-h-40 overflow-y-auto pb-2">
+        <div x-show="openSection === 'coleccion'" x-cloak class="space-y-1 max-h-40 overflow-y-auto pb-2">
             <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
                 <input type="radio" name="coleccion" value="" {{ !request('coleccion') ? 'checked' : '' }} onchange="document.getElementById('{{ $formId }}').submit()" class="text-[#00C4FF]">
                 <span>Todas</span>
@@ -119,7 +128,7 @@
             <span>Movimiento</span>
             <i class="fa-solid fa-chevron-down text-[10px] transition-transform" :class="{ 'rotate-180': openSection === 'movimiento' }"></i>
         </button>
-        <div x-show="openSection === 'movimiento'" x-collapse class="space-y-1 pb-2">
+        <div x-show="openSection === 'movimiento'" x-cloak class="space-y-1 pb-2">
             <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
                 <input type="radio" name="tipo_movimiento" value="" {{ !request('tipo_movimiento') ? 'checked' : '' }} onchange="document.getElementById('{{ $formId }}').submit()" class="text-[#00C4FF]">
                 <span>Todos</span>
@@ -141,7 +150,7 @@
             <span>Tamaño</span>
             <i class="fa-solid fa-chevron-down text-[10px] transition-transform" :class="{ 'rotate-180': openSection === 'size' }"></i>
         </button>
-        <div x-show="openSection === 'size'" x-collapse class="space-y-1 pb-2">
+        <div x-show="openSection === 'size'" x-cloak class="space-y-1 pb-2">
             <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
                 <input type="radio" name="size" value="" {{ !request('size') ? 'checked' : '' }} onchange="document.getElementById('{{ $formId }}').submit()" class="text-[#00C4FF]">
                 <span>Todos</span>
@@ -162,7 +171,7 @@
             <span>Precio</span>
             <i class="fa-solid fa-chevron-down text-[10px] transition-transform" :class="{ 'rotate-180': openSection === 'precio' }"></i>
         </button>
-        <div x-show="openSection === 'precio'" x-collapse class="pb-2">
+        <div x-show="openSection === 'precio'" x-cloak class="pb-2">
             <div class="flex items-center gap-2">
                 <input type="number" name="precio_min" placeholder="Desde" value="{{ request('precio_min') }}" class="w-full bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-gray-600 rounded-lg text-xs px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-[#00C4FF]/50" onchange="document.getElementById('{{ $formId }}').submit()" />
                 <span class="text-gray-400 text-xs">-</span>
