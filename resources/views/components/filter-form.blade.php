@@ -34,7 +34,9 @@
     @endif
 
     {{-- Gender filter --}}
-    @if(!$gender)
+    @php
+        $currentGender = request('gender') ?: $gender;
+    @endphp
     <div class="mb-2">
         <button type="button" @click="openSection = openSection === 'gender' ? null : 'gender'" class="w-full flex items-center justify-between text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider py-2">
             <span>Género</span>
@@ -42,18 +44,17 @@
         </button>
         <div x-show="openSection === 'gender'" x-cloak class="space-y-1 pb-2">
             <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
-                <input type="radio" name="gender" value="" {{ !request('gender') ? 'checked' : '' }} onchange="document.getElementById('{{ $formId }}').submit()" class="text-[#00C4FF]">
+                <input type="radio" name="gender" value="" {{ !$currentGender ? 'checked' : '' }} onchange="window.location.href='{{ url('/relojes') }}'" class="text-[#00C4FF]">
                 <span>Todos</span>
             </label>
             @foreach(['hombre', 'mujer', 'unisex'] as $g)
             <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
-                <input type="radio" name="gender" value="{{ $g }}" {{ (request('gender') ?: $gender) === $g ? 'checked' : '' }} onchange="document.getElementById('{{ $formId }}').submit()" class="text-[#00C4FF]">
+                <input type="radio" name="gender" value="{{ $g }}" {{ $currentGender === $g ? 'checked' : '' }} onchange="window.location.href='{{ url('/relojes/' . $g) }}'" class="text-[#00C4FF]">
                 <span>{{ ucfirst($g) }}</span>
             </label>
             @endforeach
         </div>
     </div>
-    @endif
 
     {{-- Color filter --}}
     @if($filters['colors']->count() > 0)
