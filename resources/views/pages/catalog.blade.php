@@ -14,145 +14,36 @@
                 :subtitle="'Descubre los mejores relojes Invicta ' . ($gender ? 'para ' . $gender : 'originales') . '. ' . $products->total() . ' modelos con los mejores precios.'"
             />
 
-            <div class="flex flex-col md:flex-row gap-8 pb-12">
-                <aside class="w-full md:w-64 flex-shrink-0">
-                    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-4 md:p-6 sticky top-24">
-                        <h3 class="font-black text-sm uppercase tracking-wider text-gray-900 dark:text-white mb-4">
-                            <i class="fa-solid fa-sliders text-[#00C4FF] mr-2"></i>Filtros
-                        </h3>
-                        <form method="GET" action="{{ url()->current() }}" id="filter-form">
-                            @if(request('sort'))
-                                <input type="hidden" name="sort" value="{{ request('sort') }}" />
-                            @endif
+            <div class="flex flex-col md:flex-row gap-8 pb-12" x-data="{ filterOpen: false }">
 
-                            {{-- Gender filter --}}
-                            @if(!$gender)
-                            <div class="mb-4">
-                                <h4 class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Género</h4>
-                                <div class="space-y-1">
-                                    <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
-                                        <input type="radio" name="gender" value="" {{ !request('gender') ? 'checked' : '' }} onchange="document.getElementById('filter-form').submit()" class="text-[#00C4FF]">
-                                        <span>Todos</span>
-                                    </label>
-                                    @foreach(['hombre', 'mujer', 'unisex'] as $g)
-                                    <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
-                                        <input type="radio" name="gender" value="{{ $g }}" {{ (request('gender') ?: $gender) === $g ? 'checked' : '' }} onchange="document.getElementById('filter-form').submit()" class="text-[#00C4FF]">
-                                        <span>{{ ucfirst($g) }}</span>
-                                    </label>
-                                    @endforeach
-                                </div>
-                            </div>
-                            @endif
+                {{-- Mobile filter trigger --}}
+                <button @click="filterOpen = true" class="md:hidden flex items-center justify-center gap-2 w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-sm px-4 py-3 font-black text-sm uppercase tracking-wider text-gray-700 dark:text-gray-200 active:scale-95 transition-all">
+                    <i class="fa-solid fa-sliders text-[#00C4FF]"></i>
+                    Filtros
+                </button>
 
-                            {{-- Color filter --}}
-                            @if($filters['colors']->count() > 0)
-                            <div class="mb-4">
-                                <h4 class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Color</h4>
-                                <div class="space-y-1 max-h-40 overflow-y-auto">
-                                    <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
-                                        <input type="radio" name="color" value="" {{ !request('color') ? 'checked' : '' }} onchange="document.getElementById('filter-form').submit()" class="text-[#00C4FF]">
-                                        <span>Todos</span>
-                                    </label>
-                                    @foreach($filters['colors'] as $color)
-                                    <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
-                                        <input type="radio" name="color" value="{{ $color }}" {{ request('color') === $color ? 'checked' : '' }} onchange="document.getElementById('filter-form').submit()" class="text-[#00C4FF]">
-                                        <span>{{ ucfirst($color) }}</span>
-                                    </label>
-                                    @endforeach
-                                </div>
-                            </div>
-                            @endif
+                {{-- Mobile drawer overlay --}}
+                <div x-show="filterOpen" @click="filterOpen = false" class="md:hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-40" style="display:none;"></div>
 
-                            {{-- Brazalete filter --}}
-                            @if($filters['brazaletes']->count() > 0)
-                            <div class="mb-4">
-                                <h4 class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Brazalete</h4>
-                                <div class="space-y-1">
-                                    <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
-                                        <input type="radio" name="brazalete" value="" {{ !request('brazalete') ? 'checked' : '' }} onchange="document.getElementById('filter-form').submit()" class="text-[#00C4FF]">
-                                        <span>Todos</span>
-                                    </label>
-                                    @foreach($filters['brazaletes'] as $brazalete)
-                                    <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
-                                        <input type="radio" name="brazalete" value="{{ $brazalete }}" {{ request('brazalete') === $brazalete ? 'checked' : '' }} onchange="document.getElementById('filter-form').submit()" class="text-[#00C4FF]">
-                                        <span>{{ ucfirst($brazalete) }}</span>
-                                    </label>
-                                    @endforeach
-                                </div>
-                            </div>
-                            @endif
+                {{-- Mobile drawer --}}
+                <aside
+                    class="md:hidden fixed inset-y-0 left-0 z-50 w-[85%] max-w-sm bg-white dark:bg-gray-800 shadow-2xl overflow-y-auto p-4 pb-24"
+                    x-show="filterOpen"
+                    x-transition:enter="transition ease-out duration-300"
+                    x-transition:enter-start="-translate-x-full"
+                    x-transition:enter-end="translate-x-0"
+                    x-transition:leave="transition ease-in duration-200"
+                    x-transition:leave-start="translate-x-0"
+                    x-transition:leave-end="-translate-x-full"
+                    style="display:none;"
+                >
+                    <x-filter-form formId="filter-form-mobile" :showClose="true" />
+                </aside>
 
-                            {{-- Colección filter --}}
-                            @if(($filters['colecciones'] ?? collect())->count() > 0)
-                            <div class="mb-4">
-                                <h4 class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Colección</h4>
-                                <div class="space-y-1 max-h-40 overflow-y-auto">
-                                    <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
-                                        <input type="radio" name="coleccion" value="" {{ !request('coleccion') ? 'checked' : '' }} onchange="document.getElementById('filter-form').submit()" class="text-[#00C4FF]">
-                                        <span>Todas</span>
-                                    </label>
-                                    @foreach($filters['colecciones'] as $coleccion)
-                                    <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
-                                        <input type="radio" name="coleccion" value="{{ $coleccion }}" {{ request('coleccion') === $coleccion ? 'checked' : '' }} onchange="document.getElementById('filter-form').submit()" class="text-[#00C4FF]">
-                                        <span>{{ $coleccion }}</span>
-                                    </label>
-                                    @endforeach
-                                </div>
-                            </div>
-                            @endif
-
-                            {{-- Tipo de movimiento filter --}}
-                            @if(($filters['movimientos'] ?? collect())->count() > 0)
-                            <div class="mb-4">
-                                <h4 class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Movimiento</h4>
-                                <div class="space-y-1">
-                                    <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
-                                        <input type="radio" name="tipo_movimiento" value="" {{ !request('tipo_movimiento') ? 'checked' : '' }} onchange="document.getElementById('filter-form').submit()" class="text-[#00C4FF]">
-                                        <span>Todos</span>
-                                    </label>
-                                    @foreach($filters['movimientos'] as $mov)
-                                    <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
-                                        <input type="radio" name="tipo_movimiento" value="{{ $mov }}" {{ request('tipo_movimiento') === $mov ? 'checked' : '' }} onchange="document.getElementById('filter-form').submit()" class="text-[#00C4FF]">
-                                        <span>{{ $mov === 'cuarzo' ? 'Batería' : ucfirst($mov) }}</span>
-                                    </label>
-                                    @endforeach
-                                </div>
-                            </div>
-                            @endif
-
-                            {{-- Size filter --}}
-                            @if(($filters['sizes'] ?? collect())->count() > 0)
-                            <div class="mb-4">
-                                <h4 class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Tamaño</h4>
-                                <div class="space-y-1">
-                                    <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
-                                        <input type="radio" name="size" value="" {{ !request('size') ? 'checked' : '' }} onchange="document.getElementById('filter-form').submit()" class="text-[#00C4FF]">
-                                        <span>Todos</span>
-                                    </label>
-                                    @foreach($filters['sizes'] as $size)
-                                    <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
-                                        <input type="radio" name="size" value="{{ $size }}" {{ request('size') === $size ? 'checked' : '' }} onchange="document.getElementById('filter-form').submit()" class="text-[#00C4FF]">
-                                        <span>{{ $size }}MM</span>
-                                    </label>
-                                    @endforeach
-                                </div>
-                            </div>
-                            @endif
-
-                            {{-- Price range filter --}}
-                            <div class="mb-4">
-                                <h4 class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Precio</h4>
-                                <div class="flex items-center gap-2">
-                                    <input type="number" name="precio_min" placeholder="Desde" value="{{ request('precio_min') }}" class="w-full bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-gray-600 rounded-lg text-xs px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-[#00C4FF]/50" onchange="document.getElementById('filter-form').submit()" />
-                                    <span class="text-gray-400 text-xs">-</span>
-                                    <input type="number" name="precio_max" placeholder="Hasta" value="{{ request('precio_max') }}" class="w-full bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-gray-600 rounded-lg text-xs px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-[#00C4FF]/50" onchange="document.getElementById('filter-form').submit()" />
-                                </div>
-                            </div>
-
-                            <button type="submit" class="w-full bg-[#00C4FF] hover:bg-[#00b3e6] text-white font-bold text-xs uppercase tracking-wider px-4 py-2.5 rounded-xl transition-all duration-300 active:scale-95 shadow-md">
-                                <i class="fa-solid fa-filter mr-1"></i> Filtrar
-                            </button>
-                        </form>
+                {{-- Desktop sidebar --}}
+                <aside class="hidden md:block w-64 flex-shrink-0">
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-4 md:p-6 sticky top-24 relative">
+                        <x-filter-form formId="filter-form" />
                     </div>
                 </aside>
 
@@ -222,7 +113,7 @@
                     @if($products->count() > 0)
                     <div
                         id="products-grid"
-                        class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4"
+                        class="grid grid-cols-2 md:grid-cols-4 gap-4"
                         data-current-page="{{ $products->currentPage() }}"
                         data-total-pages="{{ $products->lastPage() }}"
                     >
@@ -275,6 +166,16 @@
 
     @push('scripts')
     <script>
+        // Close mobile filter drawer
+        window.closeFilters = function() {
+            const aside = document.querySelector('aside[x-show="filterOpen"]');
+            if (aside && window.Alpine) {
+                const el = aside.closest('[x-data]');
+                if (el && el._x_dataStack) el._x_dataStack[0].filterOpen = false;
+            }
+            document.body.style.overflow = '';
+        };
+
         document.addEventListener("DOMContentLoaded", function() {
             initFilterButtons();
 
@@ -291,6 +192,15 @@
                 window.clearAllFilters = function() {
                     window.location.href = window.location.pathname;
                 };
+            }
+
+            // Lock body scroll when mobile filter drawer opens
+            const filterAside = document.querySelector('aside[x-show="filterOpen"]');
+            if (filterAside) {
+                const observer = new MutationObserver(function() {
+                    document.body.style.overflow = filterAside.style.display !== 'none' ? 'hidden' : '';
+                });
+                observer.observe(filterAside, { attributes: true, attributeFilter: ['style'] });
             }
 
             initInfiniteScroll();
