@@ -4,21 +4,22 @@
     $whatsappLink = 'https://wa.me/50686711422?text=' . urlencode("Hola, me interesa el reloj Invicta {$product->modelo}: " . url($productUrl));
     $priceAfterDiscount = $product->precio_venta * (1 - ($product->descuento ?? 0) / 100);
     $model = preg_replace('/^invicta-/i', '', $product->modelo ?? '');
-    // Usar imagen local siempre, ignorar CDN externo
-    $imageUrl = $product->imagen && !str_starts_with($product->imagen, 'http')
+    $imagePath = "images/relojes/{$model}.jpg";
+    $hasLocalImage = file_exists(public_path($imagePath)) || ($product->imagen && str_starts_with($product->imagen, '/storage/'));
+    $imageUrl = ($product->imagen && !str_starts_with($product->imagen, 'http'))
         ? $product->imagen
-        : asset("images/relojes/{$model}.jpg");
+        : ($hasLocalImage ? asset($imagePath) : null);
 @endphp
 
 <div class="group relative flex flex-col h-full bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-100 dark:border-white/5 hover:shadow-2xl hover:shadow-blue-500/10 transition-all duration-300 overflow-hidden">
     <a href="{{ $productUrl }}" class="w-full pt-[100%] relative block">
         <div class="absolute inset-0 flex items-center justify-center pt-1">
+            <div class="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200 dark:from-[#0a0f1c] dark:to-[#1a2332]" @if($imageUrl) style="display:none" @endif>
+                <span class="font-black text-slate-300 dark:text-slate-600 {{ $compact ? 'text-lg' : 'text-2xl' }} tracking-tighter">{{ $model }}</span>
+                <span class="text-[8px] md:text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mt-1">Invicta</span>
+            </div>
             @if($imageUrl)
-                <img src="{{ $imageUrl }}" alt="{{ $product->title }}" class="max-w-full max-h-full object-contain" loading="lazy" />
-            @else
-                <div class="w-full h-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center">
-                    <span class="text-gray-400 dark:text-gray-500 text-sm">Sin imagen</span>
-                </div>
+                <img src="{{ $imageUrl }}" alt="{{ $product->title }}" class="absolute max-w-full max-h-full object-contain" loading="lazy" onerror="this.style.display='none'; this.previousElementSibling.style.display='flex';" />
             @endif
         </div>
 
