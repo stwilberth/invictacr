@@ -5,6 +5,9 @@ namespace App\Livewire\Admin;
 use App\Models\Product;
 use Livewire\Component;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\File;
 
 class ProductForm extends Component
 {
@@ -57,6 +60,75 @@ class ProductForm extends Component
         if (!$this->title) {
             $this->title = $value;
         }
+    }
+
+    public function downloadImage()
+    {
+        if (!$this->imagen || !$this->modelo) {
+            session()->flash("error", "Se requiere modelo y URL de imagen.");
+            return;
+        }
+
+        try {
+            $response = Http::withHeaders([
+                "User-Agent" => self::CDN_USER_AGENT,
+            ])
+                ->withOptions(
+                    app()->environment("local") ? ["verify" => false] : [],
+                )
+                ->timeout(30)
+                ->get($this->imagen);
+
+            if (!$response->ok() || $response->body() === "") {
+                session()->flash(
+                    "error",
+                    "No se pudo descargar la imagen desde el CDN.",
+                );
+                return;
+            }
+
+            $extension = self::detectExtension($this->imagen, $response);
+            $filename = $this->modelo . "." . $extension;
+            $directory = storage_path("app/public/relojes");
+            if (!File::exists($directory)) {
+                File::makeDirectory($directory, 0755, true);
+            }
+            File::put($directory . "/" . $filename, $response->body());
+
+            $this->imagen = "/storage/relojes/" . $filename;
+            session()->flash("message", "Imagen descargada: " . $filename);
+        } catch (\Exception $e) {
+            session()->flash(
+                "error",
+                "Error al descargar: " . $e->getMessage(),
+            );
+        }
+    }
+
+    private const CDN_USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
+
+    private static function detectExtension(string $url, $response): string
+    {
+        $contentType = $response->header("Content-Type") ?? "";
+        if (str_contains($contentType, "webp")) {
+            return "webp";
+        }
+        if (str_contains($contentType, "png")) {
+            return "png";
+        }
+        if (str_contains($contentType, "gif")) {
+            return "gif";
+        }
+
+        $path = parse_url($url, PHP_URL_PATH) ?? "";
+        $ext = pathinfo($path, PATHINFO_EXTENSION);
+        if (
+            $ext &&
+            in_array(strtolower($ext), ["jpg", "jpeg", "png", "webp", "gif"])
+        ) {
+            return strtolower($ext);
+        }
+        return "jpg";
     }
 
     public function save()

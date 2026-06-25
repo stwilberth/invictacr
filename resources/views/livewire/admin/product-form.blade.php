@@ -74,9 +74,30 @@
                     <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Resistencia al Agua</label>
                     <input wire:model="resistencia_agua" type="text" class="w-full bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm" />
                 </div>
-                <div>
+                <div class="md:col-span-2">
                     <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">URL Imagen</label>
-                    <input wire:model="imagen" type="text" class="w-full bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm" />
+                    <div class="flex gap-2">
+                        <input wire:model="imagen" type="text" class="flex-1 bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm" />
+                        <button type="button" wire:click="downloadImage" wire:loading.attr="disabled" wire:target="downloadImage" class="flex items-center gap-1.5 bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-white font-bold text-xs uppercase tracking-wider px-4 py-2.5 rounded-xl transition-all whitespace-nowrap">
+                            <i class="fa-solid fa-download" wire:loading.remove wire:target="downloadImage"></i>
+                            <i class="fa-solid fa-spinner fa-spin" wire:loading wire:target="downloadImage"></i>
+                            Descargar
+                        </button>
+                    </div>
+                    @if($imagen)
+                    <div class="mt-3 flex items-start gap-4">
+                        <div class="w-28 h-28 rounded-xl border border-gray-200 dark:border-white/10 overflow-hidden bg-gray-50 dark:bg-[#0a0f1c] flex items-center justify-center flex-shrink-0">
+                            <img src="{{ $imagen }}" alt="Preview" class="max-w-full max-h-full object-contain" />
+                        </div>
+                        <p class="text-xs text-gray-400 mt-1">
+                            @if(str_starts_with($imagen, '/storage/'))
+                                <i class="fa-solid fa-check text-green-500"></i> Imagen guardada localmente
+                            @else
+                                <i class="fa-solid fa-cloud text-blue-400"></i> Imagen externa (CDN)
+                            @endif
+                        </p>
+                    </div>
+                    @endif
                 </div>
             </div>
 
