@@ -78,9 +78,33 @@
                     <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">URL Imagen</label>
                     <input wire:model="imagen" type="text" class="w-full bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm" />
                 </div>
+            </div>
+
+            {{-- Sincronización VariedadesCR --}}
+            <div class="border-t border-gray-100 dark:border-white/10 pt-4">
+                <h3 class="text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-3">
+                    <i class="fa-solid fa-lock text-amber-500 mr-1"></i> Sincronización VariedadesCR
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Precio VariedadesCR</label>
+                        <input wire:model="variedades_price" type="number" class="w-full bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm" />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Aumento Aplicado</label>
+                        <input wire:model="variedades_increase" type="number" class="w-full bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm" />
+                    </div>
+                </div>
                 <div class="flex items-center gap-3 pt-6">
                     <input wire:model="activo" type="checkbox" id="activo" class="text-[#00C4FF] rounded">
                     <label for="activo" class="text-sm font-bold text-gray-700 dark:text-gray-300">Producto activo</label>
+                </div>
+                <div class="flex items-center gap-3">
+                    <input wire:model="bloqueado" type="checkbox" id="bloqueado" class="text-amber-500 rounded">
+                    <label for="bloqueado" class="text-sm font-bold text-gray-700 dark:text-gray-300">
+                        Bloquear sincronización
+                        <span class="block text-xs font-normal text-gray-400">Evita que el sync de VariedadesCR cambie el stock y precio</span>
+                    </label>
                 </div>
             </div>
             <div class="flex gap-3">
