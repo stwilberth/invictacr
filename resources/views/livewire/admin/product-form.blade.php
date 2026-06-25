@@ -83,6 +83,10 @@
                             <i class="fa-solid fa-spinner fa-spin" wire:loading wire:target="downloadImage"></i>
                             Descargar
                         </button>
+                        <button type="button" wire:click="$set('imagen', '/storage/relojes/' + {{ json_encode($modelo) }} + '.jpg')" class="flex items-center gap-1.5 bg-green-500 hover:bg-green-600 text-white font-bold text-xs uppercase tracking-wider px-4 py-2.5 rounded-xl transition-all whitespace-nowrap">
+                            <i class="fa-solid fa-folder-open"></i>
+                            Imagen local
+                        </button>
                     </div>
                     @if($imagen)
                     <div class="mt-3 flex items-start gap-4">
