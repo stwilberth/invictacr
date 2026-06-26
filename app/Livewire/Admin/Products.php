@@ -15,7 +15,8 @@ class Products extends Component
     public $sortDirection = "desc";
     public $filterGender = "";
     public $filterColeccion = "";
-    public $filterLocalImage = false;
+    public $filterStock = "all";
+    public $filterActivo = "all";
 
     public function sortBy($field)
     {
@@ -44,13 +45,7 @@ class Products extends Component
         $query = Product::query();
 
         if ($this->search) {
-            $query->where(function ($q) {
-                $q->where("title", "like", "%{$this->search}%")->orWhere(
-                    "modelo",
-                    "like",
-                    "%{$this->search}%",
-                );
-            });
+            $query->where("modelo", "like", "%{$this->search}%");
         }
 
         if ($this->filterGender) {
@@ -63,8 +58,16 @@ class Products extends Component
             ]);
         }
 
-        if ($this->filterLocalImage) {
-            $query->where("imagen", "like", "/storage/relojes/%");
+        if ($this->filterStock === "in") {
+            $query->where("stock", ">", 0);
+        } elseif ($this->filterStock === "out") {
+            $query->where("stock", 0);
+        }
+
+        if ($this->filterActivo === "yes") {
+            $query->where("activo", true);
+        } elseif ($this->filterActivo === "no") {
+            $query->where("activo", false);
         }
 
         $products = $query

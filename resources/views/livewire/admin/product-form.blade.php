@@ -2,14 +2,23 @@
     <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-6">
         <form wire:submit="save" class="space-y-6">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div x-data="{ modelo: @js($modelo) }">
+                <div>
                     <label class="flex items-center justify-between text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">
                         <span>Modelo *</span>
-                        <a x-bind:href="modelo ? 'https://www.invictawatch.com/watches/detail/' + encodeURIComponent(modelo) : '#'" target="_blank" rel="noopener" x-bind:class="modelo ? 'text-[#00C4FF] hover:underline' : 'text-gray-300 dark:text-gray-600 pointer-events-none'" class="text-xs font-bold flex items-center gap-1">
-                            <i class="fa-solid fa-up-right-from-square"></i> Ver en Invicta
-                        </a>
+                        @if($modelo)
+                            <span class="flex items-center gap-2">
+                                @if($slug)
+                                    <a href="{{ route('products.show', ['gender' => $genero ?? 'unisex', 'slug' => $slug]) }}" target="_blank" rel="noopener" class="text-green-600 dark:text-green-400 hover:underline text-xs font-bold flex items-center gap-1">
+                                        <i class="fa-solid fa-globe"></i> Ver en sitio
+                                    </a>
+                                @endif
+                                <a href="https://www.invictawatch.com/watches/detail/{{ urlencode($modelo) }}" target="_blank" rel="noopener" class="text-[#00C4FF] hover:underline text-xs font-bold flex items-center gap-1">
+                                    <i class="fa-solid fa-up-right-from-square"></i> Ver en Invicta
+                                </a>
+                            </span>
+                        @endif
                     </label>
-                    <input wire:model="modelo" x-model="modelo" type="text" class="w-full bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm" />
+                    <input wire:model="modelo" type="text" class="w-full bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm" />
                     @error('modelo') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                 </div>
                 <div>

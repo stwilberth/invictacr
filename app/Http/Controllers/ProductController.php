@@ -9,7 +9,9 @@ class ProductController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Product::where("activo", true)->where("precio_venta", ">", 0);
+        $query = Product::where("activo", true)
+            ->where("precio_venta", ">", 0)
+            ->where("stock", ">", 0);
 
         if ($request->filled("gender")) {
             $query->where("genero", $request->gender);
@@ -66,6 +68,7 @@ class ProductController extends Controller
     {
         $query = Product::where("activo", true)
             ->where("precio_venta", ">", 0)
+            ->where("stock", ">", 0)
             ->where("genero", $gender);
 
         if ($request->filled("color")) {
@@ -111,7 +114,7 @@ class ProductController extends Controller
      */
     private function buildFilters(?string $gender = null): array
     {
-        $base = Product::where("activo", true);
+        $base = Product::where("activo", true)->where("stock", ">", 0);
         if ($gender) {
             $base->where("genero", $gender);
         }
@@ -165,6 +168,7 @@ class ProductController extends Controller
 
         $relatedProducts = Product::where("activo", true)
             ->where("precio_venta", ">", 0)
+            ->where("stock", ">", 0)
             ->where("id", "!=", $product->id)
             ->where(function ($q) use ($product) {
                 $q->where("coleccion", $product->coleccion)
