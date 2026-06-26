@@ -120,7 +120,9 @@ class ProductController extends Controller
             "colors" => (clone $base)
                 ->whereNotNull("color")
                 ->distinct()
-                ->pluck("color"),
+                ->pluck("color")
+                ->sortBy(fn($v) => mb_strtolower($v), SORT_NATURAL)
+                ->values(),
             "brazaletes" => (clone $base)
                 ->whereNotNull("brazalete")
                 ->distinct()
@@ -128,7 +130,9 @@ class ProductController extends Controller
             "colecciones" => (clone $base)
                 ->whereNotNull("coleccion")
                 ->distinct()
-                ->pluck("coleccion"),
+                ->pluck("coleccion")
+                ->sortBy(fn($v) => mb_strtolower($v), SORT_NATURAL)
+                ->values(),
             "movimientos" => (clone $base)
                 ->whereNotNull("tipo_movimiento")
                 ->distinct()

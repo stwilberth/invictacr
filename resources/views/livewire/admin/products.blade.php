@@ -8,6 +8,12 @@
                 <option value="mujer">Mujer</option>
                 <option value="unisex">Unisex</option>
             </select>
+            <select wire:model.live="filterColeccion" class="bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2 text-sm">
+                <option value="">Todas las colecciones</option>
+                @foreach($colecciones as $col)
+                    <option value="{{ $col }}">{{ $col }}</option>
+                @endforeach
+            </select>
             <label class="flex items-center gap-1.5 text-sm font-bold text-gray-600 dark:text-gray-300 cursor-pointer">
                 <input type="checkbox" wire:model.live="filterLocalImage" class="text-[#00C4FF] rounded" />
                 <i class="fa-solid fa-image text-amber-500"></i> Solo imagen local
@@ -36,15 +42,13 @@
                 @foreach($products as $product)
                 <tr class="border-b border-gray-100 dark:border-white/5 hover:bg-gray-50 dark:hover:bg-white/5">
                     <td class="px-4 py-3">
-                        @if($product->imagen)
-                            <div class="w-10 h-10 rounded-lg overflow-hidden bg-gray-100 dark:bg-[#0a0f1c] flex items-center justify-center">
+                        @if(str_starts_with($product->imagen ?? '', '/storage/'))
+                            <div class="w-10 h-10 rounded-lg overflow-hidden bg-gray-100 dark:bg-[#0a0f1c] flex items-center justify-center relative" title="Imagen local">
                                 <img src="{{ $product->imagen }}" alt="{{ $product->modelo }}" class="w-full h-full object-contain" loading="lazy" />
+                                <i class="fa-solid fa-circle text-[6px] text-green-500 absolute top-0 right-0" title="Imagen local"></i>
                             </div>
-                            @if(str_starts_with($product->imagen, '/storage/'))
-                                <i class="fa-solid fa-circle text-[6px] text-green-500 absolute" title="Imagen local"></i>
-                            @endif
                         @else
-                            <div class="w-10 h-10 rounded-lg bg-gray-100 dark:bg-[#0a0f1c] flex items-center justify-center text-gray-300">
+                            <div class="w-10 h-10 rounded-lg bg-gray-100 dark:bg-[#0a0f1c] flex items-center justify-center text-gray-300" title="Sin imagen local">
                                 <i class="fa-solid fa-image text-xs"></i>
                             </div>
                         @endif

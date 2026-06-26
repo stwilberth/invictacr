@@ -7,7 +7,6 @@ use Livewire\Component;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\File;
 
 class ProductForm extends Component
 {
@@ -22,6 +21,8 @@ class ProductForm extends Component
     public $bloqueado = false,
         $variedades_price,
         $variedades_increase;
+    public $downloadStatus = "";
+    public $downloadMessage = "";
 
     public function mount($productId = null)
     {
@@ -64,8 +65,18 @@ class ProductForm extends Component
 
     public function downloadImage()
     {
+        $this->downloadStatus = "";
+        $this->downloadMessage = "";
+
         if (!$this->imagen || !$this->modelo) {
-            session()->flash("error", "Se requiere modelo y URL de imagen.");
+            $this->setDownloadError("Se requiere modelo y URL de imagen.");
+            return;
+        }
+
+        if (!preg_match("#^https?://#i", $this->imagen)) {
+            $this->setDownloadError(
+                "La URL de imagen no es válida (debe empezar con http).",
+            );
             return;
         }
 
@@ -80,28 +91,74 @@ class ProductForm extends Component
                 ->get($this->imagen);
 
             if (!$response->ok() || $response->body() === "") {
-                session()->flash(
-                    "error",
-                    "No se pudo descargar la imagen desde el CDN.",
+                $this->setDownloadError(
+                    "No se pudo descargar la imagen (HTTP " .
+                        $response->status() .
+                        ").",
                 );
                 return;
             }
 
             $extension = self::detectExtension($this->imagen, $response);
-            $filename = $this->modelo . "." . $extension;
-            $directory = storage_path("app/public/relojes");
-            if (!File::exists($directory)) {
-                File::makeDirectory($directory, 0755, true);
+            $safeModelo = preg_replace("/[^a-zA-Z0-9_-]/", "", $this->modelo);
+            if ($safeModelo === "") {
+                $safeModelo = "producto";
             }
-            File::put($directory . "/" . $filename, $response->body());
+            $filename = strtolower($safeModelo) . "." . $extension;
+            $relative = "relojes/" . $filename;
+
+            $this->ensureStorageSymlink();
+
+            Storage::disk("public")->makeDirectory("relojes");
+            Storage::disk("public")->put($relative, $response->body());
+
+            if (!Storage::disk("public")->exists($relative)) {
+                $this->setDownloadError(
+                    "La imagen se descargó pero no se guardó en disco.",
+                );
+                return;
+            }
 
             $this->imagen = "/storage/relojes/" . $filename;
-            session()->flash("message", "Imagen descargada: " . $filename);
+            $this->downloadStatus = "ok";
+            $this->downloadMessage =
+                "Imagen descargada: " .
+                $filename .
+                " (verifica la vista previa abajo).";
         } catch (\Exception $e) {
-            session()->flash(
-                "error",
-                "Error al descargar: " . $e->getMessage(),
-            );
+            $this->setDownloadError("Error al descargar: " . $e->getMessage());
+        }
+    }
+
+    private function setDownloadError(string $message): void
+    {
+        $this->downloadStatus = "error";
+        $this->downloadMessage = $message;
+    }
+
+    /**
+     * Garantiza el symlink public/storage -> storage/app/public.
+     * En entornos donde php artisan storage:link no se ejecutó, la imagen
+     * se guarda pero queda inaccesible desde la web.
+     */
+    private function ensureStorageSymlink(): void
+    {
+        $link = public_path("storage");
+        $target = storage_path("app/public");
+
+        if (is_link($link) || is_dir($link . "/relojes")) {
+            return;
+        }
+
+        try {
+            if (is_link($link) || is_file($link)) {
+                @unlink($link);
+            }
+            if (!is_dir($link)) {
+                @symlink($target, $link);
+            }
+        } catch (\Throwable $e) {
+            // Ignorado: si no se puede crear, igual guardamos el archivo.
         }
     }
 
@@ -176,8 +233,22 @@ class ProductForm extends Component
 
     public function render()
     {
-        return view("livewire.admin.product-form")->layout(
-            "components.admin-layout",
-        );
+        $colecciones = collect(config("collections", []))
+            ->map(fn($c) => trim($c))
+            ->filter()
+            ->unique()
+            ->sort(fn($a, $b) => strcasecmp($a, $b))
+            ->values();
+        $colores = collect(config("colors", []))
+            ->map(fn($c) => trim($c))
+            ->filter()
+            ->unique()
+            ->sort(fn($a, $b) => strcasecmp($a, $b))
+            ->values();
+
+        return view(
+            "livewire.admin.product-form",
+            compact("colecciones", "colores"),
+        )->layout("components.admin-layout");
     }
 }

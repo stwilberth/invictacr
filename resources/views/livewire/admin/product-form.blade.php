@@ -2,9 +2,14 @@
     <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-6">
         <form wire:submit="save" class="space-y-6">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Modelo *</label>
-                    <input wire:model="modelo" type="text" class="w-full bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm" />
+                <div x-data="{ modelo: @js($modelo) }">
+                    <label class="flex items-center justify-between text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">
+                        <span>Modelo *</span>
+                        <a x-bind:href="modelo ? 'https://www.invictawatch.com/watches/detail/' + encodeURIComponent(modelo) : '#'" target="_blank" rel="noopener" x-bind:class="modelo ? 'text-[#00C4FF] hover:underline' : 'text-gray-300 dark:text-gray-600 pointer-events-none'" class="text-xs font-bold flex items-center gap-1">
+                            <i class="fa-solid fa-up-right-from-square"></i> Ver en Invicta
+                        </a>
+                    </label>
+                    <input wire:model="modelo" x-model="modelo" type="text" class="w-full bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm" />
                     @error('modelo') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                 </div>
                 <div>
@@ -39,7 +44,12 @@
                 </div>
                 <div>
                     <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Color</label>
-                    <input wire:model="color" type="text" class="w-full bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm" />
+                    <select wire:model="color" class="w-full bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm">
+                        <option value="">Sin color</option>
+                        @foreach($colores as $col)
+                            <option value="{{ $col }}">{{ $col }}</option>
+                        @endforeach
+                    </select>
                 </div>
                 <div>
                     <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Brazalete</label>
@@ -47,7 +57,12 @@
                 </div>
                 <div>
                     <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Colección</label>
-                    <input wire:model="coleccion" type="text" class="w-full bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm" />
+                    <select wire:model="coleccion" class="w-full bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm">
+                        <option value="">Sin colección</option>
+                        @foreach($colecciones as $col)
+                            <option value="{{ $col }}">{{ $col }}</option>
+                        @endforeach
+                    </select>
                 </div>
                 <div>
                     <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Tipo Movimiento</label>
@@ -88,6 +103,15 @@
                             Imagen local
                         </button>
                     </div>
+                    @if($downloadStatus === 'ok')
+                        <p class="mt-2 text-xs font-bold text-green-600 dark:text-green-400">
+                            <i class="fa-solid fa-check"></i> {{ $downloadMessage }}
+                        </p>
+                    @elseif($downloadStatus === 'error')
+                        <p class="mt-2 text-xs font-bold text-red-600 dark:text-red-400">
+                            <i class="fa-solid fa-circle-exclamation"></i> {{ $downloadMessage }}
+                        </p>
+                    @endif
                     @if($imagen)
                     <div class="mt-3 flex items-start gap-4">
                         <div class="w-28 h-28 rounded-xl border border-gray-200 dark:border-white/10 overflow-hidden bg-gray-50 dark:bg-[#0a0f1c] flex items-center justify-center flex-shrink-0">

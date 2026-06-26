@@ -58,7 +58,9 @@ class Products extends Component
         }
 
         if ($this->filterColeccion) {
-            $query->where("coleccion", $this->filterColeccion);
+            $query->whereRaw("LOWER(coleccion) = ?", [
+                strtolower($this->filterColeccion),
+            ]);
         }
 
         if ($this->filterLocalImage) {
@@ -68,9 +70,12 @@ class Products extends Component
         $products = $query
             ->orderBy($this->sortField, $this->sortDirection)
             ->paginate(20);
-        $colecciones = Product::whereNotNull("coleccion")
-            ->distinct()
-            ->pluck("coleccion");
+        $colecciones = collect(config("collections", []))
+            ->map(fn($c) => trim($c))
+            ->filter()
+            ->unique()
+            ->sort(fn($a, $b) => strcasecmp($a, $b))
+            ->values();
 
         return view(
             "livewire.admin.products",
