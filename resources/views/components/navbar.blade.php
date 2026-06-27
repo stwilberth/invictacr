@@ -9,13 +9,20 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-14 md:h-20 items-center">
             <div class="flex-shrink-0 flex items-center justify-center mr-2 md:mr-8">
-                <a href="/" class="flex items-center gap-2 group text-xs md:text-xl">
-                    <img src="{{ asset('logo.png') }}" alt="Invicta Costa Rica" class="h-8 md:h-11 w-auto" width="140" height="47" />
-                    <div class="grid gap-1">
-                        <p class="text-white/80 font-bold tracking-wider group-hover:text-white transition-colors">Invicta<span class="text-[#00C4FF]">CostaRica</span>.com</p>
-                        <p class="text-[11px] md:text-xs text-white/50 text-center">Tienda No Oficial</p>
+                <div class="flex items-center gap-2">
+                    <a href="/" class="flex-shrink-0">
+                        <img src="{{ asset('logo.png') }}" alt="Invicta Costa Rica" class="h-8 md:h-11 w-auto hover:opacity-90 transition-opacity" width="140" height="47" />
+                    </a>
+                    <div class="grid gap-0.5">
+                        <a href="/" class="group text-xs md:text-xl">
+                            <p class="text-white/80 font-bold tracking-wider group-hover:text-white transition-colors">Invicta<span class="text-[#00C4FF]">CostaRica</span>.com</p>
+                        </a>
+                        <a href="https://wa.me/50686711422" target="_blank" rel="noopener noreferrer" class="text-[11px] md:text-xs text-white/50 hover:text-white flex items-center gap-1 transition-colors">
+                            <i class="fa-brands fa-whatsapp text-[#25D366]"></i>
+                            <span>8671-1422</span>
+                        </a>
                     </div>
-                </a>
+                </div>
             </div>
 
             <div class="hidden md:flex items-center space-x-1 lg:space-x-4">
