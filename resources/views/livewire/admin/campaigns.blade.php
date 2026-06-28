@@ -30,7 +30,7 @@
                 <div class="flex gap-2 overflow-x-auto flex-1 min-w-0 pb-1">
                     @foreach($products as $p)
                     <button wire:click="$set('selectedProductId', {{ $p->id }})"
-                        class="flex-shrink-0 w-[100px] p-1 rounded-lg border-2 transition-all {{ $selectedProductId == $p->id ? 'border-[#00C4FF]' : 'border-transparent hover:border-gray-200 dark:hover:border-white/20' }}">
+                        class="flex-shrink-0 p-1 rounded-lg border-2 transition-all {{ $selectedProductId == $p->id ? 'border-[#00C4FF]' : 'border-transparent hover:border-gray-200 dark:hover:border-white/20' }}" style="width:100px">
                         @if($p->imagen)
                         <img src="{{ $p->imagen }}" class="w-full aspect-square object-contain rounded" loading="lazy" />
                         @endif
@@ -243,7 +243,7 @@
                 <div class="flex gap-2 overflow-x-auto flex-1 min-w-0 pb-0.5">
                     @foreach($products as $p)
                     <button wire:click="$set('selectedProductId', {{ $p->id }})"
-                        class="flex-shrink-0 w-[100px] p-1 rounded-lg border-2 transition-all {{ $selectedProductId == $p->id ? 'border-[#00C4FF]' : 'border-transparent hover:border-gray-200 dark:hover:border-white/20' }}">
+                        class="flex-shrink-0 p-1 rounded-lg border-2 transition-all {{ $selectedProductId == $p->id ? 'border-[#00C4FF]' : 'border-transparent hover:border-gray-200 dark:hover:border-white/20' }}" style="width:100px">
                         @if($p->imagen)
                         <img src="{{ $p->imagen }}" class="w-full aspect-square object-contain rounded" loading="lazy" />
                         @endif
