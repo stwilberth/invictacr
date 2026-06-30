@@ -21,7 +21,7 @@ class Dashboard extends Component
             'subscribers' => Subscriber::count(),
             'low_stock' => Product::where('stock', '<', 5)->where('stock', '>', 0)->count(),
             'out_of_stock' => Product::where('stock', 0)->count(),
-            'upcoming' => Product::where('precio_venta', 0)->count(),
+            'upcoming' => Product::where('proximo', true)->count(),
         ];
 
         $this->recentSyncs = SyncLog::latest()->take(5)->get();

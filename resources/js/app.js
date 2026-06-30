@@ -1,7 +1,12 @@
 import Swal from 'sweetalert2'
 
+function dismissPromo() {
+  localStorage.setItem('promo-dismissed', 'true')
+  createBadge()
+}
+
 document.addEventListener('DOMContentLoaded', () => {
-  if (sessionStorage.getItem('promo-dismissed')) {
+  if (localStorage.getItem('promo-dismissed')) {
     createBadge()
     return
   }
@@ -38,10 +43,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }).then((result) => {
     if (result.isConfirmed) {
       window.open('https://wa.me/50686711422?text=' + encodeURIComponent('Hola, me interesa el 10% de descuento hasta el 1 de julio'), '_blank')
-      return
     }
-    sessionStorage.setItem('promo-dismissed', 'true')
-    createBadge()
+    dismissPromo()
   })
 })
 
@@ -80,7 +83,7 @@ function createBadge() {
 
   badge.addEventListener('click', () => {
     badge.remove()
-    sessionStorage.removeItem('promo-dismissed')
+    localStorage.removeItem('promo-dismissed')
     location.reload()
   })
 

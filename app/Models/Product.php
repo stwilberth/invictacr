@@ -31,6 +31,7 @@ class Product extends Model
         "caracteristicas",
         "vistas",
         "bloqueado",
+        "proximo",
         "variedades_price",
         "variedades_increase",
     ];
@@ -44,6 +45,7 @@ class Product extends Model
         "isGif" => "boolean",
         "activo" => "boolean",
         "bloqueado" => "boolean",
+        "proximo" => "boolean",
         "variedades_price" => "integer",
         "variedades_increase" => "integer",
         "imagenes_extra" => "array",
@@ -70,6 +72,6 @@ class Product extends Model
 
     public function getIsUpcomingAttribute()
     {
-        return $this->precio_venta == 0;
+        return $this->proximo;
     }
 }

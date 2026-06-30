@@ -1,11 +1,13 @@
 @php
-    $displayTitle = 'Reloj Invicta ' . ($product->coleccion && strtolower($product->coleccion) !== 'otros' ? $product->coleccion . ' ' : '') . ($product->genero && strtolower($product->genero) !== 'unisex' ? 'para ' . $product->genero . ' ' : '') . '(' . $product->modelo . ') - ' . $product->size . ' mm';
+    $size = $product->size ? preg_replace('/\s*mm$/i', '', $product->size) : '';
+    $displayTitle = 'Reloj Invicta ' . ($product->coleccion && strtolower($product->coleccion) !== 'otros' ? $product->coleccion . ' ' : '') . ($product->genero && strtolower($product->genero) !== 'unisex' ? 'para ' . $product->genero . ' ' : '') . '(' . $product->modelo . ') - ' . $size . ' mm';
     $seoTitle = $displayTitle . ' | Comprar en Costa Rica';
 @endphp
 <x-app-layout :title="$seoTitle" :description="$product->descripcion ?? 'Reloj Invicta ' . $product->modelo" :ogImage="$product->imagen" ogType="product">
     @php
         $isAgotado = ($product->stock ?? 0) <= 0;
-        $isUpcoming = $product->precio_venta == 0 && !$isAgotado;
+        $isUpcoming = $product->proximo;
+        $isUpcomingYAgotado = $product->proximo && $isAgotado;
         $priceAfterDiscount = $product->price_after_discount;
         $layawayAmount = $isUpcoming ? 19000 : (ceil(($priceAfterDiscount * 0.2) / 1000) * 1000);
         $whatsappBuy = 'https://wa.me/50686711422?text=' . urlencode("¡Hola! Me interesa comprar el reloj Invicta {$product->modelo} ({$product->coleccion}) - ₡" . number_format($priceAfterDiscount, 0) . ". ¿Está disponible? Enlace: " . url()->current());
@@ -109,7 +111,7 @@
                             </div>
                             <div class="flex justify-between items-center px-2.5 py-1.5 border-b border-gray-100 dark:border-gray-700">
                                 <span class="text-[10px] text-gray-400 font-bold uppercase tracking-tight">Caja</span>
-                                <span class="text-xs lg:text-sm font-semibold text-gray-800 dark:text-white">{{ $product->size ? $product->size . 'mm' : 'N/A' }}</span>
+                                <span class="text-xs lg:text-sm font-semibold text-gray-800 dark:text-white">{{ $size ? $size . 'mm' : 'N/A' }}</span>
                             </div>
                             <div class="flex justify-between items-center px-2.5 py-1.5 border-b border-gray-100 dark:border-gray-700">
                                 <span class="text-[10px] text-gray-400 font-bold uppercase tracking-tight">Tipo</span>
@@ -160,7 +162,15 @@
                 </div>
 
                 {{-- Agotado State --}}
-                @if($isAgotado)
+                @if($isUpcomingYAgotado)
+                <div class="bg-gradient-to-br from-red-50 to-amber-50 dark:from-red-900/10 dark:to-amber-900/10 border border-red-100 dark:border-red-900/50 rounded-2xl p-6 text-center mb-4">
+                    <div class="w-12 h-12 bg-amber-100 dark:bg-amber-900/30 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <i class="fa-solid fa-clock text-amber-600 dark:text-amber-400 text-2xl"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-amber-700 dark:text-amber-400 mb-1 leading-tight">Agotado / Próximo</h3>
+                    <p class="text-sm text-amber-600/70 dark:text-amber-300/60 mb-4">Actualmente sin stock, pero pronto estará disponible. ¡Reserva tu unidad!</p>
+                </div>
+                @elseif($isAgotado)
                 <div class="bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/50 rounded-2xl p-6 text-center mb-10">
                     <div class="w-12 h-12 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-3">
                         <i class="fa-solid fa-circle-xmark text-red-600 dark:text-red-400 text-2xl"></i>
@@ -280,7 +290,7 @@
                                 </div>
                                 <div>
                                     <p class="text-[9px] text-gray-400 font-bold uppercase tracking-tight">Caja</p>
-                                    <p class="text-xs font-bold text-gray-900 dark:text-white">{{ $product->size ? $product->size . 'mm' : 'N/A' }}</p>
+                                    <p class="text-xs font-bold text-gray-900 dark:text-white">{{ $size ? $size . 'mm' : 'N/A' }}</p>
                                 </div>
                             </div>
                             <div class="p-2.5 border-r border-gray-100 dark:border-gray-700 flex items-start gap-2">

@@ -5,6 +5,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\InvoicePdfController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -42,6 +43,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::get('/marketing', \App\Livewire\Admin\Marketing::class)->name('marketing');
     Route::get('/campaigns', \App\Livewire\Admin\Campaigns::class)->name('campaigns');
     Route::get('/upcoming', \App\Livewire\Admin\Upcoming::class)->name('upcoming');
+    Route::get('/sync', \App\Livewire\Admin\SyncManager::class)->name('sync');
 });
 
 require __DIR__ . '/auth.php';

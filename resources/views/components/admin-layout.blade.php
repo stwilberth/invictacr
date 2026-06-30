@@ -41,6 +41,9 @@
                 <a href="{{ route('admin.upcoming') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors {{ request()->routeIs('admin.upcoming') ? 'bg-[#00C4FF]/10 text-[#00C4FF]' : 'text-white/70 hover:text-white hover:bg-white/5' }}">
                     <i class="fa-solid fa-clock w-5"></i> Próximos
                 </a>
+                <a href="{{ route('admin.sync') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors {{ request()->routeIs('admin.sync') ? 'bg-[#00C4FF]/10 text-[#00C4FF]' : 'text-white/70 hover:text-white hover:bg-white/5' }}">
+                    <i class="fa-solid fa-arrows-rotate w-5"></i> Sincronizar
+                </a>
                 <hr class="border-white/10 my-4">
                 <a href="/" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-white/50 hover:text-white hover:bg-white/5 transition-colors">
                     <i class="fa-solid fa-arrow-left w-5"></i> Volver al sitio

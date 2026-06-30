@@ -40,7 +40,7 @@
         </a>
         <div class="flex items-center gap-1 {{ $compact ? 'mb-1' : 'mb-1 md:gap-2 md:mb-3' }}">
             @if($product->size)
-            <span class="text-[8px] md:text-[10px] font-bold text-slate-500 dark:text-gray-400 bg-slate-200/50 dark:bg-white/5 px-1 md:px-2 py-0.5 rounded-md">{{ $product->size }}MM</span>
+            <span class="text-[8px] md:text-[10px] font-bold text-slate-500 dark:text-gray-400 bg-slate-200/50 dark:bg-white/5 px-1 md:px-2 py-0.5 rounded-md">{{ preg_replace('/\s*mm$/i', '', $product->size) }}MM</span>
             @endif
             @if($product->tipo_movimiento)
             <span class="text-[8px] md:text-[10px] font-bold text-slate-500 dark:text-gray-400 uppercase tracking-wider">{{ $product->tipo_movimiento }}</span>
@@ -49,7 +49,12 @@
         </div>
 
         <div class="{{ $compact ? 'my-0.5' : 'my-0.5 md:my-2' }} text-right">
-            @if($product->precio_venta == 0)
+            @if($product->proximo && ($product->stock ?? 0) <= 0)
+                <div class="py-1 flex items-center justify-end gap-1">
+                    <span class="text-[9px] md:text-xs font-bold px-1.5 md:px-2 py-0.5 bg-red-100 text-red-600 rounded-md">AGOTADO</span>
+                    <span class="text-[9px] md:text-xs font-bold px-1.5 md:px-2 py-0.5 bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 rounded-md">PRÓXIMO</span>
+                </div>
+            @elseif($product->proximo)
                 <div class="py-1">
                     <span class="text-[9px] md:text-xs font-bold px-1.5 md:px-2 py-0.5 bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 rounded-md">Próximamente</span>
                 </div>
