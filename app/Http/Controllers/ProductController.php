@@ -266,18 +266,25 @@ class ProductController extends Controller
         }
         $images = $images->unique()->values();
 
-        $relatedProducts = Product::where("activo", true)
-            ->where("precio_venta", ">", 0)
-            ->where("stock", ">", 0)
-            ->where("id", "!=", $product->id)
-            ->where(function ($q) use ($product) {
-                $q->where("coleccion", $product->coleccion)
-                    ->orWhere("color", $product->color)
-                    ->orWhere("genero", $product->genero);
-            })
-            ->inRandomOrder()
-            ->take(8)
-            ->get();
+        $relatedIds = cache()->remember("product:related_ids:{$product->id}", now()->addHours(4), function () use ($product) {
+            return Product::relatedTo($product)
+                ->take(8)
+                ->pluck("id")
+                ->toArray();
+        });
+
+        $relatedProducts = collect();
+        if (!empty($relatedIds)) {
+            $orderSegments = [];
+            foreach ($relatedIds as $index => $id) {
+                $orderSegments[] = "WHEN " . intval($id) . " THEN " . $index;
+            }
+            $orderByCase = "CASE id " . implode(" ", $orderSegments) . " END ASC";
+
+            $relatedProducts = Product::whereIn("id", $relatedIds)
+                ->orderByRaw($orderByCase)
+                ->get();
+        }
 
         return view(
             "pages.product-detail",

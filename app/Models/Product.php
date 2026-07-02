@@ -119,4 +119,88 @@ class Product extends Model
 
         return 'Otros';
     }
+
+    public function scopeRelatedTo($query, Product $product)
+    {
+        $currentPrice = (float) $product->precio_venta;
+        $currentSize = $product->size ? (float) preg_replace('/[^0-9.]/', '', $product->size) : null;
+
+        $query->where("activo", true)
+            ->where("precio_venta", ">", 0)
+            ->where("stock", ">", 0)
+            ->where("id", "!=", $product->id);
+
+        // Apply strict gender filter if the watch has a gender
+        $gender = strtolower(trim($product->genero));
+        if ($gender === 'hombre') {
+            $query->whereIn('genero', ['hombre', 'unisex']);
+        } elseif ($gender === 'mujer') {
+            $query->whereIn('genero', ['mujer', 'unisex']);
+        }
+
+        // Build the scoring components
+        $scoreSelects = [];
+        $bindings = [];
+
+        // Collection matching (Weight: 12)
+        if ($product->coleccion) {
+            $scoreSelects[] = "CASE WHEN coleccion = ? THEN 12 ELSE 0 END";
+            $bindings[] = $product->coleccion;
+        }
+
+        // Gender preference matching (Weight: 5)
+        if ($product->genero) {
+            $scoreSelects[] = "CASE WHEN genero = ? THEN 5 ELSE 0 END";
+            $bindings[] = $product->genero;
+        }
+
+        // Bracelet matching (Weight: 4)
+        if ($product->brazalete) {
+            $scoreSelects[] = "CASE WHEN brazalete = ? THEN 4 ELSE 0 END";
+            $bindings[] = $product->brazalete;
+        }
+
+        // Color matching (Weight: 3)
+        if ($product->color) {
+            $scoreSelects[] = "CASE WHEN color = ? THEN 3 ELSE 0 END";
+            $bindings[] = $product->color;
+        }
+
+        // Movement type matching (Weight: 3)
+        if ($product->tipo_movimiento) {
+            $scoreSelects[] = "CASE WHEN tipo_movimiento = ? THEN 3 ELSE 0 END";
+            $bindings[] = $product->tipo_movimiento;
+        }
+
+        // Size matching (Weight: Up to 4)
+        if ($currentSize) {
+            $scoreSelects[] = "CASE 
+                WHEN size IS NOT NULL AND size != '' THEN 
+                    CASE 
+                        WHEN ABS((size + 0) - ?) <= 2 THEN 4 
+                        WHEN ABS((size + 0) - ?) <= 5 THEN 2 
+                        ELSE 0 
+                    END 
+                ELSE 0 
+            END";
+            $bindings[] = $currentSize;
+            $bindings[] = $currentSize;
+        }
+
+        // Price similarity deduction
+        if ($currentPrice > 0) {
+            $scoreSelects[] = "-1 * (ABS(precio_venta - ?) / ? * 6)";
+            $bindings[] = $currentPrice;
+            $bindings[] = $currentPrice;
+        }
+
+        // Add a tiny random shake to break ties and make it feel dynamic on page refreshes
+        $scoreSelects[] = "(RAND() * 0.5)";
+
+        $scoreExpression = count($scoreSelects) > 0 ? implode(" + ", $scoreSelects) : "1";
+
+        return $query->selectRaw("*, ($scoreExpression) as similarity_score", $bindings)
+            ->orderByRaw("similarity_score DESC");
+    }
 }
+
