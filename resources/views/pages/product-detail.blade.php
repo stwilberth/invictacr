@@ -76,19 +76,20 @@
                         <div class="aspect-square flex items-center justify-center">
                             <img src="{{ $mediumImage }}" alt="{{ $displayTitle }}" class="w-full h-full object-contain" loading="eager" />
                         </div>
-                        <div class="absolute inset-0 flex flex-col items-center justify-center z-20" style="padding-top: 38%;">
-                            <div class="flex items-center gap-3">
-                                <button type="button" onclick="event.preventDefault(); openImageModal('{{ $product->imagen }}', '{{ $displayTitle }}')" class="flex items-center gap-2 px-4 py-2 bg-white/90 hover:bg-white text-gray-900 rounded-full text-xs font-black uppercase tracking-wider transition-all shadow-lg border border-white/50">
-                                    <i class="fa-solid fa-expand text-xs"></i>
-                                    Ver imagen
-                                </button>
-                                @if($product->video)
-                                <button type="button" onclick="event.preventDefault(); openVimeoModal('{{ $product->video }}')" class="flex items-center gap-2 px-4 py-2 bg-[#00C4FF] hover:bg-[#00d4ff] text-white rounded-full text-xs font-black uppercase tracking-wider transition-all shadow-lg border border-white/30">
-                                    <i class="fa-solid fa-play text-xs"></i>
-                                    Ver video
-                                </button>
-                                @endif
-                            </div>
+
+                        {{-- Action buttons overlay at the bottom --}}
+                        <div class="absolute bottom-6 left-0 right-0 flex items-center justify-center gap-4 z-20">
+                            <button type="button" onclick="event.preventDefault(); openImageModal('{{ $product->imagen }}', '{{ $displayTitle }}')" class="flex items-center gap-2.5 px-5 py-2.5 bg-white dark:bg-gray-900 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-full text-sm font-black uppercase tracking-wider transition-all shadow-2xl border-2 border-gray-300 dark:border-gray-600 cursor-pointer">
+                                <i class="fa-solid fa-expand text-sm"></i>
+                                Ver imagen
+                            </button>
+                            @if($product->video)
+                            <button type="button" onclick="event.preventDefault(); openVimeoModal('{{ $product->video }}')" class="relative flex items-center gap-2.5 px-5 py-2.5 bg-red-600 hover:bg-red-500 text-white rounded-full text-sm font-black uppercase tracking-wider transition-all shadow-2xl border-2 border-red-600 cursor-pointer group">
+                                <div class="absolute inset-0 rounded-full bg-red-600 animate-ping-soft opacity-25 group-hover:opacity-40 transition-opacity"></div>
+                                <i class="fa-solid fa-play text-sm relative z-10"></i>
+                                <span class="relative z-10">Ver video</span>
+                            </button>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -101,19 +102,20 @@
                             <div class="flex items-center justify-center" style="min-height: 200px;">
                                 <img src="{{ $mediumImage }}" alt="{{ $product->title }}" class="w-full max-h-[50vh] object-contain" id="main-image-mobile" loading="eager" />
                             </div>
-                            <div class="absolute inset-0 flex flex-col items-center justify-center z-20" style="padding-top: 38%;">
-                                <div class="flex items-center gap-1.5">
-                                    <button type="button" onclick="event.preventDefault(); openImageModal('{{ $product->imagen }}', '{{ $product->title }}')" class="flex items-center gap-1 px-2.5 py-2 bg-white/90 hover:bg-white text-gray-900 rounded-full text-[10px] font-black uppercase tracking-wider transition-all shadow-lg border border-white/50">
-                                        <i class="fa-solid fa-expand text-[10px]"></i>
-                                        Imagen
-                                    </button>
-                                    @if($product->video)
-                                    <button type="button" onclick="event.preventDefault(); openVimeoModal('{{ $product->video }}')" class="flex items-center gap-1 px-2.5 py-2 bg-[#00C4FF] hover:bg-[#00d4ff] text-white rounded-full text-[10px] font-black uppercase tracking-wider transition-all shadow-lg border border-white/30">
-                                        <i class="fa-solid fa-play text-[10px]"></i>
-                                        Video
-                                    </button>
-                                    @endif
-                                </div>
+
+                            {{-- Action buttons overlay at the bottom --}}
+                            <div class="absolute bottom-4 left-0 right-0 flex items-center justify-center gap-2.5 z-20">
+                                <button type="button" onclick="event.preventDefault(); openImageModal('{{ $product->imagen }}', '{{ $product->title }}')" class="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-900 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-full text-xs font-black uppercase tracking-wider transition-all shadow-xl border-2 border-gray-300 dark:border-gray-600 cursor-pointer">
+                                    <i class="fa-solid fa-expand text-xs"></i>
+                                    Imagen
+                                </button>
+                                @if($product->video)
+                                <button type="button" onclick="event.preventDefault(); openVimeoModal('{{ $product->video }}')" class="relative flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-full text-xs font-black uppercase tracking-wider transition-all shadow-xl border-2 border-red-600 cursor-pointer group">
+                                    <div class="absolute inset-0 rounded-full bg-red-600 animate-ping-soft opacity-25 group-hover:opacity-40 transition-opacity"></div>
+                                    <i class="fa-solid fa-play text-xs relative z-10"></i>
+                                    <span class="relative z-10">Video</span>
+                                </button>
+                                @endif
                             </div>
                         </div>
                     </div>
