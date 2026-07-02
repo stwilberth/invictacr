@@ -1,6 +1,6 @@
 @props(['product', 'compact' => false])
 @php
-    $productUrl = route('products.show', ['gender' => $product->genero ?? 'unisex', 'slug' => $product->slug]);
+    $productUrl = route('products.show', ['slug' => $product->slug]);
     $whatsappLink = 'https://wa.me/50686711422?text=' . urlencode("Hola, me interesa el reloj Invicta {$product->modelo}: " . url($productUrl));
     $priceAfterDiscount = $product->precio_venta * (1 - ($product->descuento ?? 0) / 100);
     $model = preg_replace('/^invicta-/i', '', $product->modelo ?? '');

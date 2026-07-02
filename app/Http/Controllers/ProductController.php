@@ -244,7 +244,7 @@ class ProductController extends Controller
         ];
     }
 
-    public function show(string $gender, string $slug)
+    public function show(string $slug)
     {
         $product = Product::where("slug", $slug)
             ->where("activo", true)

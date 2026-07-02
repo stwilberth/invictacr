@@ -91,7 +91,7 @@
                         </span>
                     </td>
                     <td class="px-4 py-3 text-right whitespace-nowrap">
-                        <a href="{{ route('products.show', ['gender' => $product->genero ?? 'unisex', 'slug' => $product->slug]) }}" target="_blank" rel="noopener" class="text-green-600 dark:text-green-400 hover:underline text-xs font-bold" title="Ver en el sitio">Sitio</a>
+                        <a href="{{ route('products.show', ['slug' => $product->slug]) }}" target="_blank" rel="noopener" class="text-green-600 dark:text-green-400 hover:underline text-xs font-bold" title="Ver en el sitio">Sitio</a>
                         ·
                         <a href="https://www.invictawatch.com/watches/detail/{{ urlencode($product->modelo) }}" target="_blank" rel="noopener" class="text-[#00C4FF] hover:underline text-xs font-bold" title="Ver en InvictaWatch">Invicta</a>
                         ·

@@ -2,7 +2,6 @@
 @php
     $model = preg_replace('/^invicta-/i', '', $product->modelo ?? '');
     $productUrl = route('products.show', [
-        'gender' => $product->genero ?? 'unisex',
         'slug' => $product->slug,
     ]);
     $priceAfterDiscount = $product->precio_venta * (1 - ($product->descuento ?? 0) / 100);

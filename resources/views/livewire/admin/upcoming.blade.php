@@ -84,7 +84,7 @@
                         @forelse($products as $product)
                         <tr class="border-b border-gray-100 dark:border-white/5">
                             <td class="px-4 py-3">
-                                <a href="{{ route('products.show', ['gender' => $product->genero ?? 'unisex', 'slug' => $product->slug]) }}" target="_blank" class="font-bold text-[#00C4FF] hover:text-[#00B0E6] hover:underline">
+                                <a href="{{ route('products.show', ['slug' => $product->slug]) }}" target="_blank" class="font-bold text-[#00C4FF] hover:text-[#00B0E6] hover:underline">
                                     {{ $product->modelo }}
                                     <i class="fa-solid fa-up-right-from-square text-[10px] ml-0.5"></i>
                                 </a>

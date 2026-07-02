@@ -22,7 +22,7 @@ class UtilityApiController extends Controller
         }
 
         foreach ($products as $product) {
-            $url = route('products.show', ['gender' => $product->genero ?? 'unisex', 'slug' => $product->slug]);
+            $url = route('products.show', ['slug' => $product->slug]);
             $xml .= '<url><loc>' . $url . '</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>';
         }
 

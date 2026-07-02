@@ -27,7 +27,7 @@ class MetaApiController extends Controller
             $xml .= "<g:id>{$product->modelo}</g:id>";
             $xml .= "<g:title>Reloj Invicta {$product->modelo}</g:title>";
             $xml .= "<g:description>" . e($product->descripcion ?? 'Reloj Invicta original') . "</g:description>";
-            $xml .= "<g:link>" . route('products.show', ['gender' => $product->genero ?? 'unisex', 'slug' => $product->slug]) . "</g:link>";
+            $xml .= "<g:link>" . route('products.show', ['slug' => $product->slug]) . "</g:link>";
             $xml .= "<g:image_link>{$product->imagen}</g:image_link>";
             $xml .= "<g:price>{$price} CRC</g:price>";
             $xml .= "<g:condition>new</g:condition>";

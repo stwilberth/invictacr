@@ -8,7 +8,7 @@
                         @if($modelo)
                             <span class="flex items-center gap-2">
                                 @if($slug)
-                                    <a href="{{ route('products.show', ['gender' => $genero ?? 'unisex', 'slug' => $slug]) }}" target="_blank" rel="noopener" class="text-green-600 dark:text-green-400 hover:underline text-xs font-bold flex items-center gap-1">
+                                    <a href="{{ route('products.show', ['slug' => $slug]) }}" target="_blank" rel="noopener" class="text-green-600 dark:text-green-400 hover:underline text-xs font-bold flex items-center gap-1">
                                         <i class="fa-solid fa-globe"></i> Ver en sitio
                                     </a>
                                 @endif
