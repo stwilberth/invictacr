@@ -95,7 +95,7 @@
                 </div>
 
                 {{-- Mobile: Side-by-side grid (image col-span-3, buy box col-span-2) --}}
-                <div class="lg:hidden grid grid-cols-5 gap-1">
+                <div class="lg:hidden grid grid-cols-5 gap-2">
                     {{-- Image --}}
                     <div class="col-span-3">
                         <div class="relative bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden">
@@ -104,15 +104,15 @@
                             </div>
 
                             {{-- Action buttons overlay at the bottom --}}
-                            <div class="absolute bottom-4 left-0 right-0 flex items-center justify-center gap-2.5 z-20">
-                                <button type="button" onclick="event.preventDefault(); openImageModal('{{ $product->imagen }}', '{{ $product->title }}')" class="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-900 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-full text-xs font-black uppercase tracking-wider transition-all shadow-xl border-2 border-gray-300 dark:border-gray-600 cursor-pointer">
-                                    <i class="fa-solid fa-expand text-xs"></i>
+                            <div class="absolute bottom-2 left-0 right-0 flex items-center justify-center gap-1.5 z-20 px-2">
+                                <button type="button" onclick="event.preventDefault(); openImageModal('{{ $product->imagen }}', '{{ $product->title }}')" class="flex items-center gap-1 px-2.5 py-1 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm text-gray-800 dark:text-gray-100 rounded-full text-[10px] font-bold uppercase tracking-wide transition-all shadow-lg border border-gray-200 dark:border-gray-600 cursor-pointer">
+                                    <i class="fa-solid fa-expand text-[9px]"></i>
                                     Imagen
                                 </button>
                                 @if($product->video)
-                                <button type="button" onclick="event.preventDefault(); openVimeoModal('{{ $product->video }}')" class="relative flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-full text-xs font-black uppercase tracking-wider transition-all shadow-xl border-2 border-red-600 cursor-pointer group">
-                                    <div class="absolute inset-0 rounded-full bg-red-600 animate-ping-soft opacity-25 group-hover:opacity-40 transition-opacity"></div>
-                                    <i class="fa-solid fa-play text-xs relative z-10"></i>
+                                <button type="button" onclick="event.preventDefault(); openVimeoModal('{{ $product->video }}')" class="relative flex items-center gap-1 px-2.5 py-1 bg-red-600/90 backdrop-blur-sm hover:bg-red-500 text-white rounded-full text-[10px] font-bold uppercase tracking-wide transition-all shadow-lg border border-red-500 cursor-pointer group">
+                                    <div class="absolute inset-0 rounded-full bg-red-600 animate-ping-soft opacity-20 group-hover:opacity-35 transition-opacity"></div>
+                                    <i class="fa-solid fa-play text-[9px] relative z-10"></i>
                                     <span class="relative z-10">Video</span>
                                 </button>
                                 @endif
@@ -121,25 +121,25 @@
                     </div>
 
                     {{-- Buy box (price, buttons, specs) --}}
-                    <div class="col-span-2 flex flex-col items-center justify-center gap-1.5">
+                    <div class="col-span-2 flex flex-col items-stretch justify-center gap-1.5">
                         @if($isUpcoming)
-                        <span class="text-2xl font-black text-amber-500 tracking-tighter">Próx.</span>
+                        <span class="text-lg font-black text-amber-500 tracking-tight text-center leading-none">Próx.</span>
                         @elseif(!$isAgotado)
-                        <span class="text-2xl font-black text-red-600 dark:text-red-400 tracking-tighter">₡{{ number_format($priceAfterDiscount, 0) }}</span>
+                        <span class="text-xl font-black text-red-600 dark:text-red-400 tracking-tight text-center leading-none">₡{{ number_format($priceAfterDiscount, 0) }}</span>
                         @endif
 
                         @if(!$isAgotado && !$isUpcoming)
-                        <a href="{{ $whatsappBuy }}" data-conversion="whatsapp-comprar" target="_blank" rel="noopener noreferrer" class="w-full flex items-center justify-center gap-1 py-2 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-xl font-extrabold uppercase tracking-tight text-xs min-[360px]:text-[13px] min-[390px]:text-sm transition-all active:scale-95 no-underline shadow-sm">
-                            <i class="fa-brands fa-whatsapp text-sm"></i> Comprar
+                        <a href="{{ $whatsappBuy }}" data-conversion="whatsapp-comprar" target="_blank" rel="noopener noreferrer" class="w-full flex items-center justify-center gap-1 py-1.5 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-lg font-bold uppercase tracking-wide text-[11px] transition-all active:scale-95 no-underline shadow-sm">
+                            <i class="fa-brands fa-whatsapp text-xs"></i> Comprar
                         </a>
-                        <a href="{{ $whatsappApartar }}" data-conversion="whatsapp-apartar" target="_blank" rel="noopener noreferrer" class="w-full flex items-center justify-center gap-1 py-2 bg-blue-300 hover:bg-amber-600 text-white rounded-xl font-extrabold uppercase tracking-tight text-xs min-[360px]:text-[13px] min-[390px]:text-sm transition-all active:scale-95 no-underline shadow-sm">
-                            <i class="fa-solid fa-hand-holding-dollar text-sm"></i> Apartar
+                        <a href="{{ $whatsappApartar }}" data-conversion="whatsapp-apartar" target="_blank" rel="noopener noreferrer" class="w-full flex items-center justify-center gap-1 py-1.5 bg-blue-400 hover:bg-amber-600 text-white rounded-lg font-bold uppercase tracking-wide text-[11px] transition-all active:scale-95 no-underline shadow-sm">
+                            <i class="fa-solid fa-hand-holding-dollar text-xs"></i> Apartar
                         </a>
                         @endif
 
                         @auth
                             @if(auth()->user()->is_admin)
-                            <a href="{{ route('admin.products.edit', $product->id) }}" target="_blank" class="w-full flex items-center justify-center gap-1 py-1 bg-[#00C4FF]/10 border border-[#00C4FF]/30 rounded-lg text-[#00C4FF] hover:bg-[#00C4FF]/20 transition-all text-[10px] font-bold uppercase tracking-wider">
+                            <a href="{{ route('admin.products.edit', $product->id) }}" target="_blank" class="w-full flex items-center justify-center gap-1 py-1.5 bg-[#00C4FF]/10 border border-[#00C4FF]/30 rounded-lg text-[#00C4FF] hover:bg-[#00C4FF]/20 transition-all text-[11px] font-bold uppercase tracking-wide">
                                 <i class="fa-solid fa-pen-to-square text-[10px]"></i>
                                 Editar
                             </a>
@@ -147,28 +147,28 @@
                         @endauth
 
                         {{-- Mobile: Toggle specs button --}}
-                        <button type="button" onclick="toggleMobileSpecs()" class="w-full flex items-center justify-center gap-1 py-1.5 text-gray-700 dark:text-gray-300 rounded-xl font-bold uppercase tracking-tight text-[11px] transition-all bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10">
-                            <i class="fa-solid fa-list-ul text-[11px]" id="mobile-specs-icon"></i>
+                        <button type="button" onclick="toggleMobileSpecs()" class="w-full flex items-center justify-center gap-1 py-1.5 text-gray-600 dark:text-gray-300 rounded-lg font-bold uppercase tracking-wide text-[11px] transition-all bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10">
+                            <i class="fa-solid fa-list-ul text-[10px]" id="mobile-specs-icon"></i>
                             <span id="mobile-specs-label">Ver detalles</span>
                         </button>
 
                         {{-- Mobile inline specs card (hidden by default) --}}
                         <div id="mobile-specs-card" class="hidden flex-col gap-0 w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/50 overflow-hidden">
-                            <div class="flex justify-between items-center px-2.5 py-1.5 border-b border-gray-100 dark:border-gray-700">
-                                <span class="text-[10px] text-gray-400 font-bold uppercase tracking-tight">Para</span>
-                                <span class="text-xs lg:text-sm font-semibold text-gray-800 dark:text-white capitalize">{{ $product->genero ?? 'Unisex' }}</span>
+                            <div class="flex justify-between items-center px-2 py-1.5 border-b border-gray-100 dark:border-gray-700">
+                                <span class="text-[9px] text-gray-400 font-bold uppercase tracking-wide">Para</span>
+                                <span class="text-[10px] font-semibold text-gray-800 dark:text-white capitalize">{{ $product->genero ?? 'Unisex' }}</span>
                             </div>
-                            <div class="flex justify-between items-center px-2.5 py-1.5 border-b border-gray-100 dark:border-gray-700">
-                                <span class="text-[10px] text-gray-400 font-bold uppercase tracking-tight">Caja</span>
-                                <span class="text-xs lg:text-sm font-semibold text-gray-800 dark:text-white">{{ $size ? $size . 'mm' : 'N/A' }}</span>
+                            <div class="flex justify-between items-center px-2 py-1.5 border-b border-gray-100 dark:border-gray-700">
+                                <span class="text-[9px] text-gray-400 font-bold uppercase tracking-wide">Caja</span>
+                                <span class="text-[10px] font-semibold text-gray-800 dark:text-white">{{ $size ? $size . 'mm' : 'N/A' }}</span>
                             </div>
-                            <div class="flex justify-between items-center px-2.5 py-1.5 border-b border-gray-100 dark:border-gray-700">
-                                <span class="text-[10px] text-gray-400 font-bold uppercase tracking-tight">Tipo</span>
-                                <span class="text-xs lg:text-sm font-semibold text-gray-800 dark:text-white capitalize">{{ $product->tipo_movimiento === 'cuarzo' ? 'Batería' : ($product->tipo_movimiento ?? 'Especial') }}</span>
+                            <div class="flex justify-between items-center px-2 py-1.5 border-b border-gray-100 dark:border-gray-700">
+                                <span class="text-[9px] text-gray-400 font-bold uppercase tracking-wide">Tipo</span>
+                                <span class="text-[10px] font-semibold text-gray-800 dark:text-white capitalize">{{ $product->tipo_movimiento === 'cuarzo' ? 'Batería' : ($product->tipo_movimiento ?? 'Especial') }}</span>
                             </div>
-                            <div class="flex justify-between items-center px-2.5 py-1.5">
-                                <span class="text-[10px] text-gray-400 font-bold uppercase tracking-tight">Agua</span>
-                                <span class="text-xs lg:text-sm font-semibold text-gray-800 dark:text-white">{{ $product->resistencia_agua ? $product->resistencia_agua . 'm' : 'Resistente' }}</span>
+                            <div class="flex justify-between items-center px-2 py-1.5">
+                                <span class="text-[9px] text-gray-400 font-bold uppercase tracking-wide">Agua</span>
+                                <span class="text-[10px] font-semibold text-gray-800 dark:text-white">{{ $product->resistencia_agua ? $product->resistencia_agua . 'm' : 'Resistente' }}</span>
                             </div>
                         </div>
                     </div>
