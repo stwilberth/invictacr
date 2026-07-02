@@ -49,15 +49,26 @@ class ProductController extends Controller
                 $aiRawResponse = $search->aiRawResponse;
 
                 if (!empty($aiFilters)) {
-                    $request->merge(["q" => ""]);
+                    $aiQ = $aiFilters["q"] ?? null;
+
+                    $request->merge(["q" => $aiQ ?? ""]);
                     foreach (["gender", "color", "coleccion", "brazalete", "tipo_movimiento", "caja", "resistencia_agua"] as $f) {
                         $request->merge([$f => ""]);
                     }
 
-                    $parsedFilters = $aiFilters;
+                    $filterFields = array_filter($aiFilters, fn($k) => $k !== "q", ARRAY_FILTER_USE_KEY);
+                    $parsedFilters = $filterFields;
 
-                    $this->applyParsedFilters($request, $aiFilters);
+                    $this->applyParsedFilters($request, $filterFields);
 
+                    $products = $this->runSearchQuery($request);
+                }
+
+                if ($products->total() === 0) {
+                    $request->merge(["q" => $originalQuery]);
+                    foreach (["gender", "color", "coleccion", "brazalete", "tipo_movimiento", "caja", "resistencia_agua"] as $f) {
+                        $request->merge([$f => ""]);
+                    }
                     $products = $this->runSearchQuery($request);
                 }
             }
@@ -117,7 +128,12 @@ class ProductController extends Controller
             $query->where(function ($q) use ($term) {
                 $q->where("modelo", "like", "%{$term}%")
                   ->orWhere("title", "like", "%{$term}%")
-                  ->orWhere("descripcion", "like", "%{$term}%");
+                  ->orWhere("descripcion", "like", "%{$term}%")
+                  ->orWhere("coleccion", "like", "%{$term}%")
+                  ->orWhere("color", "like", "%{$term}%")
+                  ->orWhere("genero", "like", "%{$term}%")
+                  ->orWhere("brazalete", "like", "%{$term}%")
+                  ->orWhere("tipo_movimiento", "like", "%{$term}%");
             });
         }
 
