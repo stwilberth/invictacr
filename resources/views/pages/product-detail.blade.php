@@ -2,6 +2,16 @@
     $size = $product->size ? preg_replace('/\s*mm$/i', '', $product->size) : '';
     $displayTitle = 'Reloj Invicta ' . ($product->coleccion && strtolower($product->coleccion) !== 'otros' ? $product->coleccion . ' ' : '') . ($product->genero && strtolower($product->genero) !== 'unisex' ? 'para ' . $product->genero . ' ' : '') . '(' . $product->modelo . ') - ' . $size . ' mm';
     $seoTitle = $displayTitle . ' | Comprar en Costa Rica';
+
+    $mediumImage = $product->imagen;
+    if ($product->imagen && str_starts_with($product->imagen, '/storage/relojes/')) {
+        $basename = basename($product->imagen);
+        $medModelo = pathinfo($basename, PATHINFO_FILENAME);
+        $medCandidate = public_path("storage/relojes/medium/{$medModelo}.webp");
+        if (file_exists($medCandidate)) {
+            $mediumImage = "/storage/relojes/medium/{$medModelo}.webp";
+        }
+    }
 @endphp
 <x-app-layout :title="$seoTitle" :description="$product->descripcion ?? 'Reloj Invicta ' . $product->modelo" :ogImage="$product->imagen" ogType="product">
     @php
@@ -62,9 +72,23 @@
             <div class="lg:col-span-6">
                 {{-- Desktop: Sticky media wrapper --}}
                 <div class="hidden lg:block lg:sticky lg:top-0">
-                    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden">
-                        <div class="aspect-square flex items-center justify-center p-4">
-                            <img src="{{ $product->imagen }}" alt="{{ $displayTitle }}" class="w-full h-full object-contain" loading="eager" />
+                    <div class="relative bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden">
+                        <div class="aspect-square flex items-center justify-center">
+                            <img src="{{ $mediumImage }}" alt="{{ $displayTitle }}" class="w-full h-full object-contain" loading="eager" />
+                        </div>
+                        <div class="absolute inset-0 flex flex-col items-center justify-center z-20" style="padding-top: 38%;">
+                            <div class="flex items-center gap-3">
+                                <button type="button" onclick="event.preventDefault(); openImageModal('{{ $product->imagen }}', '{{ $displayTitle }}')" class="flex items-center gap-2 px-4 py-2 bg-white/90 hover:bg-white text-gray-900 rounded-full text-xs font-black uppercase tracking-wider transition-all shadow-lg border border-white/50">
+                                    <i class="fa-solid fa-expand text-xs"></i>
+                                    Ver imagen
+                                </button>
+                                @if($product->video)
+                                <button type="button" onclick="event.preventDefault(); openVimeoModal('{{ $product->video }}')" class="flex items-center gap-2 px-4 py-2 bg-[#00C4FF] hover:bg-[#00d4ff] text-white rounded-full text-xs font-black uppercase tracking-wider transition-all shadow-lg border border-white/30">
+                                    <i class="fa-solid fa-play text-xs"></i>
+                                    Ver video
+                                </button>
+                                @endif
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -73,9 +97,23 @@
                 <div class="lg:hidden grid grid-cols-5 gap-1">
                     {{-- Image --}}
                     <div class="col-span-3">
-                        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden">
-                            <div class="aspect-[4/5] flex items-center justify-center p-1">
-                                <img src="{{ $product->imagen }}" alt="{{ $product->title }}" class="w-full h-full object-contain" id="main-image-mobile" loading="eager" />
+                        <div class="relative bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden">
+                            <div class="flex items-center justify-center" style="min-height: 200px;">
+                                <img src="{{ $mediumImage }}" alt="{{ $product->title }}" class="w-full max-h-[50vh] object-contain" id="main-image-mobile" loading="eager" />
+                            </div>
+                            <div class="absolute inset-0 flex flex-col items-center justify-center z-20" style="padding-top: 38%;">
+                                <div class="flex items-center gap-1.5">
+                                    <button type="button" onclick="event.preventDefault(); openImageModal('{{ $product->imagen }}', '{{ $product->title }}')" class="flex items-center gap-1 px-2.5 py-2 bg-white/90 hover:bg-white text-gray-900 rounded-full text-[10px] font-black uppercase tracking-wider transition-all shadow-lg border border-white/50">
+                                        <i class="fa-solid fa-expand text-[10px]"></i>
+                                        Imagen
+                                    </button>
+                                    @if($product->video)
+                                    <button type="button" onclick="event.preventDefault(); openVimeoModal('{{ $product->video }}')" class="flex items-center gap-1 px-2.5 py-2 bg-[#00C4FF] hover:bg-[#00d4ff] text-white rounded-full text-[10px] font-black uppercase tracking-wider transition-all shadow-lg border border-white/30">
+                                        <i class="fa-solid fa-play text-[10px]"></i>
+                                        Video
+                                    </button>
+                                    @endif
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -96,6 +134,15 @@
                             <i class="fa-solid fa-hand-holding-dollar text-sm"></i> Apartar
                         </a>
                         @endif
+
+                        @auth
+                            @if(auth()->user()->is_admin)
+                            <a href="{{ route('admin.products.edit', $product->id) }}" target="_blank" class="w-full flex items-center justify-center gap-1 py-1 bg-[#00C4FF]/10 border border-[#00C4FF]/30 rounded-lg text-[#00C4FF] hover:bg-[#00C4FF]/20 transition-all text-[10px] font-bold uppercase tracking-wider">
+                                <i class="fa-solid fa-pen-to-square text-[10px]"></i>
+                                Editar
+                            </a>
+                            @endif
+                        @endauth
 
                         {{-- Mobile: Toggle specs button --}}
                         <button type="button" onclick="toggleMobileSpecs()" class="w-full flex items-center justify-center gap-1 py-1.5 text-gray-700 dark:text-gray-300 rounded-xl font-bold uppercase tracking-tight text-[11px] transition-all bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10">
@@ -148,6 +195,14 @@
                     <h1 class="text-xl sm:text-2xl lg:text-3xl text-left font-black text-gray-800 dark:text-white tracking-tight leading-[1.1] mb-1 uppercase">
                         {{ $displayTitle }}
                     </h1>
+                    @auth
+                        @if(auth()->user()->is_admin)
+                        <a href="{{ route('admin.products.edit', $product->id) }}" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1 bg-[#00C4FF]/10 border border-[#00C4FF]/30 rounded-lg text-[#00C4FF] hover:bg-[#00C4FF]/20 transition-all text-xs font-bold uppercase tracking-wider mb-2">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                            Editar producto
+                        </a>
+                        @endif
+                    @endauth
                     <div class="flex items-center justify-center md:justify-start gap-3">
                         @if($isUpcoming)
                         <div class="flex items-center gap-2 px-4 py-1.5 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/50 rounded-full w-fit">

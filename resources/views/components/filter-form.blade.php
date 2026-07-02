@@ -70,7 +70,7 @@
             </label>
             @foreach($filters['colors'] as $color)
             <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
-                <input type="radio" name="color" value="{{ $color }}" {{ request('color') === $color ? 'checked' : '' }} onchange="document.getElementById('{{ $formId }}').submit()" class="text-[#00C4FF]">
+                <input type="radio" name="color" value="{{ $color }}" {{ strtolower(request('color')) === strtolower($color) ? 'checked' : '' }} onchange="document.getElementById('{{ $formId }}').submit()" class="text-[#00C4FF]">
                 <span>{{ ucfirst($color) }}</span>
             </label>
             @endforeach
@@ -92,7 +92,7 @@
             </label>
             @foreach($filters['brazaletes'] as $brazalete)
             <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
-                <input type="radio" name="brazalete" value="{{ $brazalete }}" {{ request('brazalete') === $brazalete ? 'checked' : '' }} onchange="document.getElementById('{{ $formId }}').submit()" class="text-[#00C4FF]">
+                <input type="radio" name="brazalete" value="{{ $brazalete }}" {{ strtolower(request('brazalete')) === strtolower($brazalete) ? 'checked' : '' }} onchange="document.getElementById('{{ $formId }}').submit()" class="text-[#00C4FF]">
                 <span>{{ ucfirst($brazalete) }}</span>
             </label>
             @endforeach
@@ -114,7 +114,7 @@
             </label>
             @foreach($filters['colecciones'] as $coleccion)
             <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
-                <input type="radio" name="coleccion" value="{{ $coleccion }}" {{ request('coleccion') === $coleccion ? 'checked' : '' }} onchange="document.getElementById('{{ $formId }}').submit()" class="text-[#00C4FF]">
+                <input type="radio" name="coleccion" value="{{ $coleccion }}" {{ strtolower(request('coleccion')) === strtolower($coleccion) ? 'checked' : '' }} onchange="document.getElementById('{{ $formId }}').submit()" class="text-[#00C4FF]">
                 <span>{{ $coleccion }}</span>
             </label>
             @endforeach
@@ -136,7 +136,7 @@
             </label>
             @foreach($filters['movimientos'] as $mov)
             <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
-                <input type="radio" name="tipo_movimiento" value="{{ $mov }}" {{ request('tipo_movimiento') === $mov ? 'checked' : '' }} onchange="document.getElementById('{{ $formId }}').submit()" class="text-[#00C4FF]">
+                <input type="radio" name="tipo_movimiento" value="{{ $mov }}" {{ strtolower(request('tipo_movimiento')) === strtolower($mov) ? 'checked' : '' }} onchange="document.getElementById('{{ $formId }}').submit()" class="text-[#00C4FF]">
                 <span>{{ $mov === 'cuarzo' ? 'Batería' : ucfirst($mov) }}</span>
             </label>
             @endforeach
@@ -158,7 +158,7 @@
             </label>
             @foreach($filters['sizes'] as $size)
             <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
-                <input type="radio" name="size" value="{{ $size }}" {{ request('size') === $size ? 'checked' : '' }} onchange="document.getElementById('{{ $formId }}').submit()" class="text-[#00C4FF]">
+                <input type="radio" name="size" value="{{ $size }}" {{ strtolower(request('size')) === strtolower($size) ? 'checked' : '' }} onchange="document.getElementById('{{ $formId }}').submit()" class="text-[#00C4FF]">
                 <span>{{ $size }}MM</span>
             </label>
             @endforeach

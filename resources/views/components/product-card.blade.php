@@ -5,10 +5,25 @@
     $priceAfterDiscount = $product->precio_venta * (1 - ($product->descuento ?? 0) / 100);
     $model = preg_replace('/^invicta-/i', '', $product->modelo ?? '');
     $imagePath = "images/relojes/{$model}.jpg";
-    $hasLocalImage = file_exists(public_path($imagePath)) || ($product->imagen && str_starts_with($product->imagen, '/storage/'));
-    $imageUrl = ($product->imagen && !str_starts_with($product->imagen, 'http'))
-        ? $product->imagen
-        : ($hasLocalImage ? asset($imagePath) : null);
+
+    $thumbUrl = null;
+    if ($product->imagen && str_starts_with($product->imagen, '/storage/relojes/')) {
+        $basename = basename($product->imagen);
+        $thumbModelo = pathinfo($basename, PATHINFO_FILENAME);
+        $thumbCandidate = public_path("storage/relojes/thumbs/{$thumbModelo}.webp");
+        if (file_exists($thumbCandidate)) {
+            $thumbUrl = "/storage/relojes/thumbs/{$thumbModelo}.webp";
+        }
+    }
+
+    $imageUrl = null;
+    if ($thumbUrl) {
+        $imageUrl = $thumbUrl;
+    } elseif ($product->imagen && !str_starts_with($product->imagen, 'http')) {
+        $imageUrl = $product->imagen;
+    } elseif (file_exists(public_path($imagePath))) {
+        $imageUrl = asset($imagePath);
+    }
 @endphp
 
 <div class="group relative flex flex-col h-full bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-100 dark:border-white/5 hover:shadow-2xl hover:shadow-blue-500/10 transition-all duration-300 overflow-hidden">
@@ -30,6 +45,8 @@
             </span>
         </div>
         @endif
+
+
     </a>
 
     <div class="{{ $compact ? 'p-1' : 'p-1 md:p-2' }} flex flex-col flex-grow bg-slate-50 dark:bg-[#0a0f1c]/50">

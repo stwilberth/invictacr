@@ -3,6 +3,7 @@
 namespace App\Livewire\Admin;
 
 use App\Models\Product;
+use App\Services\ImageOptimizerService;
 use Livewire\Component;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Http;
@@ -14,6 +15,7 @@ class ProductForm extends Component
     public $modelo, $title, $slug, $descripcion, $color, $brazalete;
     public $coleccion, $tipo_movimiento, $size, $genero, $caja;
     public $resistencia_agua, $precio_venta, $precio_original;
+    public $video;
     public $descuento = 0,
         $stock = 0,
         $imagen,
@@ -46,6 +48,7 @@ class ProductForm extends Component
             $this->descuento = $product->descuento;
             $this->stock = $product->stock;
             $this->imagen = $product->imagen;
+            $this->video = $product->video;
             $this->activo = $product->activo;
             $this->bloqueado = (bool) $product->bloqueado;
             $this->variedades_price = $product->variedades_price;
@@ -120,6 +123,7 @@ class ProductForm extends Component
             }
 
             $this->imagen = "/storage/relojes/" . $filename;
+            $this->generateOptimizedVersions($filename);
             $this->downloadStatus = "ok";
             $this->downloadMessage =
                 "Imagen descargada: " .
@@ -188,6 +192,72 @@ class ProductForm extends Component
         return "jpg";
     }
 
+    private function generateOptimizedVersions(string $filename): void
+    {
+        $path = storage_path("app/public/relojes/{$filename}");
+        if (!file_exists($path)) {
+            return;
+        }
+
+        $info = @getimagesize($path);
+        if (!$info) {
+            return;
+        }
+
+        $source = match ($info[2]) {
+            IMAGETYPE_JPEG => @imagecreatefromjpeg($path),
+            IMAGETYPE_PNG => @imagecreatefrompng($path),
+            IMAGETYPE_WEBP => @imagecreatefromwebp($path),
+            default => null,
+        };
+
+        if (!$source) {
+            return;
+        }
+
+        $modelo = pathinfo($filename, PATHINFO_FILENAME);
+        $publicPath = storage_path("app/public");
+
+        if (!is_dir($publicPath . "/relojes/thumbs")) {
+            @mkdir($publicPath . "/relojes/thumbs", 0775, true);
+        }
+        if (!is_dir($publicPath . "/relojes/medium")) {
+            @mkdir($publicPath . "/relojes/medium", 0775, true);
+        }
+
+        [$origW, $origH] = $info;
+
+        foreach ([
+            'thumbs' => 200,
+            'medium' => 600,
+        ] as $dir => $maxW) {
+            if ($origW <= $maxW) {
+                $newW = $origW;
+                $newH = $origH;
+            } else {
+                $ratio = $maxW / $origW;
+                $newW = $maxW;
+                $newH = (int) round($origH * $ratio);
+            }
+
+            $resampled = imagecreatetruecolor($newW, $newH);
+            if (!$resampled) {
+                continue;
+            }
+
+            imagealphablending($resampled, false);
+            imagesavealpha($resampled, true);
+            imagecopyresampled($resampled, $source, 0, 0, 0, 0, $newW, $newH, $origW, $origH);
+
+            $targetPath = "{$publicPath}/relojes/{$dir}/{$modelo}.webp";
+            imagewebp($resampled, $targetPath, 80);
+            @chmod($targetPath, 0775);
+            imagedestroy($resampled);
+        }
+
+        imagedestroy($source);
+    }
+
     public function save()
     {
         $this->validate([
@@ -214,6 +284,7 @@ class ProductForm extends Component
             "descuento" => $this->descuento ?: 0,
             "stock" => $this->stock ?: 0,
             "imagen" => $this->imagen,
+            "video" => $this->video,
             "activo" => $this->activo,
             "bloqueado" => $this->bloqueado,
             "variedades_price" => $this->variedades_price ?: null,
@@ -246,9 +317,16 @@ class ProductForm extends Component
             ->sort(fn($a, $b) => strcasecmp($a, $b))
             ->values();
 
+        $brazaletes = collect(config("brazaletes", []))
+            ->map(fn($b) => trim($b))
+            ->filter()
+            ->unique()
+            ->sort(fn($a, $b) => strcasecmp($a, $b))
+            ->values();
+
         return view(
             "livewire.admin.product-form",
-            compact("colecciones", "colores"),
+            compact("colecciones", "colores", "brazaletes"),
         )->layout("components.admin-layout");
     }
 }

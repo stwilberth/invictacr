@@ -1,55 +1,46 @@
-<x-app-layout title="InvictaCostaRica.com - Relojes Invicta 100% originales">
-    <!-- Hero Slider -->
-    <section>
-        <div class="max-w-7xl mx-auto px-4 py-4 md:py-6">
-            <div
-                id="heroSlider"
-                class="relative w-full aspect-[16/9] max-h-[75vh] rounded-2xl md:rounded-3xl overflow-hidden"
-            >
-                <div
-                    class="flex transition-transform duration-700 ease-in-out w-full h-full"
-                    id="sliderTrack"
-                >
-                    <a href="/relojes?brazalete=silicona" class="block w-full h-full flex-shrink-0 relative">
-                        <img src="{{ asset('images/banners/silicona.png') }}" alt="Relojes Invicta con brazalete de silicona" class="w-full h-full object-contain" loading="eager" fetchpriority="high" />
-                    </a>
-                    <a href="/relojes/mujer" class="block w-full h-full flex-shrink-0 relative">
-                        <img src="{{ asset('images/banners/relojes_invicta_mujer.png') }}" alt="Relojes Invicta para mujer" class="w-full h-full object-contain" loading="lazy" />
-                    </a>
-                    <a href="/relojes/hombre" class="block w-full h-full flex-shrink-0 relative">
-                        <img src="{{ asset('images/banners/relojes_dia_del_padre.png') }}" alt="Relojes Invicta día del padre" class="w-full h-full object-contain" loading="lazy" />
-                    </a>
-                    <a href="/relojes?tipo_movimiento=automatico" class="block w-full h-full flex-shrink-0 relative">
-                        <img src="{{ asset('images/banners/automaticos.png') }}" alt="Relojes Invicta automáticos" class="w-full h-full object-contain" loading="lazy" />
-                    </a>
-                    <a href="/relojes/hombre/invicta-50413" class="block w-full h-full flex-shrink-0 relative">
-                        <img src="{{ asset('images/banners/racing.png') }}" alt="Reloj Invicta Speedway 50413" class="w-full h-full object-contain" loading="lazy" />
-                    </a>
-                    <a href="/resenas" class="block w-full h-full flex-shrink-0 relative">
-                        <img src="{{ asset('images/banners/resennas.png') }}" alt="Reseñas de clientes Invicta" class="w-full h-full object-contain" loading="lazy" />
-                    </a>
-                </div>
-
-                <button id="sliderPrev" aria-label="Anterior" class="absolute left-2 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-black/30 hover:bg-black/50 text-white rounded-full flex items-center justify-center transition-all backdrop-blur-sm">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
-                </button>
-                <button id="sliderNext" aria-label="Siguiente" class="absolute right-2 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-black/30 hover:bg-black/50 text-white rounded-full flex items-center justify-center transition-all backdrop-blur-sm">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-                </button>
-
-                <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
-                    <button data-slide="0" class="w-2.5 h-2.5 rounded-full bg-white/80 transition-all slider-dot"></button>
-                    <button data-slide="1" class="w-2.5 h-2.5 rounded-full bg-white/40 transition-all slider-dot"></button>
-                    <button data-slide="2" class="w-2.5 h-2.5 rounded-full bg-white/40 transition-all slider-dot"></button>
-                    <button data-slide="3" class="w-2.5 h-2.5 rounded-full bg-white/40 transition-all slider-dot"></button>
-                    <button data-slide="4" class="w-2.5 h-2.5 rounded-full bg-white/40 transition-all slider-dot"></button>
-                    <button data-slide="5" class="w-2.5 h-2.5 rounded-full bg-white/40 transition-all slider-dot"></button>
-                </div>
+<x-app-layout title="Relojes Invicta Costa Rica" hide-nav>
+    <!-- Search Bar Hero -->
+    <section class="relative bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 overflow-hidden">
+        <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wMyI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMiIvPjwvZz48L2c+PC9zdmc+')] opacity-40"></div>
+        <div class="relative max-w-7xl mx-auto px-4 py-16 md:py-24">
+            <div class="text-center mb-8">
+                <h1 class="text-3xl md:text-5xl font-bold text-white tracking-tight">
+                    Relojes Invicta <span class="text-[#00C4FF] whitespace-nowrap">Costa Rica</span>
+                </h1>
+                <p class="mt-3 text-base md:text-lg text-gray-400 max-w-xl mx-auto">
+                    Encuentra el reloj perfecto entre cientos de modelos 100% originales
+                </p>
+            </div>
+            <div class="max-w-xl mx-auto">
+                <form action="/relojes" method="GET">
+                    <div class="relative group">
+                        <input
+                            type="text"
+                            name="q"
+                            value="{{ request('q') }}"
+                            placeholder="Buscar por modelo, colección, color..."
+                            class="w-full px-5 py-3.5 bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl text-white placeholder-gray-400 focus:outline-none focus:border-[#00C4FF]/50 focus:ring-2 focus:ring-[#00C4FF]/20 transition-all text-sm md:text-base pr-28"
+                        />
+                        @if(request('q'))
+                        <button type="button" onclick="window.location.href='/relojes'" class="absolute right-20 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </button>
+                        @endif
+                        <button
+                            type="submit"
+                            class="absolute right-1.5 top-1/2 -translate-y-1/2 px-4 py-2 bg-[#00C4FF] hover:bg-[#00a0cc] text-white rounded-xl transition-all active:scale-95 flex items-center gap-2"
+                        >
+                            <i class="fa-solid fa-search text-sm"></i>
+                            <span class="text-xs font-bold uppercase tracking-wider hidden sm:inline">Buscar</span>
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
+    </section>
 
-        <!-- Feature Badges -->
-        <section class="py-3 md:py-5 bg-white dark:bg-gray-950 overflow-hidden">
+    <!-- Feature Badges -->
+    <section class="py-3 md:py-5 bg-white dark:bg-gray-950 overflow-hidden">
             <div id="badgesScroll" class="md:overflow-visible md:flex md:justify-center">
                 <div class="badges-track md:flex md:flex-wrap md:justify-center md:gap-x-6 md:gap-y-1">
                     <div class="flex items-center gap-1.5 sm:gap-2 text-gray-700 dark:text-gray-300 font-bold text-[10px] sm:text-xs uppercase tracking-wider whitespace-nowrap">
@@ -212,18 +203,6 @@
         </div>
     </section>
 
-    <!-- Vimeo Video Modal -->
-    <div id="vimeoModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-        <div class="relative w-full max-w-3xl">
-            <button type="button" onclick="closeVimeoModal()" aria-label="Cerrar" class="absolute -top-10 right-0 text-white/80 hover:text-white text-2xl">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
-            <div class="relative w-full aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl">
-                <iframe id="vimeoFrame" src="" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen class="absolute inset-0 w-full h-full" frameborder="0"></iframe>
-            </div>
-        </div>
-    </div>
-
     @push('scripts')
     <style>
         .badges-track {
@@ -297,77 +276,6 @@
         el.addEventListener('mousedown', pause);
         el.addEventListener('scroll', () => { if (el.scrollLeft >= el.scrollWidth / 2) el.scrollLeft = 0; });
     })();
-
-    // Hero Slider
-    const track = document.getElementById('sliderTrack');
-    const dots = document.querySelectorAll('.slider-dot');
-    let current = 0;
-    const total = dots.length;
-
-    function goTo(index) {
-        current = ((index % total) + total) % total;
-        track.style.transform = `translateX(-${current * 100}%)`;
-        dots.forEach((d, i) => {
-            d.classList.toggle('bg-white/80', i === current);
-            d.classList.toggle('bg-white/40', i !== current);
-        });
-    }
-
-    dots.forEach((d) => { d.addEventListener('click', () => goTo(parseInt(d.dataset.slide))); });
-
-    document.getElementById('sliderPrev')?.addEventListener('click', () => goTo(current - 1));
-    document.getElementById('sliderNext')?.addEventListener('click', () => goTo(current + 1));
-
-    // Touch/Swipe support
-    let touchStartX = 0;
-    const slider = document.getElementById('heroSlider');
-    slider?.addEventListener('touchstart', (e) => { touchStartX = e.changedTouches[0].screenX; }, { passive: true });
-    slider?.addEventListener('touchend', (e) => {
-        const diff = touchStartX - e.changedTouches[0].screenX;
-        if (Math.abs(diff) > 50) {
-            if (diff > 0) goTo(current + 1);
-            else goTo(current - 1);
-        }
-    });
-
-    let autoInterval = setInterval(() => goTo(current + 1), 5000);
-    function restartAuto() {
-        clearInterval(autoInterval);
-        autoInterval = setInterval(() => goTo(current + 1), 5000);
-    }
-    function pauseAuto() {
-        clearInterval(autoInterval);
-    }
-    // Reiniciar el contador tras interacción
-    slider?.addEventListener('click', restartAuto);
-    // Pausar autoplay en hover
-    slider?.addEventListener('mouseenter', pauseAuto);
-    slider?.addEventListener('mouseleave', restartAuto);
-    // Pausar autoplay cuando la pestaña no es visible
-    document.addEventListener('visibilitychange', () => {
-        if (document.hidden) pauseAuto();
-        else restartAuto();
-    });
-
-    // Vimeo Modal
-    const vimeoModal = document.getElementById('vimeoModal');
-    const vimeoFrame = document.getElementById('vimeoFrame');
-    function openVimeoModal(id) {
-        if (!vimeoModal || !vimeoFrame) return;
-        vimeoFrame.src = 'https://player.vimeo.com/video/' + id + '?autoplay=1&title=0&byline=0&portrait=0';
-        vimeoModal.classList.remove('hidden');
-        vimeoModal.classList.add('flex');
-        document.body.style.overflow = 'hidden';
-    }
-    function closeVimeoModal() {
-        if (!vimeoModal || !vimeoFrame) return;
-        vimeoFrame.src = '';
-        vimeoModal.classList.add('hidden');
-        vimeoModal.classList.remove('flex');
-        document.body.style.overflow = '';
-    }
-    vimeoModal?.addEventListener('click', (e) => { if (e.target === vimeoModal) closeVimeoModal(); });
-    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeVimeoModal(); });
     </script>
     @endpush
 </x-app-layout>

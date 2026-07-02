@@ -62,7 +62,12 @@
                 </div>
                 <div>
                     <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Brazalete</label>
-                    <input wire:model="brazalete" type="text" class="w-full bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm" />
+                    <select wire:model="brazalete" class="w-full bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm">
+                        <option value="">Sin brazalete</option>
+                        @foreach($brazaletes as $b)
+                            <option value="{{ $b }}">{{ $b }}</option>
+                        @endforeach
+                    </select>
                 </div>
                 <div>
                     <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Colección</label>
@@ -134,6 +139,16 @@
                             @endif
                         </p>
                     </div>
+                    @endif
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">URL Video (Vimeo)</label>
+                    <input wire:model="video" type="text" placeholder="https://vimeo.com/123456789" class="w-full bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm" />
+                    @if($video)
+                    <p class="mt-1 text-xs text-gray-400">
+                        <i class="fa-solid fa-video text-[#00C4FF] mr-1"></i>
+                        Video configurado
+                    </p>
                     @endif
                 </div>
             </div>

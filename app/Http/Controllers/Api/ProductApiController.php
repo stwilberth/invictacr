@@ -39,12 +39,23 @@ class ProductApiController extends Controller
     public function search(Request $request)
     {
         $q = $request->input("q");
+        $terms = [$q];
+        if (str_ends_with($q, 's')) {
+            $terms[] = rtrim($q, 's');
+        }
         return Product::where("activo", true)
             ->where("precio_venta", ">", 0)
-            ->where(function ($query) use ($q) {
-                $query
-                    ->where("modelo", "like", "{$q}%")
-                    ->orWhere("title", "like", "{$q}%");
+            ->where(function ($query) use ($terms) {
+                foreach ($terms as $term) {
+                    $query
+                        ->orWhere("modelo", "like", "%{$term}%")
+                        ->orWhere("title", "like", "%{$term}%")
+                        ->orWhere("coleccion", "like", "%{$term}%")
+                        ->orWhere("color", "like", "%{$term}%")
+                        ->orWhere("genero", "like", "%{$term}%")
+                        ->orWhere("brazalete", "like", "%{$term}%")
+                        ->orWhere("tipo_movimiento", "like", "%{$term}%");
+                }
             })
             ->orderBy("modelo")
             ->take(10)
@@ -56,6 +67,7 @@ class ProductApiController extends Controller
                 "genero",
                 "imagen",
                 "precio_venta",
+                "coleccion",
             ]);
     }
 

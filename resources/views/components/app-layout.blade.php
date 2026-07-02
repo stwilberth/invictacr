@@ -133,7 +133,9 @@
         <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MFKHNJ9V" height="0" width="0" style="display:none;visibility:hidden"></iframe>
     </noscript>
 
+    @unless($hideNav ?? false)
     <x-navbar :q="$q ?? null" />
+    @endunless
 
     <main class="min-h-screen">
         {{ $slot }}
@@ -143,6 +145,141 @@
     @unless($hideWhatsApp ?? false)
         <x-whatsapp-button />
     @endunless
+
+    <!-- Image Modal -->
+    <div id="imageModal" class="modal-overlay fixed inset-0 z-[100] hidden items-center justify-center bg-black/60 backdrop-blur-sm p-0">
+        <div class="relative modal-content flex items-center justify-center w-[95vw] max-w-none h-[92vh] max-h-none">
+            <button type="button" onclick="closeImageModal()" aria-label="Cerrar" class="absolute top-4 right-4 z-20 flex items-center justify-center w-8 h-8 bg-white/90 hover:bg-white text-gray-700 hover:text-gray-900 rounded-full text-sm shadow-lg border border-gray-200 hover:border-gray-400 transition-all duration-200">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="w-full h-full bg-[#0f0f0f] rounded-2xl overflow-hidden shadow-2xl shadow-black/50 p-1 flex items-center justify-center">
+                <img id="imageModalImg" src="" alt="" class="max-w-full max-h-full w-auto h-auto object-contain rounded-xl" />
+            </div>
+        </div>
+    </div>
+
+    <!-- Vimeo Video Modal -->
+    <div id="vimeoModal" class="modal-overlay fixed inset-0 z-[100] hidden items-center justify-center bg-black/90 backdrop-blur-sm p-2 sm:p-4">
+        <div class="relative modal-content flex items-center justify-center" id="vimeoContainer" style="width: 90vw; height: 80vh;">
+            <button type="button" onclick="closeVimeoModal()" aria-label="Cerrar" class="absolute -top-3 right-2 sm:right-0 z-20 flex items-center justify-center w-10 h-10 bg-white/90 hover:bg-white text-gray-900 rounded-full text-base shadow-2xl border-2 border-gray-300 hover:border-gray-600 transition-all duration-200">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="w-full h-full bg-black rounded-2xl overflow-hidden shadow-2xl shadow-black/50 flex items-center justify-center">
+                <iframe id="vimeoFrame" src="" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen class="w-full h-full" frameborder="0"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <style>
+    .modal-overlay {
+        opacity: 0;
+        transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+    .modal-overlay.active {
+        opacity: 1;
+    }
+    .modal-overlay .modal-content {
+        transform: scale(0.92);
+        transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .modal-overlay.active .modal-content {
+        transform: scale(1);
+    }
+    </style>
+
+    @push('scripts')
+    <script>
+    function openModal(id) {
+        var el = document.getElementById(id);
+        if (!el) return;
+        el.classList.remove('hidden');
+        el.classList.add('flex');
+        document.body.style.overflow = 'hidden';
+        requestAnimationFrame(function() {
+            el.classList.add('active');
+        });
+    }
+    function closeModal(id) {
+        var el = document.getElementById(id);
+        if (!el) return;
+        el.classList.remove('active');
+        document.body.style.overflow = '';
+        setTimeout(function() {
+            el.classList.add('hidden');
+            el.classList.remove('flex');
+        }, 300);
+    }
+
+    function openImageModal(src, alt) {
+        var img = document.getElementById('imageModalImg');
+        if (!img) return;
+        img.src = src;
+        img.alt = alt || '';
+        openModal('imageModal');
+    }
+    function closeImageModal() {
+        var img = document.getElementById('imageModalImg');
+        if (img) img.src = '';
+        closeModal('imageModal');
+    }
+
+    function openVimeoModal(input) {
+        var frame = document.getElementById('vimeoFrame');
+        var container = document.getElementById('vimeoContainer');
+        if (!frame || !container) return;
+        var id = getVimeoId(input);
+        if (!id) return;
+        frame.src = 'https://player.vimeo.com/video/' + id + '?autoplay=1&title=0&byline=0&portrait=0';
+        openModal('vimeoModal');
+        fetch('https://vimeo.com/api/oembed.json?url=https://vimeo.com/' + id)
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                var w = data.width || 640;
+                var h = data.height || 360;
+                var vw = window.innerWidth;
+                var vh = window.innerHeight;
+                var maxW = vw * 0.92;
+                var maxH = vh * 0.88;
+                var ratio = w / h;
+                var cw = maxW;
+                var ch = cw / ratio;
+                if (ch > maxH) {
+                    ch = maxH;
+                    cw = ch * ratio;
+                }
+                container.style.width = Math.round(cw) + 'px';
+                container.style.height = Math.round(ch) + 'px';
+            })
+            .catch(function() {});
+    }
+    function closeVimeoModal() {
+        var frame = document.getElementById('vimeoFrame');
+        if (frame) frame.src = '';
+        closeModal('vimeoModal');
+    }
+
+    var modalIds = ['imageModal', 'vimeoModal'];
+    modalIds.forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) {
+            el.addEventListener('click', function(e) { if (e.target === el) closeModal(id); });
+        }
+    });
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeImageModal();
+            closeVimeoModal();
+        }
+    });
+
+    function getVimeoId(input) {
+        if (!input) return null;
+        input = input.trim();
+        var match = input.match(/(?:vimeo\.com\/(?:video\/)?|player\.vimeo\.com\/video\/)?(\d+)/i);
+        return match ? match[1] : null;
+    }
+    </script>
+    @endpush
 
     @stack('scripts')
 </body>

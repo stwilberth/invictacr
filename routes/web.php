@@ -10,11 +10,11 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
-Route::get('/relojes', [ProductController::class, 'index'])->name('products.index');
+Route::get('/relojes', [ProductController::class, 'index'])->name('products.index')->middleware('throttle:search');
 Route::get('/relojes/{gender}', [ProductController::class, 'byGender'])->name('products.gender');
 Route::get('/relojes/{gender}/{slug}', [ProductController::class, 'show'])->name('products.show');
 
-Route::get('/buscar', [SearchController::class, 'index'])->name('search');
+
 
 Route::get('/como-comprar', [PageController::class, 'comoComprar'])->name('como-comprar');
 Route::get('/formas-pago', [PageController::class, 'formasPago'])->name('formas-pago');
@@ -44,6 +44,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::get('/campaigns', \App\Livewire\Admin\Campaigns::class)->name('campaigns');
     Route::get('/upcoming', \App\Livewire\Admin\Upcoming::class)->name('upcoming');
     Route::get('/sync', \App\Livewire\Admin\SyncManager::class)->name('sync');
+    Route::get('/search-logs', \App\Livewire\Admin\SearchLogs::class)->name('search-logs');
+    Route::get('/optimize-images', \App\Livewire\Admin\OptimizeImages::class)->name('optimize-images');
 });
 
 require __DIR__ . '/auth.php';

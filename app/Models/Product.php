@@ -74,4 +74,49 @@ class Product extends Model
     {
         return $this->proximo;
     }
+
+    public function setBrazaleteAttribute($value)
+    {
+        $this->attributes['brazalete'] = static::normalizeBrazalete($value);
+    }
+
+    public static function normalizeBrazalete($value): ?string
+    {
+        if (is_null($value) || trim($value) === '') {
+            return null;
+        }
+
+        $value = trim($value);
+        $accepted = config('brazaletes', []);
+
+        foreach ($accepted as $valid) {
+            if (strcasecmp($value, $valid) === 0) {
+                return $valid;
+            }
+        }
+
+        $lower = mb_strtolower($value);
+        $map = [
+            'acero inoxidable' => 'Acero Inoxidable',
+            'stainless steel' => 'Acero Inoxidable',
+            'cuero' => 'Cuero',
+            'leather' => 'Cuero',
+            'silicona' => 'Silicona',
+            'silicone' => 'Silicona',
+            'rubber' => 'Silicona',
+            'goma' => 'Silicona',
+            'plastico' => 'Plastico',
+            'plastic' => 'Plastico',
+            'titanio' => 'Titanio',
+            'titanium' => 'Titanio',
+        ];
+
+        foreach ($map as $search => $replacement) {
+            if (str_contains($lower, $search)) {
+                return $replacement;
+            }
+        }
+
+        return 'Otros';
+    }
 }
