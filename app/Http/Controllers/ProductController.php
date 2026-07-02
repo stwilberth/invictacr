@@ -93,7 +93,9 @@ class ProductController extends Controller
 
         $filters = $this->buildFilters($gender);
 
-        return view("pages.catalog", compact("products", "filters", "gender"));
+        $searchQuery = $originalQuery;
+
+        return view("pages.catalog", compact("products", "filters", "gender", "searchQuery"));
     }
 
     private function applyParsedFilters(Request $request, array $parsed): void

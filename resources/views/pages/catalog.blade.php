@@ -20,11 +20,11 @@
                         <input
                             type="text"
                             name="q"
-                            value="{{ request('q') }}"
+                            value="{{ $searchQuery ?? request('q') }}"
                             placeholder="Buscar por modelo, colección, color..."
                             class="w-full px-4 py-2.5 bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-[#00C4FF]/50 focus:ring-2 focus:ring-[#00C4FF]/20 transition-all text-sm pr-10"
                         />
-                        @if(request('q'))
+                        @if($searchQuery ?? request('q'))
                         <button type="button" onclick="window.location.href='/relojes'" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                         </button>
@@ -66,7 +66,13 @@
                             || (request('sort') && request('sort') !== 'newest');
                     @endphp
 
-                    @if($hasAnyFilter)
+                    @if($searchQuery)
+                    <div class="mb-4 flex justify-center">
+                        <span class="text-sm text-gray-500 dark:text-gray-400 font-medium">
+                            {{ $products->total() }} {{ $products->total() === 1 ? 'resultado' : 'resultados' }} para la búsqueda <strong class="text-gray-800 dark:text-white">"{{ $searchQuery }}"</strong>
+                        </span>
+                    </div>
+                    @elseif($hasAnyFilter)
                     <div class="mb-4 flex justify-center">
                         <span class="text-xs text-gray-400 font-medium">{{ $products->total() }} resultados</span>
                     </div>
