@@ -16,10 +16,6 @@ class ImageOptimizerService
             return false;
         }
 
-        if ($product->isGif) {
-            return false;
-        }
-
         $modelo = $this->getModelo($product);
         if (!$modelo) {
             return false;
@@ -33,7 +29,7 @@ class ImageOptimizerService
 
     public function getStats(): array
     {
-        $products = Product::whereNotNull('imagen')->where('isGif', false)->get();
+        $products = Product::whereNotNull('imagen')->get();
 
         $total = 0;
         $optimized = 0;
@@ -60,7 +56,7 @@ class ImageOptimizerService
 
     public function getUnoptimizedProducts(): array
     {
-        $products = Product::whereNotNull('imagen')->where('isGif', false)->get();
+        $products = Product::whereNotNull('imagen')->get();
         $result = [];
 
         foreach ($products as $product) {
@@ -91,11 +87,6 @@ class ImageOptimizerService
         ];
 
         try {
-            if ($product->isGif) {
-                $result['error'] = 'Es GIF, se omite';
-                return $result;
-            }
-
             $sourcePath = $this->getSourcePath($product);
             if (!$sourcePath) {
                 $result['error'] = 'No se encontró la imagen origen';
@@ -160,7 +151,7 @@ class ImageOptimizerService
 
     public function optimizeAll(?callable $onProgress = null): array
     {
-        $products = Product::whereNotNull('imagen')->where('isGif', false)->get();
+        $products = Product::whereNotNull('imagen')->get();
         $results = [];
         $total = count($products);
         $processed = 0;

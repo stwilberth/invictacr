@@ -56,7 +56,7 @@ class OptimizeImages extends Command
 
     private function optimizeAll(ImageOptimizerService $service, bool $dryRun, bool $force): int
     {
-        $query = Product::whereNotNull('imagen')->where('isGif', false);
+        $query = Product::whereNotNull('imagen');
 
         if (!$force) {
             $all = $query->get();

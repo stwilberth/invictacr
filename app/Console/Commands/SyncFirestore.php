@@ -212,7 +212,6 @@ class SyncFirestore extends Command
             "descuento" => $item["descuento"] ?? 0,
             "stock" => $item["stock"] ?? 0,
             "imagen" => $item["imagen"] ?? null,
-            "isGif" => $item["isGif"] ?? false,
             "activo" => ($item["stock"] ?? 0) > 0,
             "imagenes_extra" => isset($item["imagenes_extra"])
                 ? (is_array($item["imagenes_extra"])

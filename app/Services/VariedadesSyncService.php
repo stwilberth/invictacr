@@ -60,8 +60,7 @@ class VariedadesSyncService
                     }
 
                     if ($product->proximo) {
-                        $increase = (int) ($product->variedades_increase ?? 0);
-                        $increase = $increase > 0 ? $increase : random_int(4000, 9000);
+                        $increase = random_int(4000, 9000);
                         $roundedPrice = $this->roundUpToThousand($priceVal + $increase);
 
                         $iwData = null;
@@ -80,9 +79,7 @@ class VariedadesSyncService
                         $product->update([
                             'proximo' => false,
                             'precio_venta' => $roundedPrice,
-                            'precio_original' => $iwData['msrp'] ?? $priceVal,
-                            'variedades_price' => $priceVal,
-                            'variedades_increase' => $increase,
+                            'precio_original' => $priceVal,
                             'stock' => max(1, $stockVal),
                             'genero' => $iwData['genero'] ?? $product->genero,
                             'coleccion' => $iwData['coleccion'] ?? $product->coleccion,
@@ -99,7 +96,7 @@ class VariedadesSyncService
                     }
 
                     $prevStock = (int) ($product->stock ?? 0);
-                    $prevVariedadesPrice = (int) ($product->variedades_price ?? 0);
+                    $prevPrecioOriginal = (int) ($product->precio_original ?? 0);
 
                     $updates = [];
                     $didChange = false;
@@ -113,18 +110,15 @@ class VariedadesSyncService
                     $isComingBackToStock = $prevStock === 0 && $stockVal > 0;
 
                     if ($isComingBackToStock) {
-                        $existingIncrease = (int) ($product->variedades_increase ?? 0);
+                        $existingIncrease = (int) ($product->precio_venta ?? 0) - (int) ($product->precio_original ?? 0);
                         $increase = $existingIncrease > 0 ? $existingIncrease : random_int(4000, 9000);
                         $newPrice = $this->roundUpToThousand($priceVal + $increase);
 
                         $updates["precio_venta"] = $newPrice;
-                        $updates["variedades_increase"] = $increase;
-                        $updates["variedades_price"] = $priceVal;
                         $updates["precio_original"] = $priceVal;
                         $priceRecalculatedCount++;
                         $didChange = true;
-                    } elseif ($prevVariedadesPrice !== $priceVal) {
-                        $updates["variedades_price"] = $priceVal;
+                    } elseif ($prevPrecioOriginal !== $priceVal) {
                         $updates["precio_original"] = $priceVal;
                         $referenceUpdatedCount++;
                         $didChange = true;
@@ -166,9 +160,7 @@ class VariedadesSyncService
                         "slug" => "invicta-" . strtolower($modelKey),
                         "descripcion" => $descripcion,
                         "precio_venta" => $roundedPrice,
-                        "precio_original" => $iwData['msrp'] ?? $priceVal,
-                        "variedades_price" => $priceVal,
-                        "variedades_increase" => $increase,
+                        "precio_original" => $priceVal,
                         "descuento" => 0,
                         "genero" => $iwData['genero'] ?? $generoApi,
                         "stock" => $stockVal,

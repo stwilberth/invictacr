@@ -25,15 +25,12 @@ class Product extends Model
         "descuento",
         "stock",
         "imagen",
-        "isGif",
         "activo",
         "imagenes_extra",
         "caracteristicas",
         "vistas",
         "bloqueado",
         "proximo",
-        "variedades_price",
-        "variedades_increase",
     ];
 
     protected $casts = [
@@ -42,12 +39,9 @@ class Product extends Model
         "descuento" => "integer",
         "stock" => "integer",
         "vistas" => "integer",
-        "isGif" => "boolean",
         "activo" => "boolean",
         "bloqueado" => "boolean",
         "proximo" => "boolean",
-        "variedades_price" => "integer",
-        "variedades_increase" => "integer",
         "imagenes_extra" => "array",
         "caracteristicas" => "array",
     ];

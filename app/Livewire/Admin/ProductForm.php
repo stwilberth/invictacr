@@ -22,7 +22,6 @@ class ProductForm extends Component
         $activo = true;
     public $bloqueado = false,
         $proximo = false,
-        $variedades_price,
         $variedades_increase;
     public $downloadStatus = "";
     public $downloadMessage = "";
@@ -53,8 +52,7 @@ class ProductForm extends Component
             $this->activo = $product->activo;
             $this->bloqueado = (bool) $product->bloqueado;
             $this->proximo = (bool) $product->proximo;
-            $this->variedades_price = $product->variedades_price;
-            $this->variedades_increase = $product->variedades_increase;
+            $this->variedades_increase = (int) $product->precio_original > 0 ? (int) $product->precio_venta - (int) $product->precio_original : 0;
         }
     }
 
@@ -290,8 +288,6 @@ class ProductForm extends Component
             "activo" => $this->activo,
             "bloqueado" => $this->bloqueado,
             "proximo" => $this->proximo,
-            "variedades_price" => $this->variedades_price ?: null,
-            "variedades_increase" => $this->variedades_increase ?: null,
         ];
 
         if ($this->productId) {
