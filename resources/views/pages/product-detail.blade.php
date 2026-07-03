@@ -318,14 +318,6 @@
                     </div>
                 @endif
 
-                {{-- Description --}}
-                @if($product->descripcion)
-                <div class="mt-4">
-                    <h3 class="font-bold text-gray-900 dark:text-white mb-2 uppercase tracking-wider text-sm">Descripción</h3>
-                    <p class="text-gray-600 dark:text-gray-300 text-sm leading-relaxed">{{ $product->descripcion }}</p>
-                </div>
-                @endif
-
                 {{-- Tabbed Card: Compartir / Especificaciones --}}
                 <div class="w-full rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 shadow-sm mb-3.5 mt-4">
                     {{-- Tab Buttons --}}
