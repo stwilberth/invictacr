@@ -13,11 +13,11 @@
     <div class="absolute inset-0 rounded-full bg-[#25D366] animate-ping opacity-20 group-hover:opacity-40 transition-opacity"></div>
     <i class="fab fa-whatsapp text-2xl md:text-3xl relative z-10"></i>
 
-    <span id="whatsapp-tooltip"
+    {{-- <span id="whatsapp-tooltip"
           class="absolute right-full mr-4 px-4 py-2 bg-neutral-900 text-white text-xs font-bold rounded-lg opacity-0 transition-all duration-500 whitespace-nowrap pointer-events-none shadow-xl border border-white/10 uppercase tracking-widest translate-x-2"
           :class="{ 'opacity-100 translate-x-0': showTooltip, 'opacity-0 translate-x-2': !showTooltip }">
         ¿Necesitas ayuda?
-    </span>
+    </span> --}}
 </a>
 
 @push('scripts')

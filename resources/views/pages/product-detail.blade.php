@@ -13,7 +13,7 @@
         }
     }
 @endphp
-<x-app-layout :title="$seoTitle" :description="$product->descripcion ?? 'Reloj Invicta ' . $product->modelo" :ogImage="$product->imagen" ogType="product">
+<x-app-layout :title="$seoTitle" :description="$product->descripcion ?? 'Reloj Invicta ' . $product->modelo" :ogImage="$product->imagen" ogType="product" :hideWhatsApp="true">
     @php
         $isAgotado = ($product->stock ?? 0) <= 0;
         $isUpcoming = $product->proximo || $product->precio_venta <= 0;
@@ -26,7 +26,7 @@
     @endphp
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 lg:py-4">
-        {{-- Breadcrumbs --}}
+        {{-- Breadcrumbs 
         <nav class="flex items-center gap-1.5 text-xs lg:text-sm text-slate-400 dark:text-gray-500 mb-1.5 overflow-x-auto whitespace-nowrap pb-1">
             <a href="/" class="hover:text-[#00C4FF] transition-colors">Inicio</a>
             <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -44,12 +44,18 @@
             </svg>
             <span class="text-white/60 dark:text-gray-400 font-medium truncate max-w-[200px]">{{ $product->modelo }}</span>
         </nav>
+        --}}
 
         {{-- Mobile Header: Title above media --}}
         <div class="lg:hidden">
-            <h1 class="text-md leading-snug font-black text-gray-800 dark:text-white tracking-tight mb-2 uppercase">
-                {{ $displayTitle }}
-            </h1>
+            <div class="flex items-center gap-2 mb-2">
+                <button type="button" onclick="history.back()" aria-label="Atrás" class="flex items-center justify-center w-8 h-8 rounded-lg border-2 border-[#00C4FF] text-[#00C4FF] hover:bg-[#00C4FF] hover:text-white transition-all flex-shrink-0">
+                    <i class="fa-solid fa-arrow-left text-sm"></i>
+                </button>
+                <h1 class="text-md leading-snug font-black text-gray-800 dark:text-white tracking-tight uppercase">
+                    {{ $displayTitle }}
+                </h1>
+            </div>
             <div class="flex items-center gap-2 flex-wrap">
                 @if($isUpcoming)
                 <div class="flex items-center gap-2 px-3 py-1 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/50 rounded-full">
@@ -68,7 +74,7 @@
             {{-- Left Column: Media --}}
             <div class="lg:col-span-6">
                 <div class="hidden lg:block lg:sticky lg:top-0">
-                    <div class="relative bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden group/image" x-data="{ activeImage: '{{ $mediumImage }}' }">
+                    <div class="relative overflow-hidden group/image" x-data="{ activeImage: '{{ $mediumImage }}' }">
                         <div class="aspect-square flex items-center justify-center cursor-zoom-in" @click="openImageModal(activeImage, '{{ $displayTitle }}')">
                             <img :src="activeImage" src="{{ $mediumImage }}" alt="{{ $displayTitle }}" class="w-full h-full object-contain transition-transform duration-500 hover:scale-[1.02]" loading="eager" />
                         </div>
@@ -102,21 +108,35 @@
                 </div>
 
                 {{-- Mobile: Side-by-side grid (image col-span-3, buy box col-span-2) --}}
-                <div class="lg:hidden grid grid-cols-5 gap-2" x-data="{ activeImage: '{{ $mediumImage }}' }">
+                <div class="lg:hidden grid grid-cols-5 gap-2" x-data='{
+                    images: @json($images->values()->toArray()),
+                    currentIndex: 0,
+                    init() {
+                        if (this.images.length > 1) {
+                            setInterval(() => {
+                                this.currentIndex = (this.currentIndex + 1) % this.images.length;
+                            }, 4000);
+                        }
+                    }
+                }'>
                     {{-- Image --}}
                     <div class="col-span-3">
-                        <div class="relative bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden">
-                            <div class="flex items-center justify-center cursor-zoom-in" style="min-height: 200px;" @click="openImageModal(activeImage, '{{ $product->title }}')">
-                                <img :src="activeImage" src="{{ $mediumImage }}" alt="{{ $product->title }}" class="w-full max-h-[50vh] object-contain" loading="eager" />
+                        <div class="relative overflow-hidden" style="min-height: 200px;">
+                            <div class="flex" :style="`transform: translateX(-${currentIndex * 100}%); transition: transform 0.5s ease-in-out;`">
+                                <template x-for="(img, idx) in images" :key="idx">
+                                    <div class="w-full flex-shrink-0 flex items-center justify-center cursor-zoom-in" style="min-height: 200px;" @click="openImageModal(img, '{{ $product->title }}')">
+                                        <img :src="img" :alt="'{{ $product->title }} - ' + (idx + 1)" class="w-full max-h-[50vh] object-contain" loading="lazy" />
+                                    </div>
+                                </template>
                             </div>
 
                             {{-- Thumbnail gallery --}}
                             @if($images->count() > 1)
-                            <div class="flex gap-1 px-2 pb-2 overflow-x-auto">
+                            <div class="flex gap-1.5 px-2 pb-2 overflow-x-auto mt-1">
                                 @foreach($images as $img)
-                                <button type="button" @click="activeImage = '{{ $img }}'" data-gallery-img="{{ $img }}" class="w-8 h-8 flex-shrink-0 rounded border-2 overflow-hidden bg-gray-50 dark:bg-gray-900 transition-all gallery-thumb"
-                                    :class="activeImage === '{{ $img }}' ? 'border-[#00C4FF]' : 'border-transparent'">
-                                    <img src="{{ $img }}" alt="" class="w-full h-full object-contain" loading="lazy" onerror="this.closest('.gallery-thumb').style.display='none'" />
+                                <button type="button" @click="currentIndex = {{ $loop->index }}" data-gallery-img="{{ $img }}" class="w-12 h-12 flex-shrink-0 rounded-lg border-2 overflow-hidden bg-gray-50 dark:bg-gray-900 transition-all"
+                                    :class="currentIndex === {{ $loop->index }} ? 'border-[#00C4FF]' : 'border-transparent'">
+                                    <img src="{{ $img }}" alt="" class="w-full h-full object-contain" loading="lazy" onerror="this.closest('button').style.display='none'" />
                                 </button>
                                 @endforeach
                             </div>
@@ -132,7 +152,7 @@
                             @endif
 
                             {{-- Zoom button bottom-right --}}
-                            <button type="button" @click="event.preventDefault(); openImageModal(activeImage, '{{ $product->title }}')" class="absolute bottom-2 right-2 w-7 h-7 bg-white/95 dark:bg-gray-900/95 border border-gray-200 dark:border-gray-700/80 text-gray-500 dark:text-gray-400 rounded-md shadow flex items-center justify-center transition-all z-30 cursor-pointer">
+                            <button type="button" @click="event.preventDefault(); openImageModal(images[currentIndex], '{{ $product->title }}')" class="absolute bottom-2 right-2 w-7 h-7 bg-white/95 dark:bg-gray-900/95 border border-gray-200 dark:border-gray-700/80 text-gray-500 dark:text-gray-400 rounded-md shadow flex items-center justify-center transition-all z-30 cursor-pointer">
                                 <i class="fa-solid fa-expand text-[10px]"></i>
                             </button>
                         </div>
@@ -150,9 +170,9 @@
                         <a href="{{ $whatsappBuy }}" data-conversion="whatsapp-comprar" target="_blank" rel="noopener noreferrer" class="w-full flex items-center justify-center gap-1 py-1.5 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-lg font-bold uppercase tracking-wide text-[11px] transition-all active:scale-95 no-underline shadow-sm">
                             <i class="fa-brands fa-whatsapp text-xs"></i> Comprar
                         </a>
-                        <a href="{{ $whatsappApartar }}" data-conversion="whatsapp-apartar" target="_blank" rel="noopener noreferrer" class="w-full flex items-center justify-center gap-1 py-1.5 bg-blue-400 hover:bg-amber-600 text-white rounded-lg font-bold uppercase tracking-wide text-[11px] transition-all active:scale-95 no-underline shadow-sm">
-                            <i class="fa-solid fa-hand-holding-dollar text-xs"></i> Apartar
-                        </a>
+                        <button type="button" onclick="openShareModal()" class="w-full flex items-center justify-center gap-1 py-1.5 bg-transparent border border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:border-gray-400 dark:hover:border-gray-500 rounded-lg font-medium uppercase tracking-wide text-[11px] transition-all active:scale-95">
+                            <i class="fa-solid fa-share-nodes text-xs"></i> Compartir
+                        </button>
                         @endif
 
                         @auth
@@ -164,14 +184,8 @@
                             @endif
                         @endauth
 
-                        {{-- Mobile: Toggle specs button --}}
-                        <button type="button" onclick="toggleMobileSpecs()" class="w-full flex items-center justify-center gap-1 py-1.5 text-gray-600 dark:text-gray-300 rounded-lg font-bold uppercase tracking-wide text-[11px] transition-all bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10">
-                            <i class="fa-solid fa-list-ul text-[10px]" id="mobile-specs-icon"></i>
-                            <span id="mobile-specs-label">Ver detalles</span>
-                        </button>
-
-                        {{-- Mobile inline specs card (hidden by default) --}}
-                        <div id="mobile-specs-card" class="hidden flex-col gap-0 w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/50 overflow-hidden">
+                        {{-- Mobile inline specs card --}}
+                        <div id="mobile-specs-card" class="flex-col gap-0 w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/50 overflow-hidden">
                             <div class="flex justify-between items-center px-2 py-1.5 border-b border-gray-100 dark:border-gray-700">
                                 <span class="text-[9px] text-gray-400 font-bold uppercase tracking-wide">Para</span>
                                 <span class="text-[10px] font-semibold text-gray-800 dark:text-white capitalize">{{ $product->genero ?? 'Unisex' }}</span>
@@ -192,14 +206,20 @@
                     </div>
                 </div>
 
+                                    {{-- Mobile shipping banner --}}
+                    <div class="w-full flex lg:hidden items-center justify-center gap-2 py-2 px-4 mt-2">
+                        <i class="fa-solid fa-truck text-[#00C4FF] text-xs"></i>
+                        <span class="text-[10px] font-bold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Envío Gratis y Pago contra entrega*</span>
+                    </div>
+
                  {{-- Mobile: Relojes Similares slider (replaces thumbnail strip, since all watches have a single image) --}}
                  @if($relatedProducts->count() > 0)
                  <div class="lg:hidden mt-3">
-                     <h3 class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2 px-1">Relojes Similares</h3>
+                     <h3 class="text-[10px] font-black text-gray-600 dark:text-gray-500 uppercase tracking-widest mb-2 px-1">Relojes Similares</h3>
                      <div class="flex gap-1.5 overflow-x-auto pb-2 -mx-1 px-1 snap-x snap-mandatory scrollbar-hide">
                         @foreach($relatedProducts as $related)
                         <div class="flex-shrink-0 w-24 snap-start">
-                            <x-product-card :product="$related" compact />
+                            <x-product-card-related :product="$related" compact />
                         </div>
                         @endforeach
                     </div>
@@ -212,9 +232,14 @@
             <div class="lg:col-span-6 flex flex-col">
                 {{-- Desktop Title Header --}}
                 <div class="hidden lg:block mb-1">
-                    <h1 class="text-xl sm:text-2xl lg:text-3xl text-left font-black text-gray-800 dark:text-white tracking-tight leading-[1.1] mb-1 uppercase">
-                        {{ $displayTitle }}
-                    </h1>
+                    <div class="flex items-center gap-3 mb-1">
+                        <button type="button" onclick="history.back()" aria-label="Atrás" class="flex items-center justify-center w-9 h-9 rounded-xl border-2 border-[#00C4FF] text-[#00C4FF] hover:bg-[#00C4FF] hover:text-white transition-all flex-shrink-0">
+                            <i class="fa-solid fa-arrow-left"></i>
+                        </button>
+                        <h1 class="text-xl sm:text-2xl lg:text-3xl font-black text-gray-800 dark:text-white tracking-tight leading-[1.1] uppercase">
+                            {{ $displayTitle }}
+                        </h1>
+                    </div>
                     @auth
                         @if(auth()->user()->is_admin)
                         <a href="{{ route('admin.products.edit', $product->id) }}" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1 bg-[#00C4FF]/10 border border-[#00C4FF]/30 rounded-lg text-[#00C4FF] hover:bg-[#00C4FF]/20 transition-all text-xs font-bold uppercase tracking-wider mb-2">
@@ -258,12 +283,6 @@
                     </a>
                 </div>
                 @elseif(!$isUpcoming)
-                    {{-- Mobile shipping banner --}}
-                    <div class="w-full flex lg:hidden items-center justify-center gap-2 py-2 px-4 mt-2">
-                        <i class="fa-solid fa-truck text-[#00C4FF] text-xs"></i>
-                        <span class="text-[10px] font-bold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Envío Gratis y Pago contra entrega*</span>
-                    </div>
-
                     {{-- Desktop Price & Action Buttons --}}
                     <div class="hidden lg:flex flex-col items-start gap-2.5 mb-3.5">
                         <div class="flex items-baseline gap-3">
@@ -276,62 +295,40 @@
                             @endif
                         </div>
 
-                        {{-- Shipping info --}}
-                        <div class="flex items-center justify-center gap-2 text-gray-600 dark:text-gray-300 bg-gray-50 dark:bg-gray-900/50 py-1.5 px-2.5 rounded-lg border border-gray-100 dark:border-gray-800">
-                            <i class="fa-solid fa-truck text-[#00C4FF] text-xs"></i>
-                            <span class="text-[10px] font-bold uppercase tracking-wider">Envío Gratis y Pago contra entrega*</span>
-                        </div>
-
                         {{-- Desktop Action buttons --}}
                         <div class="grid grid-cols-2 gap-2.5 w-full">
                             <a href="{{ $whatsappBuy }}" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-1 py-2 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-xl font-extrabold uppercase tracking-tight text-xs transition-all hover:-translate-y-0.5 active:scale-95 no-underline shadow-sm hover:shadow-md">
                                 <i class="fa-brands fa-whatsapp text-base"></i> Comprar
                             </a>
                             <a href="{{ $whatsappApartar }}" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-1 py-2 bg-blue-300 hover:bg-amber-600 text-white rounded-xl font-extrabold uppercase tracking-tight text-xs transition-all hover:-translate-y-0.5 active:scale-95 no-underline shadow-sm hover:shadow-md">
-                                <i class="fa-solid fa-hand-holding-dollar text-base"></i> Apartar
+                                Apartar
                             </a>
 
                         </div>
                     </div>
                 @else
-                    {{-- Mobile shipping banner --}}
-                    <div class="w-full flex lg:hidden items-center justify-center gap-2 py-2 px-4 mt-2">
-                        <i class="fa-solid fa-truck text-[#00C4FF] text-xs"></i>
-                        <span class="text-[10px] font-bold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Envío Gratis y Pago contra entrega*</span>
-                    </div>
-
                     {{-- Desktop Action buttons (no price for upcoming) --}}
                     <div class="hidden lg:flex flex-col items-center gap-2.5 mb-3.5">
-                        <div class="flex items-center justify-center gap-2 text-gray-600 dark:text-gray-300 bg-gray-50 dark:bg-gray-900/50 py-1.5 px-2.5 rounded-lg border border-gray-100 dark:border-gray-800">
-                            <i class="fa-solid fa-truck text-[#00C4FF] text-xs"></i>
-                            <span class="text-[10px] font-bold uppercase tracking-wider">Envío Gratis y Pago contra entrega*</span>
-                        </div>
-
                         <div class="grid grid-cols-2 gap-2.5 w-full">
                             <a href="{{ $whatsappBuy }}" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-1 py-2 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-xl font-extrabold uppercase tracking-tight text-xs transition-all hover:-translate-y-0.5 active:scale-95 no-underline shadow-sm hover:shadow-md">
                                 <i class="fa-brands fa-whatsapp text-base"></i> Comprar
                             </a>
                             <a href="{{ $whatsappApartar }}" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-1 py-2 bg-blue-300 hover:bg-amber-600 text-white rounded-xl font-extrabold uppercase tracking-tight text-xs transition-all hover:-translate-y-0.5 active:scale-95 no-underline shadow-sm hover:shadow-md">
-                                <i class="fa-solid fa-hand-holding-dollar text-base"></i> Apartar
+                                Apartar
                             </a>
                         </div>
                     </div>
                 @endif
 
-                {{-- Tabbed Card: Compartir / Especificaciones --}}
-                <div class="w-full rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 shadow-sm mb-3.5 mt-4">
-                    {{-- Tab Buttons --}}
-                    <div class="flex border-b border-gray-200 dark:border-gray-600" role="tablist">
-                        <button data-tab="share" class="product-tab-btn flex-1 flex items-center justify-center gap-2 py-1.5 px-3 text-xs md:text-sm font-medium transition-colors border-b-2 border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200" type="button">
-                            <i class="fa-solid fa-share-nodes text-xs"></i> Compartir
-                        </button>
-                        <button data-tab="specs" class="product-tab-btn hidden lg:flex flex-1 items-center justify-center gap-2 py-1.5 px-3 text-xs md:text-sm font-medium transition-colors border-b-2 border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200" type="button">
-                            <i class="fa-solid fa-list-ul text-xs"></i> Especificaciones
-                        </button>
-                    </div>
+                {{-- Compartir + Especificaciones --}}
+                <div class="hidden lg:block w-full rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 shadow-sm mb-3.5 mt-4">
+                    {{-- Compartir toggle --}}
+                    <button type="button" onclick="toggleSharePanel()" id="share-toggle-btn" class="w-full flex items-center justify-center gap-2 py-1.5 px-3 text-xs md:text-sm font-medium transition-colors text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 border-b border-gray-200 dark:border-gray-600">
+                        <i class="fa-solid fa-share-nodes text-xs"></i> Compartir
+                    </button>
 
-                    {{-- Tab Panel: Compartir --}}
-                    <div data-tab-panel="share" class="product-tab-panel hidden" role="tabpanel">
+                    {{-- Share Panel --}}
+                    <div id="share-panel" class="hidden">
                         <div class="p-2 grid grid-cols-3 sm:grid-cols-6 gap-2">
                             <a href="https://api.whatsapp.com/send?text={{ $shareTitle }}%20{{ $shareUrl }}" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center gap-1 py-3 rounded-lg bg-[#25D366] text-white text-[11px] font-semibold hover:brightness-110 transition-all no-underline">
                                 <i class="fa-brands fa-whatsapp text-lg"></i> WhatsApp
@@ -354,62 +351,60 @@
                         </div>
                     </div>
 
-                    {{-- Tab Panel: Especificaciones --}}
-                    <div data-tab-panel="specs" class="product-tab-panel hidden" role="tabpanel">
-                        <div class="grid grid-cols-2">
-                            <div class="p-2.5 border-b border-r border-gray-100 dark:border-gray-700 flex items-start gap-2">
-                                <div class="mt-1 flex-shrink-0 w-7 h-7 rounded-lg bg-gray-50 dark:bg-gray-900 flex items-center justify-center text-gray-400">
-                                    <i class="fa-solid fa-venus-mars text-xs"></i>
-                                </div>
-                                <div>
-                                    <p class="text-[9px] text-gray-400 font-bold uppercase tracking-tight">Para</p>
-                                    <p class="text-xs font-bold text-gray-900 dark:text-white capitalize">{{ $product->genero ?? 'Unisex' }}</p>
-                                </div>
+                    {{-- Especificaciones (siempre visible) --}}
+                    <div class="grid grid-cols-2">
+                        <div class="p-2.5 border-b border-r border-gray-100 dark:border-gray-700 flex items-start gap-2">
+                            <div class="mt-1 flex-shrink-0 w-7 h-7 rounded-lg bg-gray-50 dark:bg-gray-900 flex items-center justify-center text-gray-400">
+                                <i class="fa-solid fa-venus-mars text-xs"></i>
                             </div>
-                            <div class="p-2.5 border-b border-gray-100 dark:border-gray-700 flex items-start gap-2">
-                                <div class="mt-1 flex-shrink-0 w-7 h-7 rounded-lg bg-gray-50 dark:bg-gray-900 flex items-center justify-center text-gray-400">
-                                    <i class="fa-solid fa-arrows-up-down-left-right text-xs"></i>
-                                </div>
-                                <div>
-                                    <p class="text-[9px] text-gray-400 font-bold uppercase tracking-tight">Caja</p>
-                                    <p class="text-xs font-bold text-gray-900 dark:text-white">{{ $size ? $size . 'mm' : 'N/A' }}</p>
-                                </div>
+                            <div>
+                                <p class="text-[9px] text-gray-400 font-bold uppercase tracking-tight">Para</p>
+                                <p class="text-xs font-bold text-gray-900 dark:text-white capitalize">{{ $product->genero ?? 'Unisex' }}</p>
                             </div>
-                            <div class="p-2.5 border-r border-gray-100 dark:border-gray-700 flex items-start gap-2">
-                                <div class="mt-1 flex-shrink-0 w-7 h-7 rounded-lg bg-gray-50 dark:bg-gray-900 flex items-center justify-center text-gray-400">
-                                    <i class="fa-solid fa-gear text-xs"></i>
-                                </div>
-                                <div>
-                                    <p class="text-[9px] text-gray-400 font-bold uppercase tracking-tight">Movimiento</p>
-                                    <p class="text-xs font-bold text-gray-900 dark:text-white capitalize line-clamp-1">{{ $product->tipo_movimiento === 'cuarzo' ? 'Batería' : ($product->tipo_movimiento ?? 'Especial') }}</p>
-                                </div>
+                        </div>
+                        <div class="p-2.5 border-b border-gray-100 dark:border-gray-700 flex items-start gap-2">
+                            <div class="mt-1 flex-shrink-0 w-7 h-7 rounded-lg bg-gray-50 dark:bg-gray-900 flex items-center justify-center text-gray-400">
+                                <i class="fa-solid fa-arrows-up-down-left-right text-xs"></i>
                             </div>
-                            <div class="p-2.5 flex items-start gap-2">
-                                <div class="mt-1 flex-shrink-0 w-7 h-7 rounded-lg bg-gray-50 dark:bg-gray-900 flex items-center justify-center text-gray-400">
-                                    <i class="fa-solid fa-droplet text-xs"></i>
-                                </div>
-                                <div>
-                                    <p class="text-[9px] text-gray-400 font-bold uppercase tracking-tight">Agua</p>
-                                    <p class="text-xs font-bold text-gray-900 dark:text-white whitespace-nowrap">{{ $product->resistencia_agua ? $product->resistencia_agua . 'm' : 'Resistente' }}</p>
-                                </div>
+                            <div>
+                                <p class="text-[9px] text-gray-400 font-bold uppercase tracking-tight">Caja</p>
+                                <p class="text-xs font-bold text-gray-900 dark:text-white">{{ $size ? $size . 'mm' : 'N/A' }}</p>
                             </div>
-                            <div class="p-2.5 border-r border-gray-100 dark:border-gray-700 flex items-start gap-2">
-                                <div class="mt-1 flex-shrink-0 w-7 h-7 rounded-lg bg-gray-50 dark:bg-gray-900 flex items-center justify-center text-gray-400">
-                                    <i class="fa-solid fa-layer-group text-xs"></i>
-                                </div>
-                                <div>
-                                    <p class="text-[9px] text-gray-400 font-bold uppercase tracking-tight">Colección</p>
-                                    <p class="text-xs font-bold text-gray-900 dark:text-white">{{ $product->coleccion ?? '—' }}</p>
-                                </div>
+                        </div>
+                        <div class="p-2.5 border-r border-gray-100 dark:border-gray-700 flex items-start gap-2">
+                            <div class="mt-1 flex-shrink-0 w-7 h-7 rounded-lg bg-gray-50 dark:bg-gray-900 flex items-center justify-center text-gray-400">
+                                <i class="fa-solid fa-gear text-xs"></i>
                             </div>
-                            <div class="p-2.5 flex items-start gap-2">
-                                <div class="mt-1 flex-shrink-0 w-7 h-7 rounded-lg bg-gray-50 dark:bg-gray-900 flex items-center justify-center text-gray-400">
-                                    <i class="fa-solid fa-clock text-xs"></i>
-                                </div>
-                                <div>
-                                    <p class="text-[9px] text-gray-400 font-bold uppercase tracking-tight">Brazalete</p>
-                                    <p class="text-xs font-bold text-gray-900 dark:text-white capitalize">{{ $product->brazalete ?? '—' }}</p>
-                                </div>
+                            <div>
+                                <p class="text-[9px] text-gray-400 font-bold uppercase tracking-tight">Movimiento</p>
+                                <p class="text-xs font-bold text-gray-900 dark:text-white capitalize line-clamp-1">{{ $product->tipo_movimiento === 'cuarzo' ? 'Batería' : ($product->tipo_movimiento ?? 'Especial') }}</p>
+                            </div>
+                        </div>
+                        <div class="p-2.5 flex items-start gap-2">
+                            <div class="mt-1 flex-shrink-0 w-7 h-7 rounded-lg bg-gray-50 dark:bg-gray-900 flex items-center justify-center text-gray-400">
+                                <i class="fa-solid fa-droplet text-xs"></i>
+                            </div>
+                            <div>
+                                <p class="text-[9px] text-gray-400 font-bold uppercase tracking-tight">Agua</p>
+                                <p class="text-xs font-bold text-gray-900 dark:text-white whitespace-nowrap">{{ $product->resistencia_agua ? $product->resistencia_agua . 'm' : 'Resistente' }}</p>
+                            </div>
+                        </div>
+                        <div class="p-2.5 border-r border-gray-100 dark:border-gray-700 flex items-start gap-2">
+                            <div class="mt-1 flex-shrink-0 w-7 h-7 rounded-lg bg-gray-50 dark:bg-gray-900 flex items-center justify-center text-gray-400">
+                                <i class="fa-solid fa-layer-group text-xs"></i>
+                            </div>
+                            <div>
+                                <p class="text-[9px] text-gray-400 font-bold uppercase tracking-tight">Colección</p>
+                                <p class="text-xs font-bold text-gray-900 dark:text-white">{{ $product->coleccion ?? '—' }}</p>
+                            </div>
+                        </div>
+                        <div class="p-2.5 flex items-start gap-2">
+                            <div class="mt-1 flex-shrink-0 w-7 h-7 rounded-lg bg-gray-50 dark:bg-gray-900 flex items-center justify-center text-gray-400">
+                                <i class="fa-solid fa-clock text-xs"></i>
+                            </div>
+                            <div>
+                                <p class="text-[9px] text-gray-400 font-bold uppercase tracking-tight">Brazalete</p>
+                                <p class="text-xs font-bold text-gray-900 dark:text-white capitalize">{{ $product->brazalete ?? '—' }}</p>
                             </div>
                         </div>
                     </div>
@@ -477,6 +472,41 @@
         </a>
     </div> --}}
 
+    {{-- Share Modal --}}
+    <div id="shareModal" class="modal-overlay fixed inset-0 z-[100] hidden items-center justify-center bg-black/85 p-4" onclick="if (event.target === this) closeShareModal()">
+        <div class="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-800 rounded-2xl shadow-2xl">
+            <button type="button" onclick="closeShareModal()" aria-label="Cerrar" class="absolute top-3 right-3 z-10 flex items-center justify-center w-8 h-8 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300 rounded-full text-sm transition-all">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <div class="p-4">
+                <h3 class="text-sm font-black text-gray-800 dark:text-white uppercase tracking-wide mb-3">Compartir</h3>
+                <div class="grid grid-cols-3 sm:grid-cols-6 gap-2">
+                    <a href="https://api.whatsapp.com/send?text={{ $shareTitle }}%20{{ $shareUrl }}" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center gap-1 py-3 rounded-lg bg-[#25D366] text-white text-[11px] font-semibold hover:brightness-110 transition-all no-underline">
+                        <i class="fa-brands fa-whatsapp text-lg"></i> WhatsApp
+                    </a>
+                    <a href="https://www.facebook.com/sharer/sharer.php?u={{ $shareUrl }}&quote={{ $shareTitle }}" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center gap-1 py-3 rounded-lg bg-[#1877F2] text-white text-[11px] font-semibold hover:brightness-110 transition-all no-underline">
+                        <i class="fa-brands fa-facebook text-lg"></i> Facebook
+                    </a>
+                    <a href="https://twitter.com/intent/tweet?text={{ $shareTitle }}&url={{ $shareUrl }}" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center gap-1 py-3 rounded-lg bg-gray-900 text-white text-[11px] font-semibold hover:bg-gray-800 transition-all no-underline">
+                        <i class="fa-brands fa-x-twitter text-lg"></i> X
+                    </a>
+                    <a href="https://pinterest.com/pin/create/button/?url={{ $shareUrl }}&description={{ $shareTitle }}&media={{ urlencode($product->imagen) }}" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center gap-1 py-3 rounded-lg bg-[#E60023] text-white text-[11px] font-semibold hover:brightness-110 transition-all no-underline">
+                        <i class="fa-brands fa-pinterest text-lg"></i> Pinterest
+                    </a>
+                    <button type="button" onclick="copyProductUrl()" class="flex flex-col items-center gap-1 py-3 rounded-lg bg-gray-500 text-white text-[11px] font-semibold hover:bg-gray-600 transition-all">
+                        <i class="fa-solid fa-link text-lg"></i> Copiar
+                    </button>
+                    <a href="https://t.me/share/url?url={{ $shareUrl }}&text={{ $shareTitle }}" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center gap-1 py-3 rounded-lg bg-[#0088cc] text-white text-[11px] font-semibold hover:brightness-110 transition-all no-underline">
+                        <i class="fa-brands fa-telegram text-lg"></i> Telegram
+                    </a>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+
     <script>
         var pixelModel = "{{ $product->modelo }}";
         var pixelTitle = "{{ $product->title }}";
@@ -485,6 +515,10 @@
 
     @push('scripts')
     <script>
+        // Share modal
+        function openShareModal() { var el = document.getElementById('shareModal'); if (!el) return; el.classList.remove('hidden'); el.classList.add('flex'); requestAnimationFrame(function() { el.classList.add('active'); }); document.body.style.overflow = 'hidden'; }
+        function closeShareModal() { var el = document.getElementById('shareModal'); if (!el) return; el.classList.remove('active'); document.body.style.overflow = ''; setTimeout(function() { el.classList.add('hidden'); el.classList.remove('flex'); }, 300); }
+
         // Related products slider navigation
         function scrollRelated(dir) {
             var slider = document.getElementById("related-slider");
@@ -494,74 +528,22 @@
             slider.scrollBy({ left: step * dir, behavior: "smooth" });
         }
 
-        // Toggle mobile inline specs card
-        function toggleMobileSpecs() {
-            var card = document.getElementById("mobile-specs-card");
-            var label = document.getElementById("mobile-specs-label");
-            var icon = document.getElementById("mobile-specs-icon");
-            if (!card) return;
-            var isHidden = card.classList.contains("hidden");
+        // Toggle share panel
+        function toggleSharePanel() {
+            var panel = document.getElementById("share-panel");
+            var btn = document.getElementById("share-toggle-btn");
+            if (!panel) return;
+            var isHidden = panel.classList.contains("hidden");
             if (isHidden) {
-                card.classList.remove("hidden");
-                card.classList.add("flex");
-                if (label) label.textContent = "Ocultar detalles";
-                if (icon) icon.className = "fa-solid fa-chevron-up text-[11px]";
+                panel.classList.remove("hidden");
+                btn.classList.add("text-[#00C4FF]", "font-bold");
+                btn.classList.remove("text-gray-500", "font-medium");
             } else {
-                card.classList.add("hidden");
-                card.classList.remove("flex");
-                if (label) label.textContent = "Ver detalles";
-                if (icon) icon.className = "fa-solid fa-list-ul text-[11px]";
+                panel.classList.add("hidden");
+                btn.classList.remove("text-[#00C4FF]", "font-bold");
+                btn.classList.add("text-gray-500", "font-medium");
             }
         }
-
-        document.addEventListener("DOMContentLoaded", function() {
-            // Product tabs (Compartir / Especificaciones)
-            function initProductTabs() {
-                const tabs = document.querySelectorAll(".product-tab-btn");
-                const panels = document.querySelectorAll(".product-tab-panel");
-                if (!tabs.length) return;
-
-                function setActive(name) {
-                    tabs.forEach(function(btn) {
-                        const isActive = btn.dataset.tab === name;
-                        btn.classList.toggle("is-active", isActive);
-                        btn.classList.toggle("border-[#00C4FF]", isActive);
-                        btn.classList.toggle("text-[#00C4FF]", isActive);
-                        btn.classList.toggle("font-bold", isActive);
-                        btn.classList.toggle("border-transparent", !isActive);
-                        btn.classList.toggle("text-gray-500", !isActive);
-                        btn.classList.toggle("font-medium", !isActive);
-                    });
-                    panels.forEach(function(panel) {
-                        panel.classList.toggle("hidden", panel.dataset.tabPanel !== name);
-                    });
-                }
-
-                tabs.forEach(function(btn) {
-                    btn.addEventListener("click", function() {
-                        if (!btn.dataset.tab) return;
-                        // Toggle: if already active, collapse; otherwise activate
-                        var isActive = btn.classList.contains("is-active");
-                        if (isActive) {
-                            // Collapse all
-                            tabs.forEach(function(b) {
-                                b.classList.remove("is-active", "border-[#00C4FF]", "text-[#00C4FF]", "font-bold");
-                                b.classList.add("border-transparent", "text-gray-500", "font-medium");
-                            });
-                            panels.forEach(function(panel) {
-                                panel.classList.add("hidden");
-                            });
-                        } else {
-                            setActive(btn.dataset.tab);
-                        }
-                    });
-                });
-
-                // Both panels stay collapsed by default until user clicks a tab
-            }
-
-            initProductTabs();
-        });
 
         // Copy URL functionality
         function copyProductUrl() {
