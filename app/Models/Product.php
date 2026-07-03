@@ -82,25 +82,31 @@ class Product extends Model
 
     public static function normalizeBrazalete($value): ?string
     {
+        return static::normalizeMaterial($value, true);
+    }
+
+    public function setCajaAttribute($value)
+    {
+        $this->attributes['caja'] = static::normalizeCaja($value);
+    }
+
+    public static function normalizeCaja($value): ?string
+    {
+        return static::normalizeMaterial($value, false);
+    }
+
+    private static function normalizeMaterial($value, bool $includeCuero): ?string
+    {
         if (is_null($value) || trim($value) === '') {
             return null;
         }
 
         $value = trim($value);
-        $accepted = config('brazaletes', []);
-
-        foreach ($accepted as $valid) {
-            if (strcasecmp($value, $valid) === 0) {
-                return $valid;
-            }
-        }
-
         $lower = mb_strtolower($value);
+
         $map = [
             'acero inoxidable' => 'Acero Inoxidable',
             'stainless steel' => 'Acero Inoxidable',
-            'cuero' => 'Cuero',
-            'leather' => 'Cuero',
             'silicona' => 'Silicona',
             'silicone' => 'Silicona',
             'rubber' => 'Silicona',
@@ -111,13 +117,43 @@ class Product extends Model
             'titanium' => 'Titanio',
         ];
 
+        if ($includeCuero) {
+            $map['cuero'] = 'Cuero';
+            $map['leather'] = 'Cuero';
+        }
+
         foreach ($map as $search => $replacement) {
             if (str_contains($lower, $search)) {
                 return $replacement;
             }
         }
 
-        return 'Otros';
+        return $includeCuero ? 'Otros' : 'Acero Inoxidable';
+    }
+
+    public function setTipoMovimientoAttribute($value)
+    {
+        $this->attributes['tipo_movimiento'] = static::normalizeMovimiento($value);
+    }
+
+    public static function normalizeMovimiento($value): ?string
+    {
+        if (is_null($value) || trim($value) === '') {
+            return null;
+        }
+
+        $value = trim($value);
+        $lower = mb_strtolower($value);
+
+        if (preg_match('/\bim-a[-]/i', $value) || str_contains($lower, 'automatic') || str_contains($lower, 'mecanico') || str_contains($lower, 'mechanical') || str_contains($lower, 'cuerda')) {
+            return 'automatico';
+        }
+
+        if (preg_match('/\bim-q[-]/i', $value) || str_contains($lower, 'quartz') || str_contains($lower, 'cuarzo') || str_contains($lower, 'battery') || str_contains($lower, 'bateria') || str_contains($lower, 'pila') || str_contains($lower, 'solar')) {
+            return 'cuarzo';
+        }
+
+        return 'cuarzo';
     }
 
     public function scopeRelatedTo($query, Product $product)

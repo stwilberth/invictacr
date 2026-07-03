@@ -11,6 +11,7 @@
                 <li>Email: <a href="mailto:wilberth@invictacostarica.com" class="hover:text-red-500 text-[#00C4FF]">info@invictacostarica.com</a></li>
                 <li>Facebook: <a href="https://www.facebook.com/invictacr" class="hover:text-blue-500 text-[#00C4FF]">Invictacr</a></li>
                 <li>TikTok: <a href="https://www.tiktok.com/@invictacr" class="hover:text-[#00C4FF] text-[#00C4FF]">@invictacr</a></li>
+                <li>YouTube: <a href="https://www.youtube.com/@invicta_cr" class="hover:text-red-500 text-[#00C4FF]">@invicta_cr</a></li>
             </ul>
         </div>
         <div>
@@ -24,6 +25,9 @@
                 </a>
                 <a href="https://www.tiktok.com/@invictacr" target="_blank" rel="noopener" aria-label="TikTok de Invicta Costa Rica" class="hover:text-[#00C4FF] text-[#00C4FF]">
                     <i class="fab fa-tiktok text-2xl"></i>
+                </a>
+                <a href="https://www.youtube.com/@invicta_cr" target="_blank" rel="noopener" aria-label="YouTube de Invicta Costa Rica" class="hover:text-red-500 text-[#00C4FF]">
+                    <i class="fab fa-youtube text-2xl"></i>
                 </a>
             </div>
         </div>

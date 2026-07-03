@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Product;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 
@@ -46,6 +47,8 @@ class InvictaWatchScraper
 
         $imagePath = $this->downloadImage($modelo, $imageUrl);
 
+        $movimientoRaw = $features["movimiento"] ?? null;
+
         return [
             "title" => $title,
             "descripcion" => $descripcion,
@@ -57,7 +60,8 @@ class InvictaWatchScraper
             "size" => $features["size"] ?? null,
             "caja" => $features["caja"] ?? null,
             "brazalete" => $features["brazalete"] ?? null,
-            "tipo_movimiento" => $features["movimiento"] ?? null,
+            "tipo_movimiento" => Product::normalizeMovimiento($movimientoRaw),
+            "movimiento_raw" => $movimientoRaw,
             "resistencia_agua" => $features["resistencia_agua"] ?? null,
         ];
     }

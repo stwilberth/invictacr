@@ -16,14 +16,11 @@
 <x-app-layout :title="$seoTitle" :description="$product->descripcion ?? 'Reloj Invicta ' . $product->modelo" :ogImage="$product->imagen" ogType="product">
     @php
         $isAgotado = ($product->stock ?? 0) <= 0;
-        $isUpcoming = $product->proximo;
-        $isUpcomingYAgotado = $product->proximo && $isAgotado;
+        $isUpcoming = $product->proximo || $product->precio_venta <= 0;
+        $isUpcomingYAgotado = $isUpcoming && $isAgotado;
         $priceAfterDiscount = $product->price_after_discount;
-        $layawayAmount = $isUpcoming ? 19000 : (ceil(($priceAfterDiscount * 0.2) / 1000) * 1000);
-        $whatsappBuy = 'https://wa.me/50686711422?text=' . urlencode("¡Hola! Me interesa comprar el reloj Invicta {$product->modelo} ({$product->coleccion}) - ₡" . number_format($priceAfterDiscount, 0) . ". ¿Está disponible? Enlace: " . url()->current());
-        $whatsappApartar = 'https://wa.me/50686711422?text=' . urlencode("¡Hola! Quiero apartar el reloj Invicta {$product->modelo} con el pago inicial de ₡" . number_format($layawayAmount, 0) . ". ¿Cómo procedo? Enlace: " . url()->current());
-        $whatsappVideo = 'https://wa.me/50686711422?text=' . urlencode("¡Hola! ¿Me podrías enviar un video real del Invicta {$product->modelo}? " . url()->current());
-        $whatsappInfo = 'https://wa.me/50686711422?text=' . urlencode("¡Hola! Quiero más información sobre el reloj Invicta {$product->modelo}: " . url()->current());
+        $whatsappBuy = 'https://wa.me/50686711422?text=' . urlencode("¡Hola! Me interesa el reloj Invicta {$product->modelo}");
+        $whatsappApartar = 'https://wa.me/50686711422?text=' . urlencode("¡Hola! Quiero apartar el reloj Invicta {$product->modelo}");
         $shareUrl = urlencode(url()->current());
         $shareTitle = urlencode("¡Mira este reloj Invicta!: {$product->title}");
     @endphp
@@ -128,7 +125,7 @@
                         <span class="text-xl font-black text-red-600 dark:text-red-400 tracking-tight text-center leading-none">₡{{ number_format($priceAfterDiscount, 0) }}</span>
                         @endif
 
-                        @if(!$isAgotado && !$isUpcoming)
+                        @if(!$isAgotado || $isUpcoming)
                         <a href="{{ $whatsappBuy }}" data-conversion="whatsapp-comprar" target="_blank" rel="noopener noreferrer" class="w-full flex items-center justify-center gap-1 py-1.5 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-lg font-bold uppercase tracking-wide text-[11px] transition-all active:scale-95 no-underline shadow-sm">
                             <i class="fa-brands fa-whatsapp text-xs"></i> Comprar
                         </a>
@@ -218,7 +215,7 @@
                     </div>
                 </div>
 
-                {{-- Agotado State --}}
+                {{-- Agotado / Próximo State --}}
                 @if($isUpcomingYAgotado)
                 <div class="bg-gradient-to-br from-red-50 to-amber-50 dark:from-red-900/10 dark:to-amber-900/10 border border-red-100 dark:border-red-900/50 rounded-2xl p-6 text-center mb-4">
                     <div class="w-12 h-12 bg-amber-100 dark:bg-amber-900/30 rounded-full flex items-center justify-center mx-auto mb-3">
@@ -239,7 +236,7 @@
                         <i class="fa-solid fa-chevron-right text-[10px]"></i>
                     </a>
                 </div>
-                @else
+                @elseif(!$isUpcoming)
                     {{-- Mobile shipping banner --}}
                     <div class="w-full flex lg:hidden items-center justify-center gap-2 py-2 px-4 mt-2">
                         <i class="fa-solid fa-truck text-[#00C4FF] text-xs"></i>
@@ -248,30 +245,23 @@
 
                     {{-- Desktop Price & Action Buttons --}}
                     <div class="hidden lg:flex flex-col items-start gap-2.5 mb-3.5">
-                        <div class="flex flex-col gap-1">
-                            @if($isUpcoming)
-                            <span class="text-2xl font-black text-amber-500 tracking-tighter uppercase">Próximamente</span>
-                            @else
-                            <div class="flex items-baseline gap-3">
-                                <span class="text-2xl lg:text-3xl font-black text-red-600 dark:text-red-400 tracking-tighter">₡{{ number_format($priceAfterDiscount, 0) }}</span>
-                                @if(($product->descuento ?? 0) > 0)
-                                <div class="flex items-center gap-2">
-                                    <span class="text-xs text-gray-400 line-through font-medium">₡{{ number_format($product->precio_venta, 0) }}</span>
-                                    <span class="bg-red-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded">-{{ $product->descuento }}%</span>
-                                </div>
-                                @endif
+                        <div class="flex items-baseline gap-3">
+                            <span class="text-2xl lg:text-3xl font-black text-red-600 dark:text-red-400 tracking-tighter">₡{{ number_format($priceAfterDiscount, 0) }}</span>
+                            @if(($product->descuento ?? 0) > 0)
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs text-gray-400 line-through font-medium">₡{{ number_format($product->precio_venta, 0) }}</span>
+                                <span class="bg-red-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded">-{{ $product->descuento }}%</span>
                             </div>
                             @endif
                         </div>
 
                         {{-- Shipping info --}}
-                        <div class="flex items-center gap-2 text-gray-600 dark:text-gray-300 bg-gray-50 dark:bg-gray-900/50 py-1.5 px-2.5 rounded-lg border border-gray-100 dark:border-gray-800">
+                        <div class="flex items-center justify-center gap-2 text-gray-600 dark:text-gray-300 bg-gray-50 dark:bg-gray-900/50 py-1.5 px-2.5 rounded-lg border border-gray-100 dark:border-gray-800">
                             <i class="fa-solid fa-truck text-[#00C4FF] text-xs"></i>
                             <span class="text-[10px] font-bold uppercase tracking-wider">Envío Gratis y Pago contra entrega*</span>
                         </div>
 
                         {{-- Desktop Action buttons --}}
-                        @if(!$isUpcoming)
                         <div class="grid grid-cols-2 gap-2.5 w-full">
                             <a href="{{ $whatsappBuy }}" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-1 py-2 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-xl font-extrabold uppercase tracking-tight text-xs transition-all hover:-translate-y-0.5 active:scale-95 no-underline shadow-sm hover:shadow-md">
                                 <i class="fa-brands fa-whatsapp text-base"></i> Comprar
@@ -281,7 +271,29 @@
                             </a>
 
                         </div>
-                        @endif
+                    </div>
+                @else
+                    {{-- Mobile shipping banner --}}
+                    <div class="w-full flex lg:hidden items-center justify-center gap-2 py-2 px-4 mt-2">
+                        <i class="fa-solid fa-truck text-[#00C4FF] text-xs"></i>
+                        <span class="text-[10px] font-bold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Envío Gratis y Pago contra entrega*</span>
+                    </div>
+
+                    {{-- Desktop Action buttons (no price for upcoming) --}}
+                    <div class="hidden lg:flex flex-col items-center gap-2.5 mb-3.5">
+                        <div class="flex items-center justify-center gap-2 text-gray-600 dark:text-gray-300 bg-gray-50 dark:bg-gray-900/50 py-1.5 px-2.5 rounded-lg border border-gray-100 dark:border-gray-800">
+                            <i class="fa-solid fa-truck text-[#00C4FF] text-xs"></i>
+                            <span class="text-[10px] font-bold uppercase tracking-wider">Envío Gratis y Pago contra entrega*</span>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2.5 w-full">
+                            <a href="{{ $whatsappBuy }}" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-1 py-2 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-xl font-extrabold uppercase tracking-tight text-xs transition-all hover:-translate-y-0.5 active:scale-95 no-underline shadow-sm hover:shadow-md">
+                                <i class="fa-brands fa-whatsapp text-base"></i> Comprar
+                            </a>
+                            <a href="{{ $whatsappApartar }}" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-1 py-2 bg-blue-300 hover:bg-amber-600 text-white rounded-xl font-extrabold uppercase tracking-tight text-xs transition-all hover:-translate-y-0.5 active:scale-95 no-underline shadow-sm hover:shadow-md">
+                                <i class="fa-solid fa-hand-holding-dollar text-base"></i> Apartar
+                            </a>
+                        </div>
                     </div>
                 @endif
 
@@ -415,7 +427,7 @@
                 @endif
 
                 {{-- Próximamente Reservation Card --}}
-                @if($isUpcoming)
+                @if($isUpcomingYAgotado)
                 <div class="mb-8 p-5 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/10 dark:to-orange-900/10 rounded-2xl border border-amber-200 dark:border-amber-800/30">
                     <h3 class="text-sm font-black text-amber-800 dark:text-amber-300 uppercase tracking-wide mb-4 flex items-center gap-2">
                         <i class="fa-solid fa-star text-amber-500 animate-pulse"></i> Reserva tu unidad:

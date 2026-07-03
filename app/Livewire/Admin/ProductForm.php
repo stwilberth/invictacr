@@ -21,6 +21,7 @@ class ProductForm extends Component
         $imagen,
         $activo = true;
     public $bloqueado = false,
+        $proximo = false,
         $variedades_price,
         $variedades_increase;
     public $downloadStatus = "";
@@ -51,6 +52,7 @@ class ProductForm extends Component
             $this->video = $product->video;
             $this->activo = $product->activo;
             $this->bloqueado = (bool) $product->bloqueado;
+            $this->proximo = (bool) $product->proximo;
             $this->variedades_price = $product->variedades_price;
             $this->variedades_increase = $product->variedades_increase;
         }
@@ -287,6 +289,7 @@ class ProductForm extends Component
             "video" => $this->video,
             "activo" => $this->activo,
             "bloqueado" => $this->bloqueado,
+            "proximo" => $this->proximo,
             "variedades_price" => $this->variedades_price ?: null,
             "variedades_increase" => $this->variedades_increase ?: null,
         ];
@@ -324,9 +327,11 @@ class ProductForm extends Component
             ->sort(fn($a, $b) => strcasecmp($a, $b))
             ->values();
 
+        $cajas = collect(['Acero Inoxidable', 'Silicona', 'Titanio', 'Plastico']);
+
         return view(
             "livewire.admin.product-form",
-            compact("colecciones", "colores", "brazaletes"),
+            compact("colecciones", "colores", "brazaletes", "cajas"),
         )->layout("components.admin-layout");
     }
 }

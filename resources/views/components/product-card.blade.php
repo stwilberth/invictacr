@@ -66,14 +66,14 @@
         </div>
 
         <div class="{{ $compact ? 'my-0.5' : 'my-0.5 md:my-2' }} text-right">
-            @if($product->proximo && ($product->stock ?? 0) <= 0)
+            @if($product->proximo && ($product->stock ?? 0) > 0)
+                <div class="py-1">
+                    <span class="text-[9px] md:text-xs font-bold px-1.5 md:px-2 py-0.5 bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 rounded-md">Próximamente</span>
+                </div>
+            @elseif($product->proximo || $product->precio_venta <= 0)
                 <div class="py-1 flex items-center justify-end gap-1">
                     <span class="text-[9px] md:text-xs font-bold px-1.5 md:px-2 py-0.5 bg-red-100 text-red-600 rounded-md">AGOTADO</span>
                     <span class="text-[9px] md:text-xs font-bold px-1.5 md:px-2 py-0.5 bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 rounded-md">PRÓXIMO</span>
-                </div>
-            @elseif($product->proximo)
-                <div class="py-1">
-                    <span class="text-[9px] md:text-xs font-bold px-1.5 md:px-2 py-0.5 bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 rounded-md">Próximamente</span>
                 </div>
             @elseif($product->precio_venta > 0)
                 <div class="flex flex-col items-end w-full">

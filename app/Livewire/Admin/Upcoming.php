@@ -4,6 +4,7 @@ namespace App\Livewire\Admin;
 
 use App\Models\Product;
 use App\Services\InvictaWatchScraper;
+use App\Services\DeepseekTranslationService;
 use Livewire\Component;
 
 class Upcoming extends Component
@@ -152,6 +153,19 @@ class Upcoming extends Component
             $title = 'Invicta ' . $title;
         }
 
+        $descripcion = $data['descripcion'] ?? null;
+        if (empty($descripcion)) {
+            $translator = app(DeepseekTranslationService::class);
+            $descripcion = $translator->translateDescription($data);
+            if ($descripcion) {
+                $this->importLog[] = [
+                    'type' => 'info',
+                    'modelo' => $modelo,
+                    'message' => 'Descripción generada con IA',
+                ];
+            }
+        }
+
         if ($data['imagen_local']) {
             $this->importLog[] = [
                 'type' => 'image_ok',
@@ -170,7 +184,7 @@ class Upcoming extends Component
             'modelo' => $modelo,
             'title' => $title,
             'slug' => 'invicta-' . strtolower($modelo),
-            'descripcion' => $data['descripcion'],
+            'descripcion' => $descripcion,
             'precio_venta' => 0,
             'precio_original' => $data['msrp'],
             'stock' => 0,

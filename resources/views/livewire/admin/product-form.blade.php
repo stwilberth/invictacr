@@ -80,7 +80,11 @@
                 </div>
                 <div>
                     <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Tipo Movimiento</label>
-                    <input wire:model="tipo_movimiento" type="text" class="w-full bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm" />
+                    <select wire:model="tipo_movimiento" class="w-full bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm">
+                        <option value="">Sin movimiento</option>
+                        <option value="cuarzo">Cuarzo</option>
+                        <option value="automatico">Automático</option>
+                    </select>
                 </div>
                 <div>
                     <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Size (MM)</label>
@@ -97,7 +101,12 @@
                 </div>
                 <div>
                     <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Material Caja</label>
-                    <input wire:model="caja" type="text" class="w-full bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm" />
+                    <select wire:model="caja" class="w-full bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm">
+                        <option value="">Sin material</option>
+                        @foreach($cajas as $material)
+                            <option value="{{ $material }}">{{ $material }}</option>
+                        @endforeach
+                    </select>
                 </div>
                 <div>
                     <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Resistencia al Agua</label>
@@ -171,6 +180,13 @@
                 <div class="flex items-center gap-3 pt-6">
                     <input wire:model="activo" type="checkbox" id="activo" class="text-[#00C4FF] rounded">
                     <label for="activo" class="text-sm font-bold text-gray-700 dark:text-gray-300">Producto activo</label>
+                </div>
+                <div class="flex items-center gap-3">
+                    <input wire:model="proximo" type="checkbox" id="proximo" class="text-amber-500 rounded">
+                    <label for="proximo" class="text-sm font-bold text-gray-700 dark:text-gray-300">
+                        Próximo / Agotado
+                        <span class="block text-xs font-normal text-gray-400">Producto aún no disponible (sin precio, sin stock) — se mostrará como "Agotado / Próximo"</span>
+                    </label>
                 </div>
                 <div class="flex items-center gap-3">
                     <input wire:model="bloqueado" type="checkbox" id="bloqueado" class="text-amber-500 rounded">

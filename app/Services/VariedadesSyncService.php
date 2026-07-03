@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Product;
 use App\Models\SyncLog;
 use App\Services\InvictaWatchScraper;
+use App\Services\DeepseekTranslationService;
 use Illuminate\Support\Facades\Http;
 
 class VariedadesSyncService
@@ -70,6 +71,12 @@ class VariedadesSyncService
                         } catch (\Exception $e) {
                         }
 
+                        $descripcion = $iwData['descripcion'] ?? $product->descripcion;
+                        if ($iwData && empty($descripcion)) {
+                            $translator = app(DeepseekTranslationService::class);
+                            $descripcion = $translator->translateDescription($iwData);
+                        }
+
                         $product->update([
                             'proximo' => false,
                             'precio_venta' => $roundedPrice,
@@ -85,7 +92,7 @@ class VariedadesSyncService
                             'tipo_movimiento' => $iwData['tipo_movimiento'] ?? $product->tipo_movimiento,
                             'resistencia_agua' => $iwData['resistencia_agua'] ?? $product->resistencia_agua,
                             'imagen' => $iwData['imagen_local'] ?? $product->imagen,
-                            'descripcion' => $iwData['descripcion'] ?? $product->descripcion,
+                            'descripcion' => $descripcion,
                         ]);
                         $activatedCount++;
                         continue;
@@ -147,11 +154,17 @@ class VariedadesSyncService
                         $title = 'Invicta ' . $scrapedTitle;
                     }
 
+                    $descripcion = $iwData['descripcion'] ?? null;
+                    if ($iwData && empty($descripcion)) {
+                        $translator = app(DeepseekTranslationService::class);
+                        $descripcion = $translator->translateDescription($iwData);
+                    }
+
                     Product::create([
                         "modelo" => $modelKey,
                         "title" => $title,
                         "slug" => "invicta-" . strtolower($modelKey),
-                        "descripcion" => $iwData['descripcion'] ?? null,
+                        "descripcion" => $descripcion,
                         "precio_venta" => $roundedPrice,
                         "precio_original" => $iwData['msrp'] ?? $priceVal,
                         "variedades_price" => $priceVal,
