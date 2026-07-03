@@ -147,13 +147,19 @@
     @endunless
 
     <!-- Image Modal -->
-    <div id="imageModal" class="modal-overlay fixed inset-0 z-[100] hidden items-center justify-center bg-black/60 backdrop-blur-sm p-0">
-        <div class="relative modal-content flex items-center justify-center w-[95vw] max-w-none h-[92vh] max-h-none">
-            <button type="button" onclick="closeImageModal()" aria-label="Cerrar" class="absolute top-4 right-4 z-20 flex items-center justify-center w-8 h-8 bg-white/90 hover:bg-white text-gray-700 hover:text-gray-900 rounded-full text-sm shadow-lg border border-gray-200 hover:border-gray-400 transition-all duration-200">
+    <div id="imageModal" class="modal-overlay fixed inset-0 z-[100] hidden items-center justify-center bg-black/85 p-0">
+        <div class="relative w-full h-full flex items-center justify-center">
+            <button type="button" onclick="closeImageModal()" aria-label="Cerrar" class="absolute top-4 right-4 z-40 flex items-center justify-center w-12 h-12 bg-white/90 hover:bg-white text-gray-800 rounded-full text-lg shadow-2xl border-2 border-gray-300 hover:border-gray-500 transition-all duration-200">
                 <i class="fa-solid fa-xmark"></i>
             </button>
-            <div class="w-full h-full bg-[#0f0f0f] rounded-2xl overflow-hidden shadow-2xl shadow-black/50 p-1 flex items-center justify-center">
-                <img id="imageModalImg" src="" alt="" class="max-w-full max-h-full w-auto h-auto object-contain rounded-xl" />
+            <button type="button" id="modalPrevBtn" onclick="prevImage()" aria-label="Anterior" class="absolute left-4 top-1/2 -translate-y-1/2 z-40 flex items-center justify-center w-14 h-14 bg-white/80 hover:bg-white/95 text-gray-800 rounded-full shadow-2xl border-2 border-white/50 hover:border-white transition-all duration-200">
+                <i class="fa-solid fa-chevron-left text-xl"></i>
+            </button>
+            <button type="button" id="modalNextBtn" onclick="nextImage()" aria-label="Siguiente" class="absolute right-4 top-1/2 -translate-y-1/2 z-40 flex items-center justify-center w-14 h-14 bg-white/80 hover:bg-white/95 text-gray-800 rounded-full shadow-2xl border-2 border-white/50 hover:border-white transition-all duration-200">
+                <i class="fa-solid fa-chevron-right text-xl"></i>
+            </button>
+            <div class="flex items-center justify-center p-8" style="max-width: 94vw; max-height: 94vh;">
+                <img id="imageModalImg" src="" alt="" class="max-w-full max-h-full w-auto h-auto object-contain rounded-2xl shadow-2xl" style="max-height: 88vh;" />
             </div>
         </div>
     </div>
@@ -210,17 +216,50 @@
         }, 300);
     }
 
+    var imageGallery = [];
+    var currentImageIndex = 0;
+
     function openImageModal(src, alt) {
         var img = document.getElementById('imageModalImg');
         if (!img) return;
+        var thumbs = document.querySelectorAll('[data-gallery-img]');
+        imageGallery = [];
+        thumbs.forEach(function(el) { imageGallery.push(el.getAttribute('data-gallery-img')); });
+        if (imageGallery.length === 0) imageGallery = [src];
+        currentImageIndex = imageGallery.indexOf(src);
+        if (currentImageIndex === -1) currentImageIndex = 0;
         img.src = src;
         img.alt = alt || '';
+        updateNavButtons();
         openModal('imageModal');
     }
     function closeImageModal() {
         var img = document.getElementById('imageModalImg');
         if (img) img.src = '';
+        imageGallery = [];
         closeModal('imageModal');
+    }
+    function prevImage() {
+        if (imageGallery.length < 2) return;
+        currentImageIndex = (currentImageIndex - 1 + imageGallery.length) % imageGallery.length;
+        var img = document.getElementById('imageModalImg');
+        img.src = imageGallery[currentImageIndex];
+        updateNavButtons();
+    }
+    function nextImage() {
+        if (imageGallery.length < 2) return;
+        currentImageIndex = (currentImageIndex + 1) % imageGallery.length;
+        var img = document.getElementById('imageModalImg');
+        img.src = imageGallery[currentImageIndex];
+        updateNavButtons();
+    }
+    function updateNavButtons() {
+        var prev = document.getElementById('modalPrevBtn');
+        var next = document.getElementById('modalNextBtn');
+        if (!prev || !next) return;
+        var show = imageGallery.length > 1;
+        prev.style.display = show ? '' : 'none';
+        next.style.display = show ? '' : 'none';
     }
 
     function openVimeoModal(input) {
@@ -269,6 +308,14 @@
         if (e.key === 'Escape') {
             closeImageModal();
             closeVimeoModal();
+        }
+        if (e.key === 'ArrowLeft') {
+            var modal = document.getElementById('imageModal');
+            if (modal && !modal.classList.contains('hidden')) prevImage();
+        }
+        if (e.key === 'ArrowRight') {
+            var modal = document.getElementById('imageModal');
+            if (modal && !modal.classList.contains('hidden')) nextImage();
         }
     });
 

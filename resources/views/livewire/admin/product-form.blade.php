@@ -151,6 +151,22 @@
                     @endif
                 </div>
                 <div class="md:col-span-2">
+                    <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Imágenes Extra</label>
+                    <div class="flex flex-wrap gap-2 mb-2">
+                        @for($i = 0; $i < count($imagenes_extra); $i++)
+                        <div class="relative group w-16 h-16 rounded-xl border border-gray-200 dark:border-white/10 overflow-hidden bg-gray-50 dark:bg-[#0a0f1c]">
+                            <img src="{{ $imagenes_extra[$i] }}" alt="Extra {{ $i + 1 }}" class="w-full h-full object-contain p-1" loading="lazy" />
+                            <button type="button" wire:click="removeImagenExtra({{ $i }})" class="absolute top-0.5 right-0.5 w-4 h-4 bg-red-500 hover:bg-red-600 text-white rounded-full text-[8px] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </div>
+                        @endfor
+                        <button type="button" wire:click="addImagenExtra" class="w-16 h-16 rounded-xl border-2 border-dashed border-gray-300 dark:border-white/20 hover:border-[#00C4FF] dark:hover:border-[#00C4FF] text-gray-400 hover:text-[#00C4FF] flex items-center justify-center transition-all">
+                            <i class="fa-solid fa-plus text-lg"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="md:col-span-2">
                     <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">URL Video (Vimeo)</label>
                     <input wire:model="video" type="text" placeholder="https://vimeo.com/123456789" class="w-full bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm" />
                     @if($video)

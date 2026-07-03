@@ -255,17 +255,12 @@ class ProductController extends Controller
         $product->increment("vistas");
 
         $images = collect([$product->imagen]);
-        for ($i = 1; $i <= 5; $i++) {
-            $extraImage = str_replace(".jpg", "_{$i}.jpg", $product->imagen);
-            if ($extraImage !== $product->imagen) {
-                $images->push($extraImage);
-            }
-        }
         if ($product->imagenes_extra) {
             foreach ($product->imagenes_extra as $img) {
                 $images->push($img);
             }
         }
+        $images->push('/storage/relojes/caja.webp');
         $images = $images->unique()->values();
 
         $relatedIds = cache()->remember("product:related_ids:{$product->id}", now()->addHours(4), function () use ($product) {

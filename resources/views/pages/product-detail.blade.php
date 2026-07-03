@@ -67,53 +67,74 @@
         <div class="grid grid-cols-1 lg:grid-cols-12 items-start gap-3 lg:gap-8">
             {{-- Left Column: Media --}}
             <div class="lg:col-span-6">
-                {{-- Desktop: Sticky media wrapper --}}
                 <div class="hidden lg:block lg:sticky lg:top-0">
-                    <div class="relative bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden">
-                        <div class="aspect-square flex items-center justify-center">
-                            <img src="{{ $mediumImage }}" alt="{{ $displayTitle }}" class="w-full h-full object-contain" loading="eager" />
+                    <div class="relative bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden group/image" x-data="{ activeImage: '{{ $mediumImage }}' }">
+                        <div class="aspect-square flex items-center justify-center cursor-zoom-in" @click="openImageModal(activeImage, '{{ $displayTitle }}')">
+                            <img :src="activeImage" src="{{ $mediumImage }}" alt="{{ $displayTitle }}" class="w-full h-full object-contain transition-transform duration-500 hover:scale-[1.02]" loading="eager" />
                         </div>
 
-                        {{-- Action buttons overlay at the bottom --}}
-                        <div class="absolute bottom-6 left-0 right-0 flex items-center justify-center gap-4 z-20">
-                            <button type="button" onclick="event.preventDefault(); openImageModal('{{ $product->imagen }}', '{{ $displayTitle }}')" class="flex items-center gap-2.5 px-5 py-2.5 bg-white dark:bg-gray-900 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-full text-sm font-black uppercase tracking-wider transition-all shadow-2xl border-2 border-gray-300 dark:border-gray-600 cursor-pointer">
-                                <i class="fa-solid fa-expand text-sm"></i>
-                                Ver imagen
+                        {{-- Thumbnail gallery --}}
+                        @if($images->count() > 1)
+                        <div class="flex gap-1.5 px-3 pb-3 overflow-x-auto">
+                            @foreach($images as $img)
+                            <button type="button" @click="activeImage = '{{ $img }}'" data-gallery-img="{{ $img }}" class="w-14 h-14 flex-shrink-0 rounded-lg border-2 overflow-hidden bg-gray-50 dark:bg-gray-900 transition-all gallery-thumb"
+                                :class="activeImage === '{{ $img }}' ? 'border-[#00C4FF]' : 'border-transparent hover:border-gray-300 dark:hover:border-gray-600'">
+                                <img src="{{ $img }}" alt="" class="w-full h-full object-contain" loading="lazy" onerror="this.closest('.gallery-thumb').style.display='none'" />
                             </button>
-                            @if($product->video)
-                            <button type="button" onclick="event.preventDefault(); openVimeoModal('{{ $product->video }}')" class="relative flex items-center gap-2.5 px-5 py-2.5 bg-red-600 hover:bg-red-500 text-white rounded-full text-sm font-black uppercase tracking-wider transition-all shadow-2xl border-2 border-red-600 cursor-pointer group">
-                                <div class="absolute inset-0 rounded-full bg-red-600 animate-ping-soft opacity-25 group-hover:opacity-40 transition-opacity"></div>
-                                <i class="fa-solid fa-play text-sm relative z-10"></i>
-                                <span class="relative z-10">Ver video</span>
-                            </button>
-                            @endif
+                            @endforeach
                         </div>
+                        @endif
+
+                        {{-- Video button top-right --}}
+                        @if($product->video)
+                        <button type="button" onclick="event.preventDefault(); openVimeoModal('{{ $product->video }}')" class="absolute top-3 right-3 flex items-center gap-1.5 px-3 py-1.5 bg-red-600 hover:bg-red-500 text-white rounded-full text-xs font-black uppercase tracking-wider transition-all shadow-2xl border-2 border-red-600 cursor-pointer group z-30">
+                            <div class="absolute inset-0 rounded-full bg-red-600 animate-ping-soft opacity-25 group-hover:opacity-40 transition-opacity"></div>
+                            <i class="fa-solid fa-play text-xs relative z-10"></i>
+                            <span class="relative z-10">Video</span>
+                        </button>
+                        @endif
+
+                        {{-- Zoom button bottom-right --}}
+                        <button type="button" @click="event.preventDefault(); openImageModal(activeImage, '{{ $displayTitle }}')" class="absolute bottom-4 right-4 w-9 h-9 bg-white/95 dark:bg-gray-900/95 border border-gray-200 dark:border-gray-700/80 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white rounded-lg shadow-sm flex items-center justify-center transition-all duration-300 opacity-0 group-hover/image:opacity-100 scale-95 group-hover/image:scale-100 z-30 cursor-pointer">
+                            <i class="fa-solid fa-expand text-sm"></i>
+                        </button>
                     </div>
                 </div>
 
                 {{-- Mobile: Side-by-side grid (image col-span-3, buy box col-span-2) --}}
-                <div class="lg:hidden grid grid-cols-5 gap-2">
+                <div class="lg:hidden grid grid-cols-5 gap-2" x-data="{ activeImage: '{{ $mediumImage }}' }">
                     {{-- Image --}}
                     <div class="col-span-3">
                         <div class="relative bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden">
-                            <div class="flex items-center justify-center" style="min-height: 200px;">
-                                <img src="{{ $mediumImage }}" alt="{{ $product->title }}" class="w-full max-h-[50vh] object-contain" id="main-image-mobile" loading="eager" />
+                            <div class="flex items-center justify-center cursor-zoom-in" style="min-height: 200px;" @click="openImageModal(activeImage, '{{ $product->title }}')">
+                                <img :src="activeImage" src="{{ $mediumImage }}" alt="{{ $product->title }}" class="w-full max-h-[50vh] object-contain" loading="eager" />
                             </div>
 
-                            {{-- Action buttons overlay at the bottom --}}
-                            <div class="absolute bottom-2 left-0 right-0 flex items-center justify-center gap-1.5 z-20 px-2">
-                                <button type="button" onclick="event.preventDefault(); openImageModal('{{ $product->imagen }}', '{{ $product->title }}')" class="flex items-center gap-1 px-2.5 py-1 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm text-gray-800 dark:text-gray-100 rounded-full text-[10px] font-bold uppercase tracking-wide transition-all shadow-lg border border-gray-200 dark:border-gray-600 cursor-pointer">
-                                    <i class="fa-solid fa-expand text-[9px]"></i>
-                                    Imagen
+                            {{-- Thumbnail gallery --}}
+                            @if($images->count() > 1)
+                            <div class="flex gap-1 px-2 pb-2 overflow-x-auto">
+                                @foreach($images as $img)
+                                <button type="button" @click="activeImage = '{{ $img }}'" data-gallery-img="{{ $img }}" class="w-8 h-8 flex-shrink-0 rounded border-2 overflow-hidden bg-gray-50 dark:bg-gray-900 transition-all gallery-thumb"
+                                    :class="activeImage === '{{ $img }}' ? 'border-[#00C4FF]' : 'border-transparent'">
+                                    <img src="{{ $img }}" alt="" class="w-full h-full object-contain" loading="lazy" onerror="this.closest('.gallery-thumb').style.display='none'" />
                                 </button>
-                                @if($product->video)
-                                <button type="button" onclick="event.preventDefault(); openVimeoModal('{{ $product->video }}')" class="relative flex items-center gap-1 px-2.5 py-1 bg-red-600/90 backdrop-blur-sm hover:bg-red-500 text-white rounded-full text-[10px] font-bold uppercase tracking-wide transition-all shadow-lg border border-red-500 cursor-pointer group">
-                                    <div class="absolute inset-0 rounded-full bg-red-600 animate-ping-soft opacity-20 group-hover:opacity-35 transition-opacity"></div>
-                                    <i class="fa-solid fa-play text-[9px] relative z-10"></i>
-                                    <span class="relative z-10">Video</span>
-                                </button>
-                                @endif
+                                @endforeach
                             </div>
+                            @endif
+
+                            {{-- Video button top-right --}}
+                            @if($product->video)
+                            <button type="button" onclick="event.preventDefault(); openVimeoModal('{{ $product->video }}')" class="absolute top-1.5 right-1.5 flex items-center gap-1 px-2 py-0.5 bg-red-600/90 backdrop-blur-sm hover:bg-red-500 text-white rounded-full text-[9px] font-bold uppercase tracking-wide transition-all shadow-lg border border-red-500 cursor-pointer group z-30">
+                                <div class="absolute inset-0 rounded-full bg-red-600 animate-ping-soft opacity-20 group-hover:opacity-35 transition-opacity"></div>
+                                <i class="fa-solid fa-play text-[9px] relative z-10"></i>
+                                <span class="relative z-10">Video</span>
+                            </button>
+                            @endif
+
+                            {{-- Zoom button bottom-right --}}
+                            <button type="button" @click="event.preventDefault(); openImageModal(activeImage, '{{ $product->title }}')" class="absolute bottom-2 right-2 w-7 h-7 bg-white/95 dark:bg-gray-900/95 border border-gray-200 dark:border-gray-700/80 text-gray-500 dark:text-gray-400 rounded-md shadow flex items-center justify-center transition-all z-30 cursor-pointer">
+                                <i class="fa-solid fa-expand text-[10px]"></i>
+                            </button>
                         </div>
                     </div>
 

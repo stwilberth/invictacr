@@ -23,6 +23,7 @@ class ProductForm extends Component
     public $bloqueado = false,
         $proximo = false,
         $variedades_increase;
+    public $imagenes_extra = [];
     public $downloadStatus = "";
     public $downloadMessage = "";
 
@@ -49,6 +50,7 @@ class ProductForm extends Component
             $this->stock = $product->stock;
             $this->imagen = $product->imagen;
             $this->video = $product->video;
+            $this->imagenes_extra = is_array($product->imagenes_extra) ? $product->imagenes_extra : [];
             $this->activo = $product->activo;
             $this->bloqueado = (bool) $product->bloqueado;
             $this->proximo = (bool) $product->proximo;
@@ -63,6 +65,20 @@ class ProductForm extends Component
         }
         if (!$this->title) {
             $this->title = $value;
+        }
+    }
+
+    public function addImagenExtra()
+    {
+        $next = count($this->imagenes_extra) + 1;
+        $this->imagenes_extra[] = "/storage/relojes/{$this->modelo}_{$next}.jpg";
+    }
+
+    public function removeImagenExtra(int $index)
+    {
+        if (isset($this->imagenes_extra[$index])) {
+            unset($this->imagenes_extra[$index]);
+            $this->imagenes_extra = array_values($this->imagenes_extra);
         }
     }
 
@@ -284,6 +300,7 @@ class ProductForm extends Component
             "descuento" => $this->descuento ?: 0,
             "stock" => $this->stock ?: 0,
             "imagen" => $this->imagen,
+            "imagenes_extra" => !empty($this->imagenes_extra) ? $this->imagenes_extra : null,
             "video" => $this->video,
             "activo" => $this->activo,
             "bloqueado" => $this->bloqueado,
