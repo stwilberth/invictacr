@@ -20,7 +20,6 @@
         $isUpcomingYAgotado = $isUpcoming && $isAgotado;
         $priceAfterDiscount = $product->price_after_discount;
         $whatsappBuy = 'https://wa.me/50686711422?text=' . urlencode("¡Hola! Me interesa el reloj Invicta {$product->modelo}");
-        $whatsappApartar = 'https://wa.me/50686711422?text=' . urlencode("¡Hola! Quiero apartar el reloj Invicta {$product->modelo}");
         $shareUrl = urlencode(url()->current());
         $shareTitle = urlencode("¡Mira este reloj Invicta!: {$product->title}");
     @endphp
@@ -74,17 +73,33 @@
             {{-- Left Column: Media --}}
             <div class="lg:col-span-6">
                 <div class="hidden lg:block lg:sticky lg:top-0">
-                    <div class="relative overflow-hidden group/image" x-data="{ activeImage: '{{ $mediumImage }}' }">
-                        <div class="aspect-square flex items-center justify-center cursor-zoom-in" @click="openImageModal(activeImage, '{{ $displayTitle }}')">
-                            <img :src="activeImage" src="{{ $mediumImage }}" alt="{{ $displayTitle }}" class="w-full h-full object-contain transition-transform duration-500 hover:scale-[1.02]" loading="eager" />
+                    <div class="relative overflow-hidden group/image" x-data='{
+                        images: @json($images->values()->toArray()),
+                        currentIndex: 0,
+                        init() {
+                            if (this.images.length > 1) {
+                                setInterval(() => {
+                                    this.currentIndex = (this.currentIndex + 1) % this.images.length;
+                                }, 4000);
+                            }
+                        }
+                    }'>
+                        <div class="relative overflow-hidden" style="min-height: 400px;">
+                            <div class="flex" :style="`transform: translateX(-${currentIndex * 100}%); transition: transform 0.5s ease-in-out;`">
+                                <template x-for="(img, idx) in images" :key="idx">
+                                    <div class="w-full flex-shrink-0 flex items-center justify-center cursor-zoom-in aspect-square" @click="openImageModal(img, '{{ $displayTitle }}')">
+                                        <img :src="img" :alt="'{{ $displayTitle }} - ' + (idx + 1)" class="w-full h-full object-contain transition-transform duration-500 hover:scale-[1.02]" loading="lazy" />
+                                    </div>
+                                </template>
+                            </div>
                         </div>
 
                         {{-- Thumbnail gallery --}}
                         @if($images->count() > 1)
-                        <div class="flex gap-1.5 px-3 pb-3 overflow-x-auto">
+                        <div class="flex gap-1.5 px-3 pb-3 overflow-x-auto mt-1">
                             @foreach($images as $img)
-                            <button type="button" @click="activeImage = '{{ $img }}'" data-gallery-img="{{ $img }}" class="w-14 h-14 flex-shrink-0 rounded-lg border-2 overflow-hidden bg-gray-50 dark:bg-gray-900 transition-all gallery-thumb"
-                                :class="activeImage === '{{ $img }}' ? 'border-[#00C4FF]' : 'border-transparent hover:border-gray-300 dark:hover:border-gray-600'">
+                            <button type="button" @click="currentIndex = {{ $loop->index }}" data-gallery-img="{{ $img }}" class="w-14 h-14 flex-shrink-0 rounded-lg border-2 overflow-hidden bg-gray-50 dark:bg-gray-900 transition-all gallery-thumb"
+                                :class="currentIndex === {{ $loop->index }} ? 'border-[#00C4FF]' : 'border-transparent hover:border-gray-300 dark:hover:border-gray-600'">
                                 <img src="{{ $img }}" alt="" class="w-full h-full object-contain" loading="lazy" onerror="this.closest('.gallery-thumb').style.display='none'" />
                             </button>
                             @endforeach
@@ -101,7 +116,7 @@
                         @endif
 
                         {{-- Zoom button bottom-right --}}
-                        <button type="button" @click="event.preventDefault(); openImageModal(activeImage, '{{ $displayTitle }}')" class="absolute bottom-4 right-4 w-9 h-9 bg-white/95 dark:bg-gray-900/95 border border-gray-200 dark:border-gray-700/80 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white rounded-lg shadow-sm flex items-center justify-center transition-all duration-300 opacity-0 group-hover/image:opacity-100 scale-95 group-hover/image:scale-100 z-30 cursor-pointer">
+                        <button type="button" @click="event.preventDefault(); openImageModal(images[currentIndex], '{{ $displayTitle }}')" class="absolute bottom-4 right-4 w-9 h-9 bg-white/95 dark:bg-gray-900/95 border border-gray-200 dark:border-gray-700/80 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white rounded-lg shadow-sm flex items-center justify-center transition-all duration-300 opacity-0 group-hover/image:opacity-100 scale-95 group-hover/image:scale-100 z-30 cursor-pointer">
                             <i class="fa-solid fa-expand text-sm"></i>
                         </button>
                     </div>
@@ -300,9 +315,9 @@
                             <a href="{{ $whatsappBuy }}" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-1 py-2 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-xl font-extrabold uppercase tracking-tight text-xs transition-all hover:-translate-y-0.5 active:scale-95 no-underline shadow-sm hover:shadow-md">
                                 <i class="fa-brands fa-whatsapp text-base"></i> Comprar
                             </a>
-                            <a href="{{ $whatsappApartar }}" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-1 py-2 bg-blue-300 hover:bg-amber-600 text-white rounded-xl font-extrabold uppercase tracking-tight text-xs transition-all hover:-translate-y-0.5 active:scale-95 no-underline shadow-sm hover:shadow-md">
-                                Apartar
-                            </a>
+                            <button type="button" onclick="openShareModal()" class="flex items-center justify-center gap-1 py-2 bg-transparent border border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:border-gray-400 dark:hover:border-gray-500 rounded-xl font-extrabold uppercase tracking-tight text-xs transition-all hover:-translate-y-0.5 active:scale-95 shadow-sm">
+                                <i class="fa-solid fa-share-nodes text-base"></i> Compartir
+                            </button>
 
                         </div>
                     </div>
@@ -313,45 +328,15 @@
                             <a href="{{ $whatsappBuy }}" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-1 py-2 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-xl font-extrabold uppercase tracking-tight text-xs transition-all hover:-translate-y-0.5 active:scale-95 no-underline shadow-sm hover:shadow-md">
                                 <i class="fa-brands fa-whatsapp text-base"></i> Comprar
                             </a>
-                            <a href="{{ $whatsappApartar }}" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-1 py-2 bg-blue-300 hover:bg-amber-600 text-white rounded-xl font-extrabold uppercase tracking-tight text-xs transition-all hover:-translate-y-0.5 active:scale-95 no-underline shadow-sm hover:shadow-md">
-                                Apartar
-                            </a>
+                            <button type="button" onclick="openShareModal()" class="flex items-center justify-center gap-1 py-2 bg-transparent border border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:border-gray-400 dark:hover:border-gray-500 rounded-xl font-extrabold uppercase tracking-tight text-xs transition-all hover:-translate-y-0.5 active:scale-95 shadow-sm">
+                                <i class="fa-solid fa-share-nodes text-base"></i> Compartir
+                            </button>
                         </div>
                     </div>
                 @endif
 
-                {{-- Compartir + Especificaciones --}}
+                {{-- Especificaciones (siempre visible) --}}
                 <div class="hidden lg:block w-full rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 shadow-sm mb-3.5 mt-4">
-                    {{-- Compartir toggle --}}
-                    <button type="button" onclick="toggleSharePanel()" id="share-toggle-btn" class="w-full flex items-center justify-center gap-2 py-1.5 px-3 text-xs md:text-sm font-medium transition-colors text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 border-b border-gray-200 dark:border-gray-600">
-                        <i class="fa-solid fa-share-nodes text-xs"></i> Compartir
-                    </button>
-
-                    {{-- Share Panel --}}
-                    <div id="share-panel" class="hidden">
-                        <div class="p-2 grid grid-cols-3 sm:grid-cols-6 gap-2">
-                            <a href="https://api.whatsapp.com/send?text={{ $shareTitle }}%20{{ $shareUrl }}" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center gap-1 py-3 rounded-lg bg-[#25D366] text-white text-[11px] font-semibold hover:brightness-110 transition-all no-underline">
-                                <i class="fa-brands fa-whatsapp text-lg"></i> WhatsApp
-                            </a>
-                            <a href="https://www.facebook.com/sharer/sharer.php?u={{ $shareUrl }}&quote={{ $shareTitle }}" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center gap-1 py-3 rounded-lg bg-[#1877F2] text-white text-[11px] font-semibold hover:brightness-110 transition-all no-underline">
-                                <i class="fa-brands fa-facebook text-lg"></i> Facebook
-                            </a>
-                            <a href="https://twitter.com/intent/tweet?text={{ $shareTitle }}&url={{ $shareUrl }}" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center gap-1 py-3 rounded-lg bg-gray-900 text-white text-[11px] font-semibold hover:bg-gray-800 transition-all no-underline">
-                                <i class="fa-brands fa-x-twitter text-lg"></i> X
-                            </a>
-                            <a href="https://pinterest.com/pin/create/button/?url={{ $shareUrl }}&description={{ $shareTitle }}&media={{ urlencode($product->imagen) }}" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center gap-1 py-3 rounded-lg bg-[#E60023] text-white text-[11px] font-semibold hover:brightness-110 transition-all no-underline">
-                                <i class="fa-brands fa-pinterest text-lg"></i> Pinterest
-                            </a>
-                            <button type="button" onclick="copyProductUrl()" class="flex flex-col items-center gap-1 py-3 rounded-lg bg-gray-500 text-white text-[11px] font-semibold hover:bg-gray-600 transition-all">
-                                <i class="fa-solid fa-link text-lg"></i> Copiar
-                            </button>
-                            <a href="https://t.me/share/url?url={{ $shareUrl }}&text={{ $shareTitle }}" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center gap-1 py-3 rounded-lg bg-[#0088cc] text-white text-[11px] font-semibold hover:brightness-110 transition-all no-underline">
-                                <i class="fa-brands fa-telegram text-lg"></i> Telegram
-                            </a>
-                        </div>
-                    </div>
-
-                    {{-- Especificaciones (siempre visible) --}}
                     <div class="grid grid-cols-2">
                         <div class="p-2.5 border-b border-r border-gray-100 dark:border-gray-700 flex items-start gap-2">
                             <div class="mt-1 flex-shrink-0 w-7 h-7 rounded-lg bg-gray-50 dark:bg-gray-900 flex items-center justify-center text-gray-400">
@@ -526,23 +511,6 @@
             var card = slider.querySelector(".flex-shrink-0");
             var step = card ? card.offsetWidth + 12 : 176;
             slider.scrollBy({ left: step * dir, behavior: "smooth" });
-        }
-
-        // Toggle share panel
-        function toggleSharePanel() {
-            var panel = document.getElementById("share-panel");
-            var btn = document.getElementById("share-toggle-btn");
-            if (!panel) return;
-            var isHidden = panel.classList.contains("hidden");
-            if (isHidden) {
-                panel.classList.remove("hidden");
-                btn.classList.add("text-[#00C4FF]", "font-bold");
-                btn.classList.remove("text-gray-500", "font-medium");
-            } else {
-                panel.classList.add("hidden");
-                btn.classList.remove("text-[#00C4FF]", "font-bold");
-                btn.classList.add("text-gray-500", "font-medium");
-            }
         }
 
         // Copy URL functionality
