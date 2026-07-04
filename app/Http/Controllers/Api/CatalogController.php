@@ -25,7 +25,7 @@ class CatalogController extends Controller
                 ->where('precio_venta', '>', 0)
                 ->get();
 
-            $baseUrl = config('app.url');
+            $baseUrl = 'https://invictacostarica.com';
             $xmlItems = '';
 
             foreach ($products as $product) {
