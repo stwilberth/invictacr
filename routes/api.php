@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\CatalogController;
 use App\Http\Controllers\Api\ProductApiController;
 use App\Http\Controllers\Api\StockApiController;
 use App\Http\Controllers\Api\MarketingApiController;
@@ -22,8 +23,12 @@ Route::get('/meta/catalog', [MetaApiController::class, 'catalog']);
 Route::get('/meta/token', [MetaApiController::class, 'token']);
 Route::post('/meta/token', [MetaApiController::class, 'storeToken']);
 
+Route::get('/facebook-catalog.xml', [CatalogController::class, 'facebookCatalog']);
+Route::get('/whatsapp-catalog.xml', [CatalogController::class, 'whatsappCatalog']);
+
 Route::post('/subscribe', [SubscriberApiController::class, 'subscribe']);
 Route::get('/subscribers', [SubscriberApiController::class, 'list']);
 
 Route::get('/sitemap', [UtilityApiController::class, 'sitemap']);
+Route::get('/sitemap.xml', [UtilityApiController::class, 'sitemap']);
 Route::post('/cache/clear', [UtilityApiController::class, 'clearCache']);

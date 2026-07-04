@@ -16,14 +16,26 @@ class UtilityApiController extends Controller
         $xml = '<?xml version="1.0" encoding="UTF-8"?>';
         $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
 
-        $staticPages = ['/', '/relojes', '/como-comprar', '/formas-pago', '/informacion-de-envio', '/garantia', '/resistencia-agua', '/resenas', '/sobre-nosotros'];
-        foreach ($staticPages as $page) {
-            $xml .= '<url><loc>' . url($page) . '</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>';
+        $staticPages = [
+            '/' => ['changefreq' => 'weekly', 'priority' => '1.0'],
+            '/relojes' => ['changefreq' => 'daily', 'priority' => '0.9'],
+            '/como-comprar' => ['changefreq' => 'monthly', 'priority' => '0.7'],
+            '/formas-pago' => ['changefreq' => 'monthly', 'priority' => '0.7'],
+            '/informacion-de-envio' => ['changefreq' => 'monthly', 'priority' => '0.7'],
+            '/garantia' => ['changefreq' => 'monthly', 'priority' => '0.7'],
+            '/resistencia-agua' => ['changefreq' => 'monthly', 'priority' => '0.7'],
+            '/resenas' => ['changefreq' => 'monthly', 'priority' => '0.7'],
+            '/sobre-nosotros' => ['changefreq' => 'monthly', 'priority' => '0.6'],
+        ];
+
+        foreach ($staticPages as $page => $meta) {
+            $xml .= '<url><loc>' . url($page) . '</loc><changefreq>' . $meta['changefreq'] . '</changefreq><priority>' . $meta['priority'] . '</priority></url>';
         }
 
         foreach ($products as $product) {
             $url = route('products.show', ['slug' => $product->slug]);
-            $xml .= '<url><loc>' . $url . '</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>';
+            $lastmod = $product->updated_at ? $product->updated_at->toW3cString() : '';
+            $xml .= '<url><loc>' . $url . '</loc><lastmod>' . $lastmod . '</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>';
         }
 
         $xml .= '</urlset>';
