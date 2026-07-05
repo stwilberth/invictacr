@@ -164,13 +164,38 @@ class SyncFirestore extends Command
                 continue;
             }
 
-            Product::updateOrCreate(
+            $product = Product::updateOrCreate(
                 ["modelo" => $modelo],
                 $this->mapProductFields($item),
             );
+
+            $this->syncExtraImages($product, $item);
+
             $count++;
         }
         return $count;
+    }
+
+    private function syncExtraImages(Product $product, array $item): void
+    {
+        $extra = $item["imagenes_extra"] ?? null;
+        if (!$extra) {
+            return;
+        }
+
+        $urls = is_array($extra) ? $extra : (json_decode($extra, true) ?? []);
+        if (empty($urls)) {
+            return;
+        }
+
+        $product->images()->delete();
+        foreach ($urls as $order => $url) {
+            $product->images()->create([
+                'url' => $url,
+                'order' => $order,
+                'type' => 'image',
+            ]);
+        }
     }
 
     private function importProductsAlias(array $data): int
@@ -182,10 +207,13 @@ class SyncFirestore extends Command
                 continue;
             }
 
-            Product::firstOrCreate(
+            $product = Product::firstOrCreate(
                 ["modelo" => $modelo],
                 $this->mapProductFields($item),
             );
+
+            $this->syncExtraImages($product, $item);
+
             $count++;
         }
         return $count;
@@ -213,11 +241,6 @@ class SyncFirestore extends Command
             "stock" => $item["stock"] ?? 0,
             "imagen" => $item["imagen"] ?? null,
             "activo" => ($item["stock"] ?? 0) > 0,
-            "imagenes_extra" => isset($item["imagenes_extra"])
-                ? (is_array($item["imagenes_extra"])
-                    ? json_encode($item["imagenes_extra"])
-                    : $item["imagenes_extra"])
-                : null,
             "vistas" => $item["vistas"] ?? 0,
         ];
     }

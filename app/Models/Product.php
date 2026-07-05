@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Product extends Model
 {
@@ -26,7 +27,6 @@ class Product extends Model
         "stock",
         "imagen",
         "activo",
-        "imagenes_extra",
         "caracteristicas",
         "vistas",
         "bloqueado",
@@ -42,13 +42,17 @@ class Product extends Model
         "activo" => "boolean",
         "bloqueado" => "boolean",
         "proximo" => "boolean",
-        "imagenes_extra" => "array",
         "caracteristicas" => "array",
     ];
 
-    public function images()
+    public function images(): HasMany
     {
-        return $this->hasMany(ProductImage::class);
+        return $this->hasMany(ProductImage::class)->orderBy('order');
+    }
+
+    public function getImagenesExtraAttribute(): array
+    {
+        return $this->images->pluck('url')->values()->toArray();
     }
 
     public function comments()

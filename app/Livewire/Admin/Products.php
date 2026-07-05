@@ -3,6 +3,7 @@
 namespace App\Livewire\Admin;
 
 use App\Models\Product;
+use App\Services\ImageOptimizerService;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -17,6 +18,8 @@ class Products extends Component
     public $filterColeccion = "";
     public $filterStock = "all";
     public $filterActivo = "all";
+
+    public ?int $optimizingProductId = null;
 
     public function sortBy($field)
     {
@@ -38,6 +41,31 @@ class Products extends Component
     public function deleteProduct($productId)
     {
         Product::findOrFail($productId)->delete();
+    }
+
+    public function optimizeImage($productId)
+    {
+        $this->optimizingProductId = $productId;
+
+        try {
+            $product = Product::findOrFail($productId);
+            $service = app(ImageOptimizerService::class);
+            $result = $service->optimizeProduct($product);
+
+            if ($result['success']) {
+                $sizes = [];
+                if ($result['thumb']) $sizes[] = 'thumb ' . number_format($result['thumb_size'] / 1024, 1) . 'KB';
+                if ($result['medium']) $sizes[] = 'medium ' . number_format($result['medium_size'] / 1024, 1) . 'KB';
+                if ($result['large']) $sizes[] = 'large ' . number_format($result['large_size'] / 1024, 1) . 'KB';
+                session()->flash('message', "{$product->modelo}: WebP generados (" . implode(', ', $sizes) . ")");
+            } else {
+                session()->flash('error', "{$product->modelo}: {$result['error']}");
+            }
+        } catch (\Exception $e) {
+            session()->flash('error', "Error al optimizar: " . $e->getMessage());
+        } finally {
+            $this->optimizingProductId = null;
+        }
     }
 
     public function render()
@@ -80,9 +108,17 @@ class Products extends Component
             ->sort(fn($a, $b) => strcasecmp($a, $b))
             ->values();
 
+        $service = app(ImageOptimizerService::class);
+        $optimizationStatus = [];
+        foreach ($products as $product) {
+            $optimizationStatus[$product->id] = $product->imagen
+                ? !$service->needsOptimization($product)
+                : null;
+        }
+
         return view(
             "livewire.admin.products",
-            compact("products", "colecciones"),
+            compact("products", "colecciones", "optimizationStatus"),
         )->layout("components.admin-layout");
     }
 }

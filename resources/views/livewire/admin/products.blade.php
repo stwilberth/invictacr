@@ -1,14 +1,4 @@
-<div
-    x-data
-    x-init="$nextTick(() => {
-        const saved = localStorage.getItem('adminProductsFilters');
-        if (saved) {
-            const f = JSON.parse(saved);
-            if (f.filterStock && f.filterStock !== 'all') $wire.set('filterStock', f.filterStock);
-            if (f.filterActivo && f.filterActivo !== 'all') $wire.set('filterActivo', f.filterActivo);
-        }
-    })"
->
+<div>
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <div class="flex gap-2 flex-wrap">
             <input wire:model.live="search" type="text" placeholder="Buscar productos..." class="bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2 text-sm w-60" />
@@ -24,12 +14,12 @@
                     <option value="{{ $col }}">{{ $col }}</option>
                 @endforeach
             </select>
-            <select wire:model.live="filterStock" id="filter-stock" @change="localStorage.setItem('adminProductsFilters', JSON.stringify({ filterStock: $event.target.value, filterActivo: document.getElementById('filter-activo')?.value || 'all' }))" class="bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2 text-sm">
+            <select wire:model.live="filterStock" class="bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2 text-sm">
                 <option value="all">Todo el stock</option>
                 <option value="in">Con stock</option>
                 <option value="out">Sin stock</option>
             </select>
-            <select wire:model.live="filterActivo" @change="localStorage.setItem('adminProductsFilters', JSON.stringify({ filterStock: document.getElementById('filter-stock')?.value || 'all', filterActivo: $event.target.value }))" id="filter-activo" class="bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2 text-sm">
+            <select wire:model.live="filterActivo" class="bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2 text-sm">
                 <option value="all">Todos</option>
                 <option value="yes">Activos</option>
                 <option value="no">Inactivos</option>
@@ -96,6 +86,18 @@
                         <a href="https://www.invictawatch.com/watches/detail/{{ urlencode($product->modelo) }}" target="_blank" rel="noopener" class="text-[#00C4FF] hover:underline text-xs font-bold" title="Ver en InvictaWatch">Invicta</a>
                         ·
                         <a href="{{ route('admin.products.edit', $product->id) }}" class="text-[#00C4FF] hover:underline text-xs font-bold">Editar</a>
+                        @if($product->imagen)
+                        @if($optimizationStatus[$product->id] ?? false)
+                        · <span class="text-green-500 text-xs font-bold" title="WebP generados"><i class="fa-solid fa-check-circle"></i></span>
+                        @else
+                        · <button wire:click="optimizeImage({{ $product->id }})" wire:loading.attr="disabled" wire:target="optimizeImage({{ $product->id }})" class="inline-flex items-center gap-1 bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-white text-[10px] font-bold px-2 py-1 rounded-lg transition-all" title="Optimizar imagen">
+                                <i wire:loading.remove wire:target="optimizeImage({{ $product->id }})" class="fa-solid fa-wand-magic-sparkles"></i>
+                                <i wire:loading wire:target="optimizeImage({{ $product->id }})" class="fa-solid fa-spinner fa-spin"></i>
+                                <span wire:loading.remove wire:target="optimizeImage({{ $product->id }})">WebP</span>
+                                <span wire:loading wire:target="optimizeImage({{ $product->id }})">...</span>
+                            </button>
+                        @endif
+                        @endif
                     </td>
                 </tr>
                 @endforeach

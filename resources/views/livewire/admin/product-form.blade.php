@@ -18,7 +18,23 @@
                             </span>
                         @endif
                     </label>
-                    <input wire:model="modelo" type="text" class="w-full bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm" />
+                    <div class="flex gap-2">
+                        <input wire:model="modelo" type="text" class="flex-1 bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm" />
+                        <button type="button" wire:click="fetchFromInvicta" wire:loading.attr="disabled" class="flex items-center gap-1.5 bg-gradient-to-r from-[#00C4FF] to-blue-600 hover:from-[#00b0e6] hover:to-blue-700 disabled:opacity-50 text-white font-bold text-xs uppercase tracking-wider px-4 py-2.5 rounded-xl transition-all whitespace-nowrap">
+                            <i wire:loading.remove wire:target="fetchFromInvicta" class="fa-solid fa-cloud-arrow-down"></i>
+                            <i wire:loading wire:target="fetchFromInvicta" class="fa-solid fa-spinner fa-spin"></i>
+                            Obtener de Invicta
+                        </button>
+                    </div>
+                    @if($fetchStatus === 'ok')
+                        <p class="mt-2 text-xs font-bold text-green-600 dark:text-green-400">
+                            <i class="fa-solid fa-check"></i> {{ $fetchMessage }}
+                        </p>
+                    @elseif($fetchStatus === 'error')
+                        <p class="mt-2 text-xs font-bold text-red-600 dark:text-red-400">
+                            <i class="fa-solid fa-circle-exclamation"></i> {{ $fetchMessage }}
+                        </p>
+                    @endif
                     @error('modelo') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                 </div>
                 <div>
@@ -140,19 +156,37 @@
                         <div class="w-28 h-28 rounded-xl border border-gray-200 dark:border-white/10 overflow-hidden bg-gray-50 dark:bg-[#0a0f1c] flex items-center justify-center flex-shrink-0">
                             <img src="{{ $imagen }}" alt="Preview" class="max-w-full max-h-full object-contain" />
                         </div>
-                        <p class="text-xs text-gray-400 mt-1">
+                        <div>
+                            <p class="text-xs text-gray-400 mt-1">
+                                @if(str_starts_with($imagen, '/storage/'))
+                                    <i class="fa-solid fa-check text-green-500"></i> Imagen guardada localmente
+                                @else
+                                    <i class="fa-solid fa-cloud text-blue-400"></i> Imagen externa (CDN)
+                                @endif
+                            </p>
                             @if(str_starts_with($imagen, '/storage/'))
-                                <i class="fa-solid fa-check text-green-500"></i> Imagen guardada localmente
-                            @else
-                                <i class="fa-solid fa-cloud text-blue-400"></i> Imagen externa (CDN)
+                            <button type="button" wire:click="optimizeImage" wire:loading.attr="disabled" wire:target="optimizeImage" class="mt-2 flex items-center gap-1.5 bg-indigo-500 hover:bg-indigo-600 disabled:opacity-50 text-white font-bold text-[10px] uppercase tracking-wider px-3 py-1.5 rounded-lg transition-all">
+                                <i wire:loading.remove wire:target="optimizeImage" class="fa-solid fa-wand-magic-sparkles"></i>
+                                <i wire:loading wire:target="optimizeImage" class="fa-solid fa-spinner fa-spin"></i>
+                                Optimizar WebP
+                            </button>
+                            @if($optimizeStatus === 'ok')
+                                <p class="mt-1 text-xs font-bold text-green-600 dark:text-green-400">
+                                    <i class="fa-solid fa-check"></i> {{ $optimizeMessage }}
+                                </p>
+                            @elseif($optimizeStatus === 'error')
+                                <p class="mt-1 text-xs font-bold text-red-600 dark:text-red-400">
+                                    <i class="fa-solid fa-circle-exclamation"></i> {{ $optimizeMessage }}
+                                </p>
                             @endif
-                        </p>
+                            @endif
+                        </div>
                     </div>
                     @endif
                 </div>
                 <div class="md:col-span-2">
                     <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Imágenes Extra</label>
-                    <div class="flex flex-wrap gap-2 mb-2">
+                    <div class="flex flex-wrap gap-2 mb-3">
                         @for($i = 0; $i < count($imagenes_extra); $i++)
                         <div class="relative group w-16 h-16 rounded-xl border border-gray-200 dark:border-white/10 overflow-hidden bg-gray-50 dark:bg-[#0a0f1c]">
                             <img src="{{ $imagenes_extra[$i] }}" alt="Extra {{ $i + 1 }}" class="w-full h-full object-contain p-1" loading="lazy" />
@@ -161,18 +195,35 @@
                             </button>
                         </div>
                         @endfor
-                        <button type="button" wire:click="addImagenExtra" class="w-16 h-16 rounded-xl border-2 border-dashed border-gray-300 dark:border-white/20 hover:border-[#00C4FF] dark:hover:border-[#00C4FF] text-gray-400 hover:text-[#00C4FF] flex items-center justify-center transition-all">
-                            <i class="fa-solid fa-plus text-lg"></i>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <input wire:model="newExtraImageUrl" type="text" placeholder="https://cdn.invictawatch.com/..." class="flex-1 bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2 text-sm" />
+                        <button type="button" wire:click="downloadAndAddExtraImage" wire:loading.attr="disabled" class="flex items-center gap-1.5 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-bold text-xs uppercase tracking-wider px-4 py-2.5 rounded-xl transition-all whitespace-nowrap">
+                            <i wire:loading.remove wire:target="downloadAndAddExtraImage" class="fa-solid fa-download"></i>
+                            <i wire:loading wire:target="downloadAndAddExtraImage" class="fa-solid fa-spinner fa-spin"></i>
+                            Descargar & Agregar
                         </button>
                     </div>
+                    @if($extraDownloadStatus === 'ok')
+                        <p class="mt-2 text-xs font-bold text-green-600 dark:text-green-400">
+                            <i class="fa-solid fa-check"></i> {{ $extraDownloadMessage }}
+                        </p>
+                    @elseif($extraDownloadStatus === 'error')
+                        <p class="mt-2 text-xs font-bold text-red-600 dark:text-red-400">
+                            <i class="fa-solid fa-circle-exclamation"></i> {{ $extraDownloadMessage }}
+                        </p>
+                    @endif
                 </div>
                 <div class="md:col-span-2">
                     <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">URL Video (Vimeo)</label>
                     <input wire:model="video" type="text" placeholder="https://vimeo.com/123456789" class="w-full bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm" />
                     @if($video)
-                    <p class="mt-1 text-xs text-gray-400">
-                        <i class="fa-solid fa-video text-[#00C4FF] mr-1"></i>
-                        Video configurado
+                    <p class="mt-1 text-xs text-gray-400 flex items-center gap-2">
+                        <i class="fa-solid fa-circle-check text-green-500"></i>
+                        <span>Video configurado</span>
+                        <a href="{{ $video }}" target="_blank" rel="noopener" class="inline-flex items-center gap-1 px-2 py-0.5 bg-[#00C4FF]/10 text-[#00C4FF] hover:bg-[#00C4FF]/20 rounded-lg font-bold transition-colors">
+                            <i class="fa-solid fa-external-link-alt text-[10px]"></i> Abrir
+                        </a>
                     </p>
                     @endif
                 </div>

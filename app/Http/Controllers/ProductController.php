@@ -121,11 +121,16 @@ class ProductController extends Controller
 
     private function runSearchQuery(Request $request)
     {
-        $query = Product::where("activo", true)
-            ->where("precio_venta", ">", 0)
-            ->where("stock", ">", 0);
+        $query = Product::query();
 
-        if ($request->filled("q")) {
+        $isSearch = $request->filled("q");
+
+        if (!$isSearch) {
+            $query->where("precio_venta", ">", 0)
+                  ->where("stock", ">", 0);
+        }
+
+        if ($isSearch) {
             $term = $request->q;
             $query->where(function ($q) use ($term) {
                 $q->where("modelo", "like", "%{$term}%")
@@ -202,7 +207,7 @@ class ProductController extends Controller
      */
     private function buildFilters(?string $gender = null): array
     {
-        $base = Product::where("activo", true)->where("stock", ">", 0);
+        $base = Product::where("precio_venta", ">", 0)->where("stock", ">", 0);
         if ($gender) {
             $base->where("genero", $gender);
         }
@@ -248,20 +253,30 @@ class ProductController extends Controller
 
     public function show(string $slug)
     {
-        $product = Product::where("slug", $slug)
-            ->where("activo", true)
-            ->firstOrFail();
+        $product = Product::where("slug", $slug)->firstOrFail();
 
         $product->increment("vistas");
 
+        $product->loadMissing('images');
+
         $images = collect([$product->imagen]);
-        if ($product->imagenes_extra) {
-            foreach ($product->imagenes_extra as $img) {
-                $images->push($img);
-            }
+        foreach ($product->images as $img) {
+            $images->push($img->url);
         }
         $images->push('/storage/relojes/caja.webp');
-        $images = $images->unique()->values();
+        $images = $images->filter()->unique()->values();
+
+        $galleryImages = $images->map(function ($img) {
+            if (str_starts_with($img, '/storage/relojes/') && !str_contains($img, '/large/')) {
+                $basename = basename($img);
+                $modelo = pathinfo($basename, PATHINFO_FILENAME);
+                $largePath = public_path("storage/relojes/large/{$modelo}.webp");
+                if (file_exists($largePath)) {
+                    return "/storage/relojes/large/{$modelo}.webp";
+                }
+            }
+            return $img;
+        });
 
         $relatedIds = cache()->remember("product:related_ids:{$product->id}", now()->addHours(4), function () use ($product) {
             return Product::relatedTo($product)
@@ -285,7 +300,7 @@ class ProductController extends Controller
 
         return view(
             "pages.product-detail",
-            compact("product", "images", "relatedProducts"),
+            compact("product", "images", "galleryImages", "relatedProducts"),
         );
     }
 

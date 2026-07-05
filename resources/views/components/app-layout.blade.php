@@ -15,13 +15,13 @@
     <meta property="og:type" content="{{ $ogType ?? 'website' }}" />
     <meta property="og:url" content="{{ url()->current() }}" />
     <meta property="og:site_name" content="Invicta Costa Rica" />
-    <meta property="og:image" content="{{ $ogImage ?? asset('logo.png') }}" />
+    <meta property="og:image" content="{{ $ogImage ?? asset('logo.webp') }}" />
     <meta property="og:locale" content="es_CR" />
 
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="{{ $title ?? '' }} | Invicta Costa Rica" />
     <meta name="twitter:description" content="{{ $description ?? 'Invicta Costa Rica - Relojes de alta calidad con los mejores precios. Pago contra entrega en GAM y envío gratis a todo el país.' }}" />
-    <meta name="twitter:image" content="{{ $ogImage ?? asset('logo.png') }}" />
+    <meta name="twitter:image" content="{{ $ogImage ?? asset('logo.webp') }}" />
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" media="print" onload="this.media='all'" />
     <noscript>
@@ -94,7 +94,7 @@
             "@type": "Organization",
             "name": "Invicta Costa Rica",
             "url": "{{ config('app.url') }}",
-            "logo": "{{ asset('logo.png') }}",
+            "logo": "{{ asset('logo.webp') }}",
             "contactPoint": {
                 "@type": "ContactPoint",
                 "telephone": "+506-8671-1422",
@@ -125,6 +125,7 @@
         window.localStorage.setItem("theme", theme);
     </script>
 
+    @fonts
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     {{ $head ?? '' }}
 </head>

@@ -11,7 +11,7 @@
             <div class="flex-shrink-0 flex items-center justify-center mr-2 md:mr-8">
                 <div class="flex items-center gap-2">
                     <a href="/" class="flex-shrink-0">
-                        <img src="{{ asset('logo.png') }}" alt="Invicta Costa Rica" class="h-8 md:h-11 w-auto hover:opacity-90 transition-opacity" width="140" height="47" />
+                        <img src="{{ asset('logo.webp') }}" alt="Invicta Costa Rica" class="h-8 md:h-11 w-auto hover:opacity-90 transition-opacity" width="160" height="160" onerror="this.src='{{ asset('logo.png') }}'" />
                     </a>
                     <div class="grid gap-0.5">
                         <a href="/" class="group text-xs md:text-xl">

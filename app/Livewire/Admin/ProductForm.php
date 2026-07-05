@@ -4,10 +4,12 @@ namespace App\Livewire\Admin;
 
 use App\Models\Product;
 use App\Services\ImageOptimizerService;
+use App\Services\InvictaWatchScraper;
 use Livewire\Component;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 
 class ProductForm extends Component
 {
@@ -24,8 +26,15 @@ class ProductForm extends Component
         $proximo = false,
         $variedades_increase;
     public $imagenes_extra = [];
+    public $newExtraImageUrl = "";
+    public $extraDownloadStatus = "";
+    public $extraDownloadMessage = "";
     public $downloadStatus = "";
     public $downloadMessage = "";
+    public $fetchStatus = "";
+    public $fetchMessage = "";
+    public ?string $optimizeStatus = null;
+    public ?string $optimizeMessage = null;
 
     public function mount($productId = null)
     {
@@ -50,7 +59,7 @@ class ProductForm extends Component
             $this->stock = $product->stock;
             $this->imagen = $product->imagen;
             $this->video = $product->video;
-            $this->imagenes_extra = is_array($product->imagenes_extra) ? $product->imagenes_extra : [];
+            $this->imagenes_extra = $product->images()->pluck('url')->toArray();
             $this->activo = $product->activo;
             $this->bloqueado = (bool) $product->bloqueado;
             $this->proximo = (bool) $product->proximo;
@@ -79,6 +88,67 @@ class ProductForm extends Component
         if (isset($this->imagenes_extra[$index])) {
             unset($this->imagenes_extra[$index]);
             $this->imagenes_extra = array_values($this->imagenes_extra);
+        }
+    }
+
+    public function downloadAndAddExtraImage()
+    {
+        $this->extraDownloadStatus = "";
+        $this->extraDownloadMessage = "";
+
+        if (!$this->newExtraImageUrl || !$this->modelo) {
+            $this->extraDownloadStatus = "error";
+            $this->extraDownloadMessage = "Se requiere modelo y URL de imagen.";
+            return;
+        }
+
+        if (!preg_match("#^https?://#i", $this->newExtraImageUrl)) {
+            $this->extraDownloadStatus = "error";
+            $this->extraDownloadMessage = "La URL debe empezar con http.";
+            return;
+        }
+
+        try {
+            $response = Http::withHeaders([
+                "User-Agent" => self::CDN_USER_AGENT,
+            ])
+                ->withOptions(
+                    app()->environment("local") ? ["verify" => false] : [],
+                )
+                ->timeout(30)
+                ->get($this->newExtraImageUrl);
+
+            if (!$response->ok() || $response->body() === "") {
+                $this->extraDownloadStatus = "error";
+                $this->extraDownloadMessage = "No se pudo descargar (HTTP " . $response->status() . ").";
+                return;
+            }
+
+            $extension = self::detectExtension($this->newExtraImageUrl, $response);
+            $next = count($this->imagenes_extra) + 1;
+            $safeModelo = preg_replace("/[^a-zA-Z0-9_-]/", "", $this->modelo);
+            $filename = strtolower($safeModelo) . "_{$next}." . $extension;
+            $relative = "relojes/" . $filename;
+
+            $this->ensureStorageSymlink();
+            Storage::disk("public")->makeDirectory("relojes");
+            Storage::disk("public")->put($relative, $response->body());
+
+            if (!Storage::disk("public")->exists($relative)) {
+                $this->extraDownloadStatus = "error";
+                $this->extraDownloadMessage = "La imagen no se guardó en disco.";
+                return;
+            }
+
+            $localPath = "/storage/relojes/" . $filename;
+            $this->imagenes_extra[] = $localPath;
+            $this->generateOptimizedVersions($filename);
+            $this->newExtraImageUrl = "";
+            $this->extraDownloadStatus = "ok";
+            $this->extraDownloadMessage = "Imagen agregada: {$filename}";
+        } catch (\Exception $e) {
+            $this->extraDownloadStatus = "error";
+            $this->extraDownloadMessage = "Error: " . $e->getMessage();
         }
     }
 
@@ -234,19 +304,23 @@ class ProductForm extends Component
         $modelo = pathinfo($filename, PATHINFO_FILENAME);
         $publicPath = storage_path("app/public");
 
-        if (!is_dir($publicPath . "/relojes/thumbs")) {
-            @mkdir($publicPath . "/relojes/thumbs", 0775, true);
-        }
-        if (!is_dir($publicPath . "/relojes/medium")) {
-            @mkdir($publicPath . "/relojes/medium", 0775, true);
+        foreach (['thumbs', 'medium', 'large'] as $dir) {
+            if (!is_dir("{$publicPath}/relojes/{$dir}")) {
+                @mkdir("{$publicPath}/relojes/{$dir}", 0775, true);
+            }
         }
 
         [$origW, $origH] = $info;
 
-        foreach ([
-            'thumbs' => 200,
-            'medium' => 600,
-        ] as $dir => $maxW) {
+        $sizes = [
+            'thumbs' => ['width' => 200, 'quality' => 80],
+            'medium' => ['width' => 600, 'quality' => 80],
+            'large' => ['width' => 1200, 'quality' => 85],
+        ];
+
+        foreach ($sizes as $dir => $cfg) {
+            $maxW = $cfg['width'];
+
             if ($origW <= $maxW) {
                 $newW = $origW;
                 $newH = $origH;
@@ -266,7 +340,7 @@ class ProductForm extends Component
             imagecopyresampled($resampled, $source, 0, 0, 0, 0, $newW, $newH, $origW, $origH);
 
             $targetPath = "{$publicPath}/relojes/{$dir}/{$modelo}.webp";
-            imagewebp($resampled, $targetPath, 80);
+            imagewebp($resampled, $targetPath, $cfg['quality']);
             @chmod($targetPath, 0775);
             imagedestroy($resampled);
         }
@@ -274,11 +348,142 @@ class ProductForm extends Component
         imagedestroy($source);
     }
 
+    public function optimizeImage()
+    {
+        $this->optimizeStatus = null;
+        $this->optimizeMessage = null;
+
+        if (!$this->imagen || !$this->modelo) {
+            $this->optimizeStatus = 'error';
+            $this->optimizeMessage = 'Se requiere modelo e imagen local.';
+            return;
+        }
+
+        if (!str_starts_with($this->imagen, '/storage/')) {
+            $this->optimizeStatus = 'error';
+            $this->optimizeMessage = 'La imagen debe ser local (/storage/relojes/...).';
+            return;
+        }
+
+        try {
+            $service = app(ImageOptimizerService::class);
+            $result = $service->optimizeProduct($this->toProduct());
+
+            if ($result['success']) {
+                $parts = [];
+                if ($result['thumb']) $parts[] = 'thumb ' . number_format($result['thumb_size'] / 1024, 1) . 'KB';
+                if ($result['medium']) $parts[] = 'medium ' . number_format($result['medium_size'] / 1024, 1) . 'KB';
+                if ($result['large']) $parts[] = 'large ' . number_format($result['large_size'] / 1024, 1) . 'KB';
+                $this->optimizeStatus = 'ok';
+                $this->optimizeMessage = 'WebP generados: ' . implode(', ', $parts);
+            } else {
+                $this->optimizeStatus = 'error';
+                $this->optimizeMessage = $result['error'] ?? 'Error desconocido';
+            }
+        } catch (\Exception $e) {
+            $this->optimizeStatus = 'error';
+            $this->optimizeMessage = 'Error: ' . $e->getMessage();
+        }
+    }
+
+    private function toProduct(): Product
+    {
+        $p = new Product();
+        $p->id = $this->productId;
+        $p->modelo = $this->modelo;
+        $p->imagen = $this->imagen;
+        return $p;
+    }
+
+    public function fetchFromInvicta()
+    {
+        $this->fetchStatus = "";
+        $this->fetchMessage = "";
+
+        if (!$this->modelo) {
+            $this->fetchStatus = "error";
+            $this->fetchMessage = "Ingrese un modelo primero.";
+            return;
+        }
+
+        try {
+            $scraper = app(InvictaWatchScraper::class);
+            $data = $scraper->scrape($this->modelo);
+
+            if (!$data) {
+                $this->fetchStatus = "error";
+                $this->fetchMessage = "No se pudo obtener información de InvictaWatch para el modelo \"{$this->modelo}\".";
+                return;
+            }
+
+            $this->title = $data["title"] ?? $this->title;
+            $this->descripcion = $data["descripcion"] ?? $this->descripcion;
+
+            if (empty($this->slug)) {
+                $this->slug = "invicta-" . Str::slug($this->modelo);
+            }
+
+            if ($data["coleccion"]) {
+                $this->coleccion = $data["coleccion"];
+            }
+            if ($data["genero"]) {
+                $this->genero = $data["genero"];
+            }
+            if ($data["msrp"]) {
+                $this->precio_original = $data["msrp"];
+            }
+            if ($data["size"]) {
+                $this->size = $data["size"];
+            }
+            if ($data["caja"]) {
+                $this->caja = $data["caja"];
+            }
+            if ($data["brazalete"]) {
+                $this->brazalete = $data["brazalete"];
+            }
+            if ($data["tipo_movimiento"]) {
+                $this->tipo_movimiento = $data["tipo_movimiento"];
+            }
+            if ($data["resistencia_agua"]) {
+                $this->resistencia_agua = $data["resistencia_agua"];
+            }
+
+            if ($data["imagen_local"]) {
+                $this->imagen = $data["imagen_local"];
+                $filename = basename($data["imagen_local"]);
+                $this->generateOptimizedVersions($filename);
+            }
+
+            $this->fetchStatus = "ok";
+            $parts = [];
+            if ($data["coleccion"]) $parts[] = "colección";
+            if ($data["genero"]) $parts[] = "género";
+            if ($data["msrp"]) $parts[] = "precio";
+            if ($data["size"]) $parts[] = "medidas";
+            if ($data["caja"]) $parts[] = "caja";
+            if ($data["brazalete"]) $parts[] = "brazalete";
+            if ($data["tipo_movimiento"]) $parts[] = "movimiento";
+            if ($data["resistencia_agua"]) $parts[] = "resistencia";
+            if ($data["imagen_local"]) $parts[] = "imagen+webp";
+            $this->fetchMessage = "Datos cargados: " . implode(", ", $parts) . ".";
+        } catch (\Exception $e) {
+            $this->fetchStatus = "error";
+            $this->fetchMessage = "Error al obtener datos: " . $e->getMessage();
+        }
+    }
+
     public function save()
     {
+        $ignoreId = $this->productId ?: null;
         $this->validate([
-            "modelo" => "required|string|max:255",
-            "slug" => "required|string|max:255",
+            "modelo" => [
+                "required", "string", "max:255",
+                Rule::unique("products", "modelo")->ignore($ignoreId),
+            ],
+            "slug" => [
+                "required", "string", "max:255",
+                Rule::unique("products", "slug")->ignore($ignoreId),
+            ],
             "precio_venta" => "required|numeric|min:0",
         ]);
 
@@ -300,7 +505,6 @@ class ProductForm extends Component
             "descuento" => $this->descuento ?: 0,
             "stock" => $this->stock ?: 0,
             "imagen" => $this->imagen,
-            "imagenes_extra" => !empty($this->imagenes_extra) ? $this->imagenes_extra : null,
             "video" => $this->video,
             "activo" => $this->activo,
             "bloqueado" => $this->bloqueado,
@@ -308,11 +512,21 @@ class ProductForm extends Component
         ];
 
         if ($this->productId) {
-            Product::findOrFail($this->productId)->update($data);
+            $product = Product::findOrFail($this->productId);
+            $product->update($data);
             session()->flash("message", "Producto actualizado.");
         } else {
-            Product::create($data);
+            $product = Product::create($data);
             session()->flash("message", "Producto creado.");
+        }
+
+        $product->images()->delete();
+        foreach ($this->imagenes_extra as $order => $url) {
+            $product->images()->create([
+                'url' => $url,
+                'order' => $order,
+                'type' => 'image',
+            ]);
         }
 
         $this->redirect(route("admin.products"));

@@ -9,6 +9,10 @@ class ImageOptimizerService
 {
     const int THUMB_WIDTH = 200;
     const int MEDIUM_WIDTH = 600;
+    const int LARGE_WIDTH = 1200;
+    const int THUMB_QUALITY = 80;
+    const int MEDIUM_QUALITY = 80;
+    const int LARGE_QUALITY = 85;
 
     public function needsOptimization(Product $product): bool
     {
@@ -24,7 +28,8 @@ class ImageOptimizerService
         $disk = Storage::disk('public');
 
         return !$disk->exists("relojes/thumbs/{$modelo}.webp")
-            || !$disk->exists("relojes/medium/{$modelo}.webp");
+            || !$disk->exists("relojes/medium/{$modelo}.webp")
+            || !$disk->exists("relojes/large/{$modelo}.webp");
     }
 
     public function getStats(): array
@@ -81,8 +86,10 @@ class ImageOptimizerService
             'error' => null,
             'thumb' => false,
             'medium' => false,
+            'large' => false,
             'thumb_size' => 0,
             'medium_size' => 0,
+            'large_size' => 0,
             'original_size' => 0,
         ];
 
@@ -118,6 +125,7 @@ class ImageOptimizerService
 
             $disk->makeDirectory('relojes/thumbs');
             $disk->makeDirectory('relojes/medium');
+            $disk->makeDirectory('relojes/large');
 
             $sourceImage = $this->createImageFromFile($fullPath);
             if (!$sourceImage) {
@@ -126,22 +134,29 @@ class ImageOptimizerService
             }
 
             $thumbPath = "relojes/thumbs/{$modelo}.webp";
-            $thumbResult = $this->resizeToWebP($sourceImage, $fullPath, $thumbPath, self::THUMB_WIDTH);
+            $thumbResult = $this->resizeToWebP($sourceImage, $fullPath, $thumbPath, self::THUMB_WIDTH, self::THUMB_QUALITY);
             if ($thumbResult) {
                 $result['thumb'] = true;
                 $result['thumb_size'] = $thumbResult;
             }
 
             $mediumPath = "relojes/medium/{$modelo}.webp";
-            $mediumResult = $this->resizeToWebP($sourceImage, $fullPath, $mediumPath, self::MEDIUM_WIDTH);
+            $mediumResult = $this->resizeToWebP($sourceImage, $fullPath, $mediumPath, self::MEDIUM_WIDTH, self::MEDIUM_QUALITY);
             if ($mediumResult) {
                 $result['medium'] = true;
                 $result['medium_size'] = $mediumResult;
             }
 
+            $largePath = "relojes/large/{$modelo}.webp";
+            $largeResult = $this->resizeToWebP($sourceImage, $fullPath, $largePath, self::LARGE_WIDTH, self::LARGE_QUALITY);
+            if ($largeResult) {
+                $result['large'] = true;
+                $result['large_size'] = $largeResult;
+            }
+
             imagedestroy($sourceImage);
 
-            $result['success'] = $result['thumb'] || $result['medium'];
+            $result['success'] = $result['thumb'] || $result['medium'] || $result['large'];
         } catch (\Exception $e) {
             $result['error'] = $e->getMessage();
         }
@@ -151,6 +166,7 @@ class ImageOptimizerService
 
     public function optimizeAll(?callable $onProgress = null): array
     {
+        set_time_limit(0);
         $products = Product::whereNotNull('imagen')->get();
         $results = [];
         $total = count($products);
@@ -184,12 +200,65 @@ class ImageOptimizerService
         ];
     }
 
+    public function getProductImageInfo(Product $product): array
+    {
+        $modelo = $this->getModelo($product);
+        $disk = Storage::disk('public');
+
+        $originalPath = $product->imagen;
+        $originalInfo = null;
+        if ($originalPath && str_starts_with($originalPath, '/storage/')) {
+            $fullPath = public_path(substr($originalPath, 1));
+            if (file_exists($fullPath)) {
+                $dims = @getimagesize($fullPath);
+                $originalInfo = [
+                    'exists' => true,
+                    'size' => filesize($fullPath),
+                    'width' => $dims[0] ?? null,
+                    'height' => $dims[1] ?? null,
+                ];
+            }
+        }
+
+        $sizeDirs = ['large' => 'large', 'medium' => 'medium', 'thumb' => 'thumbs'];
+        $sizes = ['large' => null, 'medium' => null, 'thumb' => null];
+        foreach ($sizes as $size => &$info) {
+            $dir = $sizeDirs[$size];
+            if ($modelo && $disk->exists("relojes/{$dir}/{$modelo}.webp")) {
+                $fullPath = storage_path("app/public/relojes/{$dir}/{$modelo}.webp");
+                $dims = @getimagesize($fullPath);
+                $info = [
+                    'exists' => true,
+                    'size' => file_exists($fullPath) ? filesize($fullPath) : null,
+                    'width' => $dims[0] ?? null,
+                    'height' => $dims[1] ?? null,
+                ];
+            } else {
+                $info = ['exists' => false, 'size' => null, 'width' => null, 'height' => null];
+            }
+        }
+        unset($info);
+
+        return [
+            'id' => $product->id,
+            'modelo' => $product->modelo,
+            'title' => $product->title,
+            'imagen' => $product->imagen,
+            'needs_optimization' => $this->needsOptimization($product),
+            'original' => $originalInfo,
+            'large' => $sizes['large'],
+            'medium' => $sizes['medium'],
+            'thumb' => $sizes['thumb'],
+        ];
+    }
+
     public function getImageUrls(Product $product): array
     {
         $modelo = $this->getModelo($product);
         if (!$modelo) {
             return [
                 'original' => $product->imagen,
+                'large' => $product->imagen,
                 'medium' => $product->imagen,
                 'thumb' => $product->imagen,
             ];
@@ -197,6 +266,9 @@ class ImageOptimizerService
 
         $disk = Storage::disk('public');
         $original = $product->imagen;
+        $large = $disk->exists("relojes/large/{$modelo}.webp")
+            ? "/storage/relojes/large/{$modelo}.webp"
+            : $original;
         $medium = $disk->exists("relojes/medium/{$modelo}.webp")
             ? "/storage/relojes/medium/{$modelo}.webp"
             : $original;
@@ -206,6 +278,7 @@ class ImageOptimizerService
 
         return [
             'original' => $original,
+            'large' => $large,
             'medium' => $medium,
             'thumb' => $thumb,
         ];
@@ -276,7 +349,7 @@ class ImageOptimizerService
         };
     }
 
-    private function resizeToWebP(\GdImage $source, string $sourcePath, string $targetPath, int $maxWidth): ?int
+    private function resizeToWebP(\GdImage $source, string $sourcePath, string $targetPath, int $maxWidth, int $quality = 80): ?int
     {
         $disk = Storage::disk('public');
         $fullTarget = storage_path("app/public/{$targetPath}");
@@ -305,7 +378,7 @@ class ImageOptimizerService
 
         imagecopyresampled($resampled, $source, 0, 0, 0, 0, $newWidth, $newHeight, $origWidth, $origHeight);
 
-        imagewebp($resampled, $fullTarget, 80);
+        imagewebp($resampled, $fullTarget, $quality);
         imagedestroy($resampled);
 
         if (!file_exists($fullTarget)) {

@@ -49,19 +49,19 @@ class HomeController extends Controller
             [
                 "name" => "Hombre",
                 "slug" => "hombre",
-                "image" => asset("images/banners/hombre.png"),
+                "image" => asset("images/banners/hombre.webp"),
                 "accent" => "text-amber-500",
             ],
             [
                 "name" => "Mujer",
                 "slug" => "mujer",
-                "image" => asset("images/banners/mujer.png"),
+                "image" => asset("images/banners/mujer.webp"),
                 "accent" => "text-rose-400",
             ],
             [
                 "name" => "Unisex",
                 "slug" => "unisex",
-                "image" => asset("images/banners/unisex.png"),
+                "image" => asset("images/banners/unisex.webp"),
                 "accent" => "text-emerald-400",
             ],
         ];

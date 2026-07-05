@@ -5,28 +5,34 @@ namespace App\Livewire\Admin;
 use App\Models\Product;
 use App\Services\ImageOptimizerService;
 use Livewire\Component;
+use Livewire\WithPagination;
 
 class OptimizeImages extends Component
 {
+    use WithPagination;
+
     public bool $optimizing = false;
-    public int $total = 0;
-    public int $optimized = 0;
-    public int $unoptimized = 0;
-    public array $unoptimizedProducts = [];
     public ?string $lastResult = null;
     public ?string $lastError = null;
     public int $processed = 0;
     public int $successCount = 0;
     public int $failCount = 0;
     public ?string $currentModelo = null;
+    public ?int $optimizingProductId = null;
 
-    public function mount(ImageOptimizerService $service)
+    public string $search = '';
+    public string $filterStatus = 'all'; // all, pending, optimized
+
+    protected $queryString = ['search', 'filterStatus'];
+
+    public function updatingSearch()
     {
-        $stats = $service->getStats();
-        $this->total = $stats['total'];
-        $this->optimized = $stats['optimized'];
-        $this->unoptimized = $stats['unoptimized'];
-        $this->unoptimizedProducts = $service->getUnoptimizedProducts();
+        $this->resetPage();
+    }
+
+    public function updatingFilterStatus()
+    {
+        $this->resetPage();
     }
 
     public function optimizeAll()
@@ -35,6 +41,7 @@ class OptimizeImages extends Component
             return;
         }
 
+        set_time_limit(0);
         $this->optimizing = true;
         $this->processed = 0;
         $this->successCount = 0;
@@ -69,13 +76,6 @@ class OptimizeImages extends Component
             } else {
                 $this->lastResult = $msg;
             }
-
-            $stats = $service->getStats();
-            $this->total = $stats['total'];
-            $this->optimized = $stats['optimized'];
-            $this->unoptimized = $stats['unoptimized'];
-            $this->unoptimizedProducts = $service->getUnoptimizedProducts();
-
         } catch (\Exception $e) {
             $this->lastError = "Error inesperado: " . $e->getMessage();
         } finally {
@@ -84,9 +84,66 @@ class OptimizeImages extends Component
         }
     }
 
+    public function optimizeProduct($productId)
+    {
+        if ($this->optimizing || $this->optimizingProductId) {
+            return;
+        }
+
+        $this->optimizingProductId = $productId;
+        $this->lastResult = null;
+        $this->lastError = null;
+
+        try {
+            $product = Product::findOrFail($productId);
+            $service = app(ImageOptimizerService::class);
+            $result = $service->optimizeProduct($product);
+
+            if ($result['success']) {
+                $sizes = [];
+                if ($result['thumb']) $sizes[] = 'thumb ' . number_format($result['thumb_size'] / 1024, 1) . 'KB';
+                if ($result['medium']) $sizes[] = 'medium ' . number_format($result['medium_size'] / 1024, 1) . 'KB';
+                if ($result['large']) $sizes[] = 'large ' . number_format($result['large_size'] / 1024, 1) . 'KB';
+                $this->lastResult = "{$product->modelo}: WebP generados (" . implode(', ', $sizes) . ")";
+            } else {
+                $this->lastError = "{$product->modelo}: {$result['error']}";
+            }
+        } catch (\Exception $e) {
+            $this->lastError = "Error: " . $e->getMessage();
+        } finally {
+            $this->optimizingProductId = null;
+        }
+    }
+
     public function render()
     {
-        return view('livewire.admin.optimize-images')
-            ->layout('components.admin-layout', ['title' => 'Optimizar Imágenes']);
+        $service = app(ImageOptimizerService::class);
+
+        $query = Product::whereNotNull('imagen');
+
+        if ($this->search) {
+            $query->where(function ($q) {
+                $q->where('modelo', 'like', "%{$this->search}%")
+                  ->orWhere('title', 'like', "%{$this->search}%");
+            });
+        }
+
+        $products = $query->orderBy('modelo')->paginate(15);
+
+        $stats = $service->getStats();
+
+        $items = collect($products->items())->map(
+            fn($p) => $service->getProductImageInfo($p)
+        );
+
+        if ($this->filterStatus === 'pending') {
+            $items = $items->where('needs_optimization', true);
+        } elseif ($this->filterStatus === 'optimized') {
+            $items = $items->where('needs_optimization', false);
+        }
+
+        return view('livewire.admin.optimize-images', compact(
+            'products', 'items', 'stats', 'service',
+        ))->layout('components.admin-layout', ['title' => 'Optimizar Imágenes']);
     }
 }

@@ -3,17 +3,18 @@
     $displayTitle = 'Reloj Invicta ' . ($product->coleccion && strtolower($product->coleccion) !== 'otros' ? $product->coleccion . ' ' : '') . ($product->genero && strtolower($product->genero) !== 'unisex' ? 'para ' . $product->genero . ' ' : '') . '(' . $product->modelo . ') - ' . $size . ' mm';
     $seoTitle = $displayTitle . ' | Comprar en Costa Rica';
 
-    $mediumImage = $product->imagen;
+    $ogImage = $product->imagen;
     if ($product->imagen && str_starts_with($product->imagen, '/storage/relojes/')) {
         $basename = basename($product->imagen);
-        $medModelo = pathinfo($basename, PATHINFO_FILENAME);
-        $medCandidate = public_path("storage/relojes/medium/{$medModelo}.webp");
-        if (file_exists($medCandidate)) {
-            $mediumImage = "/storage/relojes/medium/{$medModelo}.webp";
+        $imgModelo = pathinfo($basename, PATHINFO_FILENAME);
+        if (file_exists(public_path("storage/relojes/large/{$imgModelo}.webp"))) {
+            $ogImage = "/storage/relojes/large/{$imgModelo}.webp";
+        } elseif (file_exists(public_path("storage/relojes/medium/{$imgModelo}.webp"))) {
+            $ogImage = "/storage/relojes/medium/{$imgModelo}.webp";
         }
     }
 @endphp
-<x-app-layout :title="$seoTitle" :description="$product->descripcion ?? 'Reloj Invicta ' . $product->modelo" :ogImage="$product->imagen" ogType="product" :hideWhatsApp="true">
+<x-app-layout :title="$seoTitle" :description="$product->descripcion ?? 'Reloj Invicta ' . $product->modelo" :ogImage="asset($ogImage)" ogType="product" :hideWhatsApp="true">
     @php
         $isAgotado = ($product->stock ?? 0) <= 0;
         $isUpcoming = $product->proximo || $product->precio_venta <= 0;
@@ -74,20 +75,21 @@
             <div class="lg:col-span-6">
                 <div class="hidden lg:block lg:sticky lg:top-0">
                     <div class="relative overflow-hidden group/image" x-data='{
-                        images: @json($images->values()->toArray()),
+                        displayImages: @json($galleryImages->values()->toArray()),
+                        zoomImages: @json($images->values()->toArray()),
                         currentIndex: 0,
                         init() {
-                            if (this.images.length > 1) {
+                            if (this.displayImages.length > 1) {
                                 setInterval(() => {
-                                    this.currentIndex = (this.currentIndex + 1) % this.images.length;
+                                    this.currentIndex = (this.currentIndex + 1) % this.displayImages.length;
                                 }, 4000);
                             }
                         }
                     }'>
                         <div class="relative overflow-hidden" style="min-height: 400px;">
                             <div class="flex" :style="`transform: translateX(-${currentIndex * 100}%); transition: transform 0.5s ease-in-out;`">
-                                <template x-for="(img, idx) in images" :key="idx">
-                                    <div class="w-full flex-shrink-0 flex items-center justify-center cursor-zoom-in aspect-square" @click="openImageModal(img, '{{ $displayTitle }}')">
+                                <template x-for="(img, idx) in displayImages" :key="idx">
+                                    <div class="w-full flex-shrink-0 flex items-center justify-center cursor-zoom-in aspect-square" @click="openImageModal(zoomImages[idx], '{{ $displayTitle }}')">
                                         <img :src="img" :alt="'{{ $displayTitle }} - ' + (idx + 1)" class="w-full h-full object-contain transition-transform duration-500 hover:scale-[1.02]" loading="lazy" />
                                     </div>
                                 </template>
@@ -97,10 +99,10 @@
                         {{-- Thumbnail gallery --}}
                         @if($images->count() > 1)
                         <div class="flex gap-1.5 px-3 pb-3 overflow-x-auto mt-1">
-                            @foreach($images as $img)
-                            <button type="button" @click="currentIndex = {{ $loop->index }}" data-gallery-img="{{ $img }}" class="w-14 h-14 flex-shrink-0 rounded-lg border-2 overflow-hidden bg-gray-50 dark:bg-gray-900 transition-all gallery-thumb"
-                                :class="currentIndex === {{ $loop->index }} ? 'border-[#00C4FF]' : 'border-transparent hover:border-gray-300 dark:hover:border-gray-600'">
-                                <img src="{{ $img }}" alt="" class="w-full h-full object-contain" loading="lazy" onerror="this.closest('.gallery-thumb').style.display='none'" />
+                            @foreach($images as $i => $img)
+                            <button type="button" @click="currentIndex = {{ $i }}" data-gallery-img="{{ $img }}" class="w-14 h-14 flex-shrink-0 rounded-lg border-2 overflow-hidden bg-gray-50 dark:bg-gray-900 transition-all gallery-thumb"
+                                :class="currentIndex === {{ $i }} ? 'border-[#00C4FF]' : 'border-transparent hover:border-gray-300 dark:hover:border-gray-600'">
+                                <img src="{{ $galleryImages[$i] ?? $img }}" alt="" class="w-full h-full object-contain" loading="lazy" onerror="this.closest('.gallery-thumb').style.display='none'" />
                             </button>
                             @endforeach
                         </div>
@@ -116,7 +118,7 @@
                         @endif
 
                         {{-- Zoom button bottom-right --}}
-                        <button type="button" @click="event.preventDefault(); openImageModal(images[currentIndex], '{{ $displayTitle }}')" class="absolute bottom-4 right-4 w-9 h-9 bg-white/95 dark:bg-gray-900/95 border border-gray-200 dark:border-gray-700/80 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white rounded-lg shadow-sm flex items-center justify-center transition-all duration-300 opacity-0 group-hover/image:opacity-100 scale-95 group-hover/image:scale-100 z-30 cursor-pointer">
+                        <button type="button" @click="event.preventDefault(); openImageModal(zoomImages[currentIndex], '{{ $displayTitle }}')" class="absolute bottom-4 right-4 w-9 h-9 bg-white/95 dark:bg-gray-900/95 border border-gray-200 dark:border-gray-700/80 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white rounded-lg shadow-sm flex items-center justify-center transition-all duration-300 opacity-0 group-hover/image:opacity-100 scale-95 group-hover/image:scale-100 z-30 cursor-pointer">
                             <i class="fa-solid fa-expand text-sm"></i>
                         </button>
                     </div>
@@ -124,12 +126,13 @@
 
                 {{-- Mobile: Side-by-side grid (image col-span-3, buy box col-span-2) --}}
                 <div class="lg:hidden grid grid-cols-5 gap-2" x-data='{
-                    images: @json($images->values()->toArray()),
+                    displayImages: @json($galleryImages->values()->toArray()),
+                    zoomImages: @json($images->values()->toArray()),
                     currentIndex: 0,
                     init() {
-                        if (this.images.length > 1) {
+                        if (this.displayImages.length > 1) {
                             setInterval(() => {
-                                this.currentIndex = (this.currentIndex + 1) % this.images.length;
+                                this.currentIndex = (this.currentIndex + 1) % this.displayImages.length;
                             }, 4000);
                         }
                     }
@@ -138,8 +141,8 @@
                     <div class="col-span-3">
                         <div class="relative overflow-hidden" style="min-height: 200px;">
                             <div class="flex" :style="`transform: translateX(-${currentIndex * 100}%); transition: transform 0.5s ease-in-out;`">
-                                <template x-for="(img, idx) in images" :key="idx">
-                                    <div class="w-full flex-shrink-0 flex items-center justify-center cursor-zoom-in" style="min-height: 200px;" @click="openImageModal(img, '{{ $product->title }}')">
+                                <template x-for="(img, idx) in displayImages" :key="idx">
+                                    <div class="w-full flex-shrink-0 flex items-center justify-center cursor-zoom-in" style="min-height: 200px;" @click="openImageModal(zoomImages[idx], '{{ $product->title }}')">
                                         <img :src="img" :alt="'{{ $product->title }} - ' + (idx + 1)" class="w-full max-h-[50vh] object-contain" loading="lazy" />
                                     </div>
                                 </template>
@@ -148,10 +151,10 @@
                             {{-- Thumbnail gallery --}}
                             @if($images->count() > 1)
                             <div class="flex gap-1.5 px-2 pb-2 overflow-x-auto mt-1">
-                                @foreach($images as $img)
-                                <button type="button" @click="currentIndex = {{ $loop->index }}" data-gallery-img="{{ $img }}" class="w-12 h-12 flex-shrink-0 rounded-lg border-2 overflow-hidden bg-gray-50 dark:bg-gray-900 transition-all"
-                                    :class="currentIndex === {{ $loop->index }} ? 'border-[#00C4FF]' : 'border-transparent'">
-                                    <img src="{{ $img }}" alt="" class="w-full h-full object-contain" loading="lazy" onerror="this.closest('button').style.display='none'" />
+                                @foreach($images as $i => $img)
+                                <button type="button" @click="currentIndex = {{ $i }}" data-gallery-img="{{ $img }}" class="w-12 h-12 flex-shrink-0 rounded-lg border-2 overflow-hidden bg-gray-50 dark:bg-gray-900 transition-all"
+                                    :class="currentIndex === {{ $i }} ? 'border-[#00C4FF]' : 'border-transparent'">
+                                    <img src="{{ $galleryImages[$i] ?? $img }}" alt="" class="w-full h-full object-contain" loading="lazy" onerror="this.closest('button').style.display='none'" />
                                 </button>
                                 @endforeach
                             </div>
@@ -167,7 +170,7 @@
                             @endif
 
                             {{-- Zoom button bottom-right --}}
-                            <button type="button" @click="event.preventDefault(); openImageModal(images[currentIndex], '{{ $product->title }}')" class="absolute bottom-2 right-2 w-7 h-7 bg-white/95 dark:bg-gray-900/95 border border-gray-200 dark:border-gray-700/80 text-gray-500 dark:text-gray-400 rounded-md shadow flex items-center justify-center transition-all z-30 cursor-pointer">
+                            <button type="button" @click="event.preventDefault(); openImageModal(zoomImages[currentIndex], '{{ $product->title }}')" class="absolute bottom-2 right-2 w-7 h-7 bg-white/95 dark:bg-gray-900/95 border border-gray-200 dark:border-gray-700/80 text-gray-500 dark:text-gray-400 rounded-md shadow flex items-center justify-center transition-all z-30 cursor-pointer">
                                 <i class="fa-solid fa-expand text-[10px]"></i>
                             </button>
                         </div>
@@ -277,15 +280,7 @@
                 </div>
 
                 {{-- Agotado / Próximo State --}}
-                @if($isUpcomingYAgotado)
-                <div class="bg-gradient-to-br from-red-50 to-amber-50 dark:from-red-900/10 dark:to-amber-900/10 border border-red-100 dark:border-red-900/50 rounded-2xl p-6 text-center mb-4">
-                    <div class="w-12 h-12 bg-amber-100 dark:bg-amber-900/30 rounded-full flex items-center justify-center mx-auto mb-3">
-                        <i class="fa-solid fa-clock text-amber-600 dark:text-amber-400 text-2xl"></i>
-                    </div>
-                    <h3 class="text-lg font-bold text-amber-700 dark:text-amber-400 mb-1 leading-tight">Agotado / Próximo</h3>
-                    <p class="text-sm text-amber-600/70 dark:text-amber-300/60 mb-4">Actualmente sin stock, pero pronto estará disponible. ¡Reserva tu unidad!</p>
-                </div>
-                @elseif($isAgotado)
+                @if($isAgotado && !$isUpcoming)
                 <div class="bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/50 rounded-2xl p-6 text-center mb-10">
                     <div class="w-12 h-12 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-3">
                         <i class="fa-solid fa-circle-xmark text-red-600 dark:text-red-400 text-2xl"></i>
@@ -419,32 +414,7 @@
                 </div>
                 @endif
 
-                {{-- Próximamente Reservation Card --}}
-                @if($isUpcomingYAgotado)
-                <div class="mb-8 p-5 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/10 dark:to-orange-900/10 rounded-2xl border border-amber-200 dark:border-amber-800/30">
-                    <h3 class="text-sm font-black text-amber-800 dark:text-amber-300 uppercase tracking-wide mb-4 flex items-center gap-2">
-                        <i class="fa-solid fa-star text-amber-500 animate-pulse"></i> Reserva tu unidad:
-                    </h3>
-                    <ul class="space-y-4 text-sm text-gray-700 dark:text-gray-300">
-                        <li class="flex items-start gap-3">
-                            <i class="fa-solid fa-check text-amber-500 mt-1"></i>
-                            <span><strong>Prioridad:</strong> Te avisaremos apenas el reloj llegue a bodega antes de publicarlo en redes.</span>
-                        </li>
-                        <li class="flex items-start gap-3">
-                            <i class="fa-solid fa-check text-amber-500 mt-1"></i>
-                            <span><strong>Congela el precio:</strong> Apártalo con solo <strong>₡{{ number_format(19000, 0) }}</strong> y asegura el precio de lanzamiento.</span>
-                        </li>
-                        <li class="flex items-start gap-3">
-                            <i class="fa-solid fa-check text-amber-500 mt-1"></i>
-                            <span><strong>Sin compromiso:</strong> Consulta la fecha estimada y detalles técnicos por WhatsApp.</span>
-                        </li>
-                    </ul>
-                    <a href="{{ $whatsappInfo }}" target="_blank" rel="noopener noreferrer" class="mt-4 flex items-center justify-center gap-2 w-full bg-amber-500 hover:bg-amber-600 text-white font-black text-sm uppercase tracking-wider px-6 py-3 rounded-xl transition-all duration-300 active:scale-95 shadow-lg">
-                        <i class="fa-brands fa-whatsapp text-lg"></i>
-                        <span>Consultar por WhatsApp</span>
-                    </a>
-                </div>
-                @endif
+
             </div>
         </div>
     </div>

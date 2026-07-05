@@ -155,7 +155,7 @@
             </div>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-8">
                 <a href="/relojes/hombre" class="group relative block w-full aspect-[3/4] overflow-hidden rounded-xl md:rounded-[2.5rem] shadow-xl hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 bg-gray-900">
-                    <img src="{{ asset('images/banners/hombre.png') }}" alt="Hombre" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                    <img src="{{ asset('images/banners/hombre.webp') }}" alt="Hombre" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" onerror="this.src='{{ asset('images/banners/hombre.png') }}'" />
                     <div class="absolute inset-0 z-20 flex flex-col items-center justify-center p-3 md:p-10 text-center">
                         <h3 class="text-xl md:text-5xl font-black text-white uppercase leading-none mb-1 md:mb-4">Hombre</h3>
                         <div class="flex items-center gap-2 text-white/70 font-semibold text-[10px] md:text-base group-hover:text-white transition-colors">
@@ -166,7 +166,7 @@
                     <div class="absolute inset-0 border border-white/5 rounded-[1.5rem] md:rounded-[2.5rem] z-30 group-hover:border-white/20 transition-colors pointer-events-none"></div>
                 </a>
                 <a href="/relojes/mujer" class="group relative block w-full aspect-[3/4] overflow-hidden rounded-xl md:rounded-[2.5rem] shadow-xl hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 bg-gray-900">
-                    <img src="{{ asset('images/banners/mujer.png') }}" alt="Mujer" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                    <img src="{{ asset('images/banners/mujer.webp') }}" alt="Mujer" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" onerror="this.src='{{ asset('images/banners/mujer.png') }}'" />
                     <div class="absolute inset-0 z-20 flex flex-col items-center justify-center p-3 md:p-10 text-center">
                         <h3 class="text-xl md:text-5xl font-black text-white uppercase leading-none mb-1 md:mb-4">Mujer</h3>
                         <div class="flex items-center gap-2 text-white/70 font-semibold text-[10px] md:text-base group-hover:text-white transition-colors">
@@ -177,7 +177,7 @@
                     <div class="absolute inset-0 border border-white/5 rounded-[1.5rem] md:rounded-[2.5rem] z-30 group-hover:border-white/20 transition-colors pointer-events-none"></div>
                 </a>
                 <a href="/relojes/unisex" class="group relative block w-full aspect-[3/4] overflow-hidden rounded-xl md:rounded-[2.5rem] shadow-xl hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 bg-gray-900">
-                    <img src="{{ asset('images/banners/unisex.png') }}" alt="Unisex" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                    <img src="{{ asset('images/banners/unisex.webp') }}" alt="Unisex" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" onerror="this.src='{{ asset('images/banners/unisex.png') }}'" />
                     <div class="absolute inset-0 z-20 flex flex-col items-center justify-center p-3 md:p-10 text-center">
                         <h3 class="text-xl md:text-5xl font-black text-white uppercase leading-none mb-1 md:mb-4">Unisex</h3>
                         <div class="flex items-center gap-2 text-white/70 font-semibold text-[10px] md:text-base group-hover:text-white transition-colors">
