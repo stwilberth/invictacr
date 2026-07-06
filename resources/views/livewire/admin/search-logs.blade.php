@@ -1,12 +1,53 @@
 <div>
+    {{-- Stats Cards --}}
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-4">
+            <p class="text-2xl font-black text-[#00C4FF]">{{ number_format($totalSearches) }}</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Búsquedas totales</p>
+        </div>
+        <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-4">
+            <p class="text-2xl font-black text-purple-500">{{ number_format($aiSearches) }}</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Con IA</p>
+        </div>
+        <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-4">
+            <p class="text-2xl font-black text-red-500">{{ number_format($noResultsSearches) }}</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Sin resultados</p>
+        </div>
+        <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-4">
+            <p class="text-2xl font-black text-green-500">{{ number_format($uniqueQueries) }}</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Consultas únicas</p>
+        </div>
+    </div>
+
+    {{-- Top Searches Chart --}}
+    @if(count($topQueries) > 0)
+    <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-6 mb-6">
+        <h2 class="font-black text-gray-900 dark:text-white mb-4 uppercase tracking-wider text-sm">
+            <i class="fa-solid fa-chart-bar text-[#00C4FF] mr-2"></i> Búsquedas más frecuentes
+        </h2>
+        <div class="relative" style="height: 250px;">
+            <canvas id="topQueriesChart"></canvas>
+        </div>
+    </div>
+    @endif
+
+    {{-- Filters --}}
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-        <div>
+        <div class="flex items-center gap-3">
             <input
                 wire:model.live.debounce.300ms="search"
                 type="text"
                 placeholder="Buscar por consulta..."
                 class="w-full sm:w-64 bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm"
             />
+            <select
+                wire:model.live="filterResults"
+                class="bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300"
+            >
+                <option value="">Todos los resultados</option>
+                <option value="with_results">Con resultados</option>
+                <option value="no_results">Sin resultados</option>
+            </select>
         </div>
         <p class="text-sm text-gray-500 dark:text-gray-400">
             <span class="font-bold text-gray-900 dark:text-white">{{ $logs->total() }}</span> búsquedas registradas
@@ -23,6 +64,8 @@
                             @if($sortField === 'created_at') <i class="fa-solid fa-chevron-{{ $sortDirection === 'asc' ? 'up' : 'down' }}"></i> @endif
                         </th>
                         <th class="px-4 py-3">Usuario</th>
+                        <th class="px-4 py-3">IP Real</th>
+                        <th class="px-4 py-3 text-center">Dispositivo</th>
                         <th class="px-4 py-3 cursor-pointer hover:text-gray-700 dark:hover:text-gray-200" wire:click="sortBy('query')">
                             Consulta
                             @if($sortField === 'query') <i class="fa-solid fa-chevron-{{ $sortDirection === 'asc' ? 'up' : 'down' }}"></i> @endif
@@ -45,6 +88,29 @@
                             @else
                                 <span class="text-gray-400">—</span>
                             @endif
+                        </td>
+                        <td class="px-4 py-3 text-gray-600 dark:text-gray-400 text-xs whitespace-nowrap" title="CF: {{ $log->ip_address }}">
+                            {{ $log->real_ip ?? $log->ip_address }}
+                        </td>
+                        <td class="px-4 py-3 text-center">
+                            @php
+                                $deviceIcon = match ($log->device_type) {
+                                    'mobile' => 'fa-mobile',
+                                    'tablet' => 'fa-tablet',
+                                    default => 'fa-desktop',
+                                };
+                                $deviceColor = match ($log->device_type) {
+                                    'mobile' => 'text-green-500',
+                                    'tablet' => 'text-blue-500',
+                                    default => 'text-gray-500',
+                                };
+                            @endphp
+                            <span class="{{ $deviceColor }}" title="{{ $log->user_agent ?? '' }}">
+                                <i class="fa-solid {{ $deviceIcon }}"></i>
+                                @if($log->device_type)
+                                    <span class="text-[10px] font-bold ml-0.5">{{ ucfirst($log->device_type) }}</span>
+                                @endif
+                            </span>
                         </td>
                         <td class="px-4 py-3 font-medium text-gray-900 dark:text-white max-w-[200px] truncate" title="{{ $log->query }}">
                             "{{ $log->query }}"
@@ -91,7 +157,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="7" class="px-4 py-10 text-center text-gray-400 dark:text-gray-500">
+                        <td colspan="9" class="px-4 py-10 text-center text-gray-400 dark:text-gray-500">
                             No hay búsquedas registradas aún.
                         </td>
                     </tr>
@@ -104,4 +170,58 @@
     <div class="mt-4">
         {{ $logs->links() }}
     </div>
+
+    @push('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+    <script>
+        document.addEventListener('livewire:init', function () {
+            const labels = @json(array_column($topQueries, 'query'));
+            const data = @json(array_column($topQueries, 'count'));
+
+            const ctx = document.getElementById('topQueriesChart');
+            if (!ctx) return;
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Búsquedas',
+                        data: data,
+                        backgroundColor: 'rgba(0, 196, 255, 0.7)',
+                        borderColor: 'rgba(0, 196, 255, 1)',
+                        borderWidth: 1,
+                        borderRadius: 4,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: {
+                            ticks: {
+                                stepSize: 1,
+                                color: '#9ca3af',
+                            },
+                            grid: {
+                                color: 'rgba(255,255,255,0.05)'
+                            }
+                        },
+                        y: {
+                            ticks: {
+                                color: '#9ca3af',
+                                font: { size: 11 }
+                            },
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+    @endpush
 </div>

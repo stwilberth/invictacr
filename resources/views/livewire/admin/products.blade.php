@@ -44,6 +44,7 @@
                     <th class="text-left px-4 py-3 cursor-pointer" wire:click="sortBy('resistencia_agua')">Resistencia</th>
                     <th class="text-left px-4 py-3 cursor-pointer" wire:click="sortBy('genero')">Género</th>
                     <th class="text-right px-4 py-3 cursor-pointer" wire:click="sortBy('precio_venta')">Precio</th>
+                    <th class="text-center px-4 py-3 cursor-pointer" wire:click="sortBy('images_count')">Imgs</th>
                     <th class="text-center px-4 py-3 cursor-pointer" wire:click="sortBy('stock')">Stock</th>
                     <th class="text-right px-4 py-3">Acciones</th>
                 </tr>
@@ -72,6 +73,11 @@
                     <td class="px-4 py-3 text-gray-600 dark:text-gray-400 text-xs">{{ $product->resistencia_agua ?? '—' }}</td>
                     <td class="px-4 py-3 text-gray-600 dark:text-gray-400 capitalize">{{ $product->genero }}</td>
                     <td class="px-4 py-3 text-right font-bold text-gray-900 dark:text-white">₡{{ number_format($product->precio_venta, 0) }}</td>
+                    <td class="px-4 py-3 text-center">
+                        <span class="text-xs font-bold {{ $product->images_count > 0 ? 'text-[#00C4FF]' : 'text-gray-400' }}">
+                            {{ $product->images_count }}
+                        </span>
+                    </td>
                     <td class="px-4 py-3 text-center">
                         <span class="px-2 py-1 rounded-lg text-xs font-bold
                             @if($product->stock > 10) bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400

@@ -15,6 +15,9 @@ class SearchLog extends Model
         'ai_raw_response',
         'user_id',
         'ip_address',
+        'real_ip',
+        'user_agent',
+        'device_type',
         'results_count',
     ];
 

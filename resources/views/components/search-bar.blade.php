@@ -1,7 +1,7 @@
 @props(['idPrefix' => 'desktop', 'className' => ''])
 
 <div class="relative {{ $className }}">
-    <form action="/relojes" method="GET" class="flex items-center gap-0">
+    <form action="/relojes" method="GET" class="flex items-center gap-0" onsubmit="this.querySelector('button[type=submit]').disabled = true">
         <div class="relative flex-1">
             <input type="text"
                    name="q"

@@ -15,7 +15,7 @@
             />
 
             <div class="max-w-2xl mx-auto mb-6 -mt-2">
-                <form action="/relojes" method="GET" class="flex gap-2">
+                <form action="/relojes" method="GET" class="flex gap-2" onsubmit="this.querySelector('button[type=submit]').disabled = true">
                     <div class="relative flex-1">
                         <input
                             type="text"

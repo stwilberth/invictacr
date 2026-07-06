@@ -99,6 +99,7 @@ class Products extends Component
         }
 
         $products = $query
+            ->withCount('images')
             ->orderBy($this->sortField, $this->sortDirection)
             ->paginate(20);
         $colecciones = collect(config("collections", []))

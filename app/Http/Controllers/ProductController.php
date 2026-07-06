@@ -77,6 +77,13 @@ class ProductController extends Controller
         }
 
         if ($originalQuery) {
+            $ua = $request->userAgent();
+            $deviceType = match (true) {
+                preg_match('/mobile|android|iphone|ipod|blackberry|opera mini|iemobile|wpdesktop/i', $ua) => 'mobile',
+                preg_match('/tablet|ipad|playbook|silk/i', $ua) => 'tablet',
+                default => 'desktop',
+            };
+
             SearchLog::create([
                 "query" => $originalQuery,
                 "parsed_filters" => $parsedFilters,
@@ -85,6 +92,9 @@ class ProductController extends Controller
                 "ai_raw_response" => $aiRawResponse,
                 "user_id" => $request->user()?->id,
                 "ip_address" => $request->ip(),
+                "real_ip" => $request->header('CF-Connecting-IP') ?: $request->ip(),
+                "user_agent" => $ua,
+                "device_type" => $deviceType,
                 "results_count" => $products->total(),
             ]);
         }
@@ -278,6 +288,18 @@ class ProductController extends Controller
             return $img;
         });
 
+        $galleryItems = collect();
+        foreach ($images as $i => $img) {
+            $galleryItems->push([
+                'type' => 'image',
+                'url' => $galleryImages[$i] ?? $img,
+                'zoomUrl' => $img,
+            ]);
+            if ($i === 0 && $product->video) {
+                $galleryItems->push(['type' => 'video', 'vimeoUrl' => $product->video]);
+            }
+        }
+
         $relatedIds = cache()->remember("product:related_ids:{$product->id}", now()->addHours(4), function () use ($product) {
             return Product::relatedTo($product)
                 ->take(8)
@@ -300,7 +322,7 @@ class ProductController extends Controller
 
         return view(
             "pages.product-detail",
-            compact("product", "images", "galleryImages", "relatedProducts"),
+            compact("product", "images", "galleryImages", "relatedProducts", "galleryItems"),
         );
     }
 
