@@ -514,7 +514,7 @@ class ProductForm extends Component
         if ($this->productId) {
             $product = Product::findOrFail($this->productId);
             $product->update($data);
-            session()->flash("message", "Producto actualizado.");
+            session()->flash("message", "Producto <strong>" . e($product->modelo) . "</strong> actualizado. <a href=\"" . route('products.show', $product->slug) . "\" class=\"underline text-green-800 dark:text-green-300\">Ver reloj</a>");
         } else {
             $product = Product::create($data);
             session()->flash("message", "Producto creado.");

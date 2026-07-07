@@ -42,6 +42,13 @@ class VariedadesSyncService
             $referenceUpdatedCount = 0;
             $markedAgotadoCount = 0;
 
+            $createdModels = [];
+            $activatedModels = [];
+            $stockChangedModels = [];
+            $priceRecalculatedModels = [];
+            $referenceUpdatedModels = [];
+            $markedAgotadoModels = [];
+
             foreach ($stockData as $item) {
                 $modelKey = $this->extractModel($item["slug"] ?? "");
                 if (!$modelKey) {
@@ -92,6 +99,7 @@ class VariedadesSyncService
                             'descripcion' => $descripcion,
                         ]);
                         $activatedCount++;
+                        $activatedModels[] = $modelKey;
                         continue;
                     }
 
@@ -104,6 +112,7 @@ class VariedadesSyncService
                     if ($prevStock !== $stockVal) {
                         $updates["stock"] = $stockVal;
                         $stockChangedCount++;
+                        $stockChangedModels[] = $modelKey;
                         $didChange = true;
                     }
 
@@ -117,10 +126,12 @@ class VariedadesSyncService
                         $updates["precio_venta"] = $newPrice;
                         $updates["precio_original"] = $priceVal;
                         $priceRecalculatedCount++;
+                        $priceRecalculatedModels[] = $modelKey;
                         $didChange = true;
                     } elseif ($prevPrecioOriginal !== $priceVal) {
                         $updates["precio_original"] = $priceVal;
                         $referenceUpdatedCount++;
+                        $referenceUpdatedModels[] = $modelKey;
                         $didChange = true;
                     }
 
@@ -177,6 +188,7 @@ class VariedadesSyncService
                         "imagen" => $iwData['imagen_local'] ?? self::CDN_BASE_URL . "/{$modelKey}/{$modelKey}_1.jpg",
                     ]);
                     $createdCount++;
+                    $createdModels[] = $modelKey;
                 }
             }
 
@@ -190,16 +202,23 @@ class VariedadesSyncService
                 if ($product && !$product->bloqueado && (int) $product->precio_venta > 0 && (int) $product->stock !== 0) {
                     $product->update(["stock" => 0]);
                     $markedAgotadoCount++;
+                    $markedAgotadoModels[] = $modelKey;
                 }
             }
 
             $details = [
                 "creados" => $createdCount,
+                "creados_modelos" => $createdModels,
                 "activados" => $activatedCount,
+                "activados_modelos" => $activatedModels,
                 "stock_actualizado" => $stockChangedCount,
+                "stock_actualizado_modelos" => $stockChangedModels,
                 "precio_recalculado" => $priceRecalculatedCount,
+                "precio_recalculado_modelos" => $priceRecalculatedModels,
                 "referencia_actualizada" => $referenceUpdatedCount,
+                "referencia_actualizada_modelos" => $referenceUpdatedModels,
                 "marcados_agotados" => $markedAgotadoCount,
+                "marcados_agotados_modelos" => $markedAgotadoModels,
             ];
 
             $parts = [];

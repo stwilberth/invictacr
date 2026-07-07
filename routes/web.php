@@ -49,6 +49,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::get('/sync', \App\Livewire\Admin\SyncManager::class)->name('sync');
     Route::get('/search-logs', \App\Livewire\Admin\SearchLogs::class)->name('search-logs');
     Route::get('/optimize-images', \App\Livewire\Admin\OptimizeImages::class)->name('optimize-images');
+    Route::get('/analytics', \App\Livewire\Admin\AnalyticsDashboard::class)->name('analytics');
+    Route::get('/github', \App\Livewire\Admin\GitHubReport::class)->name('github');
 });
 
 require __DIR__ . '/auth.php';

@@ -12,6 +12,7 @@ class SyncManager extends Component
     public bool $syncing = false;
     public ?string $lastResult = null;
     public ?string $lastError = null;
+    public ?array $lastDetails = null;
 
     public function triggerSync()
     {
@@ -22,6 +23,7 @@ class SyncManager extends Component
         $this->syncing = true;
         $this->lastResult = null;
         $this->lastError = null;
+        $this->lastDetails = null;
 
         try {
             $service = app(VariedadesSyncService::class);
@@ -29,6 +31,7 @@ class SyncManager extends Component
 
             if ($result["success"]) {
                 $this->lastResult = $result["message"];
+                $this->lastDetails = $result["details"] ?? null;
             } else {
                 $this->lastError = $result["error"];
             }

@@ -53,6 +53,13 @@
                     <i class="fa-solid fa-image w-5"></i> Optimizar Imágenes
                 </a>
                 <hr class="border-white/10 my-4">
+                <p class="px-4 text-xs text-white/40 uppercase tracking-wider font-black mb-2">Analytics</p>
+                <a href="{{ route('admin.analytics') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors {{ request()->routeIs('admin.analytics') ? 'bg-[#00C4FF]/10 text-[#00C4FF]' : 'text-white/70 hover:text-white hover:bg-white/5' }}">
+                    <i class="fa-solid fa-chart-pie w-5"></i> Dashboard Analytics
+                </a>
+                <a href="{{ route('admin.github') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors {{ request()->routeIs('admin.github') ? 'bg-[#00C4FF]/10 text-[#00C4FF]' : 'text-white/70 hover:text-white hover:bg-white/5' }}">
+                    <i class="fa-brands fa-github w-5"></i> Reporte GitHub
+                </a>
                 <a href="/" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-white/50 hover:text-white hover:bg-white/5 transition-colors">
                     <i class="fa-solid fa-arrow-left w-5"></i> Volver al sitio
                 </a>
@@ -80,7 +87,7 @@
             <div class="p-6">
                 @if(session('message'))
                     <div class="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-4 py-3 rounded-xl mb-6 text-sm font-bold">
-                        {{ session('message') }}
+                        {!! session('message') !!}
                     </div>
                 @endif
                 @if(session('error'))
@@ -140,6 +147,14 @@
                     </a>
                     <a href="{{ route('admin.optimize-images') }}" @click="sidebarOpen = false" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors {{ request()->routeIs('admin.optimize-images') ? 'bg-[#00C4FF]/10 text-[#00C4FF]' : 'text-white/70 hover:text-white hover:bg-white/5' }}">
                         <i class="fa-solid fa-image w-5"></i> Optimizar Imágenes
+                    </a>
+                    <hr class="border-white/10 my-4">
+                    <p class="px-4 text-xs text-white/40 uppercase tracking-wider font-black mb-2">Analytics</p>
+                    <a href="{{ route('admin.analytics') }}" @click="sidebarOpen = false" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors {{ request()->routeIs('admin.analytics') ? 'bg-[#00C4FF]/10 text-[#00C4FF]' : 'text-white/70 hover:text-white hover:bg-white/5' }}">
+                        <i class="fa-solid fa-chart-pie w-5"></i> Dashboard Analytics
+                    </a>
+                    <a href="{{ route('admin.github') }}" @click="sidebarOpen = false" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors {{ request()->routeIs('admin.github') ? 'bg-[#00C4FF]/10 text-[#00C4FF]' : 'text-white/70 hover:text-white hover:bg-white/5' }}">
+                        <i class="fa-brands fa-github w-5"></i> Reporte GitHub
                     </a>
                     <hr class="border-white/10 my-4">
                     <a href="/" @click="sidebarOpen = false" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-white/50 hover:text-white hover:bg-white/5 transition-colors">

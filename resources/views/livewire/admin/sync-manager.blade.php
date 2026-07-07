@@ -44,6 +44,18 @@
         <div class="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-4 py-3 rounded-xl text-sm font-bold">
             <i class="fa-solid fa-circle-check"></i> {{ $lastResult }}
         </div>
+        @if($lastDetails)
+            @foreach(['creados' => 'Creados', 'activados' => 'Activados', 'stock_actualizado' => 'Stock actualizado', 'precio_recalculado' => 'Precios recalculados', 'referencia_actualizada' => 'Precios referencia actualizados', 'marcados_agotados' => 'Marcados agotados'] as $key => $label)
+                @if(($lastDetails[$key] ?? 0) > 0 && !empty($lastDetails[$key . '_modelos']))
+                <div class="mt-2 text-sm text-green-700 dark:text-green-400">
+                    <strong>{{ $label }}:</strong>
+                    @foreach($lastDetails[$key . '_modelos'] as $modelo)
+                        <a href="{{ route('products.show', 'invicta-' . strtolower($modelo)) }}" target="_blank" class="underline hover:text-green-900 dark:hover:text-green-300 ml-1">{{ $modelo }}</a>@if(!$loop->last), @endif
+                    @endforeach
+                </div>
+                @endif
+            @endforeach
+        @endif
         @endif
 
         @if($lastError)

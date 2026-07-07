@@ -117,12 +117,12 @@
                         <div class="flex gap-1.5 px-3 pb-3 overflow-x-auto mt-1">
                             @foreach($galleryItems as $i => $item)
                                 @if($item['type'] === 'image')
-                                <button type="button" @click="currentIndex = {{ $i }}" data-gallery-img="{{ $item['zoomUrl'] }}" class="w-14 h-14 flex-shrink-0 rounded-lg border-2 overflow-hidden bg-gray-50 dark:bg-gray-900 transition-all gallery-thumb"
+                                <button type="button" @click="currentIndex = {{ $i }}" data-gallery-img="{{ $item['zoomUrl'] }}" class="w-16 h-16 flex-shrink-0 rounded-lg border-2 overflow-hidden bg-gray-50 dark:bg-gray-900 transition-all gallery-thumb"
                                     :class="currentIndex === {{ $i }} ? 'border-[#00C4FF]' : 'border-transparent hover:border-gray-300 dark:hover:border-gray-600'">
                                     <img src="{{ $item['url'] }}" alt="" class="w-full h-full object-contain" loading="lazy" onerror="this.closest('.gallery-thumb').style.display='none'" />
                                 </button>
                                 @else
-                                <button type="button" @click="currentIndex = {{ $i }}" class="w-14 h-14 flex-shrink-0 rounded-lg border-2 overflow-hidden bg-gray-900 transition-all gallery-thumb relative"
+                                <button type="button" @click="currentIndex = {{ $i }}" class="w-16 h-16 flex-shrink-0 rounded-lg border-2 overflow-hidden bg-gray-900 transition-all gallery-thumb relative"
                                     :class="currentIndex === {{ $i }} ? 'border-[#00C4FF]' : 'border-transparent hover:border-gray-300 dark:hover:border-gray-600'">
                                     <img src="{{ $galleryItems[0]['url'] }}" alt="" class="w-full h-full object-contain opacity-40" loading="lazy" />
                                     <div class="absolute inset-0 flex items-center justify-center">
@@ -144,56 +144,63 @@
                 </div>
 
                 {{-- Mobile: Side-by-side grid (image col-span-3, buy box col-span-2) --}}
-                <div class="lg:hidden grid grid-cols-5 gap-2" x-data='{
-                    galleryItems: @json($galleryItems),
-                    currentIndex: 0,
-                    init() {
-                        if (this.galleryItems.length > 1) {
-                            setInterval(() => {
-                                this.currentIndex = (this.currentIndex + 1) % this.galleryItems.length;
-                            }, 6000);
-                        }
-                    }
-                }'>
+                <div class="lg:hidden grid grid-cols-5 gap-2">
                     {{-- Image / Video --}}
                     <div class="col-span-3">
-                        <div class="relative overflow-hidden" style="min-height: 200px;">
-                            <div class="flex" :style="`transform: translateX(-${currentIndex * 100}%); transition: transform 0.5s ease-in-out;`">
-                                <template x-for="(item, idx) in galleryItems" :key="idx">
-                                    <div class="w-full flex-shrink-0 flex items-center justify-center relative" style="min-height: 200px;">
-                                        <template x-if="item.type === 'image'">
-                                            <div class="absolute inset-0 flex items-center justify-center cursor-zoom-in" @click="openImageModal(item.zoomUrl, '{{ $product->title }}')">
-                                                <img :src="item.url" :alt="'{{ $product->title }} - ' + (idx + 1)" class="w-full max-h-[50vh] object-contain" loading="lazy" />
-                                            </div>
-                                        </template>
-                                        <template x-if="item.type === 'video'">
-                                            <div class="absolute inset-0 flex items-center justify-center cursor-pointer bg-black" @click="openVimeoModal(item.vimeoUrl)">
-                                                <img :src="galleryItems[0].url" alt="Video del reloj" class="w-full max-h-[50vh] object-contain opacity-50" loading="lazy" />
-                                                <div class="absolute inset-0 flex items-center justify-center">
-                                                    <div class="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center shadow-2xl border-4 border-white/30 hover:border-white/60 transition-all duration-300 hover:scale-110">
-                                                        <i class="fa-solid fa-play text-white text-lg ml-1"></i>
+                        <div class="relative" style="min-height: 200px;" x-data='{
+                            galleryItems: @json($galleryItems),
+                            currentIndex: 0,
+                            init() {
+                                if (this.galleryItems.length > 1) {
+                                    setInterval(() => {
+                                        this.currentIndex = (this.currentIndex + 1) % this.galleryItems.length;
+                                    }, 6000);
+                                }
+                            }
+                        }'>
+                            <div class="relative overflow-hidden" style="min-height: 250px;">
+                                <div class="flex" :style="`transform: translateX(-${currentIndex * 100}%); transition: transform 0.5s ease-in-out;`">
+                                    <template x-for="(item, idx) in galleryItems" :key="idx">
+                                        <div class="w-full flex-shrink-0 flex items-center justify-center relative" style="min-height: 250px;">
+                                            <template x-if="item.type === 'image'">
+                                                <div class="absolute inset-0 flex items-center justify-center cursor-zoom-in" @click="openImageModal(item.zoomUrl, '{{ $product->title }}')">
+                                                    <img :src="item.url" :alt="'{{ $product->title }} - ' + (idx + 1)" class="w-full max-h-[55vh] object-contain" loading="lazy" />
+                                                </div>
+                                            </template>
+                                            <template x-if="item.type === 'video'">
+                                                <div class="absolute inset-0 flex items-center justify-center cursor-pointer bg-black" @click="openVimeoModal(item.vimeoUrl)">
+                                                    <img :src="galleryItems[0].url" alt="Video del reloj" class="w-full max-h-[55vh] object-contain opacity-50" loading="lazy" />
+                                                    <div class="absolute inset-0 flex items-center justify-center">
+                                                        <div class="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center shadow-2xl border-4 border-white/30 hover:border-white/60 transition-all duration-300 hover:scale-110">
+                                                            <i class="fa-solid fa-play text-white text-lg ml-1"></i>
+                                                        </div>
+                                                    </div>
+                                                    <div class="absolute bottom-2 left-2 bg-black/60 backdrop-blur-sm text-white text-[8px] font-bold uppercase tracking-wider px-2 py-1 rounded-full">
+                                                        <i class="fa-solid fa-play text-[7px] mr-1"></i> Video
                                                     </div>
                                                 </div>
-                                                <div class="absolute bottom-2 left-2 bg-black/60 backdrop-blur-sm text-white text-[8px] font-bold uppercase tracking-wider px-2 py-1 rounded-full">
-                                                    <i class="fa-solid fa-play text-[7px] mr-1"></i> Video
-                                                </div>
-                                            </div>
-                                        </template>
-                                    </div>
-                                </template>
+                                            </template>
+                                        </div>
+                                    </template>
+                                </div>
+
+                                {{-- Zoom button --}}
+                                <button type="button" x-show="galleryItems[currentIndex]?.type === 'image'" @click="event.preventDefault(); openImageModal(galleryItems[currentIndex].zoomUrl, '{{ $product->title }}')" class="absolute top-2 right-2 w-7 h-7 bg-white/95 dark:bg-gray-900/95 border border-gray-200 dark:border-gray-700/80 text-gray-500 dark:text-gray-400 rounded-md shadow flex items-center justify-center transition-all z-30 cursor-pointer">
+                                    <i class="fa-solid fa-expand text-[10px]"></i>
+                                </button>
                             </div>
 
-                            {{-- Thumbnail gallery --}}
+                            {{-- Thumbnails overlay at bottom --}}
                             @if(count($galleryItems) > 1)
-                            <div class="flex gap-1.5 px-2 pb-2 overflow-x-auto mt-1">
+                            <div class="flex gap-1.5 px-2 py-2 overflow-x-auto justify-center bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm border-t border-gray-200 dark:border-gray-700">
                                 @foreach($galleryItems as $i => $item)
                                     @if($item['type'] === 'image')
-                                    <button type="button" @click="currentIndex = {{ $i }}" data-gallery-img="{{ $item['zoomUrl'] }}" class="w-12 h-12 flex-shrink-0 rounded-lg border-2 overflow-hidden bg-gray-50 dark:bg-gray-900 transition-all"
+                                    <button type="button" @click="currentIndex = {{ $i }}" data-gallery-img="{{ $item['zoomUrl'] }}" class="w-14 h-14 flex-shrink-0 rounded-lg border-2 overflow-hidden bg-gray-50 dark:bg-gray-900 transition-all"
                                         :class="currentIndex === {{ $i }} ? 'border-[#00C4FF]' : 'border-transparent'">
                                         <img src="{{ $item['url'] }}" alt="" class="w-full h-full object-contain" loading="lazy" onerror="this.closest('button').style.display='none'" />
                                     </button>
                                     @else
-                                    <button type="button" @click="currentIndex = {{ $i }}" class="w-12 h-12 flex-shrink-0 rounded-lg border-2 overflow-hidden bg-gray-900 transition-all relative"
+                                    <button type="button" @click="currentIndex = {{ $i }}" class="w-14 h-14 flex-shrink-0 rounded-lg border-2 overflow-hidden bg-gray-900 transition-all relative"
                                         :class="currentIndex === {{ $i }} ? 'border-[#00C4FF]' : 'border-transparent'">
                                         <img src="{{ $galleryItems[0]['url'] }}" alt="" class="w-full h-full object-contain opacity-40" loading="lazy" />
                                         <div class="absolute inset-0 flex items-center justify-center">
@@ -206,11 +213,6 @@
                                 @endforeach
                             </div>
                             @endif
-
-                            {{-- Zoom button bottom-right (only on images) --}}
-                            <button type="button" x-show="galleryItems[currentIndex]?.type === 'image'" @click="event.preventDefault(); openImageModal(galleryItems[currentIndex].zoomUrl, '{{ $product->title }}')" class="absolute bottom-2 right-2 w-7 h-7 bg-white/95 dark:bg-gray-900/95 border border-gray-200 dark:border-gray-700/80 text-gray-500 dark:text-gray-400 rounded-md shadow flex items-center justify-center transition-all z-30 cursor-pointer">
-                                <i class="fa-solid fa-expand text-[10px]"></i>
-                            </button>
                         </div>
                     </div>
 
