@@ -131,7 +131,7 @@ class ProductController extends Controller
 
     private function runSearchQuery(Request $request)
     {
-        $query = Product::query();
+        $query = Product::where("activo", true);
 
         $isSearch = $request->filled("q");
 
@@ -217,7 +217,7 @@ class ProductController extends Controller
      */
     private function buildFilters(?string $gender = null): array
     {
-        $base = Product::where("precio_venta", ">", 0)->where("stock", ">", 0);
+        $base = Product::where("activo", true)->where("precio_venta", ">", 0)->where("stock", ">", 0);
         if ($gender) {
             $base->where("genero", $gender);
         }
@@ -263,7 +263,7 @@ class ProductController extends Controller
 
     public function show(string $slug)
     {
-        $product = Product::where("slug", $slug)->firstOrFail();
+        $product = Product::where("slug", $slug)->where("activo", true)->firstOrFail();
 
         $product->increment("vistas");
 
