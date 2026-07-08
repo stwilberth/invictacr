@@ -217,7 +217,7 @@ class AnalyticsDashboard extends Component
         Artisan::call('sync:google-ads', ['--days' => 30]);
         Artisan::call('sync:search-console', ['--days' => 1]);
         Artisan::call('sync:facebook', ['--days' => 7]);
-        Artisan::call('sync:github', ['--branch' => 'main', '--limit' => 50]);
+        Artisan::call('sync:github', ['--branch' => 'master', '--limit' => 50]);
 
         $this->loadData();
         $this->syncing = false;
