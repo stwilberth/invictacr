@@ -2,11 +2,12 @@
 
 namespace App\Services;
 
-use Google\Client as GoogleClient;
+use Firebase\JWT\JWT;
+use Illuminate\Support\Facades\Http;
 
 class GoogleServiceAccount
 {
-    protected ?GoogleClient $client = null;
+    protected array $credentials = [];
     protected string $keyFilePath;
 
     public function __construct()
@@ -16,47 +17,59 @@ class GoogleServiceAccount
 
     public function isConfigured(): bool
     {
-        return !empty($this->keyFilePath) && file_exists($this->keyFilePath);
-    }
-
-    public function getClient(): ?GoogleClient
-    {
-        if ($this->client) {
-            return $this->client;
-        }
-
-        if (!$this->isConfigured()) {
-            return null;
+        if (empty($this->keyFilePath) || !file_exists($this->keyFilePath)) {
+            return false;
         }
 
         try {
-            $client = new GoogleClient();
-            $client->setAuthConfig($this->keyFilePath);
-            $client->setApplicationName('InvictaCR Analytics');
-            $this->client = $client;
-            return $client;
+            $this->loadCredentials();
+            return true;
         } catch (\Exception $e) {
-            report($e);
-            return null;
+            return false;
+        }
+    }
+
+    protected function loadCredentials(): void
+    {
+        if (!empty($this->credentials)) return;
+
+        $json = file_get_contents($this->keyFilePath);
+        $this->credentials = json_decode($json, true);
+
+        if (empty($this->credentials['client_email']) || empty($this->credentials['private_key'])) {
+            throw new \RuntimeException('Invalid service account JSON: missing client_email or private_key');
         }
     }
 
     public function getAccessToken(string $scope): ?string
     {
-        $client = $this->getClient();
-        if (!$client) return null;
-
         try {
-            $client->setScopes([$scope]);
-            $token = $client->fetchAccessTokenWithAssertion();
-
-            if (isset($token['access_token'])) {
-                return $token['access_token'];
-            }
+            $this->loadCredentials();
         } catch (\Exception $e) {
             report($e);
+            return null;
         }
 
-        return null;
+        $now = time();
+        $jwt = JWT::encode([
+            'iss' => $this->credentials['client_email'],
+            'sub' => $this->credentials['client_email'],
+            'aud' => 'https://oauth2.googleapis.com/token',
+            'exp' => $now + 3600,
+            'iat' => $now,
+            'scope' => $scope,
+        ], $this->credentials['private_key'], 'RS256');
+
+        $response = Http::asForm()->post('https://oauth2.googleapis.com/token', [
+            'grant_type' => 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+            'assertion' => $jwt,
+        ]);
+
+        if (!$response->successful()) {
+            report($response->body());
+            return null;
+        }
+
+        return $response->json('access_token');
     }
 }

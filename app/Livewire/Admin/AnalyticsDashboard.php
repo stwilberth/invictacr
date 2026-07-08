@@ -11,6 +11,7 @@ use App\Models\FacebookPost;
 use App\Models\GitHubCommit;
 use App\Models\Invoice;
 use App\Models\Product;
+use Illuminate\Support\Facades\Artisan;
 use Livewire\Component;
 
 class AnalyticsDashboard extends Component
@@ -24,6 +25,7 @@ class AnalyticsDashboard extends Component
     public array $gitHubSummary = [];
     public array $externalFactors = [];
     public array $correlationNotes = [];
+    public bool $syncing = false;
 
     public function mount(): void
     {
@@ -205,6 +207,20 @@ class AnalyticsDashboard extends Component
         }
 
         return $notes;
+    }
+
+    public function syncAll(): void
+    {
+        $this->syncing = true;
+
+        Artisan::call('sync:google-analytics', ['--days' => 1]);
+        Artisan::call('sync:google-ads', ['--days' => 30]);
+        Artisan::call('sync:search-console', ['--days' => 1]);
+        Artisan::call('sync:facebook', ['--days' => 7]);
+        Artisan::call('sync:github', ['--branch' => 'main', '--limit' => 50]);
+
+        $this->loadData();
+        $this->syncing = false;
     }
 
     public function render()

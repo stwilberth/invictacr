@@ -14,7 +14,7 @@ class GoogleAdsService
     public function __construct()
     {
         $this->serviceAccount = app(GoogleServiceAccount::class);
-        $this->customerId = config('services.google.ads_customer_id');
+        $this->customerId = str_replace('-', '', config('services.google.ads_customer_id'));
         $this->developerToken = config('services.google.ads_developer_token');
     }
 
@@ -39,8 +39,7 @@ class GoogleAdsService
             $response = Http::withHeaders([
                 'Authorization' => "Bearer {$token}",
                 'developer-token' => $this->developerToken,
-                'login-customer-id' => $this->customerId,
-            ])->post("https://googleads.googleapis.com/v17/customers/{$this->customerId}/googleAds:search", [
+            ])->post("https://googleads.googleapis.com/v24/customers/{$this->customerId}/googleAds:search", [
                 'query' => "
                     SELECT
                         campaign.id,
@@ -54,11 +53,11 @@ class GoogleAdsService
                         metrics.average_cpc
                     FROM campaign
                     WHERE segments.date = '{$dateStr}'
-                    AND campaign.status = 'ENABLED'
                 ",
             ]);
 
             if (!$response->successful()) return [];
+
 
             return $response->json('results', []);
         } catch (\Exception $e) {

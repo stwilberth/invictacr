@@ -6,7 +6,13 @@
             <button wire:click="$set('period', '90d')" class="px-4 py-2 rounded-xl text-sm font-bold transition-colors {{ $period === '90d' ? 'bg-[#00C4FF] text-white' : 'bg-white dark:bg-[#0f172a] text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-white/10' }}">90 días</button>
             <button wire:click="$set('period', '365d')" class="px-4 py-2 rounded-xl text-sm font-bold transition-colors {{ $period === '365d' ? 'bg-[#00C4FF] text-white' : 'bg-white dark:bg-[#0f172a] text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-white/10' }}">1 año</button>
         </div>
-        <span class="text-sm text-gray-500">Última actualización: {{ now()->format('d/m/Y H:i') }}</span>
+        <div class="flex items-center gap-3">
+            <button wire:click="syncAll" wire:loading.attr="disabled" class="px-4 py-2 rounded-xl text-sm font-bold transition-colors bg-[#00C4FF] text-white hover:bg-[#00a8d6] disabled:opacity-50">
+                <span wire:loading.remove wire:target="syncAll">Actualizar</span>
+                <span wire:loading wire:target="syncAll">Sincronizando...</span>
+            </button>
+            <span class="text-sm text-gray-500">Última actualización: {{ now()->format('d/m/Y H:i') }}</span>
+        </div>
     </div>
 
     {{-- Correlation Notes --}}

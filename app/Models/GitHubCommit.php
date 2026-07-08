@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class GitHubCommit extends Model
 {
+    protected $table = 'github_commits';
     protected $fillable = [
         'sha',
         'message',

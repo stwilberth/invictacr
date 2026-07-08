@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="es">
+<html lang="es" x-data="{ dark: localStorage.getItem('dark') === 'true' || (!localStorage.getItem('dark') && window.matchMedia('(prefers-color-scheme: dark)').matches) }" x-init="() => { $el.classList.toggle('dark', dark); $watch('dark', val => { $el.classList.toggle('dark', val); localStorage.setItem('dark', val); }); }">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
@@ -75,6 +75,10 @@
                     <h1 class="text-lg font-black text-gray-900 dark:text-white uppercase tracking-tight">{{ $title ?? 'Admin' }}</h1>
                 </div>
                 <div class="flex items-center gap-4">
+                    <button @click="dark = !dark" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-white text-lg transition-colors" title="Cambiar modo">
+                        <i x-show="!dark" class="fa-solid fa-moon"></i>
+                        <i x-show="dark" class="fa-solid fa-sun"></i>
+                    </button>
                     <span class="text-sm text-gray-500 dark:text-gray-400">{{ auth()->user()->email }}</span>
                     <form method="POST" action="{{ route('logout') }}" class="inline">
                         @csrf
