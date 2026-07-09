@@ -16,7 +16,7 @@ class Products extends Component
     public $sortDirection = "desc";
     public $filterGender = "";
     public $filterColeccion = "";
-    public $filterStock = "all";
+    public $filterStock = "in";
     public $filterActivo = "all";
 
     public ?int $optimizingProductId = null;

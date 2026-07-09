@@ -487,6 +487,9 @@ class ProductForm extends Component
             "precio_venta" => "required|numeric|min:0",
         ]);
 
+        $cleanedSize = $this->sanitizeNumeric($this->size);
+        $cleanedResistencia = $this->sanitizeNumeric($this->resistencia_agua);
+
         $data = [
             "modelo" => $this->modelo,
             "title" => $this->title,
@@ -496,10 +499,10 @@ class ProductForm extends Component
             "brazalete" => $this->brazalete,
             "coleccion" => $this->coleccion,
             "tipo_movimiento" => $this->tipo_movimiento,
-            "size" => $this->size,
+            "size" => $cleanedSize,
             "genero" => $this->genero,
             "caja" => $this->caja,
-            "resistencia_agua" => $this->resistencia_agua,
+            "resistencia_agua" => $cleanedResistencia,
             "precio_venta" => $this->precio_venta,
             "precio_original" => $this->precio_original ?: null,
             "descuento" => $this->descuento ?: 0,
@@ -530,6 +533,21 @@ class ProductForm extends Component
         }
 
         $this->redirect(route("admin.products"));
+    }
+
+    private function sanitizeNumeric(mixed $value): ?string
+    {
+        if (is_null($value) || trim((string) $value) === '') {
+            return null;
+        }
+        $cleaned = preg_replace('/[^0-9.,]/', '', trim((string) $value));
+        $cleaned = str_replace(',', '.', $cleaned);
+        $cleaned = preg_replace('/\.(?=.*\.)/', '', $cleaned);
+        if (!is_numeric($cleaned)) {
+            return null;
+        }
+        $num = (float) $cleaned;
+        return $num == intval($num) ? (string) intval($num) : rtrim(rtrim(sprintf('%.1f', $num), '0'), '.');
     }
 
     public function render()

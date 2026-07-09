@@ -103,8 +103,8 @@
                     </select>
                 </div>
                 <div>
-                    <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Size (MM)</label>
-                    <input wire:model="size" type="text" class="w-full bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm" />
+                    <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Tamaño (mm)</label>
+                    <input wire:model="size" type="number" step="any" min="0" class="w-full bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm" />
                 </div>
                 <div>
                     <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Género</label>
@@ -125,8 +125,8 @@
                     </select>
                 </div>
                 <div>
-                    <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Resistencia al Agua</label>
-                    <input wire:model="resistencia_agua" type="text" class="w-full bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm" />
+                    <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Resistencia al Agua (m)</label>
+                    <input wire:model="resistencia_agua" type="number" step="any" min="0" class="w-full bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm" />
                 </div>
                 <div class="md:col-span-2">
                     <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">URL Imagen</label>

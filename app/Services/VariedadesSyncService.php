@@ -90,11 +90,11 @@ class VariedadesSyncService
                             'stock' => max(1, $stockVal),
                             'genero' => $iwData['genero'] ?? $product->genero,
                             'coleccion' => $iwData['coleccion'] ?? $product->coleccion,
-                            'size' => $iwData['size'] ?? $product->size,
+                            'size' => $this->sanitizeNumeric($iwData['size'] ?? null) ?? $product->size,
                             'caja' => $iwData['caja'] ?? $product->caja,
                             'brazalete' => $iwData['brazalete'] ?? $product->brazalete,
                             'tipo_movimiento' => $iwData['tipo_movimiento'] ?? $product->tipo_movimiento,
-                            'resistencia_agua' => $iwData['resistencia_agua'] ?? $product->resistencia_agua,
+                            'resistencia_agua' => $this->sanitizeNumeric($iwData['resistencia_agua'] ?? null) ?? $product->resistencia_agua,
                             'imagen' => $iwData['imagen_local'] ?? $product->imagen,
                             'descripcion' => $descripcion,
                         ]);
@@ -180,9 +180,9 @@ class VariedadesSyncService
                         "color" => null,
                         "brazalete" => $iwData['brazalete'] ?? null,
                         "caja" => $iwData['caja'] ?? null,
-                        "size" => $iwData['size'] ?? null,
+                        "size" => $this->sanitizeNumeric($iwData['size'] ?? null),
                         "tipo_movimiento" => $iwData['tipo_movimiento'] ?? null,
-                        "resistencia_agua" => $iwData['resistencia_agua'] ?? null,
+                        "resistencia_agua" => $this->sanitizeNumeric($iwData['resistencia_agua'] ?? null),
                         "bloqueado" => false,
                         "vistas" => 0,
                         "activo" => true,
@@ -297,5 +297,20 @@ class VariedadesSyncService
         }
 
         return $body["data"];
+    }
+
+    private function sanitizeNumeric(mixed $value): ?string
+    {
+        if (is_null($value) || trim((string) $value) === '') {
+            return null;
+        }
+        $cleaned = preg_replace('/[^0-9.,]/', '', trim((string) $value));
+        $cleaned = str_replace(',', '.', $cleaned);
+        $cleaned = preg_replace('/\.(?=.*\.)/', '', $cleaned);
+        if (!is_numeric($cleaned)) {
+            return null;
+        }
+        $num = (float) $cleaned;
+        return $num == intval($num) ? (string) intval($num) : rtrim(rtrim(sprintf('%.1f', $num), '0'), '.');
     }
 }
