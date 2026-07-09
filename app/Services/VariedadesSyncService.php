@@ -117,8 +117,9 @@ class VariedadesSyncService
                     }
 
                     $isComingBackToStock = $prevStock === 0 && $stockVal > 0;
+                    $hasInvalidPrice = (int) ($product->precio_venta ?? 0) <= 0 && $priceVal > 0;
 
-                    if ($isComingBackToStock) {
+                    if ($isComingBackToStock || $hasInvalidPrice) {
                         $existingIncrease = (int) ($product->precio_venta ?? 0) - (int) ($product->precio_original ?? 0);
                         $increase = $existingIncrease > 0 ? $existingIncrease : random_int(4000, 9000);
                         $newPrice = $this->roundUpToThousand($priceVal + $increase);
