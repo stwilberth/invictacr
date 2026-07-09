@@ -11,8 +11,8 @@ use App\Models\FacebookPost;
 use App\Models\GitHubCommit;
 use App\Models\Invoice;
 use App\Models\Product;
-use Illuminate\Support\Facades\Artisan;
 use Livewire\Component;
+use Symfony\Component\Process\Process;
 
 class AnalyticsDashboard extends Component
 {
@@ -211,17 +211,27 @@ class AnalyticsDashboard extends Component
 
     public function syncAll(): void
     {
-        set_time_limit(120);
         $this->syncing = true;
 
-        Artisan::call('sync:google-analytics', ['--days' => 1]);
-        Artisan::call('sync:google-ads', ['--days' => 7]);
-        Artisan::call('sync:search-console', ['--days' => 1]);
-        Artisan::call('sync:facebook', ['--days' => 3]);
-        Artisan::call('sync:github', ['--branch' => 'master', '--limit' => 10]);
+        $base = base_path();
+        $php = PHP_BINARY;
 
-        $this->loadData();
+        $commands = [
+            "{$php} {$base}/artisan sync:google-analytics --days=1",
+            "{$php} {$base}/artisan sync:google-ads --days=7",
+            "{$php} {$base}/artisan sync:search-console --days=1",
+            "{$php} {$base}/artisan sync:facebook --days=3",
+            "{$php} {$base}/artisan sync:github --branch=master --limit=10",
+        ];
+
+        foreach ($commands as $cmd) {
+            $process = Process::fromShellCommandline($cmd);
+            $process->setTimeout(null);
+            $process->start();
+        }
+
         $this->syncing = false;
+        session()->flash('message', 'Sincronización iniciada en segundo plano. Recarga la página en unos momentos para ver los datos actualizados.');
     }
 
     public function render()
