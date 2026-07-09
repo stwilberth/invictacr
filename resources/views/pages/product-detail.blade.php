@@ -49,9 +49,6 @@
         {{-- Mobile Header: Title above media --}}
         <div class="lg:hidden">
             <div class="flex items-center gap-2 mb-2">
-                <button type="button" onclick="history.back()" aria-label="Atrás" class="flex items-center justify-center w-8 h-8 rounded-lg border-2 border-[#00C4FF] text-[#00C4FF] hover:bg-[#00C4FF] hover:text-white transition-all flex-shrink-0">
-                    <i class="fa-solid fa-arrow-left text-sm"></i>
-                </button>
                 <h1 class="text-md leading-snug font-black text-gray-800 dark:text-white tracking-tight uppercase">
                     {{ $displayTitle }}
                 </h1>

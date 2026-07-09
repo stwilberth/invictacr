@@ -12,6 +12,12 @@ class Invoices extends Component
 
     public $search = '';
     public $filterStatus = '';
+    public $filterShipping = '';
+    public $filterAbonos = '';
+    public $dateFrom = '';
+    public $dateTo = '';
+    public $totalMin = '';
+    public $totalMax = '';
 
     public function render()
     {
@@ -20,7 +26,8 @@ class Invoices extends Component
         if ($this->search) {
             $query->where(function ($q) {
                 $q->where('invoice_number', 'like', "%{$this->search}%")
-                  ->orWhere('client_name', 'like', "%{$this->search}%");
+                  ->orWhere('client_name', 'like', "%{$this->search}%")
+                  ->orWhere('client_phone', 'like', "%{$this->search}%");
             });
         }
 
@@ -28,9 +35,40 @@ class Invoices extends Component
             $query->where('status', $this->filterStatus);
         }
 
-        $invoices = $query->latest()->paginate(20);
+        if ($this->filterShipping) {
+            $query->where('shipping_status', $this->filterShipping);
+        }
+
+        if ($this->filterAbonos === 'con_abonos') {
+            $query->has('abonos');
+        } elseif ($this->filterAbonos === 'sin_abonos') {
+            $query->doesntHave('abonos');
+        }
+
+        if ($this->dateFrom) {
+            $query->whereDate('created_at', '>=', $this->dateFrom);
+        }
+
+        if ($this->dateTo) {
+            $query->whereDate('created_at', '<=', $this->dateTo);
+        }
+
+        if ($this->totalMin !== '') {
+            $query->where('total', '>=', (float) $this->totalMin);
+        }
+
+        if ($this->totalMax !== '') {
+            $query->where('total', '<=', (float) $this->totalMax);
+        }
+
+        $invoices = $query->with('abonos')->latest()->paginate(20);
 
         return view('livewire.admin.invoices', compact('invoices'))
             ->layout('components.admin-layout');
+    }
+
+    public function resetFilters()
+    {
+        $this->reset(['search', 'filterStatus', 'filterShipping', 'filterAbonos', 'dateFrom', 'dateTo', 'totalMin', 'totalMax']);
     }
 }

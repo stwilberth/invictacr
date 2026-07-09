@@ -5,6 +5,8 @@ namespace App\Console\Commands;
 use App\Models\Product;
 use App\Models\Client;
 use App\Models\Invoice;
+use App\Models\InvoiceItem;
+use App\Models\Abono;
 use App\Models\Expense;
 use App\Models\Subscriber;
 use App\Models\Setting;
@@ -15,6 +17,7 @@ use App\Models\ProductComment;
 use Illuminate\Console\Command;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class SyncFirestore extends Command
 {
@@ -95,6 +98,7 @@ class SyncFirestore extends Command
             "clients",
             "invoices",
             "invoice_items",
+            "abonos",
             "expenses",
             "subscribers",
             "settings",
@@ -249,45 +253,144 @@ class SyncFirestore extends Command
     {
         $count = 0;
         foreach ($data as $item) {
-            Invoice::updateOrCreate(
+            $invoiceNumber = $item["invoice_number"] ?? "INV-{$item["id"]}";
+
+            $invoice = Invoice::updateOrCreate(
                 [
-                    "invoice_number" =>
-                        $item["invoice_number"] ?? "INV-{$item["id"]}",
+                    "invoice_number" => $invoiceNumber,
                 ],
                 [
                     "client_name" =>
-                        $item["client_name"] ??
-                        ($item["nombre_cliente"] ?? "Cliente"),
+                        $item["customerName"] ??
+                        ($item["client_name"] ??
+                            ($item["nombre_cliente"] ?? "Cliente")),
                     "client_email" => $item["client_email"] ?? null,
-                    "client_phone" => $item["client_phone"] ?? null,
+                    "client_phone" =>
+                        $item["customerPhone"] ??
+                        ($item["client_phone"] ?? null),
+                    "customer_address" =>
+                        $item["customerAddress"] ?? null,
                     "subtotal" => $item["subtotal"] ?? 0,
                     "discount" => $item["discount"] ?? 0,
+                    "shipping" => $item["shipping"] ?? 0,
+                    "shipping_cost" => $item["shippingCost"] ?? null,
                     "total" => $item["total"] ?? 0,
                     "status" => $item["status"] ?? "pending",
+                    "shipping_status" => $item["shippingStatus"] ?? "pendiente",
                     "notes" => $item["notes"] ?? null,
+                    "delivery_date" => $this->emptyToNull($item["deliveryDate"] ?? null),
+                    "delivery_time_start" => $this->emptyToNull($item["deliveryTimeStart"] ?? null),
+                    "delivery_time_end" => $this->emptyToNull($item["deliveryTimeEnd"] ?? null),
+                    "location" => $this->emptyToNull($item["location"] ?? null),
+                    "needs_bracelet_adjustment" =>
+                        $item["needsBraceletAdjustment"] ?? false,
+                    "creation_date" => $this->emptyToNull($item["creationDate"] ?? null),
+                    "estimated_utility" => $item["estimatedUtility"] ?? null,
+                    "cedula" => $this->emptyToNull($item["cedula"] ?? null),
+                    "issued_at" => isset($item["createdAt"])
+                        ? $this->parseFirestoreTimestamp($item["createdAt"])
+                        : null,
                 ],
             );
+
+            if (isset($item["createdAt"])) {
+                $createdAt = $this->parseFirestoreTimestamp($item["createdAt"]);
+                $invoice->timestamps = false;
+                $invoice->created_at = $createdAt;
+                if (isset($item["updatedAt"])) {
+                    $invoice->updated_at = $this->parseFirestoreTimestamp($item["updatedAt"]);
+                }
+                $invoice->save();
+                $invoice->timestamps = true;
+            }
+
+            $this->importInvoiceItems($invoice, $item["items"] ?? []);
+            $this->importAbonos($invoice, $item["abonos"] ?? []);
+
             $count++;
         }
         return $count;
+    }
+
+    private function importInvoiceItems(Invoice $invoice, array $items): void
+    {
+        $invoice->items()->delete();
+        foreach ($items as $order => $item) {
+            $model = $item["model"] ?? null;
+            $product = $model
+                ? Product::where("modelo", $model)->first()
+                : null;
+
+            InvoiceItem::create([
+                "invoice_id" => $invoice->id,
+                "product_id" => $product->id ?? null,
+                "product_name" =>
+                    $item["name"] ?? "Producto {$item["model"]}",
+                "product_model" => $item["model"] ?? null,
+                "quantity" => $item["quantity"] ?? 1,
+                "unit_price" => $item["price"] ?? 0,
+                "subtotal" => $item["total"] ?? 0,
+            ]);
+        }
+    }
+
+    private function importAbonos(Invoice $invoice, array $abonos): void
+    {
+        $invoice->abonos()->delete();
+        foreach ($abonos as $abono) {
+            Abono::create([
+                "invoice_id" => $invoice->id,
+                "amount" => $abono["amount"] ?? 0,
+                "date" => isset($abono["date"])
+                    ? Carbon::parse($abono["date"])
+                    : null,
+                "note" => $abono["note"] ?? null,
+            ]);
+        }
+    }
+
+    private function emptyToNull(mixed $value): mixed
+    {
+        return ($value === "" || $value === "———") ? null : $value;
+    }
+
+    private function parseFirestoreTimestamp(array $ts): ?Carbon
+    {
+        if (!isset($ts["_seconds"])) {
+            return null;
+        }
+        return Carbon::createFromTimestamp($ts["_seconds"]);
     }
 
     private function importClients(array $data): int
     {
         $count = 0;
         foreach ($data as $item) {
-            Client::updateOrCreate(
+            $phone = $item["phone"] ?? ($item["telefono"] ?? null);
+
+            $client = Client::updateOrCreate(
                 [
-                    "email" =>
-                        $item["email"] ?? "" ?:
-                        "no-email-" . ($item["id"] ?? uniqid()),
+                    "phone" => $phone ?: "no-phone-" . ($item["id"] ?? uniqid()),
                 ],
                 [
                     "name" => $item["name"] ?? ($item["nombre"] ?? "Cliente"),
-                    "phone" => $item["phone"] ?? ($item["telefono"] ?? null),
+                    "email" => $this->emptyToNull($item["email"] ?? null),
+                    "address" => $this->emptyToNull($item["address"] ?? null),
                     "notes" => $item["notes"] ?? null,
                 ],
             );
+
+            if (isset($item["createdAt"])) {
+                $createdAt = $this->parseFirestoreTimestamp($item["createdAt"]);
+                $client->timestamps = false;
+                $client->created_at = $createdAt;
+                if (isset($item["updatedAt"])) {
+                    $client->updated_at = $this->parseFirestoreTimestamp($item["updatedAt"]);
+                }
+                $client->save();
+                $client->timestamps = true;
+            }
+
             $count++;
         }
         return $count;
