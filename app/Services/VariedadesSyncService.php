@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Product;
 use App\Models\SyncLog;
+use App\Models\SyncLogItem;
 use App\Services\InvictaWatchScraper;
 use App\Services\DeepseekTranslationService;
 use Illuminate\Support\Facades\Http;
@@ -49,9 +50,15 @@ class VariedadesSyncService
             $referenceUpdatedModels = [];
             $markedAgotadoModels = [];
 
+            $items = [];
+
             foreach ($stockData as $item) {
                 $modelKey = $this->extractModel($item["slug"] ?? "");
                 if (!$modelKey) {
+                    continue;
+                }
+
+                if ($this->isBlockedBySimilarModel($modelKey)) {
                     continue;
                 }
 
@@ -100,6 +107,7 @@ class VariedadesSyncService
                         ]);
                         $activatedCount++;
                         $activatedModels[] = $modelKey;
+                        $items[] = ['sync_log_id' => $log->id, 'type' => 'activated', 'modelo' => $modelKey, 'product_id' => $product->id];
                         continue;
                     }
 
@@ -113,6 +121,7 @@ class VariedadesSyncService
                         $updates["stock"] = $stockVal;
                         $stockChangedCount++;
                         $stockChangedModels[] = $modelKey;
+                        $items[] = ['sync_log_id' => $log->id, 'type' => 'stock_updated', 'modelo' => $modelKey, 'product_id' => $product->id];
                         $didChange = true;
                     }
 
@@ -128,11 +137,13 @@ class VariedadesSyncService
                         $updates["precio_original"] = $priceVal;
                         $priceRecalculatedCount++;
                         $priceRecalculatedModels[] = $modelKey;
+                        $items[] = ['sync_log_id' => $log->id, 'type' => 'price_recalculated', 'modelo' => $modelKey, 'product_id' => $product->id];
                         $didChange = true;
                     } elseif ($prevPrecioOriginal !== $priceVal) {
                         $updates["precio_original"] = $priceVal;
                         $referenceUpdatedCount++;
                         $referenceUpdatedModels[] = $modelKey;
+                        $items[] = ['sync_log_id' => $log->id, 'type' => 'reference_updated', 'modelo' => $modelKey, 'product_id' => $product->id];
                         $didChange = true;
                     }
 
@@ -166,7 +177,7 @@ class VariedadesSyncService
                         $descripcion = $translator->translateDescription($iwData);
                     }
 
-                    Product::create([
+                    $product = Product::create([
                         "modelo" => $modelKey,
                         "title" => $title,
                         "slug" => "invicta-" . strtolower($modelKey),
@@ -190,6 +201,7 @@ class VariedadesSyncService
                     ]);
                     $createdCount++;
                     $createdModels[] = $modelKey;
+                    $items[] = ['sync_log_id' => $log->id, 'type' => 'created', 'modelo' => $modelKey, 'product_id' => $product->id];
                 }
             }
 
@@ -199,11 +211,16 @@ class VariedadesSyncService
                     continue;
                 }
 
+                if ($this->isBlockedBySimilarModel($modelKey)) {
+                    continue;
+                }
+
                 $product = Product::where("modelo", $modelKey)->first();
                 if ($product && !$product->bloqueado && (int) $product->precio_venta > 0 && (int) $product->stock !== 0) {
                     $product->update(["stock" => 0]);
                     $markedAgotadoCount++;
                     $markedAgotadoModels[] = $modelKey;
+                    $items[] = ['sync_log_id' => $log->id, 'type' => 'marked_agotado', 'modelo' => $modelKey, 'product_id' => $product->id];
                 }
             }
 
@@ -221,6 +238,10 @@ class VariedadesSyncService
                 "marcados_agotados" => $markedAgotadoCount,
                 "marcados_agotados_modelos" => $markedAgotadoModels,
             ];
+
+            if (!empty($items)) {
+                SyncLogItem::insert($items);
+            }
 
             $parts = [];
             if ($createdCount > 0) $parts[] = "{$createdCount} creados";
@@ -252,6 +273,18 @@ class VariedadesSyncService
                 "error" => $e->getMessage(),
             ];
         }
+    }
+
+    private function isBlockedBySimilarModel(string $modelKey): bool
+    {
+        $numeric = preg_replace('/^[A-Za-z]+/', '', $modelKey);
+        if ($numeric === $modelKey) {
+            return false;
+        }
+
+        return Product::where('bloqueado', true)
+            ->where('modelo', $numeric)
+            ->exists();
     }
 
     private function roundUpToThousand(int $value): int

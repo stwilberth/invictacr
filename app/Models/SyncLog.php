@@ -11,4 +11,9 @@ class SyncLog extends Model
     protected $casts = [
         'details' => 'array',
     ];
+
+    public function items()
+    {
+        return $this->hasMany(SyncLogItem::class);
+    }
 }
