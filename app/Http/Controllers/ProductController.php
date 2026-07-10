@@ -7,45 +7,25 @@ use App\Models\SearchLog;
 use App\Services\SearchService;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Http\Response;
 
 class ProductController extends Controller
 {
-    public function liveSearch(Request $request): Response
+    public function liveSearch(Request $request)
     {
-        $q = trim($request->input('q', ''));
-
-        if (strlen($q) < 1) {
-            return response('', 200)->header('Content-Type', 'text/html');
-        }
-
-        $lower = mb_strtolower($q);
-
-        $products = Product::where('activo', true)
-            ->where('precio_venta', '>', 0)
-            ->where(function ($query) use ($lower) {
-                $query->whereRaw('LOWER(modelo) LIKE ?', ["{$lower}%"])
-                    ->orWhereRaw('LOWER(modelo) LIKE ?', ["%{$lower}%"])
-                    ->orWhereRaw('LOWER(coleccion) LIKE ?', ["%{$lower}%"])
-                    ->orWhereRaw('LOWER(title) LIKE ?', ["%{$lower}%"])
-                    ->orWhereRaw('LOWER(color) LIKE ?', ["%{$lower}%"]);
-            })
-            ->orderByRaw("
-                CASE WHEN LOWER(modelo) LIKE ? THEN 0
-                     WHEN LOWER(modelo) LIKE ? THEN 1
-                     WHEN LOWER(coleccion) LIKE ? THEN 2
-                     ELSE 3 END,
-                precio_venta ASC
-            ", ["{$lower}%", "%{$lower}%", "{$lower}%"])
-            ->take(24)
-            ->get();
+        // Reuse the same query builder as the main catalog
+        $products = $this->runSearchQuery($request);
 
         $html = '';
         foreach ($products as $product) {
             $html .= view('components.product-card', compact('product'))->render();
         }
 
-        return response($html, 200)->header('Content-Type', 'text/html');
+        return response()->json([
+            'html' => $html,
+            'total' => $products->total(),
+            'currentPage' => $products->currentPage(),
+            'totalPages' => $products->lastPage(),
+        ]);
     }
 
     public function index(Request $request)

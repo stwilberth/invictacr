@@ -1,15 +1,15 @@
 @props(['idPrefix' => 'desktop', 'className' => ''])
 
 <div class="relative {{ $className }}">
-    <form action="/relojes" method="GET" class="flex items-center gap-0" onsubmit="this.querySelector('button[type=submit]').disabled = true">
+    <form action="/relojes" method="GET" class="flex items-center gap-0 navbar-search-form" onsubmit="return handleNavbarSearch(event, this)">
         <div class="relative flex-1">
             <input type="text"
                    name="q"
                    value="{{ request('q') }}"
                    placeholder="Buscar relojes..."
-                   class="w-full bg-white/10 text-white placeholder-gray-400 rounded-l-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#00C4FF]/50 border border-white/10 pr-8" />
+                   class="w-full bg-white/10 text-white placeholder-gray-400 rounded-l-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#00C4FF]/50 border border-white/10 pr-8 navbar-search-input" />
             @if(request('q'))
-            <button type="button" onclick="window.location.href='/relojes'" class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors">
+            <button type="button" onclick="clearNavbarSearch(this)" class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
             </button>
             @endif
@@ -19,3 +19,36 @@
         </button>
     </form>
 </div>
+
+@pushOnce('scripts')
+<script>
+    /**
+     * If we're on /relojes, intercept navbar search and delegate to CatalogManager.
+     * Otherwise, let it navigate normally.
+     */
+    function handleNavbarSearch(event, form) {
+        if (window.CatalogManager && window.location.pathname === '/relojes') {
+            event.preventDefault();
+            var input = form.querySelector('input[name="q"]');
+            var q = input ? input.value.trim() : '';
+            window.CatalogManager.setFilter('q', q);
+            return false;
+        }
+        // Not on /relojes — allow normal form submission (GET /relojes?q=...)
+        return true;
+    }
+
+    function clearNavbarSearch(btn) {
+        var form = btn.closest('form');
+        var input = form ? form.querySelector('input[name="q"]') : null;
+        if (input) input.value = '';
+        if (btn) btn.style.display = 'none';
+
+        if (window.CatalogManager && window.location.pathname === '/relojes') {
+            window.CatalogManager.setFilter('q', '');
+        } else {
+            window.location.href = '/relojes';
+        }
+    }
+</script>
+@endPushOnce

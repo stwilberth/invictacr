@@ -14,28 +14,28 @@
             />
 
             <div class="max-w-2xl mx-auto mb-6 -mt-2">
-                <form action="/relojes" method="GET" class="flex gap-2" onsubmit="this.querySelector('button[type=submit]').disabled = true">
+                <div class="flex gap-2">
                     <div class="relative flex-1">
                         <input
-                            id="live-search-input"
+                            id="catalog-search-input"
                             type="text"
-                            name="q"
                             value="{{ $searchQuery ?? request('q') }}"
                             placeholder="Escribí un modelo o colección..."
                             class="w-full px-4 py-2.5 bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-[#00C4FF]/50 focus:ring-2 focus:ring-[#00C4FF]/20 transition-all text-sm pr-10"
                             autocomplete="off"
                         />
-                        <button type="button" onclick="clearLiveSearch()" id="live-search-clear" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors" style="{{ ($searchQuery ?? request('q')) ? '' : 'display:none' }}">
+                        <button type="button" id="catalog-search-clear" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors" style="{{ ($searchQuery ?? request('q')) ? '' : 'display:none' }}">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                         </button>
                     </div>
                     <button
-                        type="submit"
+                        type="button"
+                        id="catalog-search-btn"
                         class="px-5 py-2.5 bg-[#00C4FF] hover:bg-[#00a0cc] text-white font-bold uppercase tracking-wider rounded-xl transition-all active:scale-95 text-sm flex items-center gap-1.5"
                     >
                         <i class="fa-solid fa-search"></i>
                     </button>
-                </form>
+                </div>
             </div>
 
             <div class="flex flex-col md:flex-row gap-8 pb-12" x-data="{ filterOpen: false }">
@@ -72,49 +72,11 @@
                 </aside>
 
                 <div class="flex-1 min-w-0">
-                    @php
-                        $activeFilters = [];
-                        if (request('color')) $activeFilters[] = ['key' => 'color', 'label' => 'Color: ' . ucfirst(request('color'))];
-                        if (request('tipo_movimiento')) $activeFilters[] = ['key' => 'tipo_movimiento', 'label' => 'Movimiento: ' . (request('tipo_movimiento') === 'cuarzo' ? 'Batería' : ucfirst(request('tipo_movimiento')))];
-                        if (request('size')) $activeFilters[] = ['key' => 'size', 'label' => 'Tamaño: ' . request('size') . 'mm'];
-                        if (request('precio_min')) $activeFilters[] = ['key' => 'precio_min', 'label' => 'Desde: ₡' . number_format((int)request('precio_min'), 0)];
-                        if (request('precio_max')) $activeFilters[] = ['key' => 'precio_max', 'label' => 'Hasta: ₡' . number_format((int)request('precio_max'), 0)];
-                        if (request('sort') && request('sort') !== 'newest') {
-                            $sortLabels = ['price_asc' => 'Menor precio', 'price_desc' => 'Mayor precio', 'name_asc' => 'A-Z', 'name_desc' => 'Z-A'];
-                            $activeFilters[] = ['key' => 'sort', 'label' => 'Orden: ' . ($sortLabels[request('sort')] ?? request('sort'))];
-                        }
-                        if (request('q')) $activeFilters[] = ['key' => 'q', 'label' => 'Búsqueda: "' . request('q') . '"'];
-                        $hasActiveFilters = count($activeFilters) > 0;
-                    @endphp
+                    {{-- Results info bar --}}
+                    <div id="catalog-results-info"></div>
 
-                    @if($searchQuery)
-                    <div class="mb-4 flex items-center justify-between">
-                        <span class="text-sm text-gray-500 dark:text-gray-400 font-medium">
-                            {{ $products->total() }} {{ $products->total() === 1 ? 'resultado' : 'resultados' }} para <strong class="text-gray-800 dark:text-white">"{{ $searchQuery }}"</strong>
-                        </span>
-                        <a href="/relojes" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 rounded-lg text-xs font-bold hover:bg-red-100 dark:hover:bg-red-900/40 transition-all">
-                            <i class="fa-solid fa-xmark text-[10px]"></i>
-                            Limpiar búsqueda
-                        </a>
-                    </div>
-                    @endif
-
-                    @if($hasActiveFilters)
-                    <div class="flex flex-wrap items-center gap-1.5 mb-4">
-                        @foreach($activeFilters as $filter)
-                        <div class="inline-flex items-center bg-[#00C4FF]/10 text-[#00C4FF] px-2.5 py-1 rounded-full text-xs font-medium border border-[#00C4FF]/20">
-                            <span>{{ $filter['label'] }}</span>
-                            <button onclick="removeFilter('{{ $filter['key'] }}')" class="ml-1.5 hover:text-[#00a0cc]">
-                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" /></svg>
-                        </button>
-                        </div>
-                        @endforeach
-                        <a href="/relojes" class="inline-flex items-center gap-1 px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-full text-xs font-bold hover:bg-gray-200 dark:hover:bg-gray-600 transition-all">
-                            <i class="fa-solid fa-xmark text-[10px]"></i>
-                            Limpiar todo
-                        </a>
-                    </div>
-                    @endif
+                    {{-- Active filters chips --}}
+                    <div id="catalog-active-filters"></div>
 
                     @if($products->count() > 0)
                     <div
@@ -152,7 +114,7 @@
                     </nav>
                     @endif
                     @else
-                    <div class="text-center py-20">
+                    <div id="catalog-empty-state" class="text-center py-20">
                         <i class="fa-solid fa-search text-4xl text-gray-300 dark:text-gray-600 mb-4"></i>
                         <h3 class="text-xl font-bold text-gray-500 dark:text-gray-400">No se encontraron productos</h3>
                         <p class="text-gray-400 dark:text-gray-500 mt-2">Intenta con otros filtros o categorías</p>
@@ -165,184 +127,473 @@
 
     @push('scripts')
     <script>
-        window.closeFilters = function() {
-            const aside = document.querySelector('aside[x-show="filterOpen"]');
-            if (aside && window.Alpine) {
-                const el = aside.closest('[x-data]');
-                if (el && el._x_dataStack) el._x_dataStack[0].filterOpen = false;
+        /**
+         * CatalogManager — Single Source of Truth for search & filters.
+         *
+         * All filter/search state lives in the URL query params.
+         * Every interaction updates params → fetches results → updates DOM.
+         */
+        (function() {
+            'use strict';
+
+            var FILTER_KEYS = ['q', 'gender', 'color', 'coleccion', 'brazalete', 'tipo_movimiento', 'caja', 'resistencia_agua', 'size', 'precio_min', 'precio_max', 'sort'];
+            var DEBOUNCE_MS = 300;
+
+            var state = {
+                abortController: null,
+                searchTimer: null,
+                infiniteObserver: null,
+                infinitePage: 1,
+                totalPages: 1,
+                isLoadingMore: false,
+                allLoaded: false,
+            };
+
+            // ─── DOM refs ───
+            var els = {};
+            function cacheEls() {
+                els.searchInput = document.getElementById('catalog-search-input');
+                els.searchClear = document.getElementById('catalog-search-clear');
+                els.searchBtn = document.getElementById('catalog-search-btn');
+                els.grid = document.getElementById('products-grid');
+                els.sentinel = document.getElementById('infinite-scroll-sentinel');
+                els.paginationNav = document.getElementById('pagination-nav');
+                els.resultsInfo = document.getElementById('catalog-results-info');
+                els.activeFilters = document.getElementById('catalog-active-filters');
+                els.emptyState = document.getElementById('catalog-empty-state');
             }
-            document.body.style.overflow = '';
-        };
 
-        document.addEventListener("DOMContentLoaded", function() {
-            window.removeFilter = function(filterKey) {
-                const url = new URL(window.location.href);
-                url.searchParams.delete(filterKey);
-                if (filterKey === 'sort') url.searchParams.set('sort', 'newest');
-                window.location.href = url.pathname + url.search;
-            };
+            // ─── Read state from URL ───
+            function getFiltersFromURL() {
+                var url = new URL(window.location.href);
+                var filters = {};
+                FILTER_KEYS.forEach(function(key) {
+                    var val = url.searchParams.get(key);
+                    if (val) filters[key] = val;
+                });
+                return filters;
+            }
 
-            window.clearAllFilters = function() {
-                window.location.href = window.location.pathname;
-            };
+            // ─── Build URL from filters ───
+            function buildURL(filters, page) {
+                var url = new URL(window.location.origin + '/relojes');
+                Object.keys(filters).forEach(function(key) {
+                    if (filters[key]) url.searchParams.set(key, filters[key]);
+                });
+                if (page && page > 1) url.searchParams.set('page', String(page));
+                return url;
+            }
 
-            window.clearLiveSearch = null;
+            // ─── Core: apply filters and fetch ───
+            function applyFilters(filters, pushHistory) {
+                if (state.abortController) state.abortController.abort();
+                state.abortController = new AbortController();
 
-            (function() {
-                const input = document.getElementById('live-search-input');
-                const clearBtn = document.getElementById('live-search-clear');
-                const grid = document.getElementById('products-grid');
-                if (!input || !grid) return;
+                var url = buildURL(filters);
 
-                window.clearLiveSearch = async function() {
-                    if (input) { input.value = ''; input.focus(); }
-                    if (clearBtn) clearBtn.style.display = 'none';
+                // Update browser URL
+                if (pushHistory !== false) {
+                    var urlStr = url.pathname + url.search;
+                    window.history.pushState({ catalogFilters: filters }, '', urlStr);
+                }
 
-                    try {
-                        const res = await fetch('/relojes');
-                        const html = await res.text();
-                        const parser = new DOMParser();
-                        const doc = parser.parseFromString(html, 'text/html');
-                        const newGrid = doc.getElementById('products-grid');
-                        if (newGrid) {
-                            const existingCount = document.getElementById('live-results-count');
-                            if (existingCount) existingCount.remove();
-                            grid.innerHTML = newGrid.innerHTML;
-                            grid.dataset.currentPage = '1';
-                            grid.dataset.totalPages = newGrid.dataset.totalPages || '1';
-                        }
-                        window.history.replaceState(null, '', '/relojes');
-                    } catch (e) {
-                        window.location.href = '/relojes';
-                    }
-                };
+                // Update search input to reflect current q
+                if (els.searchInput) {
+                    els.searchInput.value = filters.q || '';
+                    els.searchClear.style.display = filters.q ? '' : 'none';
+                }
 
-                let timer = null;
-                let lastQuery = input.value.trim();
-                let abortController = null;
+                // Show loading state
+                if (els.grid) {
+                    els.grid.style.opacity = '0.5';
+                    els.grid.style.pointerEvents = 'none';
+                }
 
-                input.addEventListener('input', function() {
-                    const q = this.value.trim();
-                    clearBtn.style.display = q ? '' : 'none';
-
-                    if (q === lastQuery) return;
-                    if (timer) clearTimeout(timer);
-
-                    if (q.length < 1) {
-                        window.location.href = '/relojes';
-                        return;
-                    }
-
-                    timer = setTimeout(function() { doLiveSearch(q); }, 200);
+                // Build fetch URL with all params
+                var fetchUrl = new URL(window.location.origin + '/api/live-search');
+                Object.keys(filters).forEach(function(key) {
+                    if (filters[key]) fetchUrl.searchParams.set(key, filters[key]);
                 });
 
-                async function doLiveSearch(q) {
-                    if (abortController) abortController.abort();
-                    abortController = new AbortController();
-
-                    try {
-                        const res = await fetch('/api/live-search?q=' + encodeURIComponent(q), { signal: abortController.signal });
-                        if (!res.ok) return;
-                        const html = await res.text();
-                        lastQuery = q;
-
-                        const sentinel = document.getElementById('infinite-scroll-sentinel');
-                        const pagNav = document.getElementById('pagination-nav');
-                        if (sentinel) sentinel.innerHTML = '';
-                        if (pagNav) pagNav.style.display = 'none';
-
-                        const existingCount = document.getElementById('live-results-count');
-                        if (existingCount) existingCount.remove();
-
-                        if (!html.trim()) {
-                            grid.innerHTML = '<div class="col-span-full text-center py-16"><i class="fa-solid fa-search text-4xl text-gray-300 dark:text-gray-600 mb-4"></i><p class="text-lg font-semibold text-gray-500 dark:text-gray-400">No se encontraron relojes</p><p class="text-sm text-gray-400 mt-1">Intenta con otro término</p></div>';
-                            return;
-                        }
-
-                        const temp = document.createElement('div');
-                        temp.innerHTML = html;
-                        const count = temp.children.length;
-                        const countDiv = document.createElement('div');
-                        countDiv.id = 'live-results-count';
-                        countDiv.className = 'mb-4';
-                        countDiv.innerHTML = '<span class="text-sm text-gray-500 dark:text-gray-400 font-medium">' + count + ' resultado' + (count !== 1 ? 's' : '') + ' para <strong class="text-gray-800 dark:text-white">\u201c' + escapeHtml(q) + '\u201d</strong></span>';
-                        grid.parentElement.insertBefore(countDiv, grid);
-
-                        grid.innerHTML = html;
-                        window.history.replaceState(null, '', '/relojes?q=' + encodeURIComponent(q));
-                    } catch (e) {
-                        if (e.name !== 'AbortError') console.error('Live search error:', e);
-                    }
-                }
-
-                function escapeHtml(t) {
-                    var d = document.createElement('div');
-                    d.appendChild(document.createTextNode(t || ''));
-                    return d.innerHTML;
-                }
-            })();
-
-            initInfiniteScroll();
-
-            function initInfiniteScroll() {
-                const grid = document.getElementById("products-grid");
-                const sentinel = document.getElementById("infinite-scroll-sentinel");
-                const paginationNav = document.getElementById("pagination-nav");
-
-                if (!grid || !sentinel) return;
-
-                const currentPage = parseInt(grid.dataset.currentPage || "1");
-                const totalPages = parseInt(grid.dataset.totalPages || "1");
-
-                if (totalPages <= 1) return;
-
-                let page = currentPage;
-                let isLoading = false;
-                let allLoaded = false;
-
-                if (paginationNav) {
-                    setTimeout(function() { paginationNav.style.display = "none"; }, 100);
-                }
-
-                const observer = new IntersectionObserver(async function(entries) {
-                    for (const entry of entries) {
-                        if (entry.isIntersecting && !isLoading && !allLoaded) {
-                            isLoading = true;
-                            sentinel.innerHTML = '<div class="flex justify-center py-4"><div class="w-8 h-8 border-2 border-[#00C4FF] border-t-transparent rounded-full animate-spin"></div></div>';
-                            page++;
-
-                            if (page > totalPages) {
-                                allLoaded = true;
-                                sentinel.innerHTML = '<p class="text-center text-sm text-gray-500 dark:text-gray-400 py-4">— Has visto todos los relojes —</p>';
-                                observer.unobserve(sentinel);
-                                isLoading = false;
-                                return;
+                fetch(fetchUrl.toString(), { signal: state.abortController.signal })
+                    .then(function(res) {
+                        if (!res.ok) throw new Error('Fetch failed');
+                        return res.json();
+                    })
+                    .then(function(data) {
+                        renderResults(data, filters);
+                    })
+                    .catch(function(e) {
+                        if (e.name !== 'AbortError') {
+                            console.error('CatalogManager fetch error:', e);
+                            if (els.grid) {
+                                els.grid.style.opacity = '1';
+                                els.grid.style.pointerEvents = '';
                             }
-
-                            try {
-                                const url = new URL(window.location.href);
-                                url.searchParams.set("page", String(page));
-                                const fetchUrl = new URL(url.toString());
-                                fetchUrl.searchParams.set("partial", "true");
-                                const res = await fetch(fetchUrl.toString());
-                                if (!res.ok) throw new Error("Failed to fetch");
-                                const html = await res.text();
-                                grid.insertAdjacentHTML("beforeend", html);
-                                window.history.replaceState(null, "", url.pathname + url.search);
-                                sentinel.innerHTML = "";
-                            } catch (e) {
-                                console.error("Infinite scroll error:", e);
-                                sentinel.innerHTML = '<p class="text-center text-sm text-red-500 py-4">Error al cargar más productos</p>';
-                            }
-
-                            isLoading = false;
                         }
-                    }
-                }, { rootMargin: "400px", threshold: 0 });
-
-                observer.observe(sentinel);
+                    });
             }
-        });
+
+            // ─── Render results ───
+            function renderResults(data, filters) {
+                // Ensure grid exists
+                if (!els.grid) {
+                    // Create grid if it was removed (was showing empty state)
+                    var container = document.querySelector('.flex-1.min-w-0');
+                    if (!container) return;
+
+                    // Remove empty state if present
+                    var emptyEl = document.getElementById('catalog-empty-state');
+                    if (emptyEl) emptyEl.remove();
+
+                    // Create grid
+                    var gridDiv = document.createElement('div');
+                    gridDiv.id = 'products-grid';
+                    gridDiv.className = 'grid grid-cols-2 md:grid-cols-4 gap-4';
+                    container.appendChild(gridDiv);
+
+                    // Create sentinel
+                    var sentinelDiv = document.createElement('div');
+                    sentinelDiv.id = 'infinite-scroll-sentinel';
+                    sentinelDiv.className = 'mt-8 mb-6';
+                    container.appendChild(sentinelDiv);
+
+                    cacheEls();
+                }
+
+                if (data.html && data.html.trim()) {
+                    els.grid.innerHTML = data.html;
+                    els.grid.style.opacity = '1';
+                    els.grid.style.pointerEvents = '';
+                    els.grid.dataset.currentPage = String(data.currentPage);
+                    els.grid.dataset.totalPages = String(data.totalPages);
+
+                    // Remove empty state if present
+                    var emptyEl2 = document.getElementById('catalog-empty-state');
+                    if (emptyEl2) emptyEl2.remove();
+                } else {
+                    els.grid.innerHTML = '<div class="col-span-full text-center py-20"><i class="fa-solid fa-search text-4xl text-gray-300 dark:text-gray-600 mb-4"></i><h3 class="text-xl font-bold text-gray-500 dark:text-gray-400">No se encontraron productos</h3><p class="text-gray-400 dark:text-gray-500 mt-2">Intenta con otros filtros o categorías</p></div>';
+                    els.grid.style.opacity = '1';
+                    els.grid.style.pointerEvents = '';
+                }
+
+                // Update results info
+                renderResultsInfo(data.total, filters);
+
+                // Update active filter chips
+                renderActiveFilters(filters);
+
+                // Hide pagination (we use infinite scroll)
+                if (els.paginationNav) els.paginationNav.style.display = 'none';
+
+                // Reset infinite scroll
+                state.infinitePage = data.currentPage || 1;
+                state.totalPages = data.totalPages || 1;
+                state.allLoaded = state.infinitePage >= state.totalPages;
+                state.isLoadingMore = false;
+
+                if (els.sentinel) {
+                    els.sentinel.innerHTML = state.allLoaded && data.total > 0 ? '' : '';
+                }
+
+                initInfiniteScroll();
+
+                // Close mobile drawer
+                if (window.closeFilters) window.closeFilters();
+            }
+
+            // ─── Results info bar ───
+            function renderResultsInfo(total, filters) {
+                if (!els.resultsInfo) return;
+
+                if (filters.q) {
+                    els.resultsInfo.innerHTML = '<div class="mb-4 flex items-center justify-between">' +
+                        '<span class="text-sm text-gray-500 dark:text-gray-400 font-medium">' +
+                        total + ' ' + (total === 1 ? 'resultado' : 'resultados') +
+                        ' para <strong class="text-gray-800 dark:text-white">"' + escapeHtml(filters.q) + '"</strong></span>' +
+                        '<button onclick="window.CatalogManager.setFilter(\'q\', \'\')" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 rounded-lg text-xs font-bold hover:bg-red-100 dark:hover:bg-red-900/40 transition-all">' +
+                        '<i class="fa-solid fa-xmark text-[10px]"></i> Limpiar búsqueda</button></div>';
+                } else {
+                    els.resultsInfo.innerHTML = '';
+                }
+            }
+
+            // ─── Active filter chips ───
+            function renderActiveFilters(filters) {
+                if (!els.activeFilters) return;
+
+                var chips = [];
+                var sortLabels = { price_asc: 'Menor precio', price_desc: 'Mayor precio', name_asc: 'A-Z', name_desc: 'Z-A' };
+
+                if (filters.gender) chips.push({ key: 'gender', label: 'Género: ' + capitalize(filters.gender) });
+                if (filters.color) chips.push({ key: 'color', label: 'Color: ' + capitalize(filters.color) });
+                if (filters.coleccion) chips.push({ key: 'coleccion', label: 'Colección: ' + capitalize(filters.coleccion) });
+                if (filters.brazalete) chips.push({ key: 'brazalete', label: 'Brazalete: ' + capitalize(filters.brazalete) });
+                if (filters.tipo_movimiento) chips.push({ key: 'tipo_movimiento', label: 'Movimiento: ' + (filters.tipo_movimiento === 'cuarzo' ? 'Batería' : capitalize(filters.tipo_movimiento)) });
+                if (filters.caja) chips.push({ key: 'caja', label: 'Caja: ' + capitalize(filters.caja) });
+                if (filters.resistencia_agua) chips.push({ key: 'resistencia_agua', label: 'Resistencia: ' + filters.resistencia_agua + 'M' });
+                if (filters.size) chips.push({ key: 'size', label: 'Tamaño: ' + filters.size + 'mm' });
+                if (filters.precio_min) chips.push({ key: 'precio_min', label: 'Desde: ₡' + Number(filters.precio_min).toLocaleString('es-CR') });
+                if (filters.precio_max) chips.push({ key: 'precio_max', label: 'Hasta: ₡' + Number(filters.precio_max).toLocaleString('es-CR') });
+                if (filters.sort && filters.sort !== 'newest') chips.push({ key: 'sort', label: 'Orden: ' + (sortLabels[filters.sort] || filters.sort) });
+
+                if (chips.length === 0) {
+                    els.activeFilters.innerHTML = '';
+                    return;
+                }
+
+                var html = '<div class="flex flex-wrap items-center gap-1.5 mb-4">';
+                chips.forEach(function(chip) {
+                    html += '<div class="inline-flex items-center bg-[#00C4FF]/10 text-[#00C4FF] px-2.5 py-1 rounded-full text-xs font-medium border border-[#00C4FF]/20">' +
+                        '<span>' + escapeHtml(chip.label) + '</span>' +
+                        '<button onclick="window.CatalogManager.removeFilter(\'' + chip.key + '\')" class="ml-1.5 hover:text-[#00a0cc]">' +
+                        '<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" /></svg>' +
+                        '</button></div>';
+                });
+                html += '<button onclick="window.CatalogManager.clearAll()" class="inline-flex items-center gap-1 px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-full text-xs font-bold hover:bg-gray-200 dark:hover:bg-gray-600 transition-all">' +
+                    '<i class="fa-solid fa-xmark text-[10px]"></i> Limpiar todo</button>';
+                html += '</div>';
+
+                els.activeFilters.innerHTML = html;
+            }
+
+            // ─── Infinite scroll ───
+            function initInfiniteScroll() {
+                // Tear down previous observer
+                if (state.infiniteObserver) {
+                    state.infiniteObserver.disconnect();
+                    state.infiniteObserver = null;
+                }
+
+                if (!els.grid || !els.sentinel) return;
+                if (state.totalPages <= 1) return;
+
+                state.infiniteObserver = new IntersectionObserver(function(entries) {
+                    entries.forEach(function(entry) {
+                        if (entry.isIntersecting && !state.isLoadingMore && !state.allLoaded) {
+                            loadNextPage();
+                        }
+                    });
+                }, { rootMargin: '400px', threshold: 0 });
+
+                state.infiniteObserver.observe(els.sentinel);
+            }
+
+            function loadNextPage() {
+                state.isLoadingMore = true;
+                state.infinitePage++;
+
+                if (state.infinitePage > state.totalPages) {
+                    state.allLoaded = true;
+                    state.isLoadingMore = false;
+                    if (els.sentinel) els.sentinel.innerHTML = '<p class="text-center text-sm text-gray-500 dark:text-gray-400 py-4">— Has visto todos los relojes —</p>';
+                    return;
+                }
+
+                if (els.sentinel) {
+                    els.sentinel.innerHTML = '<div class="flex justify-center py-4"><div class="w-8 h-8 border-2 border-[#00C4FF] border-t-transparent rounded-full animate-spin"></div></div>';
+                }
+
+                var filters = getFiltersFromURL();
+                var fetchUrl = new URL(window.location.origin + '/relojes');
+                Object.keys(filters).forEach(function(key) {
+                    if (filters[key]) fetchUrl.searchParams.set(key, filters[key]);
+                });
+                fetchUrl.searchParams.set('page', String(state.infinitePage));
+                fetchUrl.searchParams.set('partial', 'true');
+
+                fetch(fetchUrl.toString())
+                    .then(function(res) {
+                        if (!res.ok) throw new Error('Failed to fetch');
+                        return res.text();
+                    })
+                    .then(function(html) {
+                        if (els.grid) els.grid.insertAdjacentHTML('beforeend', html);
+                        if (els.sentinel) els.sentinel.innerHTML = '';
+
+                        // Update browser URL with current page
+                        var url = new URL(window.location.href);
+                        url.searchParams.set('page', String(state.infinitePage));
+                        window.history.replaceState(null, '', url.pathname + url.search);
+                    })
+                    .catch(function(e) {
+                        console.error('Infinite scroll error:', e);
+                        if (els.sentinel) els.sentinel.innerHTML = '<p class="text-center text-sm text-red-500 py-4">Error al cargar más productos</p>';
+                    })
+                    .finally(function() {
+                        state.isLoadingMore = false;
+                    });
+            }
+
+            // ─── Sync filter UI (radios) across desktop and mobile forms ───
+            function syncFilterUI(key, value) {
+                // Sync radios: find all radios for this filter key in both forms
+                var radioNames = [key + '_filter-form', key + '_filter-form-mobile'];
+                radioNames.forEach(function(name) {
+                    var radios = document.querySelectorAll('input[name="' + name + '"]');
+                    radios.forEach(function(radio) {
+                        radio.checked = (radio.value === (value || ''));
+                    });
+                });
+
+                // Sync price inputs
+                if (key === 'precio_min' || key === 'precio_max') {
+                    ['filter-form', 'filter-form-mobile'].forEach(function(formId) {
+                        var input = document.getElementById(key + '_' + formId);
+                        if (input) input.value = value || '';
+                    });
+                }
+            }
+
+            // ─── Utilities ───
+            function escapeHtml(t) {
+                var d = document.createElement('div');
+                d.appendChild(document.createTextNode(t || ''));
+                return d.innerHTML;
+            }
+
+            function capitalize(s) {
+                return s ? s.charAt(0).toUpperCase() + s.slice(1) : '';
+            }
+
+            // ─── Public API ───
+            window.CatalogManager = {
+                setFilter: function(key, value) {
+                    var filters = getFiltersFromURL();
+
+                    if (value) {
+                        filters[key] = value;
+                    } else {
+                        delete filters[key];
+                    }
+
+                    // When setting a specific filter, remove page to reset pagination
+                    delete filters.page;
+
+                    // Sync the filter UI (radios, inputs) in both forms
+                    syncFilterUI(key, value);
+
+                    // For search input, use debounce
+                    if (key === 'q') {
+                        if (els.searchInput && els.searchInput.value !== (value || '')) {
+                            els.searchInput.value = value || '';
+                        }
+                        if (els.searchClear) els.searchClear.style.display = value ? '' : 'none';
+
+                        if (state.searchTimer) clearTimeout(state.searchTimer);
+                        state.searchTimer = setTimeout(function() {
+                            applyFilters(filters);
+                        }, DEBOUNCE_MS);
+                    } else {
+                        applyFilters(filters);
+                    }
+                },
+
+                removeFilter: function(key) {
+                    this.setFilter(key, '');
+                },
+
+                clearAll: function() {
+                    // Reset all filter UI
+                    FILTER_KEYS.forEach(function(key) {
+                        syncFilterUI(key, '');
+                    });
+                    applyFilters({});
+                },
+
+                /** Programmatic re-search (used by navbar) */
+                search: function(q) {
+                    this.setFilter('q', q);
+                }
+            };
+
+            // ─── Handle browser back/forward ───
+            window.addEventListener('popstate', function() {
+                var filters = getFiltersFromURL();
+
+                // Sync all filter UI
+                FILTER_KEYS.forEach(function(key) {
+                    syncFilterUI(key, filters[key] || '');
+                });
+
+                applyFilters(filters, false);
+            });
+
+            // ─── Init ───
+            document.addEventListener('DOMContentLoaded', function() {
+                cacheEls();
+
+                // Close filters helper
+                window.closeFilters = function() {
+                    var aside = document.querySelector('aside[x-show="filterOpen"]');
+                    if (aside && window.Alpine) {
+                        var el = aside.closest('[x-data]');
+                        if (el && el._x_dataStack) el._x_dataStack[0].filterOpen = false;
+                    }
+                    document.body.style.overflow = '';
+                };
+
+                // Search input events
+                if (els.searchInput) {
+                    els.searchInput.addEventListener('input', function() {
+                        var q = this.value.trim();
+                        window.CatalogManager.setFilter('q', q);
+                    });
+
+                    els.searchInput.addEventListener('keydown', function(e) {
+                        if (e.key === 'Enter') {
+                            e.preventDefault();
+                            if (state.searchTimer) clearTimeout(state.searchTimer);
+                            var filters = getFiltersFromURL();
+                            filters.q = this.value.trim() || undefined;
+                            if (!filters.q) delete filters.q;
+                            delete filters.page;
+                            applyFilters(filters);
+                        }
+                    });
+                }
+
+                // Clear search button
+                if (els.searchClear) {
+                    els.searchClear.addEventListener('click', function() {
+                        window.CatalogManager.setFilter('q', '');
+                    });
+                }
+
+                // Search button (magnifier)
+                if (els.searchBtn) {
+                    els.searchBtn.addEventListener('click', function() {
+                        if (state.searchTimer) clearTimeout(state.searchTimer);
+                        var filters = getFiltersFromURL();
+                        var q = els.searchInput ? els.searchInput.value.trim() : '';
+                        if (q) { filters.q = q; } else { delete filters.q; }
+                        delete filters.page;
+                        applyFilters(filters);
+                    });
+                }
+
+                // Render initial active filters and results info from server-rendered state
+                var initialFilters = getFiltersFromURL();
+                renderActiveFilters(initialFilters);
+
+                @if($searchQuery)
+                renderResultsInfo({{ $products->total() }}, { q: {!! json_encode($searchQuery) !!} });
+                @endif
+
+                // Init infinite scroll for server-rendered page
+                if (els.grid) {
+                    state.infinitePage = parseInt(els.grid.dataset.currentPage || '1');
+                    state.totalPages = parseInt(els.grid.dataset.totalPages || '1');
+                    state.allLoaded = state.infinitePage >= state.totalPages;
+                }
+
+                if (els.paginationNav) {
+                    setTimeout(function() { els.paginationNav.style.display = 'none'; }, 100);
+                }
+
+                initInfiniteScroll();
+            });
+        })();
     </script>
     @endpush
 </x-app-layout>
