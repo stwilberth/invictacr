@@ -7,12 +7,9 @@
 
 @php
     $isMobile = str_ends_with($formId, '-mobile');
-    // Auto-open the section that has an active filter so the user sees their selection
     $activeSection = null;
     if (request('gender') || $gender) $activeSection = "'gender'";
     elseif (request('color')) $activeSection = "'color'";
-    elseif (request('brazalete')) $activeSection = "'brazalete'";
-    elseif (request('coleccion')) $activeSection = "'coleccion'";
     elseif (request('tipo_movimiento')) $activeSection = "'movimiento'";
     elseif (request('size')) $activeSection = "'size'";
     elseif (request('precio_min') || request('precio_max')) $activeSection = "'precio'";
@@ -33,10 +30,8 @@
         <input type="hidden" name="sort" value="{{ request('sort') }}" />
     @endif
 
-    {{-- Gender filter --}}
-    @php
-        $currentGender = request('gender') ?: $gender;
-    @endphp
+    {{-- Gender --}}
+    @php $currentGender = request('gender') ?: $gender; @endphp
     <div class="mb-2">
         <button type="button" @click="openSection = openSection === 'gender' ? null : 'gender'" class="w-full flex items-center justify-between text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider py-2">
             <span>Género</span>
@@ -56,8 +51,8 @@
         </div>
     </div>
 
-    {{-- Color filter --}}
-    @if($filters['colors']->count() > 0)
+    {{-- Color --}}
+    @if(isset($filters['colors']) && $filters['colors']->count() > 0)
     <div class="mb-2">
         <button type="button" @click="openSection = openSection === 'color' ? null : 'color'" class="w-full flex items-center justify-between text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider py-2">
             <span>Color</span>
@@ -78,52 +73,8 @@
     </div>
     @endif
 
-    {{-- Brazalete filter --}}
-    @if($filters['brazaletes']->count() > 0)
-    <div class="mb-2">
-        <button type="button" @click="openSection = openSection === 'brazalete' ? null : 'brazalete'" class="w-full flex items-center justify-between text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider py-2">
-            <span>Brazalete</span>
-            <i class="fa-solid fa-chevron-down text-[10px] transition-transform" :class="{ 'rotate-180': openSection === 'brazalete' }"></i>
-        </button>
-        <div x-show="openSection === 'brazalete'" x-cloak class="space-y-1 pb-2">
-            <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
-                <input type="radio" name="brazalete" value="" {{ !request('brazalete') ? 'checked' : '' }} onchange="document.getElementById('{{ $formId }}').submit()" class="text-[#00C4FF]">
-                <span>Todos</span>
-            </label>
-            @foreach($filters['brazaletes'] as $brazalete)
-            <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
-                <input type="radio" name="brazalete" value="{{ $brazalete }}" {{ strtolower(request('brazalete')) === strtolower($brazalete) ? 'checked' : '' }} onchange="document.getElementById('{{ $formId }}').submit()" class="text-[#00C4FF]">
-                <span>{{ ucfirst($brazalete) }}</span>
-            </label>
-            @endforeach
-        </div>
-    </div>
-    @endif
-
-    {{-- Colección filter --}}
-    @if(($filters['colecciones'] ?? collect())->count() > 0)
-    <div class="mb-2">
-        <button type="button" @click="openSection = openSection === 'coleccion' ? null : 'coleccion'" class="w-full flex items-center justify-between text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider py-2">
-            <span>Colección</span>
-            <i class="fa-solid fa-chevron-down text-[10px] transition-transform" :class="{ 'rotate-180': openSection === 'coleccion' }"></i>
-        </button>
-        <div x-show="openSection === 'coleccion'" x-cloak class="space-y-1 max-h-40 overflow-y-auto pb-2">
-            <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
-                <input type="radio" name="coleccion" value="" {{ !request('coleccion') ? 'checked' : '' }} onchange="document.getElementById('{{ $formId }}').submit()" class="text-[#00C4FF]">
-                <span>Todas</span>
-            </label>
-            @foreach($filters['colecciones'] as $coleccion)
-            <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
-                <input type="radio" name="coleccion" value="{{ $coleccion }}" {{ strtolower(request('coleccion')) === strtolower($coleccion) ? 'checked' : '' }} onchange="document.getElementById('{{ $formId }}').submit()" class="text-[#00C4FF]">
-                <span>{{ $coleccion }}</span>
-            </label>
-            @endforeach
-        </div>
-    </div>
-    @endif
-
-    {{-- Tipo de movimiento filter --}}
-    @if(($filters['movimientos'] ?? collect())->count() > 0)
+    {{-- Movimiento --}}
+    @if(isset($filters['movimientos']) && $filters['movimientos']->count() > 0)
     <div class="mb-2">
         <button type="button" @click="openSection = openSection === 'movimiento' ? null : 'movimiento'" class="w-full flex items-center justify-between text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider py-2">
             <span>Movimiento</span>
@@ -144,8 +95,8 @@
     </div>
     @endif
 
-    {{-- Size filter --}}
-    @if(($filters['sizes'] ?? collect())->count() > 0)
+    {{-- Tamaño --}}
+    @if(isset($filters['sizes']) && $filters['sizes']->count() > 0)
     <div class="mb-2">
         <button type="button" @click="openSection = openSection === 'size' ? null : 'size'" class="w-full flex items-center justify-between text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider py-2">
             <span>Tamaño</span>
@@ -166,7 +117,7 @@
     </div>
     @endif
 
-    {{-- Price range filter --}}
+    {{-- Precio --}}
     <div class="mb-2">
         <button type="button" @click="openSection = openSection === 'precio' ? null : 'precio'" class="w-full flex items-center justify-between text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider py-2">
             <span>Precio</span>

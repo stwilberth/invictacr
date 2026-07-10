@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
 Route::get('/relojes', [ProductController::class, 'index'])->name('products.index')->middleware('throttle:search');
+Route::get('/api/live-search', [ProductController::class, 'liveSearch'])->name('products.live-search')->middleware('throttle:search');
 Route::get('/relojes/{gender}', [ProductController::class, 'byGender'])->name('products.gender')->where('gender', 'hombre|mujer|unisex');
 Route::get('/relojes/{slug}', [ProductController::class, 'show'])->name('products.show');
 Route::get('/relojes/{gender}/{slug}', function ($gender, $slug) {

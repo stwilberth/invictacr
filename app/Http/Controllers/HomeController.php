@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use App\Models\SearchLog;
+use Illuminate\Support\Facades\DB;
 
 class HomeController extends Controller
 {
@@ -18,6 +20,13 @@ class HomeController extends Controller
 
     public function index()
     {
+        $topSearches = SearchLog::select("query", DB::raw("COUNT(*) as count"))
+            ->groupBy("query")
+            ->orderByDesc("count")
+            ->take(4)
+            ->pluck("query")
+            ->toArray();
+
         $activeProducts = Product::where("activo", true)
             ->where("precio_venta", ">", 0)
             ->get();
@@ -80,6 +89,7 @@ class HomeController extends Controller
                 "categories",
                 "heroProduct",
                 "activeProducts",
+                "topSearches",
             ),
         );
     }

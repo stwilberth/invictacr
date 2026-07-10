@@ -36,6 +36,13 @@
                     </div>
                 </form>
             </div>
+            @if(!empty($topSearches))
+            <div class="max-w-xl mx-auto mt-3 flex flex-wrap justify-center gap-2">
+                @foreach($topSearches as $search)
+                <a href="/relojes?q={{ urlencode($search) }}" class="px-3 py-1.5 bg-white/10 hover:bg-[#00C4FF]/20 text-gray-300 hover:text-white border border-white/10 hover:border-[#00C4FF]/40 rounded-full text-[11px] sm:text-xs font-semibold transition-all">{{ $search }}</a>
+                @endforeach
+            </div>
+            @endif
         </div>
     </section>
 
