@@ -128,6 +128,7 @@
     @fonts
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     {{ $head ?? '' }}
+    @stack('json-ld')
 </head>
 <body class="bg-white text-gray-900 dark:bg-[#121212] dark:text-gray-100">
     <noscript>

@@ -13,7 +13,31 @@
             $ogImage = "/storage/relojes/medium/{$imgModelo}.webp";
         }
     }
+
+    $productName = 'Reloj Invicta ' . ($product->coleccion && strtolower($product->coleccion) !== 'otros' ? $product->coleccion . ' ' : '') . ($product->genero && strtolower($product->genero) !== 'unisex' ? 'para ' . $product->genero . ' ' : '') . '(' . $product->modelo . ')';
+    $price = $product->price_after_discount ?? $product->precio_venta ?? 0;
+    $availability = ($product->stock ?? 0) > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock';
 @endphp
+@push('json-ld')
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": {!! json_encode($productName) !!},
+    "image": {!! json_encode(asset($ogImage)) !!},
+    "description": {!! json_encode($product->descripcion ?? 'Reloj Invicta ' . $product->modelo) !!},
+    "sku": {!! json_encode($product->modelo) !!},
+    "brand": {"@type": "Brand", "name": "Invicta"},
+    "offers": {
+        "@type": "Offer",
+        "url": {!! json_encode(url()->current()) !!},
+        "priceCurrency": "CRC",
+        "price": {!! json_encode($price) !!},
+        "availability": {!! json_encode($availability) !!}
+    }
+}
+</script>
+@endpush
 <x-app-layout :title="$seoTitle" :description="$product->descripcion ?? 'Reloj Invicta ' . $product->modelo" :ogImage="asset($ogImage)" ogType="product" :hideWhatsApp="true">
     @php
         $isAgotado = ($product->stock ?? 0) <= 0;
