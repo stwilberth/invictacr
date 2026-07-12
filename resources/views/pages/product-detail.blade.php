@@ -27,7 +27,7 @@
 @push('json-ld')
 <script type="application/ld+json">
 {
-    "@context": "https://schema.org",
+    "@@context": "https://schema.org",
     "@type": "Product",
     "name": {!! json_encode($productName) !!},
     "image": {!! json_encode(asset($ogImage)) !!},
