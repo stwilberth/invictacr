@@ -17,6 +17,12 @@
     $productName = 'Reloj Invicta ' . ($product->coleccion && strtolower($product->coleccion) !== 'otros' ? $product->coleccion . ' ' : '') . ($product->genero && strtolower($product->genero) !== 'unisex' ? 'para ' . $product->genero . ' ' : '') . '(' . $product->modelo . ')';
     $price = $product->price_after_discount ?? $product->precio_venta ?? 0;
     $availability = ($product->stock ?? 0) > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock';
+
+    $vimeoId = null;
+    if ($product->video) {
+        preg_match('/(\d+)/', basename($product->video), $matches);
+        $vimeoId = $matches[1] ?? null;
+    }
 @endphp
 @push('json-ld')
 <script type="application/ld+json">
@@ -28,6 +34,17 @@
     "description": {!! json_encode($product->descripcion ?? 'Reloj Invicta ' . $product->modelo) !!},
     "sku": {!! json_encode($product->modelo) !!},
     "brand": {"@type": "Brand", "name": "Invicta"},
+    @if($vimeoId)
+    "video": {
+        "@type": "VideoObject",
+        "name": {!! json_encode($productName) !!},
+        "description": {!! json_encode($product->descripcion ?? 'Video del reloj Invicta ' . $product->modelo) !!},
+        "thumbnailUrl": {!! json_encode('https://vumbnail.com/' . $vimeoId . '.jpg') !!},
+        "contentUrl": {!! json_encode('https://player.vimeo.com/video/' . $vimeoId) !!},
+        "embedUrl": {!! json_encode('https://player.vimeo.com/video/' . $vimeoId) !!},
+        "uploadDate": {!! json_encode($product->created_at ? $product->created_at->toIso8601String() : date('c')) !!}
+    },
+    @endif
     "offers": {
         "@type": "Offer",
         "url": {!! json_encode(url()->current()) !!},
