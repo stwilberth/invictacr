@@ -10,9 +10,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
-Route::get('/relojes', [ProductController::class, 'index'])->name('products.index')->middleware('throttle:search');
-Route::get('/api/live-search', [ProductController::class, 'liveSearch'])->name('products.live-search')->middleware('throttle:search');
-Route::get('/relojes/{gender}', [ProductController::class, 'byGender'])->name('products.gender')->where('gender', 'hombre|mujer|unisex');
+    Route::get('/relojes', [ProductController::class, 'index'])->name('products.index')->middleware('throttle:search');
+    Route::get('/relojes/{gender}', [ProductController::class, 'byGender'])->name('products.gender')->where('gender', 'hombre|mujer|unisex');
 Route::get('/relojes/{slug}', [ProductController::class, 'show'])->name('products.show');
 Route::get('/relojes/{gender}/{slug}', function ($gender, $slug) {
     return redirect()->route('products.show', ['slug' => $slug], 301);
@@ -53,8 +52,9 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::get('/upcoming', \App\Livewire\Admin\Upcoming::class)->name('upcoming');
     Route::get('/sync', \App\Livewire\Admin\SyncManager::class)->name('sync');
     Route::get('/search-logs', \App\Livewire\Admin\SearchLogs::class)->name('search-logs');
-    Route::get('/optimize-images', \App\Livewire\Admin\OptimizeImages::class)->name('optimize-images');
-    Route::get('/analytics', \App\Livewire\Admin\AnalyticsDashboard::class)->name('analytics');
+    Route::get('/optimize-images',  \App\Livewire\Admin\OptimizeImages::class)->name('optimize-images');
+    Route::get('/db-backups',       \App\Livewire\Admin\DbBackups::class)->name('db-backups');
+    Route::get('/analytics',        \App\Livewire\Admin\AnalyticsDashboard::class)->name('analytics');
     Route::get('/github', \App\Livewire\Admin\GitHubReport::class)->name('github');
 });
 

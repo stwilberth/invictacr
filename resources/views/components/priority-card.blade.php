@@ -12,8 +12,11 @@
     };
     // Usar imagen local siempre, ignorar CDN externo
     $imageUrl = asset("images/relojes/{$model}.jpg");
-    // Fallback: si no existe localmente, usar lo que tenga la BD (ruta local /assets/relojes/)
-    if (!file_exists(public_path("images/relojes/{$model}.jpg"))) {
+    if (file_exists(public_path("storage/relojes/{$model}.jpg"))) {
+        $imageUrl = asset("storage/relojes/{$model}.jpg");
+    } elseif ($product->imagen && str_starts_with($product->imagen, '/storage/relojes/')) {
+        $imageUrl = $product->imagen;
+    } elseif (!file_exists(public_path("images/relojes/{$model}.jpg"))) {
         $imageUrl = $product->imagen
             ? (str_starts_with($product->imagen, 'http') ? asset("images/relojes/{$model}.jpg") : $product->imagen)
             : asset("images/relojes/{$model}.jpg");

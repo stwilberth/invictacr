@@ -379,10 +379,8 @@ CREATE TABLE `users` (
   `updated_at` timestamp NULL DEFAULT NULL,
   `is_admin` tinyint(1) NOT NULL DEFAULT 0,
   `phone` varchar(255) DEFAULT NULL,
-  `firebase_uid` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `users_email_unique` (`email`),
-  UNIQUE KEY `users_firebase_uid_unique` (`firebase_uid`)
+  UNIQUE KEY `users_email_unique` (`email`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;

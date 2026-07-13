@@ -129,18 +129,29 @@
                     <input wire:model="resistencia_agua" type="number" step="any" min="0" class="w-full bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm" />
                 </div>
                 <div class="md:col-span-2">
-                    <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">URL Imagen</label>
-                    <div class="flex gap-2">
-                        <input wire:model="imagen" type="text" class="flex-1 bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm" />
-                        <button type="button" wire:click="downloadImage" wire:loading.attr="disabled" wire:target="downloadImage" class="flex items-center gap-1.5 bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-white font-bold text-xs uppercase tracking-wider px-4 py-2.5 rounded-xl transition-all whitespace-nowrap">
-                            <i class="fa-solid fa-download" wire:loading.remove wire:target="downloadImage"></i>
-                            <i class="fa-solid fa-spinner fa-spin" wire:loading wire:target="downloadImage"></i>
-                            Descargar
-                        </button>
-                        <button type="button" wire:click="$set('imagen', '/storage/relojes/' + {{ json_encode($modelo) }} + '.jpg')" class="flex items-center gap-1.5 bg-green-500 hover:bg-green-600 text-white font-bold text-xs uppercase tracking-wider px-4 py-2.5 rounded-xl transition-all whitespace-nowrap">
-                            <i class="fa-solid fa-folder-open"></i>
-                            Imagen local
-                        </button>
+                    <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Imagen principal</label>
+                    <div class="space-y-2">
+                        <div class="flex gap-2">
+                            <input wire:model="imagen" type="text" placeholder="https://cdn.invictawatch.com/..." class="flex-1 bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm" />
+                            <button type="button" wire:click="downloadImage" wire:loading.attr="disabled" wire:target="downloadImage" class="flex items-center gap-1.5 bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-white font-bold text-xs uppercase tracking-wider px-4 py-2.5 rounded-xl transition-all whitespace-nowrap">
+                                <i class="fa-solid fa-download" wire:loading.remove wire:target="downloadImage"></i>
+                                <i class="fa-solid fa-spinner fa-spin" wire:loading wire:target="downloadImage"></i>
+                                Descargar
+                            </button>
+                            <button type="button" wire:click="$set('imagen', '/storage/relojes/' + {{ json_encode($modelo) }} + '.jpg')" class="flex items-center gap-1.5 bg-green-500 hover:bg-green-600 text-white font-bold text-xs uppercase tracking-wider px-4 py-2.5 rounded-xl transition-all whitespace-nowrap">
+                                <i class="fa-solid fa-folder-open"></i>
+                                Local
+                            </button>
+                        </div>
+                        <div class="flex items-center gap-2 bg-gray-50 dark:bg-[#0a0f1c] border border-dashed border-gray-300 dark:border-white/10 rounded-xl px-4 py-2.5">
+                            <i class="fa-solid fa-cloud-arrow-up text-purple-400"></i>
+                            <input type="file" wire:model="newImageFile" accept="image/*" class="flex-1 text-xs text-gray-500 dark:text-gray-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-purple-100 dark:file:bg-purple-900/30 file:text-purple-700 dark:file:text-purple-300 hover:file:bg-purple-200 dark:hover:file:bg-purple-900/50 file:cursor-pointer" />
+                            <button type="button" wire:click="uploadImage" wire:loading.attr="disabled" wire:target="newImageFile,uploadImage" class="flex items-center gap-1.5 bg-purple-500 hover:bg-purple-600 disabled:opacity-50 text-white font-bold text-xs uppercase tracking-wider px-3 py-1.5 rounded-lg transition-all whitespace-nowrap">
+                                <i class="fa-solid fa-cloud-arrow-up" wire:loading.remove wire:target="uploadImage"></i>
+                                <i class="fa-solid fa-spinner fa-spin" wire:loading wire:target="uploadImage"></i>
+                                Subir
+                            </button>
+                        </div>
                     </div>
                     @if($downloadStatus === 'ok')
                         <p class="mt-2 text-xs font-bold text-green-600 dark:text-green-400">
@@ -201,7 +212,16 @@
                         <button type="button" wire:click="downloadAndAddExtraImage" wire:loading.attr="disabled" class="flex items-center gap-1.5 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-bold text-xs uppercase tracking-wider px-4 py-2.5 rounded-xl transition-all whitespace-nowrap">
                             <i wire:loading.remove wire:target="downloadAndAddExtraImage" class="fa-solid fa-download"></i>
                             <i wire:loading wire:target="downloadAndAddExtraImage" class="fa-solid fa-spinner fa-spin"></i>
-                            Descargar & Agregar
+                            Descargar
+                        </button>
+                    </div>
+                    <div class="flex items-center gap-2 mt-2 bg-gray-50 dark:bg-[#0a0f1c] border border-dashed border-gray-300 dark:border-white/10 rounded-xl px-4 py-2.5">
+                        <i class="fa-solid fa-cloud-arrow-up text-purple-400"></i>
+                        <input type="file" wire:model="newExtraImageFile" accept="image/*" class="flex-1 text-xs text-gray-500 dark:text-gray-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-purple-100 dark:file:bg-purple-900/30 file:text-purple-700 dark:file:text-purple-300 hover:file:bg-purple-200 dark:hover:file:bg-purple-900/50 file:cursor-pointer" />
+                        <button type="button" wire:click="uploadAndAddExtraImage" wire:loading.attr="disabled" wire:target="newExtraImageFile,uploadAndAddExtraImage" class="flex items-center gap-1.5 bg-purple-500 hover:bg-purple-600 disabled:opacity-50 text-white font-bold text-xs uppercase tracking-wider px-3 py-1.5 rounded-lg transition-all whitespace-nowrap">
+                            <i class="fa-solid fa-cloud-arrow-up" wire:loading.remove wire:target="uploadAndAddExtraImage"></i>
+                            <i class="fa-solid fa-spinner fa-spin" wire:loading wire:target="uploadAndAddExtraImage"></i>
+                            Subir
                         </button>
                     </div>
                     @if($extraDownloadStatus === 'ok')

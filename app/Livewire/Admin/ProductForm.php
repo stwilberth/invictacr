@@ -6,6 +6,7 @@ use App\Models\Product;
 use App\Services\ImageOptimizerService;
 use App\Services\InvictaWatchScraper;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
@@ -13,6 +14,8 @@ use Illuminate\Validation\Rule;
 
 class ProductForm extends Component
 {
+    use WithFileUploads;
+
     public $productId;
     public $modelo, $title, $slug, $descripcion, $color, $brazalete;
     public $coleccion, $tipo_movimiento, $size, $genero, $caja;
@@ -35,6 +38,8 @@ class ProductForm extends Component
     public $fetchMessage = "";
     public ?string $optimizeStatus = null;
     public ?string $optimizeMessage = null;
+    public $newImageFile;
+    public $newExtraImageFile;
 
     public function mount($productId = null)
     {
@@ -91,6 +96,138 @@ class ProductForm extends Component
         }
     }
 
+    public function uploadImage()
+    {
+        $this->downloadStatus = "";
+        $this->downloadMessage = "";
+
+        if (!$this->newImageFile) {
+            $this->setDownloadError("Seleccione una imagen para subir.");
+            return;
+        }
+
+        if (!$this->modelo) {
+            $this->setDownloadError("Ingrese un modelo primero.");
+            return;
+        }
+
+        try {
+            $this->validate([
+                'newImageFile' => 'required|image|max:10240',
+            ], [
+                'newImageFile.image' => 'El archivo debe ser una imagen (jpg, png, webp).',
+                'newImageFile.max' => 'La imagen no debe superar 10MB.',
+            ]);
+
+            $file = $this->newImageFile;
+            $extension = strtolower($file->getClientOriginalExtension());
+            if (!in_array($extension, ['jpg', 'jpeg', 'png', 'webp'])) {
+                $extension = 'jpg';
+            }
+
+            $safeModelo = preg_replace("/[^a-zA-Z0-9_-]/", "", $this->modelo);
+            if ($safeModelo === "") {
+                $safeModelo = "producto";
+            }
+            $filename = strtolower($safeModelo) . "." . $extension;
+            $relative = "relojes/" . $filename;
+
+            $this->ensureStorageSymlink();
+            Storage::disk("public")->makeDirectory("relojes");
+            Storage::disk("public")->put($relative, file_get_contents($file->getRealPath()));
+
+            if (!Storage::disk("public")->exists($relative)) {
+                $this->setDownloadError("La imagen no se guardó en disco.");
+                return;
+            }
+
+            $this->imagen = "/storage/relojes/" . $filename;
+            $this->newImageFile = null;
+            $this->downloadStatus = "ok";
+            $this->downloadMessage = "Imagen subida: " . $filename;
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            $this->setDownloadError($e->getMessage());
+            return;
+        } catch (\Exception $e) {
+            $this->setDownloadError("Error al subir: " . $e->getMessage());
+            return;
+        }
+
+        try {
+            $this->generateOptimizedVersions($filename);
+        } catch (\Exception $e) {
+            // Ignorado: la imagen ya se guardó, solo falló la optimización WebP
+        }
+    }
+
+    public function uploadAndAddExtraImage()
+    {
+        $this->extraDownloadStatus = "";
+        $this->extraDownloadMessage = "";
+
+        if (!$this->newExtraImageFile) {
+            $this->extraDownloadStatus = "error";
+            $this->extraDownloadMessage = "Seleccione una imagen para subir.";
+            return;
+        }
+
+        if (!$this->modelo) {
+            $this->extraDownloadStatus = "error";
+            $this->extraDownloadMessage = "Ingrese un modelo primero.";
+            return;
+        }
+
+        try {
+            $this->validate([
+                'newExtraImageFile' => 'required|image|max:10240',
+            ], [
+                'newExtraImageFile.image' => 'El archivo debe ser una imagen (jpg, png, webp).',
+                'newExtraImageFile.max' => 'La imagen no debe superar 10MB.',
+            ]);
+
+            $file = $this->newExtraImageFile;
+            $extension = strtolower($file->getClientOriginalExtension());
+            if (!in_array($extension, ['jpg', 'jpeg', 'png', 'webp'])) {
+                $extension = 'jpg';
+            }
+
+            $next = count($this->imagenes_extra) + 1;
+            $safeModelo = preg_replace("/[^a-zA-Z0-9_-]/", "", $this->modelo);
+            $filename = strtolower($safeModelo) . "_{$next}." . $extension;
+            $relative = "relojes/" . $filename;
+
+            $this->ensureStorageSymlink();
+            Storage::disk("public")->makeDirectory("relojes");
+            Storage::disk("public")->put($relative, file_get_contents($file->getRealPath()));
+
+            if (!Storage::disk("public")->exists($relative)) {
+                $this->extraDownloadStatus = "error";
+                $this->extraDownloadMessage = "La imagen no se guardó en disco.";
+                return;
+            }
+
+            $localPath = "/storage/relojes/" . $filename;
+            $this->imagenes_extra[] = $localPath;
+            $this->newExtraImageFile = null;
+            $this->extraDownloadStatus = "ok";
+            $this->extraDownloadMessage = "Imagen subida: {$filename}";
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            $this->extraDownloadStatus = "error";
+            $this->extraDownloadMessage = $e->getMessage();
+            return;
+        } catch (\Exception $e) {
+            $this->extraDownloadStatus = "error";
+            $this->extraDownloadMessage = "Error: " . $e->getMessage();
+            return;
+        }
+
+        try {
+            $this->generateOptimizedVersions($filename);
+        } catch (\Exception $e) {
+            // Ignorado: la imagen ya se guardó, solo falló la optimización WebP
+        }
+    }
+
     public function downloadAndAddExtraImage()
     {
         $this->extraDownloadStatus = "";
@@ -142,13 +279,19 @@ class ProductForm extends Component
 
             $localPath = "/storage/relojes/" . $filename;
             $this->imagenes_extra[] = $localPath;
-            $this->generateOptimizedVersions($filename);
             $this->newExtraImageUrl = "";
             $this->extraDownloadStatus = "ok";
             $this->extraDownloadMessage = "Imagen agregada: {$filename}";
         } catch (\Exception $e) {
             $this->extraDownloadStatus = "error";
             $this->extraDownloadMessage = "Error: " . $e->getMessage();
+            return;
+        }
+
+        try {
+            $this->generateOptimizedVersions($filename);
+        } catch (\Exception $e) {
+            // Ignorado: la imagen ya se guardó, solo falló la optimización WebP
         }
     }
 
@@ -209,7 +352,6 @@ class ProductForm extends Component
             }
 
             $this->imagen = "/storage/relojes/" . $filename;
-            $this->generateOptimizedVersions($filename);
             $this->downloadStatus = "ok";
             $this->downloadMessage =
                 "Imagen descargada: " .
@@ -217,6 +359,13 @@ class ProductForm extends Component
                 " (verifica la vista previa abajo).";
         } catch (\Exception $e) {
             $this->setDownloadError("Error al descargar: " . $e->getMessage());
+            return;
+        }
+
+        try {
+            $this->generateOptimizedVersions($filename);
+        } catch (\Exception $e) {
+            // Ignorado: la imagen ya se guardó, solo falló la optimización WebP
         }
     }
 
@@ -305,8 +454,11 @@ class ProductForm extends Component
         $publicPath = storage_path("app/public");
 
         foreach (['thumbs', 'medium', 'large'] as $dir) {
-            if (!is_dir("{$publicPath}/relojes/{$dir}")) {
-                @mkdir("{$publicPath}/relojes/{$dir}", 0775, true);
+            $dirPath = "{$publicPath}/relojes/{$dir}";
+            if (!is_dir($dirPath)) {
+                @mkdir($dirPath, 0777, true);
+            } elseif (!is_writable($dirPath)) {
+                @chmod($dirPath, 0777);
             }
         }
 

@@ -287,11 +287,8 @@ class ImageOptimizerService
     private function getModelo(Product $product): ?string
     {
         $imagen = $product->imagen;
-        if (!$imagen) {
-            return null;
-        }
 
-        if (str_starts_with($imagen, '/storage/relojes/')) {
+        if ($imagen && str_starts_with($imagen, '/storage/relojes/')) {
             $filename = basename($imagen);
             $ext = pathinfo($filename, PATHINFO_EXTENSION);
             return $ext ? substr($filename, 0, -(strlen($ext) + 1)) : $filename;

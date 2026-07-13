@@ -10,24 +10,6 @@ use Illuminate\Pagination\LengthAwarePaginator;
 
 class ProductController extends Controller
 {
-    public function liveSearch(Request $request)
-    {
-        // Reuse the same query builder as the main catalog
-        $products = $this->runSearchQuery($request);
-
-        $html = '';
-        foreach ($products as $product) {
-            $html .= view('components.product-card', compact('product'))->render();
-        }
-
-        return response()->json([
-            'html' => $html,
-            'total' => $products->total(),
-            'currentPage' => $products->currentPage(),
-            'totalPages' => $products->lastPage(),
-        ]);
-    }
-
     public function index(Request $request)
     {
         $aiResponse = null;

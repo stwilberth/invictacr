@@ -14,6 +14,8 @@
         if (file_exists($thumbCandidate)) {
             $thumbUrl = "/storage/relojes/thumbs/{$thumbModelo}.webp";
         }
+    } elseif (file_exists(public_path("storage/relojes/thumbs/{$model}.webp"))) {
+        $thumbUrl = "/storage/relojes/thumbs/{$model}.webp";
     }
 
     $imageUrl = null;
@@ -21,6 +23,8 @@
         $imageUrl = $thumbUrl;
     } elseif ($product->imagen && !str_starts_with($product->imagen, 'http')) {
         $imageUrl = $product->imagen;
+    } elseif (file_exists(public_path("storage/relojes/{$model}.jpg"))) {
+        $imageUrl = asset("storage/relojes/{$model}.jpg");
     } elseif (file_exists(public_path($imagePath))) {
         $imageUrl = asset($imagePath);
     }

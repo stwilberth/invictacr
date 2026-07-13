@@ -1,7 +1,7 @@
 @props(['idPrefix' => 'desktop', 'className' => ''])
 
 <div class="relative {{ $className }}">
-    <form action="/relojes" method="GET" class="flex items-center gap-0 navbar-search-form" onsubmit="return handleNavbarSearch(event, this)">
+    <form action="/relojes" method="GET" class="flex items-center gap-0 navbar-search-form">
         <div class="relative flex-1">
             <input type="text"
                    name="q"
@@ -22,33 +22,8 @@
 
 @pushOnce('scripts')
 <script>
-    /**
-     * If we're on /relojes, intercept navbar search and delegate to CatalogManager.
-     * Otherwise, let it navigate normally.
-     */
-    function handleNavbarSearch(event, form) {
-        if (window.CatalogManager && window.location.pathname === '/relojes') {
-            event.preventDefault();
-            var input = form.querySelector('input[name="q"]');
-            var q = input ? input.value.trim() : '';
-            window.CatalogManager.setFilter('q', q);
-            return false;
-        }
-        // Not on /relojes — allow normal form submission (GET /relojes?q=...)
-        return true;
-    }
-
     function clearNavbarSearch(btn) {
-        var form = btn.closest('form');
-        var input = form ? form.querySelector('input[name="q"]') : null;
-        if (input) input.value = '';
-        if (btn) btn.style.display = 'none';
-
-        if (window.CatalogManager && window.location.pathname === '/relojes') {
-            window.CatalogManager.setFilter('q', '');
-        } else {
-            window.location.href = '/relojes';
-        }
+        window.location.href = '/relojes';
     }
 </script>
 @endPushOnce

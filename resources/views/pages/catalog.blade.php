@@ -535,20 +535,13 @@
 
                 // Search input events
                 if (els.searchInput) {
-                    els.searchInput.addEventListener('input', function() {
-                        var q = this.value.trim();
-                        window.CatalogManager.setFilter('q', q);
-                    });
-
                     els.searchInput.addEventListener('keydown', function(e) {
                         if (e.key === 'Enter') {
                             e.preventDefault();
-                            if (state.searchTimer) clearTimeout(state.searchTimer);
-                            var filters = getFiltersFromURL();
-                            filters.q = this.value.trim() || undefined;
-                            if (!filters.q) delete filters.q;
-                            delete filters.page;
-                            applyFilters(filters);
+                            var q = this.value.trim();
+                            var url = new URL(window.location.origin + '/relojes');
+                            if (q) url.searchParams.set('q', q);
+                            window.location.href = url.toString();
                         }
                     });
                 }
@@ -556,19 +549,17 @@
                 // Clear search button
                 if (els.searchClear) {
                     els.searchClear.addEventListener('click', function() {
-                        window.CatalogManager.setFilter('q', '');
+                        window.location.href = '/relojes';
                     });
                 }
 
                 // Search button (magnifier)
                 if (els.searchBtn) {
                     els.searchBtn.addEventListener('click', function() {
-                        if (state.searchTimer) clearTimeout(state.searchTimer);
-                        var filters = getFiltersFromURL();
                         var q = els.searchInput ? els.searchInput.value.trim() : '';
-                        if (q) { filters.q = q; } else { delete filters.q; }
-                        delete filters.page;
-                        applyFilters(filters);
+                        var url = new URL(window.location.origin + '/relojes');
+                        if (q) url.searchParams.set('q', q);
+                        window.location.href = url.toString();
                     });
                 }
 

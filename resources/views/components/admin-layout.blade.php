@@ -49,6 +49,9 @@
                 <a href="{{ route('admin.optimize-images') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors {{ request()->routeIs('admin.optimize-images') ? 'bg-[#00C4FF]/10 text-[#00C4FF]' : 'text-white/70 hover:text-white hover:bg-white/5' }}">
                     <i class="fa-solid fa-image w-5"></i> Optimizar Imágenes
                 </a>
+                <a href="{{ route('admin.db-backups') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors {{ request()->routeIs('admin.db-backups') ? 'bg-[#00C4FF]/10 text-[#00C4FF]' : 'text-white/70 hover:text-white hover:bg-white/5' }}">
+                    <i class="fa-solid fa-database w-5"></i> Backups DB
+                </a>
                 <hr class="border-white/10 my-4">
                 <p class="px-4 text-xs text-white/40 uppercase tracking-wider font-black mb-2">Analytics</p>
                 <a href="{{ route('admin.analytics') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors {{ request()->routeIs('admin.analytics') ? 'bg-[#00C4FF]/10 text-[#00C4FF]' : 'text-white/70 hover:text-white hover:bg-white/5' }}">
@@ -145,6 +148,9 @@
                     </a>
                     <a href="{{ route('admin.optimize-images') }}" @click="sidebarOpen = false" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors {{ request()->routeIs('admin.optimize-images') ? 'bg-[#00C4FF]/10 text-[#00C4FF]' : 'text-white/70 hover:text-white hover:bg-white/5' }}">
                         <i class="fa-solid fa-image w-5"></i> Optimizar Imágenes
+                    </a>
+                    <a href="{{ route('admin.db-backups') }}" @click="sidebarOpen = false" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors {{ request()->routeIs('admin.db-backups') ? 'bg-[#00C4FF]/10 text-[#00C4FF]' : 'text-white/70 hover:text-white hover:bg-white/5' }}">
+                        <i class="fa-solid fa-database w-5"></i> Backups DB
                     </a>
                     <hr class="border-white/10 my-4">
                     <p class="px-4 text-xs text-white/40 uppercase tracking-wider font-black mb-2">Analytics</p>

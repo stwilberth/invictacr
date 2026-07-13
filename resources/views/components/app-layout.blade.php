@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width" />
     <meta name="facebook-domain-verification" content="2rf7uymq80aja4vxcb6l7hmugbyouf" />
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/logo.webp" />
+    <link rel="apple-touch-icon" href="/logo.png" />
     <title>{{ $title ?? '' }} | Invicta Costa Rica</title>
     <meta name="description" content="{{ $description ?? 'Invicta Costa Rica - Relojes de alta calidad con los mejores precios. Pago contra entrega en GAM y envío gratis a todo el país.' }}" />
     <link rel="canonical" href="{{ url()->current() }}" />

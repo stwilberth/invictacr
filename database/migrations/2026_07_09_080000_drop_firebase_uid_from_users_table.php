@@ -9,15 +9,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->boolean('is_admin')->default(false);
-            $table->string('phone')->nullable();
+            $table->dropColumn('firebase_uid');
         });
     }
 
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn(['is_admin', 'phone']);
+            $table->string('firebase_uid')->nullable()->unique();
         });
     }
 };
