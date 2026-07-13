@@ -15,6 +15,11 @@
             {{ $activeTab === 'utm' ? 'bg-[#00C4FF] text-[#0a0f1c]' : 'bg-white dark:bg-[#0f172a] text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-white/5 hover:border-[#00C4FF]/50' }}">
             <i class="fa-solid fa-link"></i> UTM
         </button>
+        <button wire:click="$set('activeTab', 'image')"
+            class="px-5 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center gap-2
+            {{ $activeTab === 'image' ? 'bg-[#00C4FF] text-[#0a0f1c]' : 'bg-white dark:bg-[#0f172a] text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-white/5 hover:border-[#00C4FF]/50' }}">
+            <i class="fa-solid fa-image"></i> Imagen
+        </button>
         <button wire:click="$set('activeTab', 'saved')"
             class="px-5 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center gap-2
             {{ $activeTab === 'saved' ? 'bg-[#00C4FF] text-[#0a0f1c]' : 'bg-white dark:bg-[#0f172a] text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-white/5 hover:border-[#00C4FF]/50' }}">
@@ -376,6 +381,102 @@
         </div>
     </div>
 
+    {{-- TAB: IMAGEN --}}
+    @elseif($activeTab === 'image')
+    <div wire:key="image-tab" x-data x-init="$nextTick(() => window.initInvictaImageCanvas())" class="grid grid-cols-1 lg:grid-cols-[380px_1fr] gap-4">
+        {{-- Controles --}}
+        <div class="bg-white dark:bg-[#1c1c1e] rounded-xl border border-gray-200 dark:border-white/5 p-4 space-y-3 max-h-[calc(100vh-200px)] overflow-y-auto text-gray-800 dark:text-gray-200">
+            <h2 class="text-base font-bold !text-[#d4af37] mt-0">Plantilla · Anuncio Invicta</h2>
+
+            <button wire:click="useProductForImage" class="w-full px-3 py-2 rounded-lg bg-[#00C4FF]/10 text-[#00C4FF] hover:bg-[#00C4FF]/20 text-xs font-bold transition-all flex items-center justify-center gap-1.5">
+                <i class="fa-solid fa-fill"></i> Usar producto seleccionado
+            </button>
+
+            <div x-data="{ currentTheme: 'gold', themes: {
+                    gold:  { name:'Gold',  dark:'#8a5a00', light:'#e6b800', cream:'#fdf6e3' },
+                    blue:  { name:'Blue',  dark:'#0b2447', light:'#1a5fb4', cream:'#eaf2fb' },
+                    dark:  { name:'Dark',  dark:'#141414', light:'#3a3a3a', cream:'#eceff1' },
+                    green: { name:'Green', dark:'#0e3d24', light:'#1f7a4d', cream:'#eef7f0' },
+                    red:   { name:'Red',   dark:'#5a0a0a', light:'#c0212b', cream:'#fbeef0' },
+                    purple:{ name:'Purple',dark:'#2e1065', light:'#6d28d9', cream:'#f3eefb' },
+                    teal:  { name:'Teal',  dark:'#0c4a4a', light:'#0d9488', cream:'#eef9f8' },
+                } }" class="space-y-3">
+
+                <label class="block text-[11px] uppercase tracking-wide text-gray-500 dark:text-gray-400">Tema de color</label>
+                <div class="flex flex-wrap gap-2">
+                    <template x-for="entry in Object.entries(themes)" :key="entry[0]">
+                        <button type="button" @click="window.dispatchEvent(new CustomEvent('set-theme', { detail: entry[0] })); currentTheme = entry[0]"
+                            :class="currentTheme === entry[0] ? 'ring-2 ring-white ring-offset-1 ring-offset-[#1c1c1e]' : ''"
+                            class="w-9 h-9 rounded-full border-2 border-transparent transition-all"
+                            :style="`background:linear-gradient(135deg, ${entry[1].dark}, ${entry[1].light})`"
+                            :title="entry[1].name"></button>
+                    </template>
+                </div>
+
+                <label class="block text-[11px] uppercase tracking-wide text-gray-500 dark:text-gray-400">Título</label>
+                <input type="text" id="imgTitle" value="INVICTA PRO DIVER"
+                    class="w-full px-2.5 py-2 rounded-md text-sm bg-gray-50 dark:bg-[#2a2a2c] border border-gray-300 dark:border-[#444]" />
+
+                <label class="block text-[11px] uppercase tracking-wide text-gray-500 dark:text-gray-400">Modelo (código)</label>
+                <input type="text" id="imgModelCode" value="(49858)"
+                    class="w-full px-2.5 py-2 rounded-md text-sm bg-gray-50 dark:bg-[#2a2a2c] border border-gray-300 dark:border-[#444]" />
+
+                <label class="block text-[11px] uppercase tracking-wide text-gray-500 dark:text-gray-400">Precio</label>
+                <input type="text" id="imgPrice" value="₡83 000"
+                    class="w-full px-2.5 py-2 rounded-md text-sm bg-gray-50 dark:bg-[#2a2a2c] border border-gray-300 dark:border-[#444]" />
+
+                <label class="block text-[11px] uppercase tracking-wide text-gray-500 dark:text-gray-400">Etiqueta envío</label>
+                <input type="text" id="imgShipping" value="+ ENVÍO GRATIS"
+                    class="w-full px-2.5 py-2 rounded-md text-sm bg-gray-50 dark:bg-[#2a2a2c] border border-gray-300 dark:border-[#444]" />
+
+                <label class="block text-[11px] uppercase tracking-wide text-gray-500 dark:text-gray-400">Especificaciones (una por línea)</label>
+                <textarea id="imgSpecs" rows="4"
+                    class="w-full px-2.5 py-2 rounded-md text-sm bg-gray-50 dark:bg-[#2a2a2c] border border-gray-300 dark:border-[#444] resize-y min-h-[60px]">Acero inoxidable
+43 mm
+Mov. Cuarzo
+100 m</textarea>
+
+                <label class="block text-[11px] uppercase tracking-wide text-gray-500 dark:text-gray-400">WhatsApp</label>
+                <input type="text" id="imgWhatsapp" value="8671-1422"
+                    class="w-full px-2.5 py-2 rounded-md text-sm bg-gray-50 dark:bg-[#2a2a2c] border border-gray-300 dark:border-[#444]" />
+
+                <label class="block text-[11px] uppercase tracking-wide text-gray-500 dark:text-gray-400">Sitio web (marca de agua)</label>
+                <input type="text" id="imgWebsite" value="INVICTACR.COM"
+                    class="w-full px-2.5 py-2 rounded-md text-sm bg-gray-50 dark:bg-[#2a2a2c] border border-gray-300 dark:border-[#444]" />
+
+                <!-- Origen de la imagen -->
+                <label class="block text-[11px] uppercase tracking-wide text-gray-500 dark:text-gray-400">Foto del reloj</label>
+                <div class="flex gap-2 flex-wrap">
+                    <button type="button" id="useProductImgBtn" class="px-2.5 py-1.5 rounded-md text-[11px] font-bold bg-[#00C4FF]/15 text-[#00C4FF] hover:bg-[#00C4FF]/25 transition-all flex items-center gap-1">
+                        <i class="fa-solid fa-box"></i> Foto del producto
+                    </button>
+                    <input type="file" id="imgUpload" accept="image/*" class="text-[11px] text-gray-500 file:mr-2 file:px-2 file:py-1 file:rounded file:border-0 file:bg-gray-200 dark:file:bg-white/10 file:text-gray-700 dark:file:text-gray-300" />
+                </div>
+
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-[11px] uppercase tracking-wide text-gray-500 dark:text-gray-400">Escala foto</label>
+                        <input type="range" id="imgScale" min="0.5" max="2" step="0.01" value="1" class="w-full accent-[#00C4FF]" />
+                    </div>
+                    <div>
+                        <label class="block text-[11px] uppercase tracking-wide text-gray-500 dark:text-gray-400">Vertical (Y)</label>
+                        <input type="range" id="imgOffsetY" min="-200" max="200" step="1" value="0" class="w-full accent-[#00C4FF]" />
+                    </div>
+                </div>
+
+                <button type="button" id="imgDownloadBtn" class="w-full px-3 py-2.5 rounded-lg bg-[#d4af37] hover:brightness-110 text-[#1c1c1e] font-bold text-sm transition-all flex items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-download"></i> Descargar PNG
+                </button>
+            </div>
+        </div>
+
+        {{-- Canvas --}}
+        <div class="flex items-start justify-center p-4 bg-[#050505] rounded-xl border border-gray-200 dark:border-white/5">
+            <canvas id="adCanvas" width="1080" height="1350"
+                style="max-width:100%; height:auto; box-shadow:0 10px 40px rgba(0,0,0,.6);"></canvas>
+        </div>
+    </div>
+
     {{-- TAB: GUARDADOS --}}
     @elseif($activeTab === 'saved')
     <div class="bg-white dark:bg-[#0f172a] rounded-xl border border-gray-200 dark:border-white/5 p-4">
@@ -422,3 +523,244 @@
     </div>
     @endif
 </div>
+
+@push('scripts')
+<script>
+window.initInvictaImageCanvas = function(){
+    const canvas = document.getElementById('adCanvas');
+    if(!canvas || canvas.dataset.invictaInit === '1') return;
+    canvas.dataset.invictaInit = '1';
+    const ctx = canvas.getContext('2d');
+    const W = canvas.width, H = canvas.height;
+
+    const themes = {
+        gold:  { dark:'#8a5a00', light:'#e6b800', cream:'#fdf6e3', accent:'#1e2a4a', badge:'#c0212b', text:'#2b2b2b' },
+        blue:  { dark:'#0b2447', light:'#1a5fb4', cream:'#eaf2fb', accent:'#0b2447', badge:'#c0212b', text:'#2b2b2b' },
+        dark:  { dark:'#141414', light:'#3a3a3a', cream:'#eceff1', accent:'#141414', badge:'#c0212b', text:'#2b2b2b' },
+        green: { dark:'#0e3d24', light:'#1f7a4d', cream:'#eef7f0', accent:'#0e3d24', badge:'#c0212b', text:'#2b2b2b' },
+        red:   { dark:'#5a0a0a', light:'#c0212b', cream:'#fbeef0', accent:'#5a0a0a', badge:'#1e2a4a', text:'#2b2b2b' },
+        purple:{ dark:'#2e1065', light:'#6d28d9', cream:'#f3eefb', accent:'#2e1065', badge:'#c0212b', text:'#2b2b2b' },
+        teal:  { dark:'#0c4a4a', light:'#0d9488', cream:'#eef9f8', accent:'#0c4a4a', badge:'#c0212b', text:'#2b2b2b' },
+    };
+    let currentTheme = 'gold';
+    let watchImg = null;
+
+    const fieldIds = ['imgTitle','imgModelCode','imgPrice','imgShipping','imgSpecs','imgWhatsapp','imgWebsite','imgScale','imgOffsetY'];
+    fieldIds.forEach(id => {
+        const el = document.getElementById(id);
+        if(el) el.addEventListener('input', draw);
+    });
+
+    document.getElementById('imgUpload').addEventListener('change', e => {
+        const file = e.target.files[0];
+        if(!file) return;
+        const reader = new FileReader();
+        reader.onload = ev => {
+            const img = new Image();
+            img.onload = () => { watchImg = img; draw(); };
+            img.src = ev.target.result;
+        };
+        reader.readAsDataURL(file);
+    });
+
+    document.getElementById('useProductImgBtn').addEventListener('click', () => {
+        window.dispatchEvent(new CustomEvent('use-product-image'));
+    });
+
+    window.addEventListener('set-theme', (e) => {
+        currentTheme = e.detail;
+        draw();
+    });
+
+    // Livewire dispatches an event with the product data when "Usar producto" is clicked
+    document.addEventListener('populate-image-fields', (e) => {
+        const d = e.detail.payload || e.detail || {};
+        if(d.title && document.getElementById('imgTitle')) document.getElementById('imgTitle').value = d.title;
+        if(d.modelCode !== undefined) document.getElementById('imgModelCode').value = d.modelCode;
+        if(d.price) document.getElementById('imgPrice').value = d.price;
+        if(d.specs) document.getElementById('imgSpecs').value = d.specs;
+        if(d.image){
+            const img = new Image();
+            img.crossOrigin = 'anonymous';
+            img.onload = () => { watchImg = img; draw(); };
+            img.onerror = () => console.warn('No se pudo cargar la imagen del producto (CORS).');
+            img.src = d.image;
+        }
+        draw();
+    });
+
+    function roundRect(x,y,w,h,r){
+        ctx.beginPath();
+        ctx.moveTo(x+r,y);
+        ctx.arcTo(x+w,y,x+w,y+h,r);
+        ctx.arcTo(x+w,y+h,x,y+h,r);
+        ctx.arcTo(x,y+h,x,y,r);
+        ctx.arcTo(x,y,x+w,y,r);
+        ctx.closePath();
+    }
+
+    function draw(){
+        const t = themes[currentTheme];
+        ctx.clearRect(0,0,W,H);
+
+        ctx.fillStyle = t.cream;
+        ctx.fillRect(0,0,W,H);
+
+        const splitX = W*0.5;
+        ctx.save();
+        const grad = ctx.createLinearGradient(0,0,W*0.62,H);
+        grad.addColorStop(0, t.dark);
+        grad.addColorStop(1, t.light);
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.moveTo(0,0);
+        ctx.lineTo(splitX+120,0);
+        ctx.lineTo(splitX-120,H);
+        ctx.lineTo(0,H);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+
+        ctx.save();
+        ctx.globalAlpha = 0.06;
+        ctx.strokeStyle = t.dark;
+        ctx.lineWidth = 30;
+        for(let x=splitX-200; x<W+200; x+=90){
+            ctx.beginPath();
+            ctx.moveTo(x,0);
+            ctx.lineTo(x-260,H);
+            ctx.stroke();
+        }
+        ctx.restore();
+
+        const titleText = (document.getElementById('imgTitle').value || '').toUpperCase();
+        const maxTitleWidth = W*0.56;
+        let titleFontSize = 82;
+        ctx.save();
+        ctx.font = `italic bold ${titleFontSize}px Arial`;
+        while (ctx.measureText(titleText).width > maxTitleWidth && titleFontSize > 28) {
+            titleFontSize -= 2;
+            ctx.font = `italic bold ${titleFontSize}px Arial`;
+        }
+        ctx.fillStyle = '#ffffff';
+        ctx.shadowColor = 'rgba(0,0,0,.35)';
+        ctx.shadowBlur = 6;
+        ctx.shadowOffsetX = 3;
+        ctx.shadowOffsetY = 3;
+        ctx.textBaseline = 'top';
+        const ty = 70;
+        ctx.fillText(titleText, 60, ty);
+        ctx.restore();
+
+        ctx.save();
+        ctx.font = '36px Arial';
+        ctx.fillStyle = 'rgba(255,255,255,.85)';
+        ctx.fillText(document.getElementById('imgModelCode').value, 62, ty+100);
+        ctx.restore();
+
+        const cx = W*0.52, cy = H*0.55, r = 430;
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(cx,cy,r,0,Math.PI*2);
+        ctx.fillStyle = '#ffffff';
+        ctx.shadowColor = 'rgba(0,0,0,.15)';
+        ctx.shadowBlur = 30;
+        ctx.fill();
+        ctx.restore();
+
+        const badgeX = 0, badgeY = H-260, badgeW = 460, badgeH = 190;
+        ctx.save();
+        ctx.fillStyle = t.badge;
+        roundRect(badgeX, badgeY+40, badgeW, badgeH, 90);
+        ctx.fill();
+        ctx.restore();
+
+        ctx.save();
+        ctx.fillStyle = '#f2c400';
+        roundRect(40, badgeY-25, 340, 60, 30);
+        ctx.fill();
+        ctx.font = 'bold 22px Arial';
+        ctx.fillStyle = '#1c1c1c';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(document.getElementById('imgShipping').value, 65, badgeY+5);
+        ctx.restore();
+
+        ctx.save();
+        ctx.font = 'italic bold 78px Arial';
+        ctx.fillStyle = '#ffffff';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(document.getElementById('imgPrice').value, 60, badgeY+130);
+        ctx.restore();
+
+        if(watchImg){
+            const scale = parseFloat(document.getElementById('imgScale').value);
+            const offsetY = parseFloat(document.getElementById('imgOffsetY').value);
+            const baseSize = r*2.1*scale;
+            const ratio = watchImg.width / watchImg.height;
+            let dw, dh;
+            if(ratio >= 1){ dw = baseSize; dh = baseSize/ratio; }
+            else { dh = baseSize; dw = baseSize*ratio; }
+            const dx = cx - dw/2;
+            const dy = cy - dh/2 + offsetY;
+            ctx.drawImage(watchImg, dx, dy, dw, dh);
+        } else {
+            ctx.save();
+            ctx.fillStyle = '#999';
+            ctx.font = '24px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('Sube la foto del reloj →', cx, cy);
+            ctx.restore();
+        }
+
+        const specLines = (document.getElementById('imgSpecs').value || '').split('\n').filter(l => l.trim() !== '');
+        ctx.save();
+        ctx.font = '32px Arial';
+        ctx.fillStyle = t.text;
+        ctx.textAlign = 'right';
+        let sy = H*0.62;
+        specLines.forEach(line => {
+            ctx.beginPath();
+            ctx.arc(W-330, sy-9, 6, 0, Math.PI*2);
+            ctx.fillStyle = '#9aa5b1';
+            ctx.fill();
+            ctx.fillStyle = t.text;
+            ctx.fillText(line.trim(), W-40, sy);
+            sy += 62;
+        });
+        ctx.restore();
+
+        ctx.save();
+        ctx.font = 'bold 34px Arial';
+        ctx.fillStyle = '#1c1c1c';
+        ctx.textAlign = 'right';
+        ctx.fillText(document.getElementById('imgWhatsapp').value, W-40, H-140);
+        ctx.beginPath();
+        ctx.arc(W-260, H-153, 20, 0, Math.PI*2);
+        ctx.fillStyle = '#25D366';
+        ctx.fill();
+        ctx.restore();
+
+        ctx.save();
+        ctx.font = 'bold 30px Arial';
+        ctx.fillStyle = 'rgba(0,0,0,.15)';
+        ctx.textAlign = 'right';
+        ctx.fillText(document.getElementById('imgWebsite').value, W-40, H-40);
+        ctx.restore();
+    }
+
+    document.getElementById('imgDownloadBtn').addEventListener('click', () => {
+        try {
+            const link = document.createElement('a');
+            link.download = 'invicta-ad.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        } catch(err) {
+            alert('Error al exportar: ' + err.message + '\n\nSi cargaste foto del producto (CORS), subí la imagen manualmente.');
+        }
+    });
+
+    // Vuelve a dibujar si Livewire re-renderiza el componente
+    draw();
+};
+</script>
+@endpush

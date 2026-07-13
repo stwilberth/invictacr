@@ -204,6 +204,33 @@ Separa cada variante con '---'.";
         session()->flash('message', 'Anuncio guardado en Marketing.');
     }
 
+    public function useProductForImage()
+    {
+        $product = Product::find($this->selectedProductId);
+        if (!$product) {
+            session()->flash('error', 'Selecciona un producto primero.');
+            return;
+        }
+
+        $specs = array_filter([
+            $product->coleccion ?? null,
+            $product->size ? $product->size . ' mm' : null,
+            $product->tipo_movimiento ? 'Mov. ' . $product->tipo_movimiento : null,
+            $product->resistencia_agua ? $product->resistencia_agua : null,
+        ]);
+
+        $payload = [
+            'title' => strtoupper($product->modelo ?? ''),
+            'modelCode' => $product->codigo_comercial ?? ('(' . ($product->id ?? '') . ')'),
+            'price' => '₡' . number_format($product->price_after_discount, 0),
+            'specs' => implode("\n", $specs),
+            'image' => $product->imagen ?? null,
+        ];
+
+        $this->dispatch('populate-image-fields', payload: $payload);
+        session()->flash('message', 'Producto cargado en la plantilla.');
+    }
+
     public function render()
     {
         $products = Product::where('activo', true)->where('precio_venta', '>', 0)->orderBy('modelo')->get();
