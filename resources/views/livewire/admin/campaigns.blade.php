@@ -110,7 +110,7 @@
 
                 {{-- Columna 3: Canvas preview --}}
                 <div class="flex items-start justify-center p-2 bg-[#050505] rounded-xl border border-gray-200 dark:border-white/5">
-                    <canvas id="adCanvas" width="1080" height="1350" style="max-width:100%;max-height:calc(100vh-320px);width:auto;box-shadow:0 10px 40px rgba(0,0,0,.6);border-radius:4px;"></canvas>
+                    <canvas id="adCanvas" width="1080" height="1350" style="max-width:100%;max-height:500px;width:auto;box-shadow:0 10px 40px rgba(0,0,0,.6);border-radius:4px;"></canvas>
                 </div>
             </div>
         </div>
