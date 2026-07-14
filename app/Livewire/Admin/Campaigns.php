@@ -30,15 +30,30 @@ class Campaigns extends Component
 
     public $savedAds;
 
+    public function mount()
+    {
+        $first = Product::where('activo', true)->where('precio_venta', '>', 0)->orderBy('modelo')->first();
+        if ($first) {
+            $this->selectedProductId = $first->id;
+            $this->product = $first;
+            $this->loadProductData($first);
+        }
+    }
+
     public function updatedSelectedProductId($value)
     {
         $this->product = $value ? Product::find($value) : null;
         $this->generatedContent = null;
 
         if ($this->product) {
-            $this->dispatch('populate-image-fields', payload: $this->buildImageTemplateData($this->product));
-            $this->generateAd(silent: true);
+            $this->loadProductData($this->product);
         }
+    }
+
+    private function loadProductData(Product $product): void
+    {
+        $this->dispatch('populate-image-fields', payload: $this->buildImageTemplateData($product));
+        $this->generateAd(silent: true);
     }
 
     /**
