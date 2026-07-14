@@ -345,6 +345,8 @@ window.initInvictaImageCanvas = function(){
     };
     let currentTheme = 'gold';
     let watchImg = null;
+    let waIcon = new Image();
+    waIcon.src = '/images/whatsapp.svg';
 
     const fieldIds = ['imgTitle','imgModelCode','imgPrice','imgShipping','imgSpecs','imgWhatsapp','imgWebsite','imgScale','imgOffsetY'];
     fieldIds.forEach(id => {
@@ -576,27 +578,16 @@ window.initInvictaImageCanvas = function(){
         ctx.fill();
         ctx.shadowBlur = 0;
 
-        // ícono de teléfono (auricular) dentro del círculo
-        ctx.save();
-        ctx.translate(iconX, waY);
-        ctx.rotate(-0.5);
-        ctx.strokeStyle = '#fff';
-        ctx.lineWidth = 3;
-        ctx.lineCap = 'round';
-        // mango del auricular
-        ctx.beginPath();
-        ctx.moveTo(0, -7);
-        ctx.lineTo(0, 7);
-        ctx.stroke();
-        // auricular (arriba)
-        ctx.beginPath();
-        ctx.arc(4, -7, 4, -Math.PI/2, Math.PI/2);
-        ctx.stroke();
-        // micrófono (abajo)
-        ctx.beginPath();
-        ctx.arc(-4, 7, 4, Math.PI/2, -Math.PI/2);
-        ctx.stroke();
-        ctx.restore();
+        // ícono SVG de WhatsApp dentro del círculo
+        if (waIcon.complete && waIcon.naturalWidth > 0) {
+            const iconSize = iconRadius * 1.2;
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(iconX, waY, iconRadius, 0, Math.PI * 2);
+            ctx.clip();
+            ctx.drawImage(waIcon, iconX - iconSize / 2, waY - iconSize / 2, iconSize, iconSize);
+            ctx.restore();
+        }
 
         // texto del número
         ctx.fillStyle = '#1c1c1e';
