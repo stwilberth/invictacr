@@ -472,28 +472,42 @@ window.initInvictaImageCanvas = function(){
         ctx.fill();
         ctx.restore();
 
-        const badgeX = 0, badgeY = H-260, badgeW = 460, badgeH = 190;
+        // ===== BADGE DE PRECIO (modificar tamaño y posición) =====
+        const badgePadX = 50;      // padding horizontal interno del badge
+        const badgeY = H - 240;    // posición Y del badge
+        const badgeW = 480;        // ancho del badge
+        const badgeH = 170;        // alto del badge
+        const badgeRadius = 90;    // bordes redondeados
         ctx.save();
         ctx.fillStyle = t.badge;
-        roundRect(badgeX, badgeY+40, badgeW, badgeH, 90);
+        roundRect(0, badgeY, badgeW, badgeH, badgeRadius);
         ctx.fill();
         ctx.restore();
 
+        // etiqueta amarilla de envío (sobre el badge)
+        const tagH = 50;
+        const tagRadius = 25;
         ctx.save();
         ctx.fillStyle = '#f2c400';
-        roundRect(40, badgeY-25, 340, 60, 30);
+        roundRect(badgePadX, badgeY - tagH/2 + 4, 360, tagH, tagRadius);
         ctx.fill();
-        ctx.font = 'bold 22px Arial';
+        ctx.font = 'bold 20px Arial';
         ctx.fillStyle = '#1c1c1c';
         ctx.textBaseline = 'middle';
-        ctx.fillText(document.getElementById('imgShipping').value, 65, badgeY+5);
+        ctx.fillText(document.getElementById('imgShipping').value, badgePadX + 20, badgeY + 4);
         ctx.restore();
 
+        // precio centrado vertical y horizontalmente dentro del badge
         ctx.save();
-        ctx.font = 'italic bold 78px Arial';
+        const priceText = document.getElementById('imgPrice').value;
+        const priceFontSize = 72;
+        ctx.font = `italic bold ${priceFontSize}px Arial`;
         ctx.fillStyle = '#ffffff';
         ctx.textBaseline = 'middle';
-        ctx.fillText(document.getElementById('imgPrice').value, 60, badgeY+130);
+        const priceCenterX = badgeW / 2;
+        const priceCenterY = badgeY + badgeH / 2 + 20;
+        ctx.textAlign = 'center';
+        ctx.fillText(priceText, priceCenterX, priceCenterY);
         ctx.restore();
 
         if(watchImg){
@@ -530,14 +544,14 @@ window.initInvictaImageCanvas = function(){
             ctx.restore();
         }
 
-        // ===== ESPECIFICACIONES (debajo del círculo, mismas X) =====
+        // ===== ESPECIFICACIONES (al lado derecho del círculo) =====
         const specLines = (document.getElementById('imgSpecs').value || '').split('\n').filter(l => l.trim() !== '');
-        const specOffsetY = -30; // <-- ajustá este número para subir/bajar todo el bloque
+        const specYoffset = 0; // <-- ajustá para subir/bajar (+ = baja, - = sube)
         ctx.save();
         ctx.font = '30px Arial';
         ctx.fillStyle = t.text;
         ctx.textAlign = 'right';
-        const specStartY = cy + r + specOffsetY;
+        const specStartY = cy - ((specLines.length - 1) * 30) - 30 + specYoffset;
         specLines.forEach((line, i) => {
             const sy = specStartY + i * 60;
             ctx.fillText(line.trim(), W-35, sy);
