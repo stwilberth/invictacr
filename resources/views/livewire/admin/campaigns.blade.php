@@ -88,7 +88,7 @@
                         </div>
                         <div class="grid grid-cols-2 gap-1.5">
                             <!-- escala default: value="1"; cambiá ese número para el zoom inicial de la foto -->
-<div><label class="block text-[9px] uppercase text-gray-500 dark:text-gray-400">Escala</label><input type="range" id="imgScale" min="0.5" max="2" step="0.01" value="1" class="w-full accent-[#00C4FF] h-4" /></div>
+                            <div><label class="block text-[9px] uppercase text-gray-500 dark:text-gray-400">Escala</label><input type="range" id="imgScale" min="0.5" max="2" step="0.01" value="0.8" class="w-full accent-[#00C4FF] h-4" /></div>
                             <div><label class="block text-[9px] uppercase text-gray-500 dark:text-gray-400">Vertical</label><input type="range" id="imgOffsetY" min="-200" max="200" step="1" value="0" class="w-full accent-[#00C4FF] h-4" /></div>
                         </div>
                         <button type="button" id="imgDownloadBtn" class="w-full px-2 py-1.5 rounded-lg bg-[#d4af37] hover:brightness-110 text-[#1c1c1e] font-bold text-[11px] transition-all flex items-center justify-center gap-1">
@@ -581,7 +581,7 @@ window.initInvictaImageCanvas = function(){
         // ===== WEB (esquina inferior derecha) =====
         ctx.save();
         ctx.font = 'bold 42px Arial';
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.08)';
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.72)';
         ctx.textAlign = 'right';
         ctx.textBaseline = 'bottom';
         ctx.fillText(document.getElementById('imgWebsite').value, W - 40, H - 30);
