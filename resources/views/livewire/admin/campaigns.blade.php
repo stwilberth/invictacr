@@ -28,10 +28,14 @@
                     <div class="flex flex-col">
                         <div
                             class="col-span-2 bg-white dark:bg-[#0f172a] rounded-xl border border-gray-200 dark:border-white/5 p-2 flex flex-col">
-                            <div class="flex items-center gap-1.5 mb-2 px-1">
+                            <div class="flex items-center gap-1 mb-2 px-1">
                                 <i class="fa-solid fa-search text-gray-400 text-[10px]"></i>
                                 <input wire:model.live="productSearch" placeholder="Buscar..."
                                     class="flex-1 bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-md px-2 py-1 text-[10px] focus:border-[#00C4FF] focus:ring-1 focus:ring-[#00C4FF] outline-none" />
+                                <button wire:click="setProductFilter('all')"
+                                    class="px-1.5 py-0.5 rounded text-[9px] font-bold {{ $productFilter === 'all' ? 'bg-[#00C4FF] text-[#0a0f1c]' : 'bg-gray-100 dark:bg-white/5 text-gray-500' }}">Todos</button>
+                                <button wire:click="setProductFilter('pending')"
+                                    class="px-1.5 py-0.5 rounded text-[9px] font-bold {{ $productFilter === 'pending' ? 'bg-[#00C4FF] text-[#0a0f1c]' : 'bg-gray-100 dark:bg-white/5 text-gray-500' }}">Pendientes</button>
                             </div>
                             <div class="flex gap-2 overflow-x-auto pb-1">
                                 @forelse($products as $p)
@@ -137,6 +141,7 @@
                                         </div>
                                     </div>
                                     <button type="button" id="imgDownloadBtn"
+                                        wire:click="saveDownload"
                                         class="w-full px-2 py-1.5 rounded-lg bg-[#d4af37] hover:brightness-110 text-[#1c1c1e] font-bold text-[11px] transition-all flex items-center justify-center gap-1">
                                         <i class="fa-solid fa-download"></i> Descargar PNG
                                     </button>
@@ -225,9 +230,50 @@
                     </div>
                 </div>
             </div>
-        </div>
+    </div>
 
-        {{-- TAB: UTM --}}
+    {{-- Downloads table --}}
+    @if ($downloads && $downloads->count() > 0)
+    <div class="bg-white dark:bg-[#0f172a] rounded-xl border border-gray-200 dark:border-white/5 p-3 mt-3">
+        <div class="flex items-center justify-between mb-2">
+            <h2 class="font-bold text-[11px] uppercase tracking-wider text-gray-900 dark:text-white flex items-center gap-1.5">
+                <i class="fa-solid fa-clock-rotate-left text-[#00C4FF] text-[10px]"></i> Descargados
+            </h2>
+            <button wire:click="resetDownloads" wire:confirm="¿Limpiar todo el historial?"
+                class="px-2 py-0.5 rounded text-[9px] font-bold bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-900/30 transition-all">
+                <i class="fa-solid fa-trash-can"></i> Reset
+            </button>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-[10px] text-left">
+                <thead>
+                    <tr class="text-gray-400 dark:text-gray-500 border-b border-gray-200 dark:border-white/10">
+                        <th class="py-1 pr-2 font-medium">Modelo</th>
+                        <th class="py-1 px-2 font-medium">Foto</th>
+                        <th class="py-1 px-2 font-medium">Texto</th>
+                        <th class="py-1 pl-2 font-medium">Descargado</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 dark:divide-white/5">
+                    @foreach ($downloads as $d)
+                    <tr class="text-gray-600 dark:text-gray-400">
+                        <td class="py-1 pr-2 font-bold text-gray-800 dark:text-gray-200">{{ $d->model_code }}</td>
+                        <td class="py-1 px-2">
+                            @if ($d->product_image)
+                            <img src="{{ $d->product_image }}" class="w-8 h-8 object-contain rounded" />
+                            @endif
+                        </td>
+                        <td class="py-1 px-2 max-w-[200px] truncate" title="{{ $d->text_content }}">{{ $d->text_content }}</td>
+                        <td class="py-1 pl-2 whitespace-nowrap">{{ $d->created_at->format('d/m H:i') }}</td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    </div>
+    @endif
+
+    {{-- TAB: UTM --}}
     @elseif($activeTab === 'utm')
         <div class="grid grid-cols-1 lg:grid-cols-5 gap-4">
             <div class="lg:col-span-2 space-y-3">
@@ -707,18 +753,13 @@
                 ctx.restore();
             }
 
-            document.getElementById('imgDownloadBtn').addEventListener('click', () => {
-        try {
-            const modelCode = (document.getElementById('imgModelCode').value || 'invicta').replace(/[^a-zA-Z0-9_-]/g, '');
-            const link = document.createElement('a');
-            link.download = modelCode + '.png';
-                    link.href = canvas.toDataURL('image/png');
-                    link.click();
-                } catch (err) {
-                    alert('Error al exportar: ' + err.message +
-                        '\n\nSi cargaste foto del producto (CORS), subí la imagen manualmente.');
-                }
-            });
+    document.addEventListener('trigger-png-download', () => {
+        const modelCode = (document.getElementById('imgModelCode').value || 'invicta').replace(/[^a-zA-Z0-9_-]/g, '');
+        const link = document.createElement('a');
+        link.download = modelCode + '.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+    });
 
             // Vuelve a dibujar si Livewire re-renderiza el componente
             draw();

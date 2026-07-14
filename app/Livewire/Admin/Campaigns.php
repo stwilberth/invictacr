@@ -4,6 +4,7 @@ namespace App\Livewire\Admin;
 
 use App\Models\Product;
 use App\Models\MarketingTask;
+use App\Models\DownloadHistory;
 use Livewire\Component;
 use Illuminate\Support\Facades\Http;
 
@@ -29,6 +30,50 @@ class Campaigns extends Component
     public $generatedUtm = '';
 
     public $savedAds;
+    public $productFilter = 'all';
+    public $downloads;
+
+    public function saveDownload()
+    {
+        if (!$this->product) return;
+
+        $existing = DownloadHistory::where('product_id', $this->product->id)->first();
+        if ($existing) return;
+
+        $text = $this->generatedContent
+            ? ($this->generatedContent['headline'] ?? '') . "\n\n" . ($this->generatedContent['body'] ?? '')
+            : '';
+
+        DownloadHistory::create([
+            'product_id' => $this->product->id,
+            'model_code' => $this->product->modelo,
+            'product_image' => $this->product->imagen,
+            'text_content' => $text,
+        ]);
+
+        $this->loadDownloads();
+        $this->dispatch('trigger-png-download');
+        session()->flash('message', 'Descarga registrada.');
+    }
+
+    public function resetDownloads()
+    {
+        DownloadHistory::truncate();
+        $this->loadDownloads();
+        session()->flash('message', 'Historial de descargas limpiado.');
+    }
+
+    public function setProductFilter($filter)
+    {
+        $this->productFilter = $filter;
+    }
+
+    private function loadDownloads()
+    {
+        $this->downloads = DownloadHistory::with('product')
+            ->latest()
+            ->get();
+    }
 
     public function getAiToneOptionsProperty(): array
     {
@@ -42,6 +87,7 @@ class Campaigns extends Component
 
     public function mount()
     {
+        $this->loadDownloads();
         $first = Product::where('activo', true)->where('precio_venta', '>', 0)->orderBy('modelo')->first();
         if ($first) {
             $this->selectedProductId = $first->id;
@@ -278,10 +324,17 @@ Separá cada variante exactamente con: ---";
 
 public function render()
     {
-        $products = Product::where('activo', true)->where('precio_venta', '>', 0)
-            ->when($this->productSearch, fn($q) => $q->where('modelo', 'like', '%'.$this->productSearch.'%'))
-            ->orderBy('modelo')->get();
+        $query = Product::where('activo', true)->where('precio_venta', '>', 0)
+            ->when($this->productSearch, fn($q) => $q->where('modelo', 'like', '%'.$this->productSearch.'%'));
+
+        if ($this->productFilter === 'pending') {
+            $downloadedIds = DownloadHistory::pluck('product_id');
+            $query->whereNotIn('id', $downloadedIds);
+        }
+
+        $products = $query->orderBy('modelo')->get();
         $this->savedAds = MarketingTask::where('type', 'like', 'ad_%')->latest()->take(10)->get();
+        $this->loadDownloads();
 
         return view('livewire.admin.campaigns', compact('products'))
             ->layout('components.admin-layout', ['title' => 'Campañas']);
