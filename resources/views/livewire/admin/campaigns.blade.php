@@ -157,11 +157,11 @@
                 </button>
                 <div x-show="open" x-collapse class="mt-3 space-y-3">
                     <div class="flex items-center gap-1.5 flex-wrap">
-                        @php$tones = [
-                                'casual' => ['fa-face-smile', 'Casual'],
-                                'profesional' => ['fa-briefcase', 'Pro'],
-                                'urgente' => ['fa-bolt', 'Urgente'],
-                                'lujoso' => ['fa-crown', 'Lujo'],
+                        @php $tones = [
+                            'casual' => ['fa-face-smile', 'Casual'],
+                            'profesional' => ['fa-briefcase', 'Pro'],
+                            'urgente' => ['fa-bolt', 'Urgente'],
+                            'lujoso' => ['fa-crown', 'Lujo'],
                         ]; @endphp
                         @foreach ($tones as $key => $info)
                             <button wire:click="$set('aiTone', '{{ $key }}')"
