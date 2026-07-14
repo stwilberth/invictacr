@@ -529,7 +529,7 @@ window.initInvictaImageCanvas = function(){
             ctx.fillStyle = '#999';
             ctx.font = '24px Arial';
             ctx.textAlign = 'center';
-            ctx.fillText('Sube la foto del reloj →', cx, cy);
+            ctx.fillText('Sube la foto del reloj', cx, cy);
             ctx.restore();
         }
 
@@ -557,22 +557,56 @@ window.initInvictaImageCanvas = function(){
         ctx.font = 'bold 38px Arial';
         ctx.fillStyle = '#1c1c1e';
         ctx.textAlign = 'right';
-        const waX = W - 35;
-        const waY = 55;
+        ctx.textBaseline = 'middle';   // <- clave: fija el mismo eje vertical para texto e ícono
+
+        const waX = W - 35;      // posición X del texto (borde derecho)
+        const waY = 70;          // posición Y (centro vertical de todo el bloque)
+        const gap = 28;          // separación entre ícono y texto
+
+        const textWidth = ctx.measureText(waText).width;
+        const iconRadius = 22;
+        const iconX = waX - textWidth - gap - iconRadius;
+
+        // círculo del ícono
         ctx.beginPath();
-        ctx.arc(waX - ctx.measureText(waText).width - 28, waY + 19, 22, 0, Math.PI*2);
+        ctx.arc(iconX, waY, iconRadius, 0, Math.PI * 2);
         ctx.fillStyle = '#25D366';
         ctx.shadowColor = 'rgba(0,0,0,.15)';
         ctx.shadowBlur = 8;
         ctx.fill();
         ctx.shadowBlur = 0;
+
+        // ícono de teléfono (auricular) dentro del círculo
+        ctx.save();
+        ctx.translate(iconX, waY);
+        ctx.rotate(-0.5);
+        ctx.strokeStyle = '#fff';
+        ctx.lineWidth = 3;
+        ctx.lineCap = 'round';
+        // mango del auricular
+        ctx.beginPath();
+        ctx.moveTo(0, -7);
+        ctx.lineTo(0, 7);
+        ctx.stroke();
+        // auricular (arriba)
+        ctx.beginPath();
+        ctx.arc(4, -7, 4, -Math.PI/2, Math.PI/2);
+        ctx.stroke();
+        // micrófono (abajo)
+        ctx.beginPath();
+        ctx.arc(-4, 7, 4, Math.PI/2, -Math.PI/2);
+        ctx.stroke();
+        ctx.restore();
+
+        // texto del número
+        ctx.fillStyle = '#1c1c1e';
         ctx.fillText(waText, waX, waY);
         ctx.restore();
 
         // ===== WEB (tamaño y visibilidad) =====
         ctx.save();
         ctx.font = 'bold 42px Arial';
-        ctx.fillStyle = 'rgba(0,0,0,.35)';
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.08)';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'bottom';
         ctx.fillText(document.getElementById('imgWebsite').value, W/2, H-30);
