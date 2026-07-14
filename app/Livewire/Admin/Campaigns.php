@@ -9,9 +9,10 @@ use Illuminate\Support\Facades\Http;
 
 class Campaigns extends Component
 {
-    public $activeTab = 'generator';
+    public $activeTab = 'create';
     public $selectedProductId;
     public $product = null;
+    public $productSearch = '';
     public $templateType = 'instagram';
     public $generatedContent = null;
 
@@ -29,17 +30,30 @@ class Campaigns extends Component
 
     public $savedAds;
 
+    public function mount()
+    {
+        $first = Product::where('activo', true)->where('precio_venta', '>', 0)->orderBy('modelo')->first();
+        if ($first) {
+            $this->selectedProductId = $first->id;
+            $this->product = $first;
+            $this->loadProductData($first);
+        }
+    }
+
     public function updatedSelectedProductId($value)
     {
         $this->product = $value ? Product::find($value) : null;
         $this->generatedContent = null;
 
-        // Auto-carga los datos del producto en la plantilla de imagen
-        // (sin necesidad de un botón/paso extra) si el usuario ya está
-        // en esa pestaña o si vuelve a ella luego.
         if ($this->product) {
-            $this->dispatch('populate-image-fields', payload: $this->buildImageTemplateData($this->product));
+            $this->loadProductData($this->product);
         }
+    }
+
+    private function loadProductData(Product $product): void
+    {
+        $this->dispatch('populate-image-fields', payload: $this->buildImageTemplateData($product));
+        $this->generateAd(silent: true);
     }
 
     /**
@@ -58,15 +72,17 @@ class Campaigns extends Component
         }
 
         $specs = array_filter([
-            $product->coleccion ?? null,
             $product->size ? $product->size . ' mm' : null,
-            $product->tipo_movimiento ? 'Mov. ' . $product->tipo_movimiento : null,
-            $product->resistencia_agua ?? null,
+            $product->resistencia_agua ? $product->resistencia_agua . ' m' : null,
+            $product->tipo_movimiento ? ucfirst($product->tipo_movimiento) : null,
+            $product->brazalete ?? null,
         ]);
 
+        $title = 'INVICTA ' . strtoupper($product->coleccion ?? $product->modelo ?? '');
+
         return [
-            'title' => strtoupper($product->modelo ?? ''),
-            'modelCode' => $product->codigo_comercial ?? ('(' . ($product->id ?? '') . ')'),
+            'title' => $title,
+            'modelCode' => $product->codigo_comercial ?? $product->modelo,
             'price' => '₡' . number_format($product->price_after_discount, 0),
             'specs' => $specs ? implode("\n", $specs) : "Acero inoxidable\n43 mm\nMov. Cuarzo\n100 m",
             'image' => $product->imagen ?? null,
@@ -82,7 +98,7 @@ class Campaigns extends Component
         return $this->buildImageTemplateData($this->product);
     }
 
-    public function generateAd()
+    public function generateAd(bool $silent = false)
     {
         $product = Product::find($this->selectedProductId);
         if (!$product) {
@@ -92,37 +108,27 @@ class Campaigns extends Component
 
         $price = $product->price_after_discount;
         $formattedPrice = '₡' . number_format($price, 0);
+        $modelo = $product->modelo;
+        $coleccion = $product->coleccion ? strtoupper($product->coleccion) : 'INVICTA';
+        $size = $product->size;
+        $mov = $product->tipo_movimiento;
 
-        $templates = [
-            'instagram' => [
-                'headline' => "{$product->modelo} – El estilo que merecés",
-                'body' => "✨ Conocé el {$product->modelo} de Invicta.\n\n✅ Diseño {$product->size}mm\n✅ Movimiento {$product->tipo_movimiento}\n✅ Resistente al agua\n\n💰 {$formattedPrice}\n🚚 Envío gratis en GAM\n\n📲 ¡Escríbenos al WhatsApp!",
-                'cta' => '¡Compra ahora!',
-            ],
-            'facebook' => [
-                'headline' => "🔥 {$product->modelo} – Oferta por tiempo limitado",
-                'body' => "No dejes pasar esta oportunidad.\n\n⌚️ Modelo: {$product->modelo}\n📏 Tamaño: {$product->size}mm\n⚙️ Movimiento: {$product->tipo_movimiento}\n💰 Precio: {$formattedPrice}\n\n🔵 Envío gratis en GAM\n📲 Contáctanos hoy",
-                'cta' => 'Más información',
-            ],
-            'whatsapp' => [
-                'headline' => "¡Hola! 😊",
-                'body' => "Te comparto este increíble reloj Invicta:\n\n⌚️ *{$product->modelo}*\n💰 *{$formattedPrice}*\n📏 {$product->size}mm | ⚙️ {$product->tipo_movimiento}\n💧 Resistencia al agua\n\n¿Te interesa? ¡Escríbenos! 🚀",
-                'cta' => '',
-            ],
-            'story' => [
-                'headline' => "{$product->modelo}",
-                'body' => "{$formattedPrice}\n🚚 Envío gratis GAM\n📲 Link en bio",
-                'cta' => '',
-            ],
-        ];
-
-        $template = $templates[$this->templateType] ?? $templates['instagram'];
+        // Texto único para todas las redes
+        $headline = "{$coleccion} {$modelo} – El estilo que merecés";
+        $body = "✨ Conocé el {$modelo} de Invicta.\n\n"
+              . "✅ Diseño {$size}mm\n"
+              . "✅ Movimiento {$mov}\n"
+              . "✅ Resistente al agua\n\n"
+              . "💰 {$formattedPrice}\n"
+              . "🚚 Envío gratis en GAM\n\n"
+              . "📲 ¡Escríbenos al WhatsApp!";
+        $cta = '¡Compra ahora!';
 
         $this->generatedContent = [
             'template' => $this->templateType,
-            'headline' => $template['headline'],
-            'body' => $template['body'],
-            'cta' => $template['cta'],
+            'headline' => $headline,
+            'body' => $body,
+            'cta' => $cta,
             'model' => $product->modelo,
             'price' => $price,
             'formatted_price' => $formattedPrice,
@@ -130,7 +136,9 @@ class Campaigns extends Component
             'product' => $product,
         ];
 
-        session()->flash('message', 'Anuncio generado exitosamente.');
+        if (!$silent) {
+            session()->flash('message', 'Anuncio generado exitosamente.');
+        }
     }
 
     public function generateWithAI()
@@ -228,8 +236,8 @@ Separa cada variante con '---'.";
             'formatted_price' => '',
         ];
 
-        $this->activeTab = 'generator';
-        session()->flash('message', 'Variante de IA aplicada al generador.');
+        $this->activeTab = 'create';
+        session()->flash('message', 'Variante de IA aplicada.');
     }
 
     public function saveAd()
@@ -253,7 +261,9 @@ Separa cada variante con '---'.";
 
 public function render()
     {
-        $products = Product::where('activo', true)->where('precio_venta', '>', 0)->orderBy('modelo')->get();
+        $products = Product::where('activo', true)->where('precio_venta', '>', 0)
+            ->when($this->productSearch, fn($q) => $q->where('modelo', 'like', '%'.$this->productSearch.'%'))
+            ->orderBy('modelo')->get();
         $this->savedAds = MarketingTask::where('type', 'like', 'ad_%')->latest()->take(10)->get();
 
         return view('livewire.admin.campaigns', compact('products'))
