@@ -114,9 +114,7 @@
             <textarea id="ad-textarea" readonly rows="4" class="w-full bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-gray-700 dark:text-gray-300 font-mono resize-none whitespace-pre-wrap">{{ $generatedContent['headline'] }}
 
 {{ $generatedContent['body'] }}
-@if($generatedContent['cta'])
-{{ $generatedContent['cta'] }}
-@endif</textarea>
+{{ $generatedContent['cta'] ? $generatedContent['cta'] : '' }}</textarea>
         </div>
         @endif
 
