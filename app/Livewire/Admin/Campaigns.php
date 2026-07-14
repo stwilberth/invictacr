@@ -30,6 +30,16 @@ class Campaigns extends Component
 
     public $savedAds;
 
+    public function getAiToneOptionsProperty(): array
+    {
+        return [
+            'casual' => ['fa-face-smile', 'Casual'],
+            'profesional' => ['fa-briefcase', 'Pro'],
+            'urgente' => ['fa-bolt', 'Urgente'],
+            'lujoso' => ['fa-crown', 'Lujo'],
+        ];
+    }
+
     public function mount()
     {
         $first = Product::where('activo', true)->where('precio_venta', '>', 0)->orderBy('modelo')->first();
