@@ -32,17 +32,22 @@
                             <input wire:model.live="productSearch" placeholder="Buscar..."
                                 class="flex-1 bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-md px-2 py-1 text-[10px] focus:border-[#00C4FF] focus:ring-1 focus:ring-[#00C4FF] outline-none" />
                         </div>
-                        <div class="flex gap-2 overflow-x-auto pb-1">
+                        <div class="flex-1 overflow-x-auto space-y-1 pr-1">
                             @forelse($products as $p)
                             <button wire:click="$set('selectedProductId', {{ $p->id }})"
-                                class="flex-shrink-0 p-1 rounded-lg border-2 transition-all {{ $selectedProductId == $p->id ? 'border-[#00C4FF]' : 'border-transparent hover:border-gray-200 dark:hover:border-white/20' }}" style="width:90px">
+                                class="w-full flex items-center gap-2 p-1.5 rounded-lg border transition-all text-left {{ $selectedProductId == $p->id ? 'border-[#00C4FF] bg-[#00C4FF]/5' : 'border-transparent hover:border-gray-200 dark:hover:border-white/20' }}">
                                 @if($p->imagen)
-                                <img src="{{ $p->imagen }}" class="w-full aspect-square object-contain rounded" loading="lazy" />
+                                <img src="{{ $p->imagen }}" class="w-9 h-9 rounded object-contain bg-white flex-shrink-0" />
                                 @endif
-                                <p class="text-[8px] font-medium text-gray-700 dark:text-gray-300 truncate mt-0.5">{{ $p->modelo }}</p>
+                                <div class="min-w-0 flex-1">
+                                    <p class="text-[10px] font-medium text-gray-700 dark:text-gray-300 truncate leading-tight">{{ $p->modelo }}</p>
+                                    @if($product && $selectedProductId == $p->id)
+                                    <p class="text-[8px] text-green-500 font-bold">✓ seleccionado</p>
+                                    @endif
+                                </div>
                             </button>
                             @empty
-                            <p class="text-[12px] text-gray-400 py-2">Sin resultados</p>
+                            <p class="text-[11px] text-gray-400 text-center py-4">Sin resultados</p>
                             @endforelse
                         </div>
                     </div>
@@ -144,11 +149,10 @@
                 @if($generatedContent)
                 <div x-data="{ copy: false }">
                     <textarea id="ad-textarea" readonly rows="3" class="w-full bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-lg px-2.5 py-1.5 text-[10px] text-gray-700 dark:text-gray-300 font-mono resize-none">{{ $generatedContent['headline'] }}
-
-{{ $generatedContent['body'] }}
-@if($generatedContent['cta'])
-{{ $generatedContent['cta'] }}
-@endif</textarea>
+                        {{ $generatedContent['body'] }}
+                        @if($generatedContent['cta'])
+                        {{ $generatedContent['cta'] }}
+                        @endif</textarea>
                     <button @click="navigator.clipboard.writeText(document.querySelector('#ad-textarea').value); copy = true; setTimeout(() => copy = false, 2000)"
                         class="mt-1 px-2 py-1 rounded-lg text-[9px] font-bold transition-all flex items-center gap-1"
                         :class="copy ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-gray-100 dark:bg-white/5 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/10'">
