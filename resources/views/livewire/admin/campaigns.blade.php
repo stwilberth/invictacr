@@ -85,7 +85,7 @@
                                         value="{{ $this->imageTemplateData['modelCode'] }}" />
                                     <input type="hidden" id="imgPrice"
                                         value="{{ $this->imageTemplateData['price'] }}" />
-                                    <input type="hidden" id="imgShipping" value="+ ENVÍO GRATIS" />
+                                    <input type="hidden" id="imgShipping" value="ENVÍO GRATIS" />
                                     <textarea id="imgSpecs" class="sr-only">{{ $this->imageTemplateData['specs'] }}</textarea>
                                     <input type="hidden" id="imgWhatsapp" value="8671-1422" />
                                     <input type="hidden" id="imgWebsite" value="INVICTACR.COM" />
@@ -584,7 +584,7 @@
                 ctx.restore();
 
                 // etiqueta amarilla de envío (sobre el badge)
-                const tagH = 50;
+                const tagH = 60;
                 const tagRadius = 25;
                 ctx.save();
                 ctx.fillStyle = '#f2c400';
@@ -593,7 +593,7 @@
                 ctx.font = 'bold 20px Arial';
                 ctx.fillStyle = '#1c1c1c';
                 ctx.textBaseline = 'middle';
-                ctx.fillText(document.getElementById('imgShipping').value, badgePadX + 20, badgeY + 4);
+                ctx.fillText(document.getElementById('imgShipping').value, badgePadX + 40, badgeY + 6);
                 ctx.restore();
 
                 // precio centrado vertical y horizontalmente dentro del badge
@@ -651,7 +651,7 @@
                 // ===== ESPECIFICACIONES (al lado derecho del círculo) =====
                 const specLines = (document.getElementById('imgSpecs').value || '').split('\n').filter(l => l.trim() !==
                     '');
-                const specYoffset = 0; // <-- ajustá para subir/bajar (+ = baja, - = sube)
+                const specYoffset = 500; // <-- ajustá para subir/bajar (+ = baja, - = sube)
                 ctx.save();
                 ctx.font = '30px Arial';
                 ctx.fillStyle = t.text;
@@ -708,9 +708,10 @@
             }
 
             document.getElementById('imgDownloadBtn').addEventListener('click', () => {
-                try {
-                    const link = document.createElement('a');
-                    link.download = 'invicta-ad.png';
+        try {
+            const modelCode = (document.getElementById('imgModelCode').value || 'invicta').replace(/[^a-zA-Z0-9_-]/g, '');
+            const link = document.createElement('a');
+            link.download = modelCode + '.png';
                     link.href = canvas.toDataURL('image/png');
                     link.click();
                 } catch (err) {
