@@ -463,7 +463,7 @@ window.initInvictaImageCanvas = function(){
         ctx.fillText(document.getElementById('imgModelCode').value, 62, ty+100);
         ctx.restore();
 
-        const cx = W*0.52, cy = H*0.55, r = 430;
+        const cx = W*0.5, cy = H*0.48, r = 370;
         // Fondo del círculo (blanco con sombra)
         ctx.save();
         ctx.beginPath();
@@ -534,37 +534,44 @@ window.initInvictaImageCanvas = function(){
 
         const specLines = (document.getElementById('imgSpecs').value || '').split('\n').filter(l => l.trim() !== '');
         ctx.save();
-        ctx.font = '32px Arial';
+        ctx.font = '30px Arial';
         ctx.fillStyle = t.text;
         ctx.textAlign = 'right';
-        let sy = H*0.62;
-        specLines.forEach(line => {
+        const specStartY = cy - ((specLines.length - 1) * 30) - 30;
+        specLines.forEach((line, i) => {
+            const sy = specStartY + i * 60;
             ctx.beginPath();
-            ctx.arc(W-330, sy-9, 6, 0, Math.PI*2);
+            ctx.arc(W-310, sy-7, 6, 0, Math.PI*2);
             ctx.fillStyle = '#9aa5b1';
             ctx.fill();
             ctx.fillStyle = t.text;
-            ctx.fillText(line.trim(), W-40, sy);
-            sy += 62;
+            ctx.fillText(line.trim(), W-35, sy);
         });
         ctx.restore();
 
+        const waText = document.getElementById('imgWhatsapp').value;
         ctx.save();
-        ctx.font = 'bold 34px Arial';
-        ctx.fillStyle = '#1c1c1c';
+        ctx.font = 'bold 38px Arial';
+        ctx.fillStyle = '#1c1c1e';
         ctx.textAlign = 'right';
-        ctx.fillText(document.getElementById('imgWhatsapp').value, W-40, H-140);
+        const waX = W - 35;
+        const waY = 55;
         ctx.beginPath();
-        ctx.arc(W-260, H-153, 20, 0, Math.PI*2);
+        ctx.arc(waX - ctx.measureText(waText).width - 28, waY + 19, 22, 0, Math.PI*2);
         ctx.fillStyle = '#25D366';
+        ctx.shadowColor = 'rgba(0,0,0,.15)';
+        ctx.shadowBlur = 8;
         ctx.fill();
+        ctx.shadowBlur = 0;
+        ctx.fillText(waText, waX, waY);
         ctx.restore();
 
         ctx.save();
-        ctx.font = 'bold 30px Arial';
-        ctx.fillStyle = 'rgba(0,0,0,.15)';
-        ctx.textAlign = 'right';
-        ctx.fillText(document.getElementById('imgWebsite').value, W-40, H-40);
+        ctx.font = 'bold 42px Arial';
+        ctx.fillStyle = 'rgba(0,0,0,.35)';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'bottom';
+        ctx.fillText(document.getElementById('imgWebsite').value, W/2, H-30);
         ctx.restore();
     }
 
