@@ -167,8 +167,13 @@ Características: {$product->size}mm, movimiento {$product->tipo_movimiento}, re
 Precio: ₡" . number_format($product->price_after_discount, 0) . "
 Tono: {$toneLabels[$this->aiTone]}
 
-Para cada variante incluye: título llamativo (máx 10 palabras), cuerpo persuasivo (máx 40 palabras), y 3 hashtags relevantes.
-Separa cada variante con '---'.";
+IMPORTANTE: NO uses markdown ni asteriscos. Usá formato simple.
+Para cada variante escribí:
+Título: (máx 10 palabras)
+Cuerpo: (máx 40 palabras)  
+Hashtags: (3 hashtags separados por espacio)
+
+Separá cada variante exactamente con: ---";
 
         try {
             $response = Http::withHeaders([
@@ -184,8 +189,8 @@ Separa cada variante con '---'.";
             $text = $response->json('choices.0.message.content');
 
             $variants = collect(explode('---', $text))
-                ->map(fn($v) => trim($v))
-                ->filter()
+                ->map(fn($v) => trim(preg_replace('/\*\*(.*?)\*\*/', '$1', $v)))
+                ->filter(fn($v) => !preg_match('/^(claro|aquí\s+tienes|por\s+supuesto|te\s+presento)/i', $v))
                 ->values()
                 ->toArray();
 
@@ -223,12 +228,14 @@ Separa cada variante con '---'.";
         if (!$this->aiGenerated || !isset($this->aiGenerated['variants'][$index])) return;
 
         $text = $this->aiGenerated['variants'][$index];
-        $lines = explode("\n", $text);
+        // Limpia etiquetas como "Título:", "Cuerpo:", "Hashtags:" del texto plano
+        $clean = preg_replace('/^(Título|Cuerpo|Hashtags):\s*/im', '', $text);
+        $lines = array_filter(explode("\n", $clean));
 
         $this->generatedContent = [
             'template' => 'ai',
             'headline' => $lines[0] ?? 'Anuncio IA',
-            'body' => $text,
+            'body' => implode("\n", array_slice($lines, 1)),
             'cta' => '¡Contáctanos!',
             'model' => $this->aiGenerated['model'],
             'image' => $this->aiGenerated['image'],

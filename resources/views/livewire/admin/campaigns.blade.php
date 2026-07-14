@@ -186,14 +186,24 @@
                     @elseif($aiGenerated)
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
                             @foreach ($aiGenerated['variants'] as $index => $variant)
+                                @php
+                                    $parts = preg_split('/\n(?=Cuerpo:|Hashtags:)/', $variant);
+                                @endphp
                                 <div
                                     class="p-2 rounded-lg bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/5 flex flex-col">
-                                    <div class="flex-1">
+                                    <div class="flex-1 space-y-1">
                                         <span
-                                            class="w-4 h-4 rounded-full bg-[#00C4FF] inline-flex items-center justify-center text-[8px] font-black text-[#0a0f1c] mb-1">#{{ $index + 1 }}</span>
-                                        <p
-                                            class="text-[10px] text-gray-700 dark:text-gray-300 whitespace-pre-line leading-relaxed">
-                                            {{ $variant }}</p>
+                                            class="w-4 h-4 rounded-full bg-[#00C4FF] inline-flex items-center justify-center text-[8px] font-black text-[#0a0f1c]">#{{ $index + 1 }}</span>
+                                        @foreach ($parts as $part)
+                                            @php $colon = mb_strpos($part, ':' ); @endphp
+                                            @if ($colon !== false)
+                                                <p class="text-[10px] text-gray-700 dark:text-gray-300 leading-relaxed">
+                                                    <span class="font-bold text-[#00C4FF]">{{ mb_substr($part, 0, $colon) }}:</span>{{ mb_substr($part, $colon + 1) }}
+                                                </p>
+                                            @else
+                                                <p class="text-[10px] text-gray-700 dark:text-gray-300 leading-relaxed">{{ $part }}</p>
+                                            @endif
+                                        @endforeach
                                     </div>
                                     <button wire:click="useAiVariant({{ $index }})"
                                         class="mt-1.5 w-full bg-[#00C4FF]/10 hover:bg-[#00C4FF]/20 text-[#00C4FF] font-bold px-2 py-1 rounded-lg text-[9px] transition-all flex items-center justify-center gap-1">
