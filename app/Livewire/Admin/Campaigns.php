@@ -35,11 +35,9 @@ class Campaigns extends Component
         $this->product = $value ? Product::find($value) : null;
         $this->generatedContent = null;
 
-        // Auto-carga los datos del producto en la plantilla de imagen
-        // (sin necesidad de un botón/paso extra) si el usuario ya está
-        // en esa pestaña o si vuelve a ella luego.
         if ($this->product) {
             $this->dispatch('populate-image-fields', payload: $this->buildImageTemplateData($this->product));
+            $this->generateAd(silent: true);
         }
     }
 
@@ -64,8 +62,7 @@ class Campaigns extends Component
             $product->resistencia_agua ?? null,
         ]);
 
-        $base = $product->coleccion ? strtoupper($product->coleccion) . ' ' . $product->modelo : $product->modelo;
-        $title = 'INVICTA ' . strtoupper($base ?? '');
+        $title = 'INVICTA ' . strtoupper($product->coleccion ?? $product->modelo ?? '');
 
         return [
             'title' => $title,
@@ -85,7 +82,7 @@ class Campaigns extends Component
         return $this->buildImageTemplateData($this->product);
     }
 
-    public function generateAd()
+    public function generateAd(bool $silent = false)
     {
         $product = Product::find($this->selectedProductId);
         if (!$product) {
@@ -95,37 +92,27 @@ class Campaigns extends Component
 
         $price = $product->price_after_discount;
         $formattedPrice = '₡' . number_format($price, 0);
+        $modelo = $product->modelo;
+        $coleccion = $product->coleccion ? strtoupper($product->coleccion) : 'INVICTA';
+        $size = $product->size;
+        $mov = $product->tipo_movimiento;
 
-        $templates = [
-            'instagram' => [
-                'headline' => "{$product->modelo} – El estilo que merecés",
-                'body' => "✨ Conocé el {$product->modelo} de Invicta.\n\n✅ Diseño {$product->size}mm\n✅ Movimiento {$product->tipo_movimiento}\n✅ Resistente al agua\n\n💰 {$formattedPrice}\n🚚 Envío gratis en GAM\n\n📲 ¡Escríbenos al WhatsApp!",
-                'cta' => '¡Compra ahora!',
-            ],
-            'facebook' => [
-                'headline' => "🔥 {$product->modelo} – Oferta por tiempo limitado",
-                'body' => "No dejes pasar esta oportunidad.\n\n⌚️ Modelo: {$product->modelo}\n📏 Tamaño: {$product->size}mm\n⚙️ Movimiento: {$product->tipo_movimiento}\n💰 Precio: {$formattedPrice}\n\n🔵 Envío gratis en GAM\n📲 Contáctanos hoy",
-                'cta' => 'Más información',
-            ],
-            'whatsapp' => [
-                'headline' => "¡Hola! 😊",
-                'body' => "Te comparto este increíble reloj Invicta:\n\n⌚️ *{$product->modelo}*\n💰 *{$formattedPrice}*\n📏 {$product->size}mm | ⚙️ {$product->tipo_movimiento}\n💧 Resistencia al agua\n\n¿Te interesa? ¡Escríbenos! 🚀",
-                'cta' => '',
-            ],
-            'story' => [
-                'headline' => "{$product->modelo}",
-                'body' => "{$formattedPrice}\n🚚 Envío gratis GAM\n📲 Link en bio",
-                'cta' => '',
-            ],
-        ];
-
-        $template = $templates[$this->templateType] ?? $templates['instagram'];
+        // Texto único para todas las redes
+        $headline = "{$coleccion} {$modelo} – El estilo que merecés";
+        $body = "✨ Conocé el {$modelo} de Invicta.\n\n"
+              . "✅ Diseño {$size}mm\n"
+              . "✅ Movimiento {$mov}\n"
+              . "✅ Resistente al agua\n\n"
+              . "💰 {$formattedPrice}\n"
+              . "🚚 Envío gratis en GAM\n\n"
+              . "📲 ¡Escríbenos al WhatsApp!";
+        $cta = '¡Compra ahora!';
 
         $this->generatedContent = [
             'template' => $this->templateType,
-            'headline' => $template['headline'],
-            'body' => $template['body'],
-            'cta' => $template['cta'],
+            'headline' => $headline,
+            'body' => $body,
+            'cta' => $cta,
             'model' => $product->modelo,
             'price' => $price,
             'formatted_price' => $formattedPrice,
@@ -133,7 +120,9 @@ class Campaigns extends Component
             'product' => $product,
         ];
 
-        session()->flash('message', 'Anuncio generado exitosamente.');
+        if (!$silent) {
+            session()->flash('message', 'Anuncio generado exitosamente.');
+        }
     }
 
     public function generateWithAI()
