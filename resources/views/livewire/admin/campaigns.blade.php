@@ -459,7 +459,8 @@ window.initInvictaImageCanvas = function(){
         ctx.restore();
 
         // ===== CÍRCULO CENTRADO (modificar posición y tamaño) =====
-        const cx = W/2, cy = H*0.48, r = 370;
+        const cx = W/2, cy = H*0.48;
+        const r = 400; // <-- aumentá este número para agrandar el círculo del reloj
         // Fondo del círculo (blanco con sombra)
         ctx.save();
         ctx.beginPath();
@@ -530,7 +531,7 @@ window.initInvictaImageCanvas = function(){
 
         // ===== ESPECIFICACIONES (debajo del círculo, mismas X) =====
         const specLines = (document.getElementById('imgSpecs').value || '').split('\n').filter(l => l.trim() !== '');
-        const specOffsetY = 60; // <-- ajustá este número para subir/bajar todo el bloque
+        const specOffsetY = 20; // <-- ajustá este número para subir/bajar todo el bloque
         ctx.save();
         ctx.font = '30px Arial';
         ctx.fillStyle = t.text;
