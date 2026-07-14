@@ -32,22 +32,17 @@
                             <input wire:model.live="productSearch" placeholder="Buscar..."
                                 class="flex-1 bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-md px-2 py-1 text-[10px] focus:border-[#00C4FF] focus:ring-1 focus:ring-[#00C4FF] outline-none" />
                         </div>
-                        <div class="flex-1 overflow-x-auto space-y-1 pr-1">
+                        <div class="flex gap-2 overflow-x-auto pb-1">
                             @forelse($products as $p)
                             <button wire:click="$set('selectedProductId', {{ $p->id }})"
-                                class="w-full flex items-center gap-2 p-1.5 rounded-lg border transition-all text-left {{ $selectedProductId == $p->id ? 'border-[#00C4FF] bg-[#00C4FF]/5' : 'border-transparent hover:border-gray-200 dark:hover:border-white/20' }}">
+                                class="flex-shrink-0 p-1 rounded-lg border-2 transition-all {{ $selectedProductId == $p->id ? 'border-[#00C4FF]' : 'border-transparent hover:border-gray-200 dark:hover:border-white/20' }}" style="width:90px">
                                 @if($p->imagen)
-                                <img src="{{ $p->imagen }}" class="w-9 h-9 rounded object-contain bg-white flex-shrink-0" />
+                                <img src="{{ $p->imagen }}" class="w-full aspect-square object-contain rounded" loading="lazy" />
                                 @endif
-                                <div class="min-w-0 flex-1">
-                                    <p class="text-[10px] font-medium text-gray-700 dark:text-gray-300 truncate leading-tight">{{ $p->modelo }}</p>
-                                    @if($product && $selectedProductId == $p->id)
-                                    <p class="text-[8px] text-green-500 font-bold">✓ seleccionado</p>
-                                    @endif
-                                </div>
+                                <p class="text-[8px] font-medium text-gray-700 dark:text-gray-300 truncate mt-0.5">{{ $p->modelo }}</p>
                             </button>
                             @empty
-                            <p class="text-[11px] text-gray-400 text-center py-4">Sin resultados</p>
+                            <p class="text-[12px] text-gray-400 py-2">Sin resultados</p>
                             @endforelse
                         </div>
                     </div>
