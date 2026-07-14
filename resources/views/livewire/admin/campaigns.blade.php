@@ -104,56 +104,21 @@
             </div>
         </div>
 
-        {{-- 3. Texto del anuncio (generador de copys con plantillas) --}}
-        <div x-data="{ open: false }" class="bg-white dark:bg-[#0f172a] rounded-xl border border-gray-200 dark:border-white/5 p-3">
-            <button @click="open = !open" class="flex items-center gap-2 w-full text-left">
-                <span class="w-5 h-5 rounded-full bg-[#00C4FF] text-[9px] flex items-center justify-center font-black text-[#0a0f1c]">2</span>
-                <span class="font-bold text-[11px] uppercase tracking-wider text-gray-900 dark:text-white flex-1">Texto del anuncio</span>
-                <i class="fa-solid text-[10px] text-gray-400" :class="open ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
-            </button>
-            <div x-show="open" x-collapse class="mt-3 space-y-3">
-                <div class="flex items-center gap-1.5 flex-wrap">
-                    @php $templates = [
-                        'instagram' => ['fa-brands fa-instagram', 'IG'],
-                        'facebook' => ['fa-brands fa-facebook', 'FB'],
-                        'whatsapp' => ['fa-brands fa-whatsapp', 'WA'],
-                        'story' => ['fa-solid fa-clapperboard', 'Story'],
-                    ] @endphp
-                    @foreach($templates as $key => $icon)
-                    <button wire:click="$set('templateType', '{{ $key }}')"
-                        class="px-2 py-1 rounded-md text-[10px] font-bold transition-all border {{ $templateType === $key ? 'border-[#00C4FF] bg-[#00C4FF]/10 text-[#00C4FF]' : 'border-gray-200 dark:border-white/5 text-gray-500 hover:border-gray-300 dark:hover:border-white/20' }}">
-                        <i class="{{ $icon[0] }}"></i> {{ $icon[1] }}
-                    </button>
-                    @endforeach
-                    <button wire:click="generateAd" class="bg-[#00C4FF] hover:bg-[#00b0e6] text-[#0a0f1c] font-bold px-2.5 py-1 rounded-md text-[10px] transition-all flex items-center gap-1">
-                        <i class="fa-solid fa-wand-magic-sparkles"></i> Generar
-                    </button>
-                    @if($generatedContent)
-                    <button wire:click="saveAd" class="bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-white/10 hover:border-[#00C4FF]/50 text-gray-500 dark:text-gray-400 font-bold px-2 py-1 rounded-md text-[10px] transition-all" title="Guardar">
-                        <i class="fa-solid fa-floppy-disk"></i>
-                    </button>
-                    @endif
-                </div>
+        {{-- 3. Texto del anuncio (solo textarea, se autogenera al elegir producto) --}}
+        @if($generatedContent)
+        <div class="bg-white dark:bg-[#0f172a] rounded-xl border border-gray-200 dark:border-white/5 p-3">
+            <h2 class="font-bold text-[11px] uppercase tracking-wider flex items-center gap-1.5 mb-2">
+                <span class="w-4 h-4 rounded-full bg-[#00C4FF] text-[8px] flex items-center justify-center font-black text-[#0a0f1c]">2</span>
+                Texto del anuncio
+            </h2>
+            <textarea id="ad-textarea" readonly rows="4" class="w-full bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-gray-700 dark:text-gray-300 font-mono resize-none whitespace-pre-wrap">{{ $generatedContent['headline'] }}
 
-                @if($generatedContent)
-                <div x-data="{ copy: false }">
-                    <textarea id="ad-textarea" readonly rows="3" class="w-full bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-lg px-2.5 py-1.5 text-[10px] text-gray-700 dark:text-gray-300 font-mono resize-none">{{ $generatedContent['headline'] }}
-                        {{ $generatedContent['body'] }}
-                        @if($generatedContent['cta'])
-                        {{ $generatedContent['cta'] }}
-                        @endif</textarea>
-                    <button @click="navigator.clipboard.writeText(document.querySelector('#ad-textarea').value); copy = true; setTimeout(() => copy = false, 2000)"
-                        class="mt-1 px-2 py-1 rounded-lg text-[9px] font-bold transition-all flex items-center gap-1"
-                        :class="copy ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-gray-100 dark:bg-white/5 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/10'">
-                        <i class="fa-solid text-[9px]" :class="copy ? 'fa-check' : 'fa-copy'"></i>
-                        <span x-text="copy ? 'Copiado' : 'Copiar'"></span>
-                    </button>
-                </div>
-                @else
-                <p class="text-[10px] text-gray-400">Seleccioná un producto y generá el texto</p>
-                @endif
-            </div>
+{{ $generatedContent['body'] }}
+@if($generatedContent['cta'])
+{{ $generatedContent['cta'] }}
+@endif</textarea>
         </div>
+        @endif
 
         {{-- 4. IA: variantes de copy --}}
         <div x-data="{ open: false }" class="bg-white dark:bg-[#0f172a] rounded-xl border border-gray-200 dark:border-white/5 p-3">
