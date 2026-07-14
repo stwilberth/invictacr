@@ -537,11 +537,6 @@ window.initInvictaImageCanvas = function(){
         const specStartY = cy + r + 60;
         specLines.forEach((line, i) => {
             const sy = specStartY + i * 60;
-            ctx.beginPath();
-            ctx.arc(W-310, sy-7, 6, 0, Math.PI*2);
-            ctx.fillStyle = '#9aa5b1';
-            ctx.fill();
-            ctx.fillStyle = t.text;
             ctx.fillText(line.trim(), W-35, sy);
         });
         ctx.restore();
