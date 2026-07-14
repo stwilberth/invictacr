@@ -59,15 +59,16 @@ class Campaigns extends Component
         }
 
         $specs = array_filter([
-            $product->coleccion ?? null,
             $product->size ? $product->size . ' mm' : null,
             $product->tipo_movimiento ? 'Mov. ' . $product->tipo_movimiento : null,
             $product->resistencia_agua ?? null,
         ]);
 
+        $title = $product->coleccion ? strtoupper($product->coleccion) . ' ' . $product->modelo : strtoupper($product->modelo ?? '');
+
         return [
-            'title' => strtoupper($product->modelo ?? ''),
-            'modelCode' => $product->codigo_comercial ?? ('(' . ($product->id ?? '') . ')'),
+            'title' => $title,
+            'modelCode' => $product->codigo_comercial ?? $product->modelo,
             'price' => '₡' . number_format($product->price_after_discount, 0),
             'specs' => $specs ? implode("\n", $specs) : "Acero inoxidable\n43 mm\nMov. Cuarzo\n100 m",
             'image' => $product->imagen ?? null,
