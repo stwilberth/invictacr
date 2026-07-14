@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\MarketingApiController;
 use App\Http\Controllers\Api\MetaApiController;
 use App\Http\Controllers\Api\SubscriberApiController;
 use App\Http\Controllers\Api\UtilityApiController;
+use App\Http\Controllers\Api\LiveSearchController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/products', [ProductApiController::class, 'index']);
@@ -32,3 +33,5 @@ Route::get('/subscribers', [SubscriberApiController::class, 'list']);
 Route::get('/sitemap', [UtilityApiController::class, 'sitemap']);
 Route::get('/sitemap.xml', [UtilityApiController::class, 'sitemap']);
 Route::post('/cache/clear', [UtilityApiController::class, 'clearCache']);
+
+Route::get('/live-search', LiveSearchController::class)->middleware('throttle:search');
