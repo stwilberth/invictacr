@@ -47,12 +47,22 @@
                         </div>
                     </div>
                     <div class="bg-white dark:bg-[#1c1c1e] rounded-xl border border-gray-200 dark:border-white/5 p-3 space-y-2 max-h-[calc(100vh-280px)] overflow-y-auto text-gray-800 dark:text-gray-200">
-                        <h2 class="font-bold text-[10px] uppercase tracking-wider flex items-center gap-1.5 mb-1">
-                            <span class="w-3.5 h-3.5 rounded-full bg-[#d4af37] text-[7px] flex items-center justify-center font-black text-white">1</span>
-                            Imagen del anuncio
-                        </h2>
-    
-                        <div x-data="{ currentTheme: 'gold', themes: {
+                    <h2 class="font-bold text-[10px] uppercase tracking-wider flex items-center gap-1.5">
+                        <span class="w-3.5 h-3.5 rounded-full bg-[#d4af37] text-[7px] flex items-center justify-center font-black text-white">1</span>
+                        Imagen del anuncio
+                    </h2>
+                    <p class="text-[9px] text-gray-400 -mt-1">Los datos se cargan automáticamente del producto</p>
+
+                    {{-- Inputs ocultos para que el JS del canvas los lea --}}
+                    <input type="hidden" id="imgTitle" value="{{ $this->imageTemplateData['title'] }}" />
+                    <input type="hidden" id="imgModelCode" value="{{ $this->imageTemplateData['modelCode'] }}" />
+                    <input type="hidden" id="imgPrice" value="{{ $this->imageTemplateData['price'] }}" />
+                    <input type="hidden" id="imgShipping" value="+ ENVÍO GRATIS" />
+                    <textarea id="imgSpecs" class="sr-only">{{ $this->imageTemplateData['specs'] }}</textarea>
+                    <input type="hidden" id="imgWhatsapp" value="8671-1422" />
+                    <input type="hidden" id="imgWebsite" value="INVICTACR.COM" />
+
+                    <div x-data="{ currentTheme: 'gold', themes: {
                                 gold:{name:'Gold',dark:'#8a5a00',light:'#e6b800',cream:'#fdf6e3'},
                                 blue:{name:'Blue',dark:'#0b2447',light:'#1a5fb4',cream:'#eaf2fb'},
                                 dark:{name:'Dark',dark:'#141414',light:'#3a3a3a',cream:'#eceff1'},
@@ -73,24 +83,7 @@
                             </div>
                         </div>
     
-                        <div class="grid grid-cols-2 gap-1.5">
-                            <div><label class="block text-[9px] uppercase text-gray-500 dark:text-gray-400">Título</label><input type="text" id="imgTitle" value="{{ $this->imageTemplateData['title'] }}" class="w-full px-1.5 py-1 rounded-md text-[11px] bg-gray-50 dark:bg-[#2a2a2c] border border-gray-300 dark:border-[#444]" /></div>
-                            <div><label class="block text-[9px] uppercase text-gray-500 dark:text-gray-400">Código</label><input type="text" id="imgModelCode" value="{{ $this->imageTemplateData['modelCode'] }}" class="w-full px-1.5 py-1 rounded-md text-[11px] bg-gray-50 dark:bg-[#2a2a2c] border border-gray-300 dark:border-[#444]" /></div>
-                        </div>
-    
-                        <div class="grid grid-cols-2 gap-1.5">
-                            <div><label class="block text-[9px] uppercase text-gray-500 dark:text-gray-400">Precio</label><input type="text" id="imgPrice" value="{{ $this->imageTemplateData['price'] }}" class="w-full px-1.5 py-1 rounded-md text-[11px] bg-gray-50 dark:bg-[#2a2a2c] border border-gray-300 dark:border-[#444]" /></div>
-                            <div><label class="block text-[9px] uppercase text-gray-500 dark:text-gray-400">Envío</label><input type="text" id="imgShipping" value="+ ENVÍO GRATIS" class="w-full px-1.5 py-1 rounded-md text-[11px] bg-gray-50 dark:bg-[#2a2a2c] border border-gray-300 dark:border-[#444]" /></div>
-                        </div>
-    
-                        <div><label class="block text-[9px] uppercase text-gray-500 dark:text-gray-400">Especificaciones</label><textarea id="imgSpecs" rows="2" class="w-full px-1.5 py-1 rounded-md text-[11px] bg-gray-50 dark:bg-[#2a2a2c] border border-gray-300 dark:border-[#444] resize-y min-h-[36px]">{{ $this->imageTemplateData['specs'] }}</textarea></div>
-    
-                        <div class="grid grid-cols-2 gap-1.5">
-                            <div><label class="block text-[9px] uppercase text-gray-500 dark:text-gray-400">WhatsApp</label><input type="text" id="imgWhatsapp" value="8671-1422" class="w-full px-1.5 py-1 rounded-md text-[11px] bg-gray-50 dark:bg-[#2a2a2c] border border-gray-300 dark:border-[#444]" /></div>
-                            <div><label class="block text-[9px] uppercase text-gray-500 dark:text-gray-400">Web</label><input type="text" id="imgWebsite" value="INVICTACR.COM" class="w-full px-1.5 py-1 rounded-md text-[11px] bg-gray-50 dark:bg-[#2a2a2c] border border-gray-300 dark:border-[#444]" /></div>
-                        </div>
-    
-                        <div><label class="block text-[9px] uppercase text-gray-500 dark:text-gray-400">Foto</label>
+                    <div><label class="block text-[9px] uppercase text-gray-500 dark:text-gray-400">Foto</label>
                             <input type="file" id="imgUpload" accept="image/*" data-product-image="{{ $this->imageTemplateData['image'] }}" class="w-full text-[9px] text-gray-500 file:mr-1 file:px-1.5 file:py-0.5 file:rounded file:border-0 file:bg-gray-200 dark:file:bg-white/10 file:text-gray-700 dark:file:text-gray-300 file:text-[10px]" />
                         </div>
                         <div class="grid grid-cols-2 gap-1.5">
@@ -535,13 +528,13 @@ window.initInvictaImageCanvas = function(){
             ctx.restore();
         }
 
-        // ===== ESPECIFICACIONES (alineadas al lado del círculo) =====
+        // ===== ESPECIFICACIONES (debajo del círculo, mismas X) =====
         const specLines = (document.getElementById('imgSpecs').value || '').split('\n').filter(l => l.trim() !== '');
         ctx.save();
         ctx.font = '30px Arial';
         ctx.fillStyle = t.text;
         ctx.textAlign = 'right';
-        const specStartY = cy - ((specLines.length - 1) * 30) - 30;
+        const specStartY = cy + r + 60;
         specLines.forEach((line, i) => {
             const sy = specStartY + i * 60;
             ctx.beginPath();
@@ -566,13 +559,13 @@ window.initInvictaImageCanvas = function(){
         const gap = 28;          // separación entre ícono y texto
 
         const textWidth = ctx.measureText(waText).width;
-        const iconRadius = 22;
+        const iconRadius = 30;
         const iconX = waX - textWidth - gap - iconRadius;
 
         // círculo de recorte para el SVG de WhatsApp (sin relleno)
         // Ajustá iconRadius para cambiar el tamaño del círculo
         if (waIcon.complete && waIcon.naturalWidth > 0) {
-            const waIconScale = 1.5; // <-- aumentá para agrandar el icono dentro del círculo
+            const waIconScale = 2.5; // <-- aumentá para agrandar el icono dentro del círculo
             const iconSize = iconRadius * waIconScale;
             ctx.save();
             ctx.beginPath();
@@ -587,13 +580,13 @@ window.initInvictaImageCanvas = function(){
         ctx.fillText(waText, waX, waY);
         ctx.restore();
 
-        // ===== WEB (tamaño y visibilidad) =====
+        // ===== WEB (esquina inferior derecha) =====
         ctx.save();
         ctx.font = 'bold 42px Arial';
         ctx.fillStyle = 'rgba(0, 0, 0, 0.08)';
-        ctx.textAlign = 'center';
+        ctx.textAlign = 'right';
         ctx.textBaseline = 'bottom';
-        ctx.fillText(document.getElementById('imgWebsite').value, W/2, H-30);
+        ctx.fillText(document.getElementById('imgWebsite').value, W - 40, H - 30);
         ctx.restore();
     }
 

@@ -73,8 +73,9 @@ class Campaigns extends Component
 
         $specs = array_filter([
             $product->size ? $product->size . ' mm' : null,
-            $product->tipo_movimiento ? 'Mov. ' . $product->tipo_movimiento : null,
-            $product->resistencia_agua ?? null,
+            $product->tipo_movimiento ? 'Mov. ' . ucfirst($product->tipo_movimiento) : null,
+            $product->resistencia_agua ? $product->resistencia_agua . ' m' : null,
+            $product->brazalete ?? null,
         ]);
 
         $title = 'INVICTA ' . strtoupper($product->coleccion ?? $product->modelo ?? '');
