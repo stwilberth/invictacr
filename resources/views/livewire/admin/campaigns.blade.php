@@ -57,7 +57,7 @@
                                 @if ($generatedContent)
                                     <div
                                         class="bg-white dark:bg-[#0f172a] rounded-xl border border-gray-200 dark:border-white/5 p-3">
-                                        <textarea id="ad-textarea" readonly rows="12" onclick="navigator.clipboard.writeText(this.value); this.style.outline='2px solid #00C4FF'; setTimeout(()=>this.style.outline='', 1000)"
+                                        <textarea id="ad-textarea" readonly rows="12" onclick="var t=this;t.select();t.setSelectionRange(0,99999);document.execCommand?document.execCommand('copy'):navigator.clipboard?.writeText(t.value);t.style.outline='2px solid #00C4FF';setTimeout(()=>t.style.outline='',1000)"
                                             class="w-full bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-gray-700 dark:text-gray-300 font-mono resize-none whitespace-pre-wrap">{{ $generatedContent['headline'] }}
                                             {{ $generatedContent['body'] }}
                                             {{ $generatedContent['cta'] ? $generatedContent['cta'] : '' }}
