@@ -1,24 +1,14 @@
 <div>
     <div class="flex gap-2 mb-6 flex-wrap">
-        <button wire:click="$set('activeTab', 'generator')"
+        <button wire:click="$set('activeTab', 'create')"
             class="px-5 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center gap-2
-            {{ $activeTab === 'generator' ? 'bg-[#00C4FF] text-[#0a0f1c]' : 'bg-white dark:bg-[#0f172a] text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-white/5 hover:border-[#00C4FF]/50' }}">
-            <i class="fa-solid fa-wand-magic-sparkles"></i> Generar
-        </button>
-        <button wire:click="$set('activeTab', 'ai')"
-            class="px-5 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center gap-2
-            {{ $activeTab === 'ai' ? 'bg-[#00C4FF] text-[#0a0f1c]' : 'bg-white dark:bg-[#0f172a] text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-white/5 hover:border-[#00C4FF]/50' }}">
-            <i class="fa-solid fa-brain"></i> IA
+            {{ $activeTab === 'create' ? 'bg-[#00C4FF] text-[#0a0f1c]' : 'bg-white dark:bg-[#0f172a] text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-white/5 hover:border-[#00C4FF]/50' }}">
+            <i class="fa-solid fa-wand-magic-sparkles"></i> Crear
         </button>
         <button wire:click="$set('activeTab', 'utm')"
             class="px-5 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center gap-2
             {{ $activeTab === 'utm' ? 'bg-[#00C4FF] text-[#0a0f1c]' : 'bg-white dark:bg-[#0f172a] text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-white/5 hover:border-[#00C4FF]/50' }}">
             <i class="fa-solid fa-link"></i> UTM
-        </button>
-        <button wire:click="$set('activeTab', 'image')"
-            class="px-5 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center gap-2
-            {{ $activeTab === 'image' ? 'bg-[#00C4FF] text-[#0a0f1c]' : 'bg-white dark:bg-[#0f172a] text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-white/5 hover:border-[#00C4FF]/50' }}">
-            <i class="fa-solid fa-image"></i> Imagen
         </button>
         <button wire:click="$set('activeTab', 'saved')"
             class="px-5 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center gap-2
@@ -27,23 +17,115 @@
         </button>
     </div>
 
-    {{-- TAB: GENERADOR --}}
-    @if($activeTab === 'generator')
+    {{-- TAB: CREAR (unificado: producto + imagen + texto + IA) --}}
+    @if($activeTab === 'create')
     <div class="space-y-3">
+        {{-- 1. Selector de producto con búsqueda --}}
         <div class="bg-white dark:bg-[#0f172a] rounded-xl border border-gray-200 dark:border-white/5 p-3">
-            <div class="flex items-start gap-4">
-                <div class="flex gap-2 overflow-x-auto flex-1 min-w-0 pb-1">
-                    @foreach($products as $p)
-                    <button wire:click="$set('selectedProductId', {{ $p->id }})"
-                        class="flex-shrink-0 p-1 rounded-lg border-2 transition-all {{ $selectedProductId == $p->id ? 'border-[#00C4FF]' : 'border-transparent hover:border-gray-200 dark:hover:border-white/20' }}" style="width:100px">
-                        @if($p->imagen)
-                        <img src="{{ $p->imagen }}" class="w-full aspect-square object-contain rounded" loading="lazy" />
-                        @endif
-                        <p class="text-[8px] font-medium text-gray-700 dark:text-gray-300 truncate mt-0.5">{{ $p->modelo }}</p>
+            <div class="flex items-center gap-2 mb-2">
+                <i class="fa-solid fa-search text-gray-400 text-xs"></i>
+                <input wire:model.live="productSearch" placeholder="Buscar producto..."
+                    class="flex-1 bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-lg px-2.5 py-1.5 text-xs focus:border-[#00C4FF] focus:ring-1 focus:ring-[#00C4FF] outline-none" />
+            </div>
+            <div class="flex gap-2 overflow-x-auto pb-1">
+                @forelse($products as $p)
+                <button wire:click="$set('selectedProductId', {{ $p->id }})"
+                    class="flex-shrink-0 p-1 rounded-lg border-2 transition-all {{ $selectedProductId == $p->id ? 'border-[#00C4FF]' : 'border-transparent hover:border-gray-200 dark:hover:border-white/20' }}" style="width:90px">
+                    @if($p->imagen)
+                    <img src="{{ $p->imagen }}" class="w-full aspect-square object-contain rounded" loading="lazy" />
+                    @endif
+                    <p class="text-[8px] font-medium text-gray-700 dark:text-gray-300 truncate mt-0.5">{{ $p->modelo }}</p>
+                </button>
+                @empty
+                <p class="text-[12px] text-gray-400 py-2">Sin resultados</p>
+                @endforelse
+            </div>
+            @if($product)
+            <p class="text-[10px] text-gray-400 dark:text-gray-500 mt-1 flex items-center gap-1">
+                <i class="fa-solid fa-check text-green-500"></i> <span class="font-bold text-gray-600 dark:text-gray-300">{{ $product->modelo }}</span>
+            </p>
+            @else
+            <p class="text-[10px] text-gray-400 dark:text-gray-500 mt-1">Elegí o buscá un producto</p>
+            @endif
+        </div>
+
+        {{-- 2. Imagen: canvas + controles --}}
+        <div wire:key="image-canvas-block" x-data x-init="$nextTick(() => window.initInvictaImageCanvas())">
+            <div class="grid grid-cols-1 lg:grid-cols-[380px_1fr] gap-3">
+                {{-- Controles imagen --}}
+                <div class="bg-white dark:bg-[#1c1c1e] rounded-xl border border-gray-200 dark:border-white/5 p-3 space-y-2 max-h-[calc(100vh-300px)] overflow-y-auto text-gray-800 dark:text-gray-200">
+                    <h2 class="font-bold text-[11px] uppercase tracking-wider flex items-center gap-1.5 mb-1">
+                        <span class="w-4 h-4 rounded-full bg-[#d4af37] text-[9px] flex items-center justify-center font-black text-white">1</span>
+                        Imagen del anuncio
+                    </h2>
+
+                    {{-- Temas de color --}}
+                    <div x-data="{ currentTheme: 'gold', themes: {
+                            gold:{name:'Gold',dark:'#8a5a00',light:'#e6b800',cream:'#fdf6e3'},
+                            blue:{name:'Blue',dark:'#0b2447',light:'#1a5fb4',cream:'#eaf2fb'},
+                            dark:{name:'Dark',dark:'#141414',light:'#3a3a3a',cream:'#eceff1'},
+                            green:{name:'Green',dark:'#0e3d24',light:'#1f7a4d',cream:'#eef7f0'},
+                            red:{name:'Red',dark:'#5a0a0a',light:'#c0212b',cream:'#fbeef0'},
+                            purple:{name:'Purple',dark:'#2e1065',light:'#6d28d9',cream:'#f3eefb'},
+                            teal:{name:'Teal',dark:'#0c4a4a',light:'#0d9488',cream:'#eef9f8'},
+                        }}">
+                        <label class="block text-[10px] uppercase tracking-wide text-gray-500 dark:text-gray-400">Color</label>
+                        <div class="flex flex-wrap gap-1.5 mt-1">
+                            <template x-for="entry in Object.entries(themes)" :key="entry[0]">
+                                <button type="button" @click="window.dispatchEvent(new CustomEvent('set-theme', { detail: entry[0] })); currentTheme = entry[0]"
+                                    :class="currentTheme === entry[0] ? 'ring-2 ring-white ring-offset-1 ring-offset-[#1c1c1e]' : ''"
+                                    class="w-8 h-8 rounded-full border-2 border-transparent transition-all"
+                                    :style="`background:linear-gradient(135deg, ${entry[1].dark}, ${entry[1].light})`"
+                                    :title="entry[1].name"></button>
+                            </template>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-1.5">
+                        <div><label class="block text-[10px] uppercase text-gray-500 dark:text-gray-400">Título</label><input type="text" id="imgTitle" value="{{ $this->imageTemplateData['title'] }}" class="w-full px-2 py-1.5 rounded-md text-xs bg-gray-50 dark:bg-[#2a2a2c] border border-gray-300 dark:border-[#444]" /></div>
+                        <div><label class="block text-[10px] uppercase text-gray-500 dark:text-gray-400">Código</label><input type="text" id="imgModelCode" value="{{ $this->imageTemplateData['modelCode'] }}" class="w-full px-2 py-1.5 rounded-md text-xs bg-gray-50 dark:bg-[#2a2a2c] border border-gray-300 dark:border-[#444]" /></div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-1.5">
+                        <div><label class="block text-[10px] uppercase text-gray-500 dark:text-gray-400">Precio</label><input type="text" id="imgPrice" value="{{ $this->imageTemplateData['price'] }}" class="w-full px-2 py-1.5 rounded-md text-xs bg-gray-50 dark:bg-[#2a2a2c] border border-gray-300 dark:border-[#444]" /></div>
+                        <div><label class="block text-[10px] uppercase text-gray-500 dark:text-gray-400">Envío</label><input type="text" id="imgShipping" value="+ ENVÍO GRATIS" class="w-full px-2 py-1.5 rounded-md text-xs bg-gray-50 dark:bg-[#2a2a2c] border border-gray-300 dark:border-[#444]" /></div>
+                    </div>
+
+                    <div><label class="block text-[10px] uppercase text-gray-500 dark:text-gray-400">Especificaciones</label><textarea id="imgSpecs" rows="2" class="w-full px-2 py-1.5 rounded-md text-xs bg-gray-50 dark:bg-[#2a2a2c] border border-gray-300 dark:border-[#444] resize-y min-h-[40px]">{{ $this->imageTemplateData['specs'] }}</textarea></div>
+
+                    <div class="grid grid-cols-2 gap-1.5">
+                        <div><label class="block text-[10px] uppercase text-gray-500 dark:text-gray-400">WhatsApp</label><input type="text" id="imgWhatsapp" value="8671-1422" class="w-full px-2 py-1.5 rounded-md text-xs bg-gray-50 dark:bg-[#2a2a2c] border border-gray-300 dark:border-[#444]" /></div>
+                        <div><label class="block text-[10px] uppercase text-gray-500 dark:text-gray-400">Web</label><input type="text" id="imgWebsite" value="INVICTACR.COM" class="w-full px-2 py-1.5 rounded-md text-xs bg-gray-50 dark:bg-[#2a2a2c] border border-gray-300 dark:border-[#444]" /></div>
+                    </div>
+
+                    <div><label class="block text-[10px] uppercase text-gray-500 dark:text-gray-400">Foto</label>
+                        <input type="file" id="imgUpload" accept="image/*" data-product-image="{{ $this->imageTemplateData['image'] }}" class="w-full text-[10px] text-gray-500 file:mr-2 file:px-2 file:py-0.5 file:rounded file:border-0 file:bg-gray-200 dark:file:bg-white/10 file:text-gray-700 dark:file:text-gray-300" />
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div><label class="block text-[10px] uppercase text-gray-500 dark:text-gray-400">Escala</label><input type="range" id="imgScale" min="0.5" max="2" step="0.01" value="1" class="w-full accent-[#00C4FF]" /></div>
+                        <div><label class="block text-[10px] uppercase text-gray-500 dark:text-gray-400">Vertical</label><input type="range" id="imgOffsetY" min="-200" max="200" step="1" value="0" class="w-full accent-[#00C4FF]" /></div>
+                    </div>
+                    <button type="button" id="imgDownloadBtn" class="w-full px-3 py-2 rounded-lg bg-[#d4af37] hover:brightness-110 text-[#1c1c1e] font-bold text-xs transition-all flex items-center justify-center gap-1">
+                        <i class="fa-solid fa-download"></i> Descargar PNG
                     </button>
-                    @endforeach
                 </div>
-                <div class="flex items-center gap-1.5 flex-shrink-0 pt-0.5">
+
+                {{-- Canvas preview --}}
+                <div class="flex items-start justify-center p-3 bg-[#050505] rounded-xl border border-gray-200 dark:border-white/5">
+                    <canvas id="adCanvas" width="1080" height="1350" style="max-width:100%;height:auto;box-shadow:0 10px 40px rgba(0,0,0,.6);border-radius:4px;"></canvas>
+                </div>
+            </div>
+        </div>
+
+        {{-- 3. Texto del anuncio (generador de copys con plantillas) --}}
+        <div x-data="{ open: false }" class="bg-white dark:bg-[#0f172a] rounded-xl border border-gray-200 dark:border-white/5 p-3">
+            <button @click="open = !open" class="flex items-center gap-2 w-full text-left">
+                <span class="w-5 h-5 rounded-full bg-[#00C4FF] text-[9px] flex items-center justify-center font-black text-[#0a0f1c]">2</span>
+                <span class="font-bold text-[11px] uppercase tracking-wider text-gray-900 dark:text-white flex-1">Texto del anuncio</span>
+                <i class="fa-solid text-[10px] text-gray-400" :class="open ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+            </button>
+            <div x-show="open" x-collapse class="mt-3 space-y-3">
+                <div class="flex items-center gap-1.5 flex-wrap">
                     @php $templates = [
                         'instagram' => ['fa-brands fa-instagram', 'IG'],
                         'facebook' => ['fa-brands fa-facebook', 'FB'],
@@ -52,211 +134,50 @@
                     ] @endphp
                     @foreach($templates as $key => $icon)
                     <button wire:click="$set('templateType', '{{ $key }}')"
-                        class="px-2 py-1.5 rounded-md text-xs font-bold transition-all border {{ $templateType === $key ? 'border-[#00C4FF] bg-[#00C4FF]/10 text-[#00C4FF]' : 'border-gray-200 dark:border-white/5 text-gray-500 hover:border-gray-300 dark:hover:border-white/20' }}">
-                        <i class="{{ $icon[0] }}"></i>
+                        class="px-2 py-1 rounded-md text-[10px] font-bold transition-all border {{ $templateType === $key ? 'border-[#00C4FF] bg-[#00C4FF]/10 text-[#00C4FF]' : 'border-gray-200 dark:border-white/5 text-gray-500 hover:border-gray-300 dark:hover:border-white/20' }}">
+                        <i class="{{ $icon[0] }}"></i> {{ $icon[1] }}
                     </button>
                     @endforeach
-                    <button wire:click="generateAd" class="bg-[#00C4FF] hover:bg-[#00b0e6] text-[#0a0f1c] font-bold px-3 py-1.5 rounded-md text-xs transition-all flex items-center gap-1">
+                    <button wire:click="generateAd" class="bg-[#00C4FF] hover:bg-[#00b0e6] text-[#0a0f1c] font-bold px-2.5 py-1 rounded-md text-[10px] transition-all flex items-center gap-1">
                         <i class="fa-solid fa-wand-magic-sparkles"></i> Generar
                     </button>
                     @if($generatedContent)
-                    <button wire:click="saveAd" class="bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-white/10 hover:border-[#00C4FF]/50 text-gray-500 dark:text-gray-400 font-bold px-2.5 py-1.5 rounded-md text-xs transition-all">
+                    <button wire:click="saveAd" class="bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-white/10 hover:border-[#00C4FF]/50 text-gray-500 dark:text-gray-400 font-bold px-2 py-1 rounded-md text-[10px] transition-all" title="Guardar">
                         <i class="fa-solid fa-floppy-disk"></i>
                     </button>
                     @endif
                 </div>
-            </div>
-        </div>
 
-        <div class="space-y-3">
-            @if($generatedContent)
-            <div class="bg-white dark:bg-[#0f172a] rounded-xl border border-gray-200 dark:border-white/5 p-3">
-                <div class="flex items-center justify-between mb-2">
-                    <h2 class="font-bold text-gray-900 dark:text-white text-[10px] uppercase tracking-wider flex items-center gap-1.5">
-                        <i class="fa-solid fa-eye text-[#00C4FF] text-[10px]"></i> Vista previa
-                    </h2>
-                    <span class="text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-gray-100 dark:bg-white/5 text-gray-500 dark:text-gray-400 capitalize">{{ $generatedContent['template'] }}</span>
-                </div>
-
-                {{-- Instagram Preview --}}
-                @if($generatedContent['template'] === 'instagram')
-                <div class="max-w-sm mx-auto bg-white rounded-2xl overflow-hidden shadow-lg border border-gray-100">
-                    <div class="flex items-center gap-3 px-4 py-3">
-                        <div class="w-8 h-8 rounded-full bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center text-white text-xs font-black">I</div>
-                        <div class="flex-1">
-                            <p class="text-sm font-bold text-gray-900">invictacostarica</p>
-                            <p class="text-xs text-gray-500">{{ $product?->coleccion ?? 'Invicta' }}</p>
-                        </div>
-                        <i class="fa-solid fa-ellipsis-vertical text-gray-600"></i>
-                    </div>
-                    <div class="bg-gray-100 aspect-square flex items-center justify-center p-4">
-                        @if($generatedContent['image'])
-                        <img src="{{ $generatedContent['image'] }}" class="w-full h-full object-contain" />
-                        @else
-                        <i class="fa-solid fa-image text-4xl text-gray-300"></i>
-                        @endif
-                    </div>
-                    <div class="px-4 py-3 space-y-2">
-                        <div class="flex gap-3 text-xl">
-                            <i class="fa-regular fa-heart hover:text-red-500 cursor-pointer"></i>
-                            <i class="fa-regular fa-comment cursor-pointer"></i>
-                            <i class="fa-regular fa-paper-plane cursor-pointer"></i>
-                            <i class="fa-regular fa-bookmark ml-auto cursor-pointer"></i>
-                        </div>
-                        <p class="text-sm font-bold text-gray-900">{{ number_format(rand(100, 999)) }} Me gusta</p>
-                        <div class="text-sm text-gray-900">
-                            <span class="font-bold">invictacostarica</span>
-                            <span class="whitespace-pre-line">{{ $generatedContent['body'] }}</span>
-                        </div>
-                        <p class="text-xs text-gray-500 uppercase tracking-wide">Ver los comentarios...</p>
-                    </div>
-                </div>
-
-                {{-- Facebook Preview --}}
-                @elseif($generatedContent['template'] === 'facebook')
-                <div class="max-w-sm mx-auto bg-white rounded-2xl overflow-hidden shadow-lg border border-gray-100">
-                    <div class="flex items-center gap-3 px-4 py-3">
-                        <div class="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white text-sm font-black">I</div>
-                        <div class="flex-1">
-                            <p class="text-sm font-bold text-gray-900">Invicta Costa Rica</p>
-                            <p class="text-xs text-gray-500">{{ now()->format('F j, Y') }} · <i class="fa-solid fa-globe text-xs"></i></p>
-                        </div>
-                    </div>
-                    <div class="px-4 pb-3">
-                        <p class="text-sm text-gray-900 whitespace-pre-line">{{ $generatedContent['body'] }}</p>
-                    </div>
-                    <div class="bg-gray-100 aspect-video flex items-center justify-center p-4">
-                        @if($generatedContent['image'])
-                        <img src="{{ $generatedContent['image'] }}" class="w-full h-full object-contain" />
-                        @else
-                        <i class="fa-solid fa-image text-4xl text-gray-300"></i>
-                        @endif
-                    </div>
-                    <div class="px-4 py-2 border-t border-gray-100 flex gap-4 text-sm text-gray-500">
-                        <span><i class="fa-regular fa-thumbs-up"></i> Me gusta</span>
-                        <span><i class="fa-regular fa-comment"></i> Comentar</span>
-                        <span><i class="fa-regular fa-share-from-square"></i> Compartir</span>
-                    </div>
-                </div>
-
-                {{-- WhatsApp Preview --}}
-                @elseif($generatedContent['template'] === 'whatsapp')
-                <div class="max-w-sm mx-auto bg-[#e5ddd5] dark:bg-[#1f2c33] rounded-2xl overflow-hidden shadow-lg p-4 space-y-3">
-                    <div class="flex items-center gap-3 border-b border-gray-300 dark:border-white/10 pb-3">
-                        <div class="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center text-white text-sm font-black">I</div>
-                        <div>
-                            <p class="text-sm font-bold text-gray-900 dark:text-white">Invicta Costa Rica</p>
-                            <p class="text-xs text-gray-500">en línea</p>
-                        </div>
-                    </div>
-                    <div class="flex justify-start">
-                        <div class="bg-white dark:bg-[#0a2418] rounded-2xl rounded-bl-sm px-4 py-3 max-w-[85%] shadow-sm">
-                            <p class="text-sm text-gray-900 dark:text-white whitespace-pre-line">{{ $generatedContent['body'] }}</p>
-                            <p class="text-xs text-gray-400 text-right mt-1">{{ now()->format('h:i A') }}</p>
-                        </div>
-                    </div>
-                    @if($generatedContent['image'])
-                    <div class="flex justify-start">
-                        <div class="bg-white dark:bg-[#0a2418] rounded-2xl rounded-bl-sm p-2 max-w-[70%] shadow-sm">
-                            <img src="{{ $generatedContent['image'] }}" class="w-full rounded-lg" />
-                            <p class="text-xs text-gray-400 text-right mt-1">{{ now()->format('h:i A') }}</p>
-                        </div>
-                    </div>
-                    @endif
-                    <div class="flex items-center gap-2 text-gray-400 text-sm">
-                        <i class="fa-solid fa-circle text-[6px] text-green-500"></i>
-                        <span>Escribe un mensaje...</span>
-                        <i class="fa-solid fa-paper-plane ml-auto text-green-500"></i>
-                    </div>
-                </div>
-
-                {{-- Story Preview --}}
-                @elseif($generatedContent['template'] === 'story')
-                <div class="max-w-xs mx-auto aspect-[9/16] bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 rounded-2xl overflow-hidden shadow-lg relative flex flex-col items-center justify-center p-6">
-                    @if($generatedContent['image'])
-                    <img src="{{ $generatedContent['image'] }}" class="absolute inset-0 w-full h-full object-cover opacity-60" />
-                    @endif
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/40"></div>
-                    <div class="relative z-10 text-center space-y-4">
-                        <div class="w-16 h-16 mx-auto rounded-full border-2 border-[#00C4FF] overflow-hidden bg-gray-700 flex items-center justify-center">
-                            @if($generatedContent['image'])
-                            <img src="{{ $generatedContent['image'] }}" class="w-full h-full object-cover" />
-                            @else
-                            <i class="fa-solid fa-crown text-2xl text-[#00C4FF]"></i>
-                            @endif
-                        </div>
-                        <p class="text-white font-black text-2xl leading-tight">{{ $generatedContent['headline'] }}</p>
-                        <p class="text-white/80 text-sm whitespace-pre-line">{{ $generatedContent['body'] }}</p>
-                        @if($generatedContent['cta'])
-                        <div class="inline-block bg-[#00C4FF] text-[#0a0f1c] font-black px-6 py-2.5 rounded-full text-sm uppercase tracking-wider">
-                            {{ $generatedContent['cta'] }}
-                        </div>
-                        @endif
-                    </div>
-                    <div class="absolute top-4 left-4 right-4 flex gap-1.5 z-10">
-                        @foreach(range(1,5) as $i)
-                        <div class="flex-1 h-0.5 rounded-full {{ $i === 1 ? 'bg-white' : 'bg-white/30' }}"></div>
-                        @endforeach
-                    </div>
-                </div>
-                @endif
-            </div>
-
-            <div class="bg-white dark:bg-[#0f172a] rounded-xl border border-gray-200 dark:border-white/5 p-3">
-                <h2 class="font-bold text-gray-900 dark:text-white mb-1.5 text-[10px] uppercase tracking-wider flex items-center gap-1.5">
-                    <i class="fa-solid fa-copy text-[#00C4FF] text-[10px]"></i> Texto
-                </h2>
+                @if($generatedContent)
                 <div x-data="{ copy: false }">
-                    <textarea readonly rows="3" class="w-full bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-lg px-2.5 py-1.5 text-[10px] text-gray-700 dark:text-gray-300 font-mono resize-none"
-                    >{{ $generatedContent['headline'] }}
+                    <textarea id="ad-textarea" readonly rows="3" class="w-full bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-lg px-2.5 py-1.5 text-[10px] text-gray-700 dark:text-gray-300 font-mono resize-none">{{ $generatedContent['headline'] }}
 
 {{ $generatedContent['body'] }}
 @if($generatedContent['cta'])
 {{ $generatedContent['cta'] }}
 @endif</textarea>
                     <button @click="navigator.clipboard.writeText(document.querySelector('#ad-textarea').value); copy = true; setTimeout(() => copy = false, 2000)"
-                        class="mt-1.5 px-2.5 py-1 rounded-lg text-[9px] font-bold transition-all flex items-center gap-1"
+                        class="mt-1 px-2 py-1 rounded-lg text-[9px] font-bold transition-all flex items-center gap-1"
                         :class="copy ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-gray-100 dark:bg-white/5 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/10'">
                         <i class="fa-solid text-[9px]" :class="copy ? 'fa-check' : 'fa-copy'"></i>
                         <span x-text="copy ? 'Copiado' : 'Copiar'"></span>
                     </button>
-                    <textarea id="ad-textarea" class="sr-only">{{ $generatedContent['headline'] }}
-
-{{ $generatedContent['body'] }}
-@if($generatedContent['cta'])
-{{ $generatedContent['cta'] }}
-@endif</textarea>
                 </div>
+                @else
+                <p class="text-[10px] text-gray-400">Seleccioná un producto y generá el texto</p>
+                @endif
             </div>
-            @else
-            <div class="bg-white dark:bg-[#0f172a] rounded-xl border border-gray-200 dark:border-white/5 p-3 flex flex-col items-center justify-center text-center min-h-[200px]">
-                <div class="w-10 h-10 rounded-xl bg-gray-100 dark:bg-white/5 flex items-center justify-center mb-2">
-                    <i class="fa-solid fa-wand-magic-sparkles text-sm text-gray-300 dark:text-gray-600"></i>
-                </div>
-                <p class="text-xs text-gray-500 dark:text-gray-400 font-bold">Seleccioná un producto</p>
-                <p class="text-[10px] text-gray-400 dark:text-gray-500 mt-0.5">La vista previa aparecerá acá</p>
-            </div>
-            @endif
         </div>
-    </div>
 
-    {{-- TAB: IA --}}
-    @elseif($activeTab === 'ai')
-    <div class="space-y-3">
-        <div class="bg-white dark:bg-[#0f172a] rounded-xl border border-gray-200 dark:border-white/5 p-3">
-            <div class="flex items-center gap-3">
-                <div class="flex gap-2 overflow-x-auto flex-1 min-w-0 pb-0.5">
-                    @foreach($products as $p)
-                    <button wire:click="$set('selectedProductId', {{ $p->id }})"
-                        class="flex-shrink-0 p-1 rounded-lg border-2 transition-all {{ $selectedProductId == $p->id ? 'border-[#00C4FF]' : 'border-transparent hover:border-gray-200 dark:hover:border-white/20' }}" style="width:100px">
-                        @if($p->imagen)
-                        <img src="{{ $p->imagen }}" class="w-full aspect-square object-contain rounded" loading="lazy" />
-                        @endif
-                        <p class="text-[8px] font-medium text-gray-700 dark:text-gray-300 truncate mt-0.5">{{ $p->modelo }}</p>
-                    </button>
-                    @endforeach
-                </div>
-                <div class="flex items-center gap-1.5 flex-shrink-0">
+        {{-- 4. IA: variantes de copy --}}
+        <div x-data="{ open: false }" class="bg-white dark:bg-[#0f172a] rounded-xl border border-gray-200 dark:border-white/5 p-3">
+            <button @click="open = !open" class="flex items-center gap-2 w-full text-left">
+                <span class="w-5 h-5 rounded-full bg-gradient-to-r from-[#00C4FF] to-purple-500 text-[9px] flex items-center justify-center font-black text-white">AI</span>
+                <span class="font-bold text-[11px] uppercase tracking-wider text-gray-900 dark:text-white flex-1">IA · Variantes de texto</span>
+                <i class="fa-solid text-[10px] text-gray-400" :class="open ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+            </button>
+            <div x-show="open" x-collapse class="mt-3 space-y-3">
+                <div class="flex items-center gap-1.5 flex-wrap">
                     @php $tones = [
                         'casual' => ['fa-face-smile', 'Casual'],
                         'profesional' => ['fa-briefcase', 'Pro'],
@@ -265,56 +186,40 @@
                     ] @endphp
                     @foreach($tones as $key => $info)
                     <button wire:click="$set('aiTone', '{{ $key }}')"
-                        class="px-2 py-1.5 rounded-md text-xs font-bold transition-all border {{ $aiTone === $key ? 'border-[#00C4FF] bg-[#00C4FF]/10 text-[#00C4FF]' : 'border-gray-200 dark:border-white/5 text-gray-500 hover:border-gray-300 dark:hover:border-white/20' }}">
-                        <i class="fa-regular {{ $info[0] }}"></i>
-                        <span class="ml-0.5 hidden sm:inline">{{ $info[1] }}</span>
+                        class="px-2 py-1 rounded-md text-[10px] font-bold transition-all border {{ $aiTone === $key ? 'border-[#00C4FF] bg-[#00C4FF]/10 text-[#00C4FF]' : 'border-gray-200 dark:border-white/5 text-gray-500 hover:border-gray-300 dark:hover:border-white/20' }}">
+                        <i class="fa-regular {{ $info[0] }}"></i> {{ $info[1] }}
                     </button>
                     @endforeach
                     <button wire:click="generateWithAI" wire:loading.attr="disabled"
-                        class="bg-gradient-to-r from-[#00C4FF] to-purple-500 hover:from-[#00b0e6] hover:to-purple-600 text-white font-bold px-3 py-1.5 rounded-md text-xs transition-all flex items-center gap-1 disabled:opacity-50">
-                        <span wire:loading.remove wire:target="generateWithAI"><i class="fa-solid fa-wand-magic-sparkles"></i> IA</span>
+                        class="bg-gradient-to-r from-[#00C4FF] to-purple-500 hover:from-[#00b0e6] hover:to-purple-600 text-white font-bold px-2.5 py-1 rounded-md text-[10px] transition-all flex items-center gap-1 disabled:opacity-50">
+                        <span wire:loading.remove wire:target="generateWithAI"><i class="fa-solid fa-wand-magic-sparkles"></i> Generar</span>
                         <span wire:loading wire:target="generateWithAI"><i class="fa-solid fa-spinner fa-spin"></i></span>
                     </button>
                 </div>
-            </div>
-        </div>
 
-        <div class="space-y-3">
-            @if($aiLoading)
-            <div class="bg-white dark:bg-[#0f172a] rounded-xl border border-gray-200 dark:border-white/5 p-6 flex flex-col items-center justify-center min-h-[200px]">
-                <div class="w-12 h-12 rounded-full bg-[#00C4FF]/10 flex items-center justify-center mb-3">
-                    <i class="fa-solid fa-spinner fa-spin text-xl text-[#00C4FF]"></i>
+                @if($aiLoading)
+                <div class="flex items-center justify-center py-6">
+                    <i class="fa-solid fa-spinner fa-spin text-[#00C4FF] mr-2"></i>
+                    <span class="text-xs text-gray-500">Generando variantes...</span>
                 </div>
-                <p class="text-sm text-gray-500 dark:text-gray-400 font-bold">Generando variantes...</p>
-            </div>
-            @elseif($aiGenerated)
-            <div class="bg-white dark:bg-[#0f172a] rounded-xl border border-gray-200 dark:border-white/5 p-4">
-                <h2 class="font-bold text-gray-900 dark:text-white text-xs uppercase tracking-wider mb-3">Variantes generadas</h2>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                @elseif($aiGenerated)
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
                     @foreach($aiGenerated['variants'] as $index => $variant)
-                    <div class="p-3 rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/5 flex flex-col">
+                    <div class="p-2 rounded-lg bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/5 flex flex-col">
                         <div class="flex-1">
-                            <div class="flex items-center gap-2 mb-1">
-                                <span class="w-5 h-5 rounded-full bg-[#00C4FF] flex items-center justify-center text-[9px] font-black text-[#0a0f1c]">#{{ $index + 1 }}</span>
-                            </div>
-                            <p class="text-xs text-gray-700 dark:text-gray-300 whitespace-pre-line leading-relaxed">{{ $variant }}</p>
+                            <span class="w-4 h-4 rounded-full bg-[#00C4FF] inline-flex items-center justify-center text-[8px] font-black text-[#0a0f1c] mb-1">#{{ $index + 1 }}</span>
+                            <p class="text-[10px] text-gray-700 dark:text-gray-300 whitespace-pre-line leading-relaxed">{{ $variant }}</p>
                         </div>
-                        <button wire:click="useAiVariant({{ $index }})"
-                            class="mt-2 w-full bg-[#00C4FF]/10 hover:bg-[#00C4FF]/20 text-[#00C4FF] font-bold px-3 py-1.5 rounded-lg text-[10px] transition-all flex items-center justify-center gap-1">
+                        <button wire:click="useAiVariant({{ $index }})" class="mt-1.5 w-full bg-[#00C4FF]/10 hover:bg-[#00C4FF]/20 text-[#00C4FF] font-bold px-2 py-1 rounded-lg text-[9px] transition-all flex items-center justify-center gap-1">
                             <i class="fa-solid fa-arrow-right"></i> Usar
                         </button>
                     </div>
                     @endforeach
                 </div>
+                @else
+                <p class="text-[10px] text-gray-400">Seleccioná producto y tono, luego generá</p>
+                @endif
             </div>
-            @else
-            <div class="bg-white dark:bg-[#0f172a] rounded-xl border border-gray-200 dark:border-white/5 p-4 flex flex-col items-center justify-center text-center min-h-[150px]">
-                <div class="w-10 h-10 rounded-xl bg-gray-100 dark:bg-white/5 flex items-center justify-center mb-2">
-                    <i class="fa-solid fa-brain text-sm text-gray-300 dark:text-gray-600"></i>
-                </div>
-                <p class="text-xs text-gray-500 dark:text-gray-400 font-bold">Seleccioná producto y tono</p>
-            </div>
-            @endif
         </div>
     </div>
 
@@ -379,117 +284,6 @@
             </div>
             @endif
         </div>
-    </div>
-
-    {{-- TAB: IMAGEN --}}
-    @elseif($activeTab === 'image')
-    <div wire:key="image-tab" x-data x-init="$nextTick(() => window.initInvictaImageCanvas())" class="space-y-3">
-
-        {{-- Selector de producto (click = carga automática) --}}
-        <div class="bg-white dark:bg-[#0f172a] rounded-xl border border-gray-200 dark:border-white/5 p-3">
-            <div class="flex gap-2 overflow-x-auto pb-1">
-                @foreach($products as $p)
-                <button wire:click="$set('selectedProductId', {{ $p->id }})"
-                    class="flex-shrink-0 p-1 rounded-lg border-2 transition-all {{ $selectedProductId == $p->id ? 'border-[#00C4FF]' : 'border-transparent hover:border-gray-200 dark:hover:border-white/20' }}" style="width:90px">
-                    @if($p->imagen)
-                    <img src="{{ $p->imagen }}" class="w-full aspect-square object-contain rounded" loading="lazy" />
-                    @endif
-                    <p class="text-[8px] font-medium text-gray-700 dark:text-gray-300 truncate mt-0.5">{{ $p->modelo }}</p>
-                </button>
-                @endforeach
-            </div>
-            @if($product)
-            <p class="text-[10px] text-gray-400 dark:text-gray-500 mt-1 flex items-center gap-1">
-                <i class="fa-solid fa-check text-green-500"></i> Cargado automáticamente: <span class="font-bold text-gray-600 dark:text-gray-300">{{ $product->modelo }}</span>
-            </p>
-            @else
-            <p class="text-[10px] text-gray-400 dark:text-gray-500 mt-1">Elegí un producto para cargar sus datos en la plantilla automáticamente.</p>
-            @endif
-        </div>
-
-    <div class="grid grid-cols-1 lg:grid-cols-[380px_1fr] gap-4">
-        {{-- Controles --}}
-        <div class="bg-white dark:bg-[#1c1c1e] rounded-xl border border-gray-200 dark:border-white/5 p-4 space-y-3 max-h-[calc(100vh-260px)] overflow-y-auto text-gray-800 dark:text-gray-200">
-            <h2 class="text-base font-bold !text-[#d4af37] mt-0">Plantilla · Anuncio Invicta</h2>
-
-            <div x-data="{ currentTheme: 'gold', themes: {
-                    gold:  { name:'Gold',  dark:'#8a5a00', light:'#e6b800', cream:'#fdf6e3' },
-                    blue:  { name:'Blue',  dark:'#0b2447', light:'#1a5fb4', cream:'#eaf2fb' },
-                    dark:  { name:'Dark',  dark:'#141414', light:'#3a3a3a', cream:'#eceff1' },
-                    green: { name:'Green', dark:'#0e3d24', light:'#1f7a4d', cream:'#eef7f0' },
-                    red:   { name:'Red',   dark:'#5a0a0a', light:'#c0212b', cream:'#fbeef0' },
-                    purple:{ name:'Purple',dark:'#2e1065', light:'#6d28d9', cream:'#f3eefb' },
-                    teal:  { name:'Teal',  dark:'#0c4a4a', light:'#0d9488', cream:'#eef9f8' },
-                } }" class="space-y-3">
-
-                <label class="block text-[11px] uppercase tracking-wide text-gray-500 dark:text-gray-400">Tema de color</label>
-                <div class="flex flex-wrap gap-2">
-                    <template x-for="entry in Object.entries(themes)" :key="entry[0]">
-                        <button type="button" @click="window.dispatchEvent(new CustomEvent('set-theme', { detail: entry[0] })); currentTheme = entry[0]"
-                            :class="currentTheme === entry[0] ? 'ring-2 ring-white ring-offset-1 ring-offset-[#1c1c1e]' : ''"
-                            class="w-9 h-9 rounded-full border-2 border-transparent transition-all"
-                            :style="`background:linear-gradient(135deg, ${entry[1].dark}, ${entry[1].light})`"
-                            :title="entry[1].name"></button>
-                    </template>
-                </div>
-
-                <label class="block text-[11px] uppercase tracking-wide text-gray-500 dark:text-gray-400">Título</label>
-                <input type="text" id="imgTitle" value="{{ $this->imageTemplateData['title'] }}"
-                    class="w-full px-2.5 py-2 rounded-md text-sm bg-gray-50 dark:bg-[#2a2a2c] border border-gray-300 dark:border-[#444]" />
-
-                <label class="block text-[11px] uppercase tracking-wide text-gray-500 dark:text-gray-400">Modelo (código)</label>
-                <input type="text" id="imgModelCode" value="{{ $this->imageTemplateData['modelCode'] }}"
-                    class="w-full px-2.5 py-2 rounded-md text-sm bg-gray-50 dark:bg-[#2a2a2c] border border-gray-300 dark:border-[#444]" />
-
-                <label class="block text-[11px] uppercase tracking-wide text-gray-500 dark:text-gray-400">Precio</label>
-                <input type="text" id="imgPrice" value="{{ $this->imageTemplateData['price'] }}"
-                    class="w-full px-2.5 py-2 rounded-md text-sm bg-gray-50 dark:bg-[#2a2a2c] border border-gray-300 dark:border-[#444]" />
-
-                <label class="block text-[11px] uppercase tracking-wide text-gray-500 dark:text-gray-400">Etiqueta envío</label>
-                <input type="text" id="imgShipping" value="+ ENVÍO GRATIS"
-                    class="w-full px-2.5 py-2 rounded-md text-sm bg-gray-50 dark:bg-[#2a2a2c] border border-gray-300 dark:border-[#444]" />
-
-                <label class="block text-[11px] uppercase tracking-wide text-gray-500 dark:text-gray-400">Especificaciones (una por línea)</label>
-                <textarea id="imgSpecs" rows="4"
-                    class="w-full px-2.5 py-2 rounded-md text-sm bg-gray-50 dark:bg-[#2a2a2c] border border-gray-300 dark:border-[#444] resize-y min-h-[60px]">{{ $this->imageTemplateData['specs'] }}</textarea>
-
-                <label class="block text-[11px] uppercase tracking-wide text-gray-500 dark:text-gray-400">WhatsApp</label>
-                <input type="text" id="imgWhatsapp" value="8671-1422"
-                    class="w-full px-2.5 py-2 rounded-md text-sm bg-gray-50 dark:bg-[#2a2a2c] border border-gray-300 dark:border-[#444]" />
-
-                <label class="block text-[11px] uppercase tracking-wide text-gray-500 dark:text-gray-400">Sitio web (marca de agua)</label>
-                <input type="text" id="imgWebsite" value="INVICTACR.COM"
-                    class="w-full px-2.5 py-2 rounded-md text-sm bg-gray-50 dark:bg-[#2a2a2c] border border-gray-300 dark:border-[#444]" />
-
-                <!-- Origen de la imagen -->
-                <label class="block text-[11px] uppercase tracking-wide text-gray-500 dark:text-gray-400">Foto del reloj</label>
-                <p class="text-[10px] text-gray-400 dark:text-gray-500 -mt-1">Se carga sola con la foto del producto. Subí otra si preferís.</p>
-                <input type="file" id="imgUpload" accept="image/*" data-product-image="{{ $this->imageTemplateData['image'] }}"
-                    class="w-full text-[11px] text-gray-500 file:mr-2 file:px-2 file:py-1 file:rounded file:border-0 file:bg-gray-200 dark:file:bg-white/10 file:text-gray-700 dark:file:text-gray-300" />
-
-                <div class="grid grid-cols-2 gap-2">
-                    <div>
-                        <label class="block text-[11px] uppercase tracking-wide text-gray-500 dark:text-gray-400">Escala foto</label>
-                        <input type="range" id="imgScale" min="0.5" max="2" step="0.01" value="1" class="w-full accent-[#00C4FF]" />
-                    </div>
-                    <div>
-                        <label class="block text-[11px] uppercase tracking-wide text-gray-500 dark:text-gray-400">Vertical (Y)</label>
-                        <input type="range" id="imgOffsetY" min="-200" max="200" step="1" value="0" class="w-full accent-[#00C4FF]" />
-                    </div>
-                </div>
-
-                <button type="button" id="imgDownloadBtn" class="w-full px-3 py-2.5 rounded-lg bg-[#d4af37] hover:brightness-110 text-[#1c1c1e] font-bold text-sm transition-all flex items-center justify-center gap-1.5">
-                    <i class="fa-solid fa-download"></i> Descargar PNG
-                </button>
-            </div>
-        </div>
-
-        {{-- Canvas --}}
-        <div class="flex items-start justify-center p-4 bg-[#050505] rounded-xl border border-gray-200 dark:border-white/5">
-            <canvas id="adCanvas" width="1080" height="1350"
-                style="max-width:100%; height:auto; box-shadow:0 10px 40px rgba(0,0,0,.6);"></canvas>
-        </div>
-    </div>
     </div>
 
     {{-- TAB: GUARDADOS --}}
@@ -678,6 +472,7 @@ window.initInvictaImageCanvas = function(){
         ctx.restore();
 
         const cx = W*0.52, cy = H*0.55, r = 430;
+        // Fondo del círculo (blanco con sombra)
         ctx.save();
         ctx.beginPath();
         ctx.arc(cx,cy,r,0,Math.PI*2);
@@ -719,9 +514,23 @@ window.initInvictaImageCanvas = function(){
             let dw, dh;
             if(ratio >= 1){ dw = baseSize; dh = baseSize/ratio; }
             else { dh = baseSize; dw = baseSize*ratio; }
+            // Recorta la imagen al círculo para que el fondo blanco no tape la plantilla
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(cx,cy,r,0,Math.PI*2);
+            ctx.clip();
             const dx = cx - dw/2;
             const dy = cy - dh/2 + offsetY;
             ctx.drawImage(watchImg, dx, dy, dw, dh);
+            ctx.restore();
+            // Borde sutil del círculo para definir el recorte
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(cx,cy,r,0,Math.PI*2);
+            ctx.strokeStyle = 'rgba(0,0,0,.06)';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            ctx.restore();
         } else {
             ctx.save();
             ctx.fillStyle = '#999';

@@ -9,9 +9,10 @@ use Illuminate\Support\Facades\Http;
 
 class Campaigns extends Component
 {
-    public $activeTab = 'generator';
+    public $activeTab = 'create';
     public $selectedProductId;
     public $product = null;
+    public $productSearch = '';
     public $templateType = 'instagram';
     public $generatedContent = null;
 
@@ -228,8 +229,8 @@ Separa cada variante con '---'.";
             'formatted_price' => '',
         ];
 
-        $this->activeTab = 'generator';
-        session()->flash('message', 'Variante de IA aplicada al generador.');
+        $this->activeTab = 'create';
+        session()->flash('message', 'Variante de IA aplicada.');
     }
 
     public function saveAd()
@@ -253,7 +254,9 @@ Separa cada variante con '---'.";
 
 public function render()
     {
-        $products = Product::where('activo', true)->where('precio_venta', '>', 0)->orderBy('modelo')->get();
+        $products = Product::where('activo', true)->where('precio_venta', '>', 0)
+            ->when($this->productSearch, fn($q) => $q->where('modelo', 'like', '%'.$this->productSearch.'%'))
+            ->orderBy('modelo')->get();
         $this->savedAds = MarketingTask::where('type', 'like', 'ad_%')->latest()->take(10)->get();
 
         return view('livewire.admin.campaigns', compact('products'))
