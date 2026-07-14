@@ -463,7 +463,8 @@ window.initInvictaImageCanvas = function(){
         ctx.fillText(document.getElementById('imgModelCode').value, 62, ty+100);
         ctx.restore();
 
-        const cx = W*0.5, cy = H*0.48, r = 370;
+        // ===== CÍRCULO CENTRADO (modificar posición y tamaño) =====
+        const cx = W/2, cy = H*0.48, r = 370;
         // Fondo del círculo (blanco con sombra)
         ctx.save();
         ctx.beginPath();
@@ -532,6 +533,7 @@ window.initInvictaImageCanvas = function(){
             ctx.restore();
         }
 
+        // ===== ESPECIFICACIONES (alineadas al lado del círculo) =====
         const specLines = (document.getElementById('imgSpecs').value || '').split('\n').filter(l => l.trim() !== '');
         ctx.save();
         ctx.font = '30px Arial';
@@ -549,6 +551,7 @@ window.initInvictaImageCanvas = function(){
         });
         ctx.restore();
 
+        // ===== WHATSAPP ARRIBA (modificar posición, tamaño y color) =====
         const waText = document.getElementById('imgWhatsapp').value;
         ctx.save();
         ctx.font = 'bold 38px Arial';
@@ -566,6 +569,7 @@ window.initInvictaImageCanvas = function(){
         ctx.fillText(waText, waX, waY);
         ctx.restore();
 
+        // ===== WEB (tamaño y visibilidad) =====
         ctx.save();
         ctx.font = 'bold 42px Arial';
         ctx.fillStyle = 'rgba(0,0,0,.35)';
