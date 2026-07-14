@@ -28,10 +28,14 @@
                     <div class="flex flex-col">
                         <div
                             class="col-span-2 bg-white dark:bg-[#0f172a] rounded-xl border border-gray-200 dark:border-white/5 p-2 flex flex-col">
-                            <div class="flex items-center gap-1.5 mb-2 px-1">
+                            <div class="flex items-center gap-1 mb-2 px-1">
                                 <i class="fa-solid fa-search text-gray-400 text-[10px]"></i>
                                 <input wire:model.live="productSearch" placeholder="Buscar..."
                                     class="flex-1 bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-md px-2 py-1 text-[10px] focus:border-[#00C4FF] focus:ring-1 focus:ring-[#00C4FF] outline-none" />
+                                <button wire:click="setProductFilter('all')"
+                                    class="px-1.5 py-0.5 rounded text-[9px] font-bold {{ $productFilter === 'all' ? 'bg-[#00C4FF] text-[#0a0f1c]' : 'bg-gray-100 dark:bg-white/5 text-gray-500' }}">Todos</button>
+                                <button wire:click="setProductFilter('pending')"
+                                    class="px-1.5 py-0.5 rounded text-[9px] font-bold {{ $productFilter === 'pending' ? 'bg-[#00C4FF] text-[#0a0f1c]' : 'bg-gray-100 dark:bg-white/5 text-gray-500' }}">Pendientes</button>
                             </div>
                             <div class="flex gap-2 overflow-x-auto pb-1">
                                 @forelse($products as $p)
@@ -51,85 +55,171 @@
                                 @endforelse
                             </div>
                         </div>
-                        <div
-                            class="bg-white dark:bg-[#1c1c1e] rounded-xl border border-gray-200 dark:border-white/5 p-3 space-y-2 max-h-[calc(100vh-280px)] overflow-y-auto text-gray-800 dark:text-gray-200">
-                            <h2 class="font-bold text-[10px] uppercase tracking-wider flex items-center gap-1.5">
-                                <span
-                                    class="w-3.5 h-3.5 rounded-full bg-[#d4af37] text-[7px] flex items-center justify-center font-black text-white">1</span>
-                                Imagen del anuncio
-                            </h2>
-                            <p class="text-[9px] text-gray-400 -mt-1">Los datos se cargan automáticamente del producto
-                            </p>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div class="col">
+                                {{-- Texto del anuncio (solo textarea, se autogenera al elegir producto) --}}
+                                @if ($generatedContent)
+                                    <div
+                                        class="bg-white dark:bg-[#0f172a] rounded-xl border border-gray-200 dark:border-white/5 p-3">
+                                        <textarea id="ad-textarea" readonly rows="12" onclick="var t=this;t.select();t.setSelectionRange(0,99999);document.execCommand?document.execCommand('copy'):navigator.clipboard?.writeText(t.value);t.style.outline='2px solid #00C4FF';setTimeout(()=>t.style.outline='',1000)"
+                                            class="w-full bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-gray-700 dark:text-gray-300 font-mono resize-none whitespace-pre-wrap">{{ $generatedContent['headline'] }}
+                                            {{ $generatedContent['body'] }}
+                                            {{ $generatedContent['cta'] ? $generatedContent['cta'] : '' }}
+                                        </textarea>
+                                    </div>
+                                @endif
+                            </div>
+                            <div class="col">
+                                <div
+                                    class="bg-white dark:bg-[#1c1c1e] rounded-xl border border-gray-200 dark:border-white/5 p-3 space-y-2 max-h-[calc(100vh-280px)] overflow-y-auto text-gray-800 dark:text-gray-200">
+                                    <h2
+                                        class="font-bold text-[10px] uppercase tracking-wider flex items-center gap-1.5">
+                                        <span
+                                            class="w-3.5 h-3.5 rounded-full bg-[#d4af37] text-[7px] flex items-center justify-center font-black text-white">1</span>
+                                        Imagen del anuncio
+                                    </h2>
+                                    <p class="text-[9px] text-gray-400 -mt-1">Los datos se cargan automáticamente del
+                                        producto
+                                    </p>
 
-                            {{-- Inputs ocultos para que el JS del canvas los lea --}}
-                            <input type="hidden" id="imgTitle" value="{{ $this->imageTemplateData['title'] }}" />
-                            <input type="hidden" id="imgModelCode"
-                                value="{{ $this->imageTemplateData['modelCode'] }}" />
-                            <input type="hidden" id="imgPrice" value="{{ $this->imageTemplateData['price'] }}" />
-                            <input type="hidden" id="imgShipping" value="+ ENVÍO GRATIS" />
-                            <textarea id="imgSpecs" class="sr-only">{{ $this->imageTemplateData['specs'] }}</textarea>
-                            <input type="hidden" id="imgWhatsapp" value="8671-1422" />
-                            <input type="hidden" id="imgWebsite" value="INVICTACR.COM" />
+                                    {{-- Inputs ocultos para que el JS del canvas los lea --}}
+                                    <input type="hidden" id="imgTitle"
+                                        value="{{ $this->imageTemplateData['title'] }}" />
+                                    <input type="hidden" id="imgModelCode"
+                                        value="{{ $this->imageTemplateData['modelCode'] }}" />
+                                    <input type="hidden" id="imgPrice"
+                                        value="{{ $this->imageTemplateData['price'] }}" />
+                                    <input type="hidden" id="imgShipping" value="ENVÍO GRATIS" />
+                                    <textarea id="imgSpecs" class="sr-only">{{ $this->imageTemplateData['specs'] }}</textarea>
+                                    <input type="hidden" id="imgWhatsapp" value="8671-1422" />
+                                    <input type="hidden" id="imgWebsite" value="INVICTACR.COM" />
 
-                            <div x-data="{
-                                currentTheme: 'gold',
-                                themes: {
-                                    gold: { name: 'Gold', dark: '#8a5a00', light: '#e6b800', cream: '#fdf6e3' },
-                                    blue: { name: 'Blue', dark: '#0b2447', light: '#1a5fb4', cream: '#eaf2fb' },
-                                    dark: { name: 'Dark', dark: '#141414', light: '#3a3a3a', cream: '#eceff1' },
-                                    green: { name: 'Green', dark: '#0e3d24', light: '#1f7a4d', cream: '#eef7f0' },
-                                    red: { name: 'Red', dark: '#5a0a0a', light: '#c0212b', cream: '#fbeef0' },
-                                    purple: { name: 'Purple', dark: '#2e1065', light: '#6d28d9', cream: '#f3eefb' },
-                                    teal: { name: 'Teal', dark: '#0c4a4a', light: '#0d9488', cream: '#eef9f8' },
-                                }
-                            }">
-                                <label
-                                    class="block text-[9px] uppercase tracking-wide text-gray-500 dark:text-gray-400">Color</label>
-                                <div class="flex flex-wrap gap-1 mt-1">
-                                    <template x-for="entry in Object.entries(themes)" :key="entry[0]">
-                                        <button type="button"
-                                            @click="window.dispatchEvent(new CustomEvent('set-theme', { detail: entry[0] })); currentTheme = entry[0]"
-                                            :class="currentTheme === entry[0] ?
-                                                'ring-2 ring-white ring-offset-1 ring-offset-[#1c1c1e]' : ''"
-                                            class="w-7 h-7 rounded-full border-2 border-transparent transition-all"
-                                            :style="`background:linear-gradient(135deg, ${entry[1].dark}, ${entry[1].light})`"
-                                            :title="entry[1].name"></button>
-                                    </template>
+                                    <div x-data="{
+                                        currentTheme: 'gold',
+                                        themes: {
+                                            gold: { name: 'Gold', dark: '#8a5a00', light: '#e6b800', cream: '#fdf6e3' },
+                                            blue: { name: 'Blue', dark: '#0b2447', light: '#1a5fb4', cream: '#eaf2fb' },
+                                            dark: { name: 'Dark', dark: '#141414', light: '#3a3a3a', cream: '#eceff1' },
+                                            green: { name: 'Green', dark: '#0e3d24', light: '#1f7a4d', cream: '#eef7f0' },
+                                            red: { name: 'Red', dark: '#5a0a0a', light: '#c0212b', cream: '#fbeef0' },
+                                            purple: { name: 'Purple', dark: '#2e1065', light: '#6d28d9', cream: '#f3eefb' },
+                                            teal: { name: 'Teal', dark: '#0c4a4a', light: '#0d9488', cream: '#eef9f8' },
+                                        }
+                                    }">
+                                        <label
+                                            class="block text-[9px] uppercase tracking-wide text-gray-500 dark:text-gray-400">Color</label>
+                                        <div class="flex flex-wrap gap-1 mt-1">
+                                            <template x-for="entry in Object.entries(themes)" :key="entry[0]">
+                                                <button type="button"
+                                                    @click="window.dispatchEvent(new CustomEvent('set-theme', { detail: entry[0] })); currentTheme = entry[0]"
+                                                    :class="currentTheme === entry[0] ?
+                                                        'ring-2 ring-white ring-offset-1 ring-offset-[#1c1c1e]' : ''"
+                                                    class="w-7 h-7 rounded-full border-2 border-transparent transition-all"
+                                                    :style="`background:linear-gradient(135deg, ${entry[1].dark}, ${entry[1].light})`"
+                                                    :title="entry[1].name"></button>
+                                            </template>
+                                        </div>
+                                    </div>
+
+                                    <div><label
+                                            class="block text-[9px] uppercase text-gray-500 dark:text-gray-400">Foto</label>
+                                        <input type="file" id="imgUpload" accept="image/*"
+                                            data-product-image="{{ $this->imageTemplateData['image'] }}"
+                                            class="w-full text-[9px] text-gray-500 file:mr-1 file:px-1.5 file:py-0.5 file:rounded file:border-0 file:bg-gray-200 dark:file:bg-white/10 file:text-gray-700 dark:file:text-gray-300 file:text-[10px]" />
+                                    </div>
+                                    <div class="grid grid-cols-2 gap-1.5">
+                                        <!-- escala default: value="1"; cambiá ese número para el zoom inicial de la foto -->
+                                        <div><label
+                                                class="block text-[9px] uppercase text-gray-500 dark:text-gray-400">Escala</label><input
+                                                type="range" id="imgScale" min="0.5" max="2"
+                                                step="0.01" value="0.8" class="w-full accent-[#00C4FF] h-4" />
+                                        </div>
+                                        <div><label
+                                                class="block text-[9px] uppercase text-gray-500 dark:text-gray-400">Vertical</label><input
+                                                type="range" id="imgOffsetY" min="-200" max="200"
+                                                step="1" value="0" class="w-full accent-[#00C4FF] h-4" />
+                                        </div>
+                                    </div>
+                                    <button type="button" id="imgDownloadBtn"
+                                        wire:click="saveDownload"
+                                        class="w-full px-2 py-1.5 rounded-lg bg-[#d4af37] hover:brightness-110 text-[#1c1c1e] font-bold text-[11px] transition-all flex items-center justify-center gap-1">
+                                        <i class="fa-solid fa-download"></i> Descargar PNG
+                                    </button>
                                 </div>
                             </div>
-
-                            <div><label class="block text-[9px] uppercase text-gray-500 dark:text-gray-400">Foto</label>
-                                <input type="file" id="imgUpload" accept="image/*"
-                                    data-product-image="{{ $this->imageTemplateData['image'] }}"
-                                    class="w-full text-[9px] text-gray-500 file:mr-1 file:px-1.5 file:py-0.5 file:rounded file:border-0 file:bg-gray-200 dark:file:bg-white/10 file:text-gray-700 dark:file:text-gray-300 file:text-[10px]" />
-                            </div>
-                            <div class="grid grid-cols-2 gap-1.5">
-                                <!-- escala default: value="1"; cambiá ese número para el zoom inicial de la foto -->
-                                <div><label
-                                        class="block text-[9px] uppercase text-gray-500 dark:text-gray-400">Escala</label><input
-                                        type="range" id="imgScale" min="0.5" max="2" step="0.01"
-                                        value="0.8" class="w-full accent-[#00C4FF] h-4" /></div>
-                                <div><label
-                                        class="block text-[9px] uppercase text-gray-500 dark:text-gray-400">Vertical</label><input
-                                        type="range" id="imgOffsetY" min="-200" max="200" step="1"
-                                        value="0" class="w-full accent-[#00C4FF] h-4" /></div>
-                            </div>
-                            <button type="button" id="imgDownloadBtn"
-                                class="w-full px-2 py-1.5 rounded-lg bg-[#d4af37] hover:brightness-110 text-[#1c1c1e] font-bold text-[11px] transition-all flex items-center justify-center gap-1">
-                                <i class="fa-solid fa-download"></i> Descargar PNG
-                            </button>
                         </div>
-                        {{-- Texto del anuncio (solo textarea, se autogenera al elegir producto) --}}
-                        @if ($generatedContent)
-                            <div
-                                class="bg-white dark:bg-[#0f172a] rounded-xl border border-gray-200 dark:border-white/5 p-3">
-                                <textarea id="ad-textarea" readonly rows="4"
-                                    class="w-full bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-gray-700 dark:text-gray-300 font-mono resize-none whitespace-pre-wrap">{{ $generatedContent['headline'] }}
-                            {{ $generatedContent['body'] }}
-                            {{ $generatedContent['cta'] ? $generatedContent['cta'] : '' }}
-                        </textarea>
+                        {{-- 4. IA: variantes de copy --}}
+                        <div x-data="{ open: true }"
+                            class="bg-white dark:bg-[#0f172a] rounded-xl border border-gray-200 dark:border-white/5 p-3">
+                            <button @click="open = !open" class="flex items-center gap-2 w-full text-left">
+                                <span
+                                    class="w-5 h-5 rounded-full bg-gradient-to-r from-[#00C4FF] to-purple-500 text-[9px] flex items-center justify-center font-black text-white">AI</span>
+                                <span
+                                    class="font-bold text-[11px] uppercase tracking-wider text-gray-900 dark:text-white flex-1">IA
+                                    · Variantes de texto</span>
+                                <i class="fa-solid text-[10px] text-gray-400"
+                                    :class="open ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+                            </button>
+                            <div x-show="open" x-collapse class="mt-3 space-y-3">
+                                <div class="flex items-center gap-1.5 flex-wrap">
+                                    @foreach ($this->aiToneOptions as $key => $info)
+                                        <button wire:click="$set('aiTone', '{{ $key }}')"
+                                            class="px-2 py-1 rounded-md text-[10px] font-bold transition-all border {{ $aiTone === $key ? 'border-[#00C4FF] bg-[#00C4FF]/10 text-[#00C4FF]' : 'border-gray-200 dark:border-white/5 text-gray-500 hover:border-gray-300 dark:hover:border-white/20' }}">
+                                            <i class="fa-regular {{ $info[0] }}"></i> {{ $info[1] }}
+                                        </button>
+                                    @endforeach
+                                    <button wire:click="generateWithAI" wire:loading.attr="disabled"
+                                        class="bg-gradient-to-r from-[#00C4FF] to-purple-500 hover:from-[#00b0e6] hover:to-purple-600 text-white font-bold px-2.5 py-1 rounded-md text-[10px] transition-all flex items-center gap-1 disabled:opacity-50">
+                                        <span wire:loading.remove wire:target="generateWithAI"><i
+                                                class="fa-solid fa-wand-magic-sparkles"></i> Generar</span>
+                                        <span wire:loading wire:target="generateWithAI"><i
+                                                class="fa-solid fa-spinner fa-spin"></i></span>
+                                    </button>
+                                </div>
+
+                                @if ($aiLoading)
+                                    <div class="flex items-center justify-center py-6">
+                                        <i class="fa-solid fa-spinner fa-spin text-[#00C4FF] mr-2"></i>
+                                        <span class="text-xs text-gray-500">Generando variantes...</span>
+                                    </div>
+                                @elseif($aiGenerated)
+                                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                                        @foreach ($aiGenerated['variants'] as $index => $variant)
+                                            @php
+                                                $parts = preg_split('/\n(?=Cuerpo:|Hashtags:)/', $variant);
+                                            @endphp
+                                            <div
+                                                class="p-2 rounded-lg bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/5 flex flex-col">
+                                                <div class="flex-1 space-y-1">
+                                                    <span
+                                                        class="w-4 h-4 rounded-full bg-[#00C4FF] inline-flex items-center justify-center text-[8px] font-black text-[#0a0f1c]">#{{ $index + 1 }}</span>
+                                                    @foreach ($parts as $part)
+                                                        @php $colon = mb_strpos($part, ':' ); @endphp
+                                                        @if ($colon !== false)
+                                                            <p
+                                                                class="text-[10px] text-gray-700 dark:text-gray-300 leading-relaxed">
+                                                                <span
+                                                                    class="font-bold text-[#00C4FF]">{{ mb_substr($part, 0, $colon) }}:</span>{{ mb_substr($part, $colon + 1) }}
+                                                            </p>
+                                                        @else
+                                                            <p
+                                                                class="text-[10px] text-gray-700 dark:text-gray-300 leading-relaxed">
+                                                                {{ $part }}</p>
+                                                        @endif
+                                                    @endforeach
+                                                </div>
+                                                <button wire:click="useAiVariant({{ $index }})"
+                                                    class="mt-1.5 w-full bg-[#00C4FF]/10 hover:bg-[#00C4FF]/20 text-[#00C4FF] font-bold px-2 py-1 rounded-lg text-[9px] transition-all flex items-center justify-center gap-1">
+                                                    <i class="fa-solid fa-arrow-right"></i> Usar
+                                                </button>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                @else
+                                    <p class="text-[10px] text-gray-400">Seleccioná producto y tono, luego generá</p>
+                                @endif
                             </div>
-                        @endif
+                        </div>
                     </div>
 
                     {{-- Columna 3: Canvas preview --}}
@@ -140,76 +230,50 @@
                     </div>
                 </div>
             </div>
+    </div>
 
-
-
-            {{-- 4. IA: variantes de copy --}}
-            <div x-data="{ open: false }"
-                class="bg-white dark:bg-[#0f172a] rounded-xl border border-gray-200 dark:border-white/5 p-3">
-                <button @click="open = !open" class="flex items-center gap-2 w-full text-left">
-                    <span
-                        class="w-5 h-5 rounded-full bg-gradient-to-r from-[#00C4FF] to-purple-500 text-[9px] flex items-center justify-center font-black text-white">AI</span>
-                    <span
-                        class="font-bold text-[11px] uppercase tracking-wider text-gray-900 dark:text-white flex-1">IA
-                        · Variantes de texto</span>
-                    <i class="fa-solid text-[10px] text-gray-400"
-                        :class="open ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
-                </button>
-                <div x-show="open" x-collapse class="mt-3 space-y-3">
-                    <div class="flex items-center gap-1.5 flex-wrap">
-                        @php $tones = [
-                            'casual' => ['fa-face-smile', 'Casual'],
-                            'profesional' => ['fa-briefcase', 'Pro'],
-                            'urgente' => ['fa-bolt', 'Urgente'],
-                            'lujoso' => ['fa-crown', 'Lujo'],
-                        ]; @endphp
-                        @foreach ($tones as $key => $info)
-                            <button wire:click="$set('aiTone', '{{ $key }}')"
-                                class="px-2 py-1 rounded-md text-[10px] font-bold transition-all border {{ $aiTone === $key ? 'border-[#00C4FF] bg-[#00C4FF]/10 text-[#00C4FF]' : 'border-gray-200 dark:border-white/5 text-gray-500 hover:border-gray-300 dark:hover:border-white/20' }}">
-                                <i class="fa-regular {{ $info[0] }}"></i> {{ $info[1] }}
-                            </button>
-                        @endforeach
-                        <button wire:click="generateWithAI" wire:loading.attr="disabled"
-                            class="bg-gradient-to-r from-[#00C4FF] to-purple-500 hover:from-[#00b0e6] hover:to-purple-600 text-white font-bold px-2.5 py-1 rounded-md text-[10px] transition-all flex items-center gap-1 disabled:opacity-50">
-                            <span wire:loading.remove wire:target="generateWithAI"><i
-                                    class="fa-solid fa-wand-magic-sparkles"></i> Generar</span>
-                            <span wire:loading wire:target="generateWithAI"><i
-                                    class="fa-solid fa-spinner fa-spin"></i></span>
-                        </button>
-                    </div>
-
-                    @if ($aiLoading)
-                        <div class="flex items-center justify-center py-6">
-                            <i class="fa-solid fa-spinner fa-spin text-[#00C4FF] mr-2"></i>
-                            <span class="text-xs text-gray-500">Generando variantes...</span>
-                        </div>
-                    @elseif($aiGenerated)
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                            @foreach ($aiGenerated['variants'] as $index => $variant)
-                                <div
-                                    class="p-2 rounded-lg bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/5 flex flex-col">
-                                    <div class="flex-1">
-                                        <span
-                                            class="w-4 h-4 rounded-full bg-[#00C4FF] inline-flex items-center justify-center text-[8px] font-black text-[#0a0f1c] mb-1">#{{ $index + 1 }}</span>
-                                        <p
-                                            class="text-[10px] text-gray-700 dark:text-gray-300 whitespace-pre-line leading-relaxed">
-                                            {{ $variant }}</p>
-                                    </div>
-                                    <button wire:click="useAiVariant({{ $index }})"
-                                        class="mt-1.5 w-full bg-[#00C4FF]/10 hover:bg-[#00C4FF]/20 text-[#00C4FF] font-bold px-2 py-1 rounded-lg text-[9px] transition-all flex items-center justify-center gap-1">
-                                        <i class="fa-solid fa-arrow-right"></i> Usar
-                                    </button>
-                                </div>
-                            @endforeach
-                        </div>
-                    @else
-                        <p class="text-[10px] text-gray-400">Seleccioná producto y tono, luego generá</p>
-                    @endif
-                </div>
-            </div>
+    {{-- Downloads table --}}
+    @if ($downloads && $downloads->count() > 0)
+    <div class="bg-white dark:bg-[#0f172a] rounded-xl border border-gray-200 dark:border-white/5 p-3 mt-3">
+        <div class="flex items-center justify-between mb-2">
+            <h2 class="font-bold text-[11px] uppercase tracking-wider text-gray-900 dark:text-white flex items-center gap-1.5">
+                <i class="fa-solid fa-clock-rotate-left text-[#00C4FF] text-[10px]"></i> Descargados
+            </h2>
+            <button wire:click="resetDownloads" wire:confirm="¿Limpiar todo el historial?"
+                class="px-2 py-0.5 rounded text-[9px] font-bold bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-900/30 transition-all">
+                <i class="fa-solid fa-trash-can"></i> Reset
+            </button>
         </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-[10px] text-left">
+                <thead>
+                    <tr class="text-gray-400 dark:text-gray-500 border-b border-gray-200 dark:border-white/10">
+                        <th class="py-1 pr-2 font-medium">Modelo</th>
+                        <th class="py-1 px-2 font-medium">Foto</th>
+                        <th class="py-1 px-2 font-medium">Texto</th>
+                        <th class="py-1 pl-2 font-medium">Descargado</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 dark:divide-white/5">
+                    @foreach ($downloads as $d)
+                    <tr class="text-gray-600 dark:text-gray-400">
+                        <td class="py-1 pr-2 font-bold text-gray-800 dark:text-gray-200">{{ $d->model_code }}</td>
+                        <td class="py-1 px-2">
+                            @if ($d->product_image)
+                            <img src="{{ $d->product_image }}" class="w-8 h-8 object-contain rounded" />
+                            @endif
+                        </td>
+                        <td class="py-1 px-2 max-w-[200px] truncate" title="{{ $d->text_content }}">{{ $d->text_content }}</td>
+                        <td class="py-1 pl-2 whitespace-nowrap">{{ $d->created_at->format('d/m H:i') }}</td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    </div>
+    @endif
 
-        {{-- TAB: UTM --}}
+    {{-- TAB: UTM --}}
     @elseif($activeTab === 'utm')
         <div class="grid grid-cols-1 lg:grid-cols-5 gap-4">
             <div class="lg:col-span-2 space-y-3">
@@ -566,7 +630,7 @@
                 ctx.restore();
 
                 // etiqueta amarilla de envío (sobre el badge)
-                const tagH = 50;
+                const tagH = 60;
                 const tagRadius = 25;
                 ctx.save();
                 ctx.fillStyle = '#f2c400';
@@ -575,7 +639,7 @@
                 ctx.font = 'bold 20px Arial';
                 ctx.fillStyle = '#1c1c1c';
                 ctx.textBaseline = 'middle';
-                ctx.fillText(document.getElementById('imgShipping').value, badgePadX + 20, badgeY + 4);
+                ctx.fillText(document.getElementById('imgShipping').value, badgePadX + 40, badgeY + 6);
                 ctx.restore();
 
                 // precio centrado vertical y horizontalmente dentro del badge
@@ -633,7 +697,7 @@
                 // ===== ESPECIFICACIONES (al lado derecho del círculo) =====
                 const specLines = (document.getElementById('imgSpecs').value || '').split('\n').filter(l => l.trim() !==
                     '');
-                const specYoffset = 0; // <-- ajustá para subir/bajar (+ = baja, - = sube)
+                const specYoffset = 500; // <-- ajustá para subir/bajar (+ = baja, - = sube)
                 ctx.save();
                 ctx.font = '30px Arial';
                 ctx.fillStyle = t.text;
@@ -689,17 +753,13 @@
                 ctx.restore();
             }
 
-            document.getElementById('imgDownloadBtn').addEventListener('click', () => {
-                try {
-                    const link = document.createElement('a');
-                    link.download = 'invicta-ad.png';
-                    link.href = canvas.toDataURL('image/png');
-                    link.click();
-                } catch (err) {
-                    alert('Error al exportar: ' + err.message +
-                        '\n\nSi cargaste foto del producto (CORS), subí la imagen manualmente.');
-                }
-            });
+    document.addEventListener('trigger-png-download', () => {
+        const modelCode = (document.getElementById('imgModelCode').value || 'invicta').replace(/[^a-zA-Z0-9_-]/g, '');
+        const link = document.createElement('a');
+        link.download = modelCode + '.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+    });
 
             // Vuelve a dibujar si Livewire re-renderiza el componente
             draw();

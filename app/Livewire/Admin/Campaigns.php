@@ -4,6 +4,7 @@ namespace App\Livewire\Admin;
 
 use App\Models\Product;
 use App\Models\MarketingTask;
+use App\Models\DownloadHistory;
 use Livewire\Component;
 use Illuminate\Support\Facades\Http;
 
@@ -29,9 +30,64 @@ class Campaigns extends Component
     public $generatedUtm = '';
 
     public $savedAds;
+    public $productFilter = 'all';
+    public $downloads;
+
+    public function saveDownload()
+    {
+        if (!$this->product) return;
+
+        $existing = DownloadHistory::where('product_id', $this->product->id)->first();
+        if ($existing) return;
+
+        $text = $this->generatedContent
+            ? ($this->generatedContent['headline'] ?? '') . "\n\n" . ($this->generatedContent['body'] ?? '')
+            : '';
+
+        DownloadHistory::create([
+            'product_id' => $this->product->id,
+            'model_code' => $this->product->modelo,
+            'product_image' => $this->product->imagen,
+            'text_content' => $text,
+        ]);
+
+        $this->loadDownloads();
+        $this->dispatch('trigger-png-download');
+        session()->flash('message', 'Descarga registrada.');
+    }
+
+    public function resetDownloads()
+    {
+        DownloadHistory::truncate();
+        $this->loadDownloads();
+        session()->flash('message', 'Historial de descargas limpiado.');
+    }
+
+    public function setProductFilter($filter)
+    {
+        $this->productFilter = $filter;
+    }
+
+    private function loadDownloads()
+    {
+        $this->downloads = DownloadHistory::with('product')
+            ->latest()
+            ->get();
+    }
+
+    public function getAiToneOptionsProperty(): array
+    {
+        return [
+            'casual' => ['fa-face-smile', 'Casual'],
+            'profesional' => ['fa-briefcase', 'Pro'],
+            'urgente' => ['fa-bolt', 'Urgente'],
+            'lujoso' => ['fa-crown', 'Lujo'],
+        ];
+    }
 
     public function mount()
     {
+        $this->loadDownloads();
         $first = Product::where('activo', true)->where('precio_venta', '>', 0)->orderBy('modelo')->first();
         if ($first) {
             $this->selectedProductId = $first->id;
@@ -167,8 +223,13 @@ Características: {$product->size}mm, movimiento {$product->tipo_movimiento}, re
 Precio: ₡" . number_format($product->price_after_discount, 0) . "
 Tono: {$toneLabels[$this->aiTone]}
 
-Para cada variante incluye: título llamativo (máx 10 palabras), cuerpo persuasivo (máx 40 palabras), y 3 hashtags relevantes.
-Separa cada variante con '---'.";
+IMPORTANTE: NO uses markdown ni asteriscos. Usá formato simple.
+Para cada variante escribí:
+Título: (máx 10 palabras)
+Cuerpo: (máx 40 palabras)  
+Hashtags: (3 hashtags separados por espacio)
+
+Separá cada variante exactamente con: ---";
 
         try {
             $response = Http::withHeaders([
@@ -184,8 +245,8 @@ Separa cada variante con '---'.";
             $text = $response->json('choices.0.message.content');
 
             $variants = collect(explode('---', $text))
-                ->map(fn($v) => trim($v))
-                ->filter()
+                ->map(fn($v) => trim(preg_replace('/\*\*(.*?)\*\*/', '$1', $v)))
+                ->filter(fn($v) => !preg_match('/^(claro|aquí\s+tienes|por\s+supuesto|te\s+presento)/i', $v))
                 ->values()
                 ->toArray();
 
@@ -223,12 +284,14 @@ Separa cada variante con '---'.";
         if (!$this->aiGenerated || !isset($this->aiGenerated['variants'][$index])) return;
 
         $text = $this->aiGenerated['variants'][$index];
-        $lines = explode("\n", $text);
+        // Limpia etiquetas como "Título:", "Cuerpo:", "Hashtags:" del texto plano
+        $clean = preg_replace('/^(Título|Cuerpo|Hashtags):\s*/im', '', $text);
+        $lines = array_filter(explode("\n", $clean));
 
         $this->generatedContent = [
             'template' => 'ai',
             'headline' => $lines[0] ?? 'Anuncio IA',
-            'body' => $text,
+            'body' => implode("\n", array_slice($lines, 1)),
             'cta' => '¡Contáctanos!',
             'model' => $this->aiGenerated['model'],
             'image' => $this->aiGenerated['image'],
@@ -261,10 +324,17 @@ Separa cada variante con '---'.";
 
 public function render()
     {
-        $products = Product::where('activo', true)->where('precio_venta', '>', 0)
-            ->when($this->productSearch, fn($q) => $q->where('modelo', 'like', '%'.$this->productSearch.'%'))
-            ->orderBy('modelo')->get();
+        $query = Product::where('activo', true)->where('precio_venta', '>', 0)
+            ->when($this->productSearch, fn($q) => $q->where('modelo', 'like', '%'.$this->productSearch.'%'));
+
+        if ($this->productFilter === 'pending') {
+            $downloadedIds = DownloadHistory::pluck('product_id');
+            $query->whereNotIn('id', $downloadedIds);
+        }
+
+        $products = $query->orderBy('modelo')->get();
         $this->savedAds = MarketingTask::where('type', 'like', 'ad_%')->latest()->take(10)->get();
+        $this->loadDownloads();
 
         return view('livewire.admin.campaigns', compact('products'))
             ->layout('components.admin-layout', ['title' => 'Campañas']);
