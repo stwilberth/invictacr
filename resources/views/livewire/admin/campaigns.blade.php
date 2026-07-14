@@ -383,14 +383,34 @@
 
     {{-- TAB: IMAGEN --}}
     @elseif($activeTab === 'image')
-    <div wire:key="image-tab" x-data x-init="$nextTick(() => window.initInvictaImageCanvas())" class="grid grid-cols-1 lg:grid-cols-[380px_1fr] gap-4">
-        {{-- Controles --}}
-        <div class="bg-white dark:bg-[#1c1c1e] rounded-xl border border-gray-200 dark:border-white/5 p-4 space-y-3 max-h-[calc(100vh-200px)] overflow-y-auto text-gray-800 dark:text-gray-200">
-            <h2 class="text-base font-bold !text-[#d4af37] mt-0">Plantilla · Anuncio Invicta</h2>
+    <div wire:key="image-tab" x-data x-init="$nextTick(() => window.initInvictaImageCanvas())" class="space-y-3">
 
-            <button wire:click="useProductForImage" class="w-full px-3 py-2 rounded-lg bg-[#00C4FF]/10 text-[#00C4FF] hover:bg-[#00C4FF]/20 text-xs font-bold transition-all flex items-center justify-center gap-1.5">
-                <i class="fa-solid fa-fill"></i> Usar producto seleccionado
-            </button>
+        {{-- Selector de producto (click = carga automática) --}}
+        <div class="bg-white dark:bg-[#0f172a] rounded-xl border border-gray-200 dark:border-white/5 p-3">
+            <div class="flex gap-2 overflow-x-auto pb-1">
+                @foreach($products as $p)
+                <button wire:click="$set('selectedProductId', {{ $p->id }})"
+                    class="flex-shrink-0 p-1 rounded-lg border-2 transition-all {{ $selectedProductId == $p->id ? 'border-[#00C4FF]' : 'border-transparent hover:border-gray-200 dark:hover:border-white/20' }}" style="width:90px">
+                    @if($p->imagen)
+                    <img src="{{ $p->imagen }}" class="w-full aspect-square object-contain rounded" loading="lazy" />
+                    @endif
+                    <p class="text-[8px] font-medium text-gray-700 dark:text-gray-300 truncate mt-0.5">{{ $p->modelo }}</p>
+                </button>
+                @endforeach
+            </div>
+            @if($product)
+            <p class="text-[10px] text-gray-400 dark:text-gray-500 mt-1 flex items-center gap-1">
+                <i class="fa-solid fa-check text-green-500"></i> Cargado automáticamente: <span class="font-bold text-gray-600 dark:text-gray-300">{{ $product->modelo }}</span>
+            </p>
+            @else
+            <p class="text-[10px] text-gray-400 dark:text-gray-500 mt-1">Elegí un producto para cargar sus datos en la plantilla automáticamente.</p>
+            @endif
+        </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-[380px_1fr] gap-4">
+        {{-- Controles --}}
+        <div class="bg-white dark:bg-[#1c1c1e] rounded-xl border border-gray-200 dark:border-white/5 p-4 space-y-3 max-h-[calc(100vh-260px)] overflow-y-auto text-gray-800 dark:text-gray-200">
+            <h2 class="text-base font-bold !text-[#d4af37] mt-0">Plantilla · Anuncio Invicta</h2>
 
             <div x-data="{ currentTheme: 'gold', themes: {
                     gold:  { name:'Gold',  dark:'#8a5a00', light:'#e6b800', cream:'#fdf6e3' },
@@ -414,15 +434,15 @@
                 </div>
 
                 <label class="block text-[11px] uppercase tracking-wide text-gray-500 dark:text-gray-400">Título</label>
-                <input type="text" id="imgTitle" value="INVICTA PRO DIVER"
+                <input type="text" id="imgTitle" value="{{ $this->imageTemplateData['title'] }}"
                     class="w-full px-2.5 py-2 rounded-md text-sm bg-gray-50 dark:bg-[#2a2a2c] border border-gray-300 dark:border-[#444]" />
 
                 <label class="block text-[11px] uppercase tracking-wide text-gray-500 dark:text-gray-400">Modelo (código)</label>
-                <input type="text" id="imgModelCode" value="(49858)"
+                <input type="text" id="imgModelCode" value="{{ $this->imageTemplateData['modelCode'] }}"
                     class="w-full px-2.5 py-2 rounded-md text-sm bg-gray-50 dark:bg-[#2a2a2c] border border-gray-300 dark:border-[#444]" />
 
                 <label class="block text-[11px] uppercase tracking-wide text-gray-500 dark:text-gray-400">Precio</label>
-                <input type="text" id="imgPrice" value="₡83 000"
+                <input type="text" id="imgPrice" value="{{ $this->imageTemplateData['price'] }}"
                     class="w-full px-2.5 py-2 rounded-md text-sm bg-gray-50 dark:bg-[#2a2a2c] border border-gray-300 dark:border-[#444]" />
 
                 <label class="block text-[11px] uppercase tracking-wide text-gray-500 dark:text-gray-400">Etiqueta envío</label>
@@ -431,10 +451,7 @@
 
                 <label class="block text-[11px] uppercase tracking-wide text-gray-500 dark:text-gray-400">Especificaciones (una por línea)</label>
                 <textarea id="imgSpecs" rows="4"
-                    class="w-full px-2.5 py-2 rounded-md text-sm bg-gray-50 dark:bg-[#2a2a2c] border border-gray-300 dark:border-[#444] resize-y min-h-[60px]">Acero inoxidable
-43 mm
-Mov. Cuarzo
-100 m</textarea>
+                    class="w-full px-2.5 py-2 rounded-md text-sm bg-gray-50 dark:bg-[#2a2a2c] border border-gray-300 dark:border-[#444] resize-y min-h-[60px]">{{ $this->imageTemplateData['specs'] }}</textarea>
 
                 <label class="block text-[11px] uppercase tracking-wide text-gray-500 dark:text-gray-400">WhatsApp</label>
                 <input type="text" id="imgWhatsapp" value="8671-1422"
@@ -446,12 +463,9 @@ Mov. Cuarzo
 
                 <!-- Origen de la imagen -->
                 <label class="block text-[11px] uppercase tracking-wide text-gray-500 dark:text-gray-400">Foto del reloj</label>
-                <div class="flex gap-2 flex-wrap">
-                    <button type="button" id="useProductImgBtn" class="px-2.5 py-1.5 rounded-md text-[11px] font-bold bg-[#00C4FF]/15 text-[#00C4FF] hover:bg-[#00C4FF]/25 transition-all flex items-center gap-1">
-                        <i class="fa-solid fa-box"></i> Foto del producto
-                    </button>
-                    <input type="file" id="imgUpload" accept="image/*" class="text-[11px] text-gray-500 file:mr-2 file:px-2 file:py-1 file:rounded file:border-0 file:bg-gray-200 dark:file:bg-white/10 file:text-gray-700 dark:file:text-gray-300" />
-                </div>
+                <p class="text-[10px] text-gray-400 dark:text-gray-500 -mt-1">Se carga sola con la foto del producto. Subí otra si preferís.</p>
+                <input type="file" id="imgUpload" accept="image/*" data-product-image="{{ $this->imageTemplateData['image'] }}"
+                    class="w-full text-[11px] text-gray-500 file:mr-2 file:px-2 file:py-1 file:rounded file:border-0 file:bg-gray-200 dark:file:bg-white/10 file:text-gray-700 dark:file:text-gray-300" />
 
                 <div class="grid grid-cols-2 gap-2">
                     <div>
@@ -475,6 +489,7 @@ Mov. Cuarzo
             <canvas id="adCanvas" width="1080" height="1350"
                 style="max-width:100%; height:auto; box-shadow:0 10px 40px rgba(0,0,0,.6);"></canvas>
         </div>
+    </div>
     </div>
 
     {{-- TAB: GUARDADOS --}}
@@ -551,7 +566,8 @@ window.initInvictaImageCanvas = function(){
         if(el) el.addEventListener('input', draw);
     });
 
-    document.getElementById('imgUpload').addEventListener('change', e => {
+    const imgUploadEl = document.getElementById('imgUpload');
+    imgUploadEl.addEventListener('change', e => {
         const file = e.target.files[0];
         if(!file) return;
         const reader = new FileReader();
@@ -563,29 +579,32 @@ window.initInvictaImageCanvas = function(){
         reader.readAsDataURL(file);
     });
 
-    document.getElementById('useProductImgBtn').addEventListener('click', () => {
-        window.dispatchEvent(new CustomEvent('use-product-image'));
-    });
+    function loadImageFromUrl(url){
+        if(!url) return;
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = () => { watchImg = img; draw(); };
+        img.onerror = () => console.warn('No se pudo cargar la imagen del producto (CORS).');
+        img.src = url;
+    }
+
+    // Auto-carga la foto del producto ya seleccionado al montar la pestaña
+    loadImageFromUrl(imgUploadEl.dataset.productImage);
 
     window.addEventListener('set-theme', (e) => {
         currentTheme = e.detail;
         draw();
     });
 
-    // Livewire dispatches an event with the product data when "Usar producto" is clicked
+    // Livewire despacha este evento automáticamente cada vez que se
+    // selecciona un producto (sin necesidad de ningún botón manual).
     document.addEventListener('populate-image-fields', (e) => {
         const d = e.detail.payload || e.detail || {};
         if(d.title && document.getElementById('imgTitle')) document.getElementById('imgTitle').value = d.title;
         if(d.modelCode !== undefined) document.getElementById('imgModelCode').value = d.modelCode;
         if(d.price) document.getElementById('imgPrice').value = d.price;
         if(d.specs) document.getElementById('imgSpecs').value = d.specs;
-        if(d.image){
-            const img = new Image();
-            img.crossOrigin = 'anonymous';
-            img.onload = () => { watchImg = img; draw(); };
-            img.onerror = () => console.warn('No se pudo cargar la imagen del producto (CORS).');
-            img.src = d.image;
-        }
+        if(d.image) loadImageFromUrl(d.image);
         draw();
     });
 

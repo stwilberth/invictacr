@@ -33,6 +33,53 @@ class Campaigns extends Component
     {
         $this->product = $value ? Product::find($value) : null;
         $this->generatedContent = null;
+
+        // Auto-carga los datos del producto en la plantilla de imagen
+        // (sin necesidad de un botón/paso extra) si el usuario ya está
+        // en esa pestaña o si vuelve a ella luego.
+        if ($this->product) {
+            $this->dispatch('populate-image-fields', payload: $this->buildImageTemplateData($this->product));
+        }
+    }
+
+    /**
+     * Construye los datos de la plantilla de imagen a partir de un producto.
+     */
+    private function buildImageTemplateData(?Product $product): array
+    {
+        if (!$product) {
+            return [
+                'title' => 'INVICTA PRO DIVER',
+                'modelCode' => '(49858)',
+                'price' => '₡83 000',
+                'specs' => "Acero inoxidable\n43 mm\nMov. Cuarzo\n100 m",
+                'image' => null,
+            ];
+        }
+
+        $specs = array_filter([
+            $product->coleccion ?? null,
+            $product->size ? $product->size . ' mm' : null,
+            $product->tipo_movimiento ? 'Mov. ' . $product->tipo_movimiento : null,
+            $product->resistencia_agua ?? null,
+        ]);
+
+        return [
+            'title' => strtoupper($product->modelo ?? ''),
+            'modelCode' => $product->codigo_comercial ?? ('(' . ($product->id ?? '') . ')'),
+            'price' => '₡' . number_format($product->price_after_discount, 0),
+            'specs' => $specs ? implode("\n", $specs) : "Acero inoxidable\n43 mm\nMov. Cuarzo\n100 m",
+            'image' => $product->imagen ?? null,
+        ];
+    }
+
+    /**
+     * Datos por defecto de la plantilla de imagen para el render inicial
+     * (basado en el producto actualmente seleccionado, si lo hay).
+     */
+    public function getImageTemplateDataProperty(): array
+    {
+        return $this->buildImageTemplateData($this->product);
     }
 
     public function generateAd()
@@ -204,34 +251,7 @@ Separa cada variante con '---'.";
         session()->flash('message', 'Anuncio guardado en Marketing.');
     }
 
-    public function useProductForImage()
-    {
-        $product = Product::find($this->selectedProductId);
-        if (!$product) {
-            session()->flash('error', 'Selecciona un producto primero.');
-            return;
-        }
-
-        $specs = array_filter([
-            $product->coleccion ?? null,
-            $product->size ? $product->size . ' mm' : null,
-            $product->tipo_movimiento ? 'Mov. ' . $product->tipo_movimiento : null,
-            $product->resistencia_agua ? $product->resistencia_agua : null,
-        ]);
-
-        $payload = [
-            'title' => strtoupper($product->modelo ?? ''),
-            'modelCode' => $product->codigo_comercial ?? ('(' . ($product->id ?? '') . ')'),
-            'price' => '₡' . number_format($product->price_after_discount, 0),
-            'specs' => implode("\n", $specs),
-            'image' => $product->imagen ?? null,
-        ];
-
-        $this->dispatch('populate-image-fields', payload: $payload);
-        session()->flash('message', 'Producto cargado en la plantilla.');
-    }
-
-    public function render()
+public function render()
     {
         $products = Product::where('activo', true)->where('precio_venta', '>', 0)->orderBy('modelo')->get();
         $this->savedAds = MarketingTask::where('type', 'like', 'ad_%')->latest()->take(10)->get();
