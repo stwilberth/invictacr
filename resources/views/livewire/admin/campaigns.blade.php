@@ -87,7 +87,8 @@
                             <input type="file" id="imgUpload" accept="image/*" data-product-image="{{ $this->imageTemplateData['image'] }}" class="w-full text-[9px] text-gray-500 file:mr-1 file:px-1.5 file:py-0.5 file:rounded file:border-0 file:bg-gray-200 dark:file:bg-white/10 file:text-gray-700 dark:file:text-gray-300 file:text-[10px]" />
                         </div>
                         <div class="grid grid-cols-2 gap-1.5">
-                            <div><label class="block text-[9px] uppercase text-gray-500 dark:text-gray-400">Escala</label><input type="range" id="imgScale" min="0.5" max="2" step="0.01" value="1" class="w-full accent-[#00C4FF] h-4" /></div>
+                            <!-- escala default: value="1"; cambiá ese número para el zoom inicial de la foto -->
+<div><label class="block text-[9px] uppercase text-gray-500 dark:text-gray-400">Escala</label><input type="range" id="imgScale" min="0.5" max="2" step="0.01" value="1" class="w-full accent-[#00C4FF] h-4" /></div>
                             <div><label class="block text-[9px] uppercase text-gray-500 dark:text-gray-400">Vertical</label><input type="range" id="imgOffsetY" min="-200" max="200" step="1" value="0" class="w-full accent-[#00C4FF] h-4" /></div>
                         </div>
                         <button type="button" id="imgDownloadBtn" class="w-full px-2 py-1.5 rounded-lg bg-[#d4af37] hover:brightness-110 text-[#1c1c1e] font-bold text-[11px] transition-all flex items-center justify-center gap-1">
@@ -460,7 +461,7 @@ window.initInvictaImageCanvas = function(){
 
         // ===== CÍRCULO CENTRADO (modificar posición y tamaño) =====
         const cx = W/2, cy = H*0.48;
-        const r = 400; // <-- aumentá este número para agrandar el círculo del reloj
+        const r = 450; // <-- aumentá este número para agrandar el círculo del reloj
         // Fondo del círculo (blanco con sombra)
         ctx.save();
         ctx.beginPath();
@@ -531,7 +532,7 @@ window.initInvictaImageCanvas = function(){
 
         // ===== ESPECIFICACIONES (debajo del círculo, mismas X) =====
         const specLines = (document.getElementById('imgSpecs').value || '').split('\n').filter(l => l.trim() !== '');
-        const specOffsetY = 20; // <-- ajustá este número para subir/bajar todo el bloque
+        const specOffsetY = -30; // <-- ajustá este número para subir/bajar todo el bloque
         ctx.save();
         ctx.font = '30px Arial';
         ctx.fillStyle = t.text;
