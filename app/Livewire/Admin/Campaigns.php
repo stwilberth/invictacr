@@ -64,7 +64,8 @@ class Campaigns extends Component
             $product->resistencia_agua ?? null,
         ]);
 
-        $title = $product->coleccion ? strtoupper($product->coleccion) . ' ' . $product->modelo : strtoupper($product->modelo ?? '');
+        $base = $product->coleccion ? strtoupper($product->coleccion) . ' ' . $product->modelo : $product->modelo;
+        $title = 'INVICTA ' . strtoupper($base ?? '');
 
         return [
             'title' => $title,
