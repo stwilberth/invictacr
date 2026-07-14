@@ -569,18 +569,10 @@ window.initInvictaImageCanvas = function(){
         const iconRadius = 22;
         const iconX = waX - textWidth - gap - iconRadius;
 
-        // círculo del ícono
-        ctx.beginPath();
-        ctx.arc(iconX, waY, iconRadius, 0, Math.PI * 2);
-        ctx.fillStyle = '#25D366';
-        ctx.shadowColor = 'rgba(0,0,0,.15)';
-        ctx.shadowBlur = 8;
-        ctx.fill();
-        ctx.shadowBlur = 0;
-
-        // ícono SVG de WhatsApp dentro del círculo
+        // círculo de recorte para el SVG de WhatsApp (sin relleno)
+        // Ajustá iconRadius para cambiar el tamaño del círculo
         if (waIcon.complete && waIcon.naturalWidth > 0) {
-            const waIconScale = 1.2; // <-- aumentá este número para agrandar el icono
+            const waIconScale = 1.5; // <-- aumentá para agrandar el icono dentro del círculo
             const iconSize = iconRadius * waIconScale;
             ctx.save();
             ctx.beginPath();
