@@ -57,11 +57,11 @@
                                 @if ($generatedContent)
                                     <div
                                         class="bg-white dark:bg-[#0f172a] rounded-xl border border-gray-200 dark:border-white/5 p-3">
-                                        <textarea id="ad-textarea" readonly rows="4"
+                                        <textarea id="ad-textarea" readonly rows="12" onclick="navigator.clipboard.writeText(this.value); this.style.outline='2px solid #00C4FF'; setTimeout(()=>this.style.outline='', 1000)"
                                             class="w-full bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-gray-700 dark:text-gray-300 font-mono resize-none whitespace-pre-wrap">{{ $generatedContent['headline'] }}
-                            {{ $generatedContent['body'] }}
-                            {{ $generatedContent['cta'] ? $generatedContent['cta'] : '' }}
-                        </textarea>
+                                            {{ $generatedContent['body'] }}
+                                            {{ $generatedContent['cta'] ? $generatedContent['cta'] : '' }}
+                                        </textarea>
                                     </div>
                                 @endif
                             </div>
@@ -143,6 +143,78 @@
                                 </div>
                             </div>
                         </div>
+                        {{-- 4. IA: variantes de copy --}}
+                        <div x-data="{ open: true }"
+                            class="bg-white dark:bg-[#0f172a] rounded-xl border border-gray-200 dark:border-white/5 p-3">
+                            <button @click="open = !open" class="flex items-center gap-2 w-full text-left">
+                                <span
+                                    class="w-5 h-5 rounded-full bg-gradient-to-r from-[#00C4FF] to-purple-500 text-[9px] flex items-center justify-center font-black text-white">AI</span>
+                                <span
+                                    class="font-bold text-[11px] uppercase tracking-wider text-gray-900 dark:text-white flex-1">IA
+                                    · Variantes de texto</span>
+                                <i class="fa-solid text-[10px] text-gray-400"
+                                    :class="open ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+                            </button>
+                            <div x-show="open" x-collapse class="mt-3 space-y-3">
+                                <div class="flex items-center gap-1.5 flex-wrap">
+                                    @foreach ($this->aiToneOptions as $key => $info)
+                                        <button wire:click="$set('aiTone', '{{ $key }}')"
+                                            class="px-2 py-1 rounded-md text-[10px] font-bold transition-all border {{ $aiTone === $key ? 'border-[#00C4FF] bg-[#00C4FF]/10 text-[#00C4FF]' : 'border-gray-200 dark:border-white/5 text-gray-500 hover:border-gray-300 dark:hover:border-white/20' }}">
+                                            <i class="fa-regular {{ $info[0] }}"></i> {{ $info[1] }}
+                                        </button>
+                                    @endforeach
+                                    <button wire:click="generateWithAI" wire:loading.attr="disabled"
+                                        class="bg-gradient-to-r from-[#00C4FF] to-purple-500 hover:from-[#00b0e6] hover:to-purple-600 text-white font-bold px-2.5 py-1 rounded-md text-[10px] transition-all flex items-center gap-1 disabled:opacity-50">
+                                        <span wire:loading.remove wire:target="generateWithAI"><i
+                                                class="fa-solid fa-wand-magic-sparkles"></i> Generar</span>
+                                        <span wire:loading wire:target="generateWithAI"><i
+                                                class="fa-solid fa-spinner fa-spin"></i></span>
+                                    </button>
+                                </div>
+
+                                @if ($aiLoading)
+                                    <div class="flex items-center justify-center py-6">
+                                        <i class="fa-solid fa-spinner fa-spin text-[#00C4FF] mr-2"></i>
+                                        <span class="text-xs text-gray-500">Generando variantes...</span>
+                                    </div>
+                                @elseif($aiGenerated)
+                                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                                        @foreach ($aiGenerated['variants'] as $index => $variant)
+                                            @php
+                                                $parts = preg_split('/\n(?=Cuerpo:|Hashtags:)/', $variant);
+                                            @endphp
+                                            <div
+                                                class="p-2 rounded-lg bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/5 flex flex-col">
+                                                <div class="flex-1 space-y-1">
+                                                    <span
+                                                        class="w-4 h-4 rounded-full bg-[#00C4FF] inline-flex items-center justify-center text-[8px] font-black text-[#0a0f1c]">#{{ $index + 1 }}</span>
+                                                    @foreach ($parts as $part)
+                                                        @php $colon = mb_strpos($part, ':' ); @endphp
+                                                        @if ($colon !== false)
+                                                            <p
+                                                                class="text-[10px] text-gray-700 dark:text-gray-300 leading-relaxed">
+                                                                <span
+                                                                    class="font-bold text-[#00C4FF]">{{ mb_substr($part, 0, $colon) }}:</span>{{ mb_substr($part, $colon + 1) }}
+                                                            </p>
+                                                        @else
+                                                            <p
+                                                                class="text-[10px] text-gray-700 dark:text-gray-300 leading-relaxed">
+                                                                {{ $part }}</p>
+                                                        @endif
+                                                    @endforeach
+                                                </div>
+                                                <button wire:click="useAiVariant({{ $index }})"
+                                                    class="mt-1.5 w-full bg-[#00C4FF]/10 hover:bg-[#00C4FF]/20 text-[#00C4FF] font-bold px-2 py-1 rounded-lg text-[9px] transition-all flex items-center justify-center gap-1">
+                                                    <i class="fa-solid fa-arrow-right"></i> Usar
+                                                </button>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                @else
+                                    <p class="text-[10px] text-gray-400">Seleccioná producto y tono, luego generá</p>
+                                @endif
+                            </div>
+                        </div>
                     </div>
 
                     {{-- Columna 3: Canvas preview --}}
@@ -151,81 +223,6 @@
                         <canvas id="adCanvas" width="1080" height="1350"
                             style="max-width:100%;max-height:500px;width:auto;box-shadow:0 10px 40px rgba(0,0,0,.6);border-radius:4px;"></canvas>
                     </div>
-                </div>
-            </div>
-
-
-
-            {{-- 4. IA: variantes de copy --}}
-            <div x-data="{ open: false }"
-                class="bg-white dark:bg-[#0f172a] rounded-xl border border-gray-200 dark:border-white/5 p-3">
-                <button @click="open = !open" class="flex items-center gap-2 w-full text-left">
-                    <span
-                        class="w-5 h-5 rounded-full bg-gradient-to-r from-[#00C4FF] to-purple-500 text-[9px] flex items-center justify-center font-black text-white">AI</span>
-                    <span
-                        class="font-bold text-[11px] uppercase tracking-wider text-gray-900 dark:text-white flex-1">IA
-                        · Variantes de texto</span>
-                    <i class="fa-solid text-[10px] text-gray-400"
-                        :class="open ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
-                </button>
-                <div x-show="open" x-collapse class="mt-3 space-y-3">
-                    <div class="flex items-center gap-1.5 flex-wrap">
-                        @foreach ($this->aiToneOptions as $key => $info)
-                            <button wire:click="$set('aiTone', '{{ $key }}')"
-                                class="px-2 py-1 rounded-md text-[10px] font-bold transition-all border {{ $aiTone === $key ? 'border-[#00C4FF] bg-[#00C4FF]/10 text-[#00C4FF]' : 'border-gray-200 dark:border-white/5 text-gray-500 hover:border-gray-300 dark:hover:border-white/20' }}">
-                                <i class="fa-regular {{ $info[0] }}"></i> {{ $info[1] }}
-                            </button>
-                        @endforeach
-                        <button wire:click="generateWithAI" wire:loading.attr="disabled"
-                            class="bg-gradient-to-r from-[#00C4FF] to-purple-500 hover:from-[#00b0e6] hover:to-purple-600 text-white font-bold px-2.5 py-1 rounded-md text-[10px] transition-all flex items-center gap-1 disabled:opacity-50">
-                            <span wire:loading.remove wire:target="generateWithAI"><i
-                                    class="fa-solid fa-wand-magic-sparkles"></i> Generar</span>
-                            <span wire:loading wire:target="generateWithAI"><i
-                                    class="fa-solid fa-spinner fa-spin"></i></span>
-                        </button>
-                    </div>
-
-                    @if ($aiLoading)
-                        <div class="flex items-center justify-center py-6">
-                            <i class="fa-solid fa-spinner fa-spin text-[#00C4FF] mr-2"></i>
-                            <span class="text-xs text-gray-500">Generando variantes...</span>
-                        </div>
-                    @elseif($aiGenerated)
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                            @foreach ($aiGenerated['variants'] as $index => $variant)
-                                @php
-                                    $parts = preg_split('/\n(?=Cuerpo:|Hashtags:)/', $variant);
-                                @endphp
-                                <div
-                                    class="p-2 rounded-lg bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/5 flex flex-col">
-                                    <div class="flex-1 space-y-1">
-                                        <span
-                                            class="w-4 h-4 rounded-full bg-[#00C4FF] inline-flex items-center justify-center text-[8px] font-black text-[#0a0f1c]">#{{ $index + 1 }}</span>
-                                        @foreach ($parts as $part)
-                                            @php $colon = mb_strpos($part, ':' ); @endphp
-                                            @if ($colon !== false)
-                                                <p
-                                                    class="text-[10px] text-gray-700 dark:text-gray-300 leading-relaxed">
-                                                    <span
-                                                        class="font-bold text-[#00C4FF]">{{ mb_substr($part, 0, $colon) }}:</span>{{ mb_substr($part, $colon + 1) }}
-                                                </p>
-                                            @else
-                                                <p
-                                                    class="text-[10px] text-gray-700 dark:text-gray-300 leading-relaxed">
-                                                    {{ $part }}</p>
-                                            @endif
-                                        @endforeach
-                                    </div>
-                                    <button wire:click="useAiVariant({{ $index }})"
-                                        class="mt-1.5 w-full bg-[#00C4FF]/10 hover:bg-[#00C4FF]/20 text-[#00C4FF] font-bold px-2 py-1 rounded-lg text-[9px] transition-all flex items-center justify-center gap-1">
-                                        <i class="fa-solid fa-arrow-right"></i> Usar
-                                    </button>
-                                </div>
-                            @endforeach
-                        </div>
-                    @else
-                        <p class="text-[10px] text-gray-400">Seleccioná producto y tono, luego generá</p>
-                    @endif
                 </div>
             </div>
         </div>
