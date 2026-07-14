@@ -530,11 +530,12 @@ window.initInvictaImageCanvas = function(){
 
         // ===== ESPECIFICACIONES (debajo del círculo, mismas X) =====
         const specLines = (document.getElementById('imgSpecs').value || '').split('\n').filter(l => l.trim() !== '');
+        const specOffsetY = 60; // <-- ajustá este número para subir/bajar todo el bloque
         ctx.save();
         ctx.font = '30px Arial';
         ctx.fillStyle = t.text;
         ctx.textAlign = 'right';
-        const specStartY = cy + r + 60;
+        const specStartY = cy + r + specOffsetY;
         specLines.forEach((line, i) => {
             const sy = specStartY + i * 60;
             ctx.fillText(line.trim(), W-35, sy);
