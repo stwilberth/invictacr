@@ -580,7 +580,8 @@ window.initInvictaImageCanvas = function(){
 
         // ícono SVG de WhatsApp dentro del círculo
         if (waIcon.complete && waIcon.naturalWidth > 0) {
-            const iconSize = iconRadius * 1.2;
+            const waIconScale = 1.2; // <-- aumentá este número para agrandar el icono
+            const iconSize = iconRadius * waIconScale;
             ctx.save();
             ctx.beginPath();
             ctx.arc(iconX, waY, iconRadius, 0, Math.PI * 2);
