@@ -21,94 +21,97 @@
     @if($activeTab === 'create')
     <div class="space-y-3">
         <div wire:key="image-canvas-block" x-data x-init="$nextTick(() => window.initInvictaImageCanvas())">
-            <div class="grid grid-cols-1 lg:grid-cols-[220px_360px_1fr] gap-3">
-                {{-- Columna 1: Selector de producto (vertical) --}}
-                <div class="bg-white dark:bg-[#0f172a] rounded-xl border border-gray-200 dark:border-white/5 p-2 flex flex-col">
-                    <div class="flex items-center gap-1.5 mb-2 px-1">
-                        <i class="fa-solid fa-search text-gray-400 text-[10px]"></i>
-                        <input wire:model.live="productSearch" placeholder="Buscar..."
-                            class="flex-1 bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-md px-2 py-1 text-[10px] focus:border-[#00C4FF] focus:ring-1 focus:ring-[#00C4FF] outline-none" />
-                    </div>
-                    <div class="flex-1 overflow-y-auto space-y-1 max-h-[calc(100vh-320px)] pr-1">
-                        @forelse($products as $p)
-                        <button wire:click="$set('selectedProductId', {{ $p->id }})"
-                            class="w-full flex items-center gap-2 p-1.5 rounded-lg border transition-all text-left {{ $selectedProductId == $p->id ? 'border-[#00C4FF] bg-[#00C4FF]/5' : 'border-transparent hover:border-gray-200 dark:hover:border-white/20' }}">
-                            @if($p->imagen)
-                            <img src="{{ $p->imagen }}" class="w-9 h-9 rounded object-contain bg-white flex-shrink-0" />
-                            @endif
-                            <div class="min-w-0 flex-1">
-                                <p class="text-[10px] font-medium text-gray-700 dark:text-gray-300 truncate leading-tight">{{ $p->modelo }}</p>
-                                @if($product && $selectedProductId == $p->id)
-                                <p class="text-[8px] text-green-500 font-bold">✓ seleccionado</p>
-                                @endif
-                            </div>
-                        </button>
-                        @empty
-                        <p class="text-[11px] text-gray-400 text-center py-4">Sin resultados</p>
-                        @endforelse
-                    </div>
-                </div>
-
+            {{-- Columna 1: Selector de producto (vertical) --}}
+            <div class="grid grid-cols-2 gap-3">
+                
                 {{-- Columna 2: Controles del formulario de imagen --}}
-                <div class="bg-white dark:bg-[#1c1c1e] rounded-xl border border-gray-200 dark:border-white/5 p-3 space-y-2 max-h-[calc(100vh-280px)] overflow-y-auto text-gray-800 dark:text-gray-200">
-                    <h2 class="font-bold text-[10px] uppercase tracking-wider flex items-center gap-1.5 mb-1">
-                        <span class="w-3.5 h-3.5 rounded-full bg-[#d4af37] text-[7px] flex items-center justify-center font-black text-white">1</span>
-                        Imagen del anuncio
-                    </h2>
-
-                    <div x-data="{ currentTheme: 'gold', themes: {
-                            gold:{name:'Gold',dark:'#8a5a00',light:'#e6b800',cream:'#fdf6e3'},
-                            blue:{name:'Blue',dark:'#0b2447',light:'#1a5fb4',cream:'#eaf2fb'},
-                            dark:{name:'Dark',dark:'#141414',light:'#3a3a3a',cream:'#eceff1'},
-                            green:{name:'Green',dark:'#0e3d24',light:'#1f7a4d',cream:'#eef7f0'},
-                            red:{name:'Red',dark:'#5a0a0a',light:'#c0212b',cream:'#fbeef0'},
-                            purple:{name:'Purple',dark:'#2e1065',light:'#6d28d9',cream:'#f3eefb'},
-                            teal:{name:'Teal',dark:'#0c4a4a',light:'#0d9488',cream:'#eef9f8'},
-                        }}">
-                        <label class="block text-[9px] uppercase tracking-wide text-gray-500 dark:text-gray-400">Color</label>
-                        <div class="flex flex-wrap gap-1 mt-1">
-                            <template x-for="entry in Object.entries(themes)" :key="entry[0]">
-                                <button type="button" @click="window.dispatchEvent(new CustomEvent('set-theme', { detail: entry[0] })); currentTheme = entry[0]"
-                                    :class="currentTheme === entry[0] ? 'ring-2 ring-white ring-offset-1 ring-offset-[#1c1c1e]' : ''"
-                                    class="w-7 h-7 rounded-full border-2 border-transparent transition-all"
-                                    :style="`background:linear-gradient(135deg, ${entry[1].dark}, ${entry[1].light})`"
-                                    :title="entry[1].name"></button>
-                            </template>
+                <div class="flex flex-col">
+                    <div class="col-span-2 bg-white dark:bg-[#0f172a] rounded-xl border border-gray-200 dark:border-white/5 p-2 flex flex-col">
+                        <div class="flex items-center gap-1.5 mb-2 px-1">
+                            <i class="fa-solid fa-search text-gray-400 text-[10px]"></i>
+                            <input wire:model.live="productSearch" placeholder="Buscar..."
+                                class="flex-1 bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-md px-2 py-1 text-[10px] focus:border-[#00C4FF] focus:ring-1 focus:ring-[#00C4FF] outline-none" />
+                        </div>
+                        <div class="flex-1 overflow-x-auto space-y-1 pr-1">
+                            @forelse($products as $p)
+                            <button wire:click="$set('selectedProductId', {{ $p->id }})"
+                                class="w-full flex items-center gap-2 p-1.5 rounded-lg border transition-all text-left {{ $selectedProductId == $p->id ? 'border-[#00C4FF] bg-[#00C4FF]/5' : 'border-transparent hover:border-gray-200 dark:hover:border-white/20' }}">
+                                @if($p->imagen)
+                                <img src="{{ $p->imagen }}" class="w-9 h-9 rounded object-contain bg-white flex-shrink-0" />
+                                @endif
+                                <div class="min-w-0 flex-1">
+                                    <p class="text-[10px] font-medium text-gray-700 dark:text-gray-300 truncate leading-tight">{{ $p->modelo }}</p>
+                                    @if($product && $selectedProductId == $p->id)
+                                    <p class="text-[8px] text-green-500 font-bold">✓ seleccionado</p>
+                                    @endif
+                                </div>
+                            </button>
+                            @empty
+                            <p class="text-[11px] text-gray-400 text-center py-4">Sin resultados</p>
+                            @endforelse
                         </div>
                     </div>
-
-                    <div class="grid grid-cols-2 gap-1.5">
-                        <div><label class="block text-[9px] uppercase text-gray-500 dark:text-gray-400">Título</label><input type="text" id="imgTitle" value="{{ $this->imageTemplateData['title'] }}" class="w-full px-1.5 py-1 rounded-md text-[11px] bg-gray-50 dark:bg-[#2a2a2c] border border-gray-300 dark:border-[#444]" /></div>
-                        <div><label class="block text-[9px] uppercase text-gray-500 dark:text-gray-400">Código</label><input type="text" id="imgModelCode" value="{{ $this->imageTemplateData['modelCode'] }}" class="w-full px-1.5 py-1 rounded-md text-[11px] bg-gray-50 dark:bg-[#2a2a2c] border border-gray-300 dark:border-[#444]" /></div>
+                    <div class="bg-white dark:bg-[#1c1c1e] rounded-xl border border-gray-200 dark:border-white/5 p-3 space-y-2 max-h-[calc(100vh-280px)] overflow-y-auto text-gray-800 dark:text-gray-200">
+                        <h2 class="font-bold text-[10px] uppercase tracking-wider flex items-center gap-1.5 mb-1">
+                            <span class="w-3.5 h-3.5 rounded-full bg-[#d4af37] text-[7px] flex items-center justify-center font-black text-white">1</span>
+                            Imagen del anuncio
+                        </h2>
+    
+                        <div x-data="{ currentTheme: 'gold', themes: {
+                                gold:{name:'Gold',dark:'#8a5a00',light:'#e6b800',cream:'#fdf6e3'},
+                                blue:{name:'Blue',dark:'#0b2447',light:'#1a5fb4',cream:'#eaf2fb'},
+                                dark:{name:'Dark',dark:'#141414',light:'#3a3a3a',cream:'#eceff1'},
+                                green:{name:'Green',dark:'#0e3d24',light:'#1f7a4d',cream:'#eef7f0'},
+                                red:{name:'Red',dark:'#5a0a0a',light:'#c0212b',cream:'#fbeef0'},
+                                purple:{name:'Purple',dark:'#2e1065',light:'#6d28d9',cream:'#f3eefb'},
+                                teal:{name:'Teal',dark:'#0c4a4a',light:'#0d9488',cream:'#eef9f8'},
+                            }}">
+                            <label class="block text-[9px] uppercase tracking-wide text-gray-500 dark:text-gray-400">Color</label>
+                            <div class="flex flex-wrap gap-1 mt-1">
+                                <template x-for="entry in Object.entries(themes)" :key="entry[0]">
+                                    <button type="button" @click="window.dispatchEvent(new CustomEvent('set-theme', { detail: entry[0] })); currentTheme = entry[0]"
+                                        :class="currentTheme === entry[0] ? 'ring-2 ring-white ring-offset-1 ring-offset-[#1c1c1e]' : ''"
+                                        class="w-7 h-7 rounded-full border-2 border-transparent transition-all"
+                                        :style="`background:linear-gradient(135deg, ${entry[1].dark}, ${entry[1].light})`"
+                                        :title="entry[1].name"></button>
+                                </template>
+                            </div>
+                        </div>
+    
+                        <div class="grid grid-cols-2 gap-1.5">
+                            <div><label class="block text-[9px] uppercase text-gray-500 dark:text-gray-400">Título</label><input type="text" id="imgTitle" value="{{ $this->imageTemplateData['title'] }}" class="w-full px-1.5 py-1 rounded-md text-[11px] bg-gray-50 dark:bg-[#2a2a2c] border border-gray-300 dark:border-[#444]" /></div>
+                            <div><label class="block text-[9px] uppercase text-gray-500 dark:text-gray-400">Código</label><input type="text" id="imgModelCode" value="{{ $this->imageTemplateData['modelCode'] }}" class="w-full px-1.5 py-1 rounded-md text-[11px] bg-gray-50 dark:bg-[#2a2a2c] border border-gray-300 dark:border-[#444]" /></div>
+                        </div>
+    
+                        <div class="grid grid-cols-2 gap-1.5">
+                            <div><label class="block text-[9px] uppercase text-gray-500 dark:text-gray-400">Precio</label><input type="text" id="imgPrice" value="{{ $this->imageTemplateData['price'] }}" class="w-full px-1.5 py-1 rounded-md text-[11px] bg-gray-50 dark:bg-[#2a2a2c] border border-gray-300 dark:border-[#444]" /></div>
+                            <div><label class="block text-[9px] uppercase text-gray-500 dark:text-gray-400">Envío</label><input type="text" id="imgShipping" value="+ ENVÍO GRATIS" class="w-full px-1.5 py-1 rounded-md text-[11px] bg-gray-50 dark:bg-[#2a2a2c] border border-gray-300 dark:border-[#444]" /></div>
+                        </div>
+    
+                        <div><label class="block text-[9px] uppercase text-gray-500 dark:text-gray-400">Especificaciones</label><textarea id="imgSpecs" rows="2" class="w-full px-1.5 py-1 rounded-md text-[11px] bg-gray-50 dark:bg-[#2a2a2c] border border-gray-300 dark:border-[#444] resize-y min-h-[36px]">{{ $this->imageTemplateData['specs'] }}</textarea></div>
+    
+                        <div class="grid grid-cols-2 gap-1.5">
+                            <div><label class="block text-[9px] uppercase text-gray-500 dark:text-gray-400">WhatsApp</label><input type="text" id="imgWhatsapp" value="8671-1422" class="w-full px-1.5 py-1 rounded-md text-[11px] bg-gray-50 dark:bg-[#2a2a2c] border border-gray-300 dark:border-[#444]" /></div>
+                            <div><label class="block text-[9px] uppercase text-gray-500 dark:text-gray-400">Web</label><input type="text" id="imgWebsite" value="INVICTACR.COM" class="w-full px-1.5 py-1 rounded-md text-[11px] bg-gray-50 dark:bg-[#2a2a2c] border border-gray-300 dark:border-[#444]" /></div>
+                        </div>
+    
+                        <div><label class="block text-[9px] uppercase text-gray-500 dark:text-gray-400">Foto</label>
+                            <input type="file" id="imgUpload" accept="image/*" data-product-image="{{ $this->imageTemplateData['image'] }}" class="w-full text-[9px] text-gray-500 file:mr-1 file:px-1.5 file:py-0.5 file:rounded file:border-0 file:bg-gray-200 dark:file:bg-white/10 file:text-gray-700 dark:file:text-gray-300 file:text-[10px]" />
+                        </div>
+                        <div class="grid grid-cols-2 gap-1.5">
+                            <div><label class="block text-[9px] uppercase text-gray-500 dark:text-gray-400">Escala</label><input type="range" id="imgScale" min="0.5" max="2" step="0.01" value="1" class="w-full accent-[#00C4FF] h-4" /></div>
+                            <div><label class="block text-[9px] uppercase text-gray-500 dark:text-gray-400">Vertical</label><input type="range" id="imgOffsetY" min="-200" max="200" step="1" value="0" class="w-full accent-[#00C4FF] h-4" /></div>
+                        </div>
+                        <button type="button" id="imgDownloadBtn" class="w-full px-2 py-1.5 rounded-lg bg-[#d4af37] hover:brightness-110 text-[#1c1c1e] font-bold text-[11px] transition-all flex items-center justify-center gap-1">
+                            <i class="fa-solid fa-download"></i> Descargar PNG
+                        </button>
                     </div>
-
-                    <div class="grid grid-cols-2 gap-1.5">
-                        <div><label class="block text-[9px] uppercase text-gray-500 dark:text-gray-400">Precio</label><input type="text" id="imgPrice" value="{{ $this->imageTemplateData['price'] }}" class="w-full px-1.5 py-1 rounded-md text-[11px] bg-gray-50 dark:bg-[#2a2a2c] border border-gray-300 dark:border-[#444]" /></div>
-                        <div><label class="block text-[9px] uppercase text-gray-500 dark:text-gray-400">Envío</label><input type="text" id="imgShipping" value="+ ENVÍO GRATIS" class="w-full px-1.5 py-1 rounded-md text-[11px] bg-gray-50 dark:bg-[#2a2a2c] border border-gray-300 dark:border-[#444]" /></div>
-                    </div>
-
-                    <div><label class="block text-[9px] uppercase text-gray-500 dark:text-gray-400">Especificaciones</label><textarea id="imgSpecs" rows="2" class="w-full px-1.5 py-1 rounded-md text-[11px] bg-gray-50 dark:bg-[#2a2a2c] border border-gray-300 dark:border-[#444] resize-y min-h-[36px]">{{ $this->imageTemplateData['specs'] }}</textarea></div>
-
-                    <div class="grid grid-cols-2 gap-1.5">
-                        <div><label class="block text-[9px] uppercase text-gray-500 dark:text-gray-400">WhatsApp</label><input type="text" id="imgWhatsapp" value="8671-1422" class="w-full px-1.5 py-1 rounded-md text-[11px] bg-gray-50 dark:bg-[#2a2a2c] border border-gray-300 dark:border-[#444]" /></div>
-                        <div><label class="block text-[9px] uppercase text-gray-500 dark:text-gray-400">Web</label><input type="text" id="imgWebsite" value="INVICTACR.COM" class="w-full px-1.5 py-1 rounded-md text-[11px] bg-gray-50 dark:bg-[#2a2a2c] border border-gray-300 dark:border-[#444]" /></div>
-                    </div>
-
-                    <div><label class="block text-[9px] uppercase text-gray-500 dark:text-gray-400">Foto</label>
-                        <input type="file" id="imgUpload" accept="image/*" data-product-image="{{ $this->imageTemplateData['image'] }}" class="w-full text-[9px] text-gray-500 file:mr-1 file:px-1.5 file:py-0.5 file:rounded file:border-0 file:bg-gray-200 dark:file:bg-white/10 file:text-gray-700 dark:file:text-gray-300 file:text-[10px]" />
-                    </div>
-                    <div class="grid grid-cols-2 gap-1.5">
-                        <div><label class="block text-[9px] uppercase text-gray-500 dark:text-gray-400">Escala</label><input type="range" id="imgScale" min="0.5" max="2" step="0.01" value="1" class="w-full accent-[#00C4FF] h-4" /></div>
-                        <div><label class="block text-[9px] uppercase text-gray-500 dark:text-gray-400">Vertical</label><input type="range" id="imgOffsetY" min="-200" max="200" step="1" value="0" class="w-full accent-[#00C4FF] h-4" /></div>
-                    </div>
-                    <button type="button" id="imgDownloadBtn" class="w-full px-2 py-1.5 rounded-lg bg-[#d4af37] hover:brightness-110 text-[#1c1c1e] font-bold text-[11px] transition-all flex items-center justify-center gap-1">
-                        <i class="fa-solid fa-download"></i> Descargar PNG
-                    </button>
                 </div>
 
                 {{-- Columna 3: Canvas preview --}}
                 <div class="flex items-start justify-center p-2 bg-[#050505] rounded-xl border border-gray-200 dark:border-white/5">
-<canvas id="adCanvas" width="1080" height="1350" style="max-width:100%;max-height:calc(100vh-320px);width:auto;box-shadow:0 10px 40px rgba(0,0,0,.6);border-radius:4px;"></canvas>
+                    <canvas id="adCanvas" width="1080" height="1350" style="max-width:100%;max-height:calc(100vh-320px);width:auto;box-shadow:0 10px 40px rgba(0,0,0,.6);border-radius:4px;"></canvas>
+                </div>
             </div>
         </div>
 
