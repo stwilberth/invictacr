@@ -1,4 +1,9 @@
 <div>
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-xl font-black">Facturas</h2>
+        <a href="{{ route('admin.invoices.create') }}" class="px-4 py-2 text-sm bg-blue-600 text-white rounded-xl hover:bg-blue-700 font-bold">+ Crear Factura</a>
+    </div>
+
     <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-4 mb-6 space-y-3">
         <div class="flex gap-2 flex-wrap items-center">
             <input wire:model.live.debounce.300ms="search" type="text" placeholder="Buscar factura, cliente o teléfono..." class="bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2 text-sm min-w-[250px] flex-1" />
