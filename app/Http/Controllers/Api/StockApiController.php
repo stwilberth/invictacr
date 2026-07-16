@@ -17,7 +17,6 @@ class StockApiController extends Controller
                 "success" => true,
                 "created" => $result["created"],
                 "stock_changed" => $result["stock_changed"],
-                "price_recalculated" => $result["price_recalculated"],
                 "reference_updated" => $result["reference_updated"],
                 "marked_agotado" => $result["marked_agotado"],
                 "message" => $result["message"],

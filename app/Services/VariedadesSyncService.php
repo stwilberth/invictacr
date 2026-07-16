@@ -39,14 +39,12 @@ class VariedadesSyncService
             $createdCount = 0;
             $activatedCount = 0;
             $stockChangedCount = 0;
-            $priceRecalculatedCount = 0;
             $referenceUpdatedCount = 0;
             $markedAgotadoCount = 0;
 
             $createdModels = [];
             $activatedModels = [];
             $stockChangedModels = [];
-            $priceRecalculatedModels = [];
             $referenceUpdatedModels = [];
             $markedAgotadoModels = [];
 
@@ -111,8 +109,14 @@ class VariedadesSyncService
                         continue;
                     }
 
+                    if (!$product->activo) {
+                        $product->update(['activo' => true]);
+                        $activatedCount++;
+                        $activatedModels[] = $modelKey;
+                        $items[] = ['sync_log_id' => $log->id, 'type' => 'activated', 'modelo' => $modelKey, 'product_id' => $product->id];
+                    }
+
                     $prevStock = (int) ($product->stock ?? 0);
-                    $prevPrecioOriginal = (int) ($product->precio_original ?? 0);
 
                     $updates = [];
                     $didChange = false;
@@ -125,21 +129,8 @@ class VariedadesSyncService
                         $didChange = true;
                     }
 
-                    $isComingBackToStock = $prevStock === 0 && $stockVal > 0;
-                    $hasInvalidPrice = (int) ($product->precio_venta ?? 0) <= 0 && $priceVal > 0;
-
-                    if ($isComingBackToStock || $hasInvalidPrice) {
-                        $existingIncrease = (int) ($product->precio_venta ?? 0) - (int) ($product->precio_original ?? 0);
-                        $increase = $existingIncrease > 0 ? $existingIncrease : random_int(4000, 9000);
-                        $newPrice = $this->roundUpToThousand($priceVal + $increase);
-
-                        $updates["precio_venta"] = $newPrice;
-                        $updates["precio_original"] = $priceVal;
-                        $priceRecalculatedCount++;
-                        $priceRecalculatedModels[] = $modelKey;
-                        $items[] = ['sync_log_id' => $log->id, 'type' => 'price_recalculated', 'modelo' => $modelKey, 'product_id' => $product->id];
-                        $didChange = true;
-                    } elseif ($prevPrecioOriginal !== $priceVal) {
+                    $prevPrecioOriginal = (int) ($product->precio_original ?? 0);
+                    if ($prevPrecioOriginal !== $priceVal) {
                         $updates["precio_original"] = $priceVal;
                         $referenceUpdatedCount++;
                         $referenceUpdatedModels[] = $modelKey;
@@ -231,8 +222,6 @@ class VariedadesSyncService
                 "activados_modelos" => $activatedModels,
                 "stock_actualizado" => $stockChangedCount,
                 "stock_actualizado_modelos" => $stockChangedModels,
-                "precio_recalculado" => $priceRecalculatedCount,
-                "precio_recalculado_modelos" => $priceRecalculatedModels,
                 "referencia_actualizada" => $referenceUpdatedCount,
                 "referencia_actualizada_modelos" => $referenceUpdatedModels,
                 "marcados_agotados" => $markedAgotadoCount,
@@ -247,7 +236,6 @@ class VariedadesSyncService
             if ($createdCount > 0) $parts[] = "{$createdCount} creados";
             if ($activatedCount > 0) $parts[] = "{$activatedCount} próximos activados";
             if ($stockChangedCount > 0) $parts[] = "{$stockChangedCount} stock actualizado";
-            if ($priceRecalculatedCount > 0) $parts[] = "{$priceRecalculatedCount} precios recalculados";
             if ($referenceUpdatedCount > 0) $parts[] = "{$referenceUpdatedCount} precios referencia actualizados";
             if ($markedAgotadoCount > 0) $parts[] = "{$markedAgotadoCount} marcados agotados";
             $msg = implode(", ", $parts) ?: "Sin cambios";
@@ -259,7 +247,6 @@ class VariedadesSyncService
                 "created" => $createdCount,
                 "activated" => $activatedCount,
                 "stock_changed" => $stockChangedCount,
-                "price_recalculated" => $priceRecalculatedCount,
                 "reference_updated" => $referenceUpdatedCount,
                 "marked_agotado" => $markedAgotadoCount,
                 "message" => $msg,

@@ -45,7 +45,7 @@
             <i class="fa-solid fa-circle-check"></i> {{ $lastResult }}
         </div>
         @if($lastDetails)
-            @foreach(['creados' => 'Creados', 'activados' => 'Activados', 'stock_actualizado' => 'Stock actualizado', 'precio_recalculado' => 'Precios recalculados', 'referencia_actualizada' => 'Precios referencia actualizados', 'marcados_agotados' => 'Marcados agotados'] as $key => $label)
+            @foreach(['creados' => 'Creados', 'activados' => 'Activados', 'stock_actualizado' => 'Stock actualizado', 'referencia_actualizada' => 'Precios referencia actualizados', 'marcados_agotados' => 'Marcados agotados'] as $key => $label)
                 @if(($lastDetails[$key] ?? 0) > 0 && !empty($lastDetails[$key . '_modelos']))
                 <div class="mt-2 text-sm text-green-700 dark:text-green-400">
                     <strong>{{ $label }}:</strong>
@@ -80,7 +80,6 @@
                         <th class="pb-3 pr-4 font-semibold">Creados</th>
                         <th class="pb-3 pr-4 font-semibold">Activados</th>
                         <th class="pb-3 pr-4 font-semibold">Stock</th>
-                        <th class="pb-3 pr-4 font-semibold">Precios</th>
                         <th class="pb-3 pr-4 font-semibold">Referencia</th>
                         <th class="pb-3 font-semibold">Agotados</th>
                         <th class="pb-3 font-semibold">Fecha</th>
@@ -104,7 +103,6 @@
                         <td class="py-3 pr-4 text-gray-600 dark:text-gray-400">{{ $log->details['creados'] ?? '—' }}</td>
                         <td class="py-3 pr-4 text-amber-600 dark:text-amber-400">{{ $log->details['activados'] ?? '—' }}</td>
                         <td class="py-3 pr-4 text-gray-600 dark:text-gray-400">{{ $log->details['stock_actualizado'] ?? '—' }}</td>
-                        <td class="py-3 pr-4 text-gray-600 dark:text-gray-400">{{ $log->details['precio_recalculado'] ?? '—' }}</td>
                         <td class="py-3 pr-4 text-gray-600 dark:text-gray-400">{{ $log->details['referencia_actualizada'] ?? '—' }}</td>
                         <td class="py-3 pr-4 text-gray-600 dark:text-gray-400">{{ $log->details['marcados_agotados'] ?? '—' }}</td>
                         <td class="py-3 text-gray-400 text-xs whitespace-nowrap">{{ $log->created_at->format('d/m/Y H:i:s') }}</td>
