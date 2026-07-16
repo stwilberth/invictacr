@@ -90,8 +90,6 @@
                         @endforeach
                     </div>
 
-                    <div id="infinite-scroll-sentinel" class="mt-8 mb-6"></div>
-
                     @if($products->lastPage() > 1)
                     <nav id="pagination-nav" class="flex items-center justify-center gap-1 sm:gap-2 mt-10 mb-6 flex-wrap" aria-label="Paginación">
                         @if($products->previousPageUrl())
@@ -166,11 +164,6 @@
             var state = {
                 abortController: null,
                 searchTimer: null,
-                infiniteObserver: null,
-                infinitePage: 1,
-                totalPages: 1,
-                isLoadingMore: false,
-                allLoaded: false,
             };
 
             // ─── DOM refs ───
@@ -180,7 +173,6 @@
                 els.searchClear = document.getElementById('catalog-search-clear');
                 els.searchBtn = document.getElementById('catalog-search-btn');
                 els.grid = document.getElementById('products-grid');
-                els.sentinel = document.getElementById('infinite-scroll-sentinel');
                 els.paginationNav = document.getElementById('pagination-nav');
                 els.resultsInfo = document.getElementById('catalog-results-info');
                 els.activeFilters = document.getElementById('catalog-active-filters');
@@ -276,12 +268,6 @@
                     gridDiv.className = 'grid grid-cols-2 md:grid-cols-4 gap-4';
                     container.appendChild(gridDiv);
 
-                    // Create sentinel
-                    var sentinelDiv = document.createElement('div');
-                    sentinelDiv.id = 'infinite-scroll-sentinel';
-                    sentinelDiv.className = 'mt-8 mb-6';
-                    container.appendChild(sentinelDiv);
-
                     cacheEls();
                 }
 
@@ -307,20 +293,8 @@
                 // Update active filter chips
                 renderActiveFilters(filters);
 
-                // Hide pagination (we use infinite scroll)
-                if (els.paginationNav) els.paginationNav.style.display = 'none';
-
-                // Reset infinite scroll
-                state.infinitePage = data.currentPage || 1;
-                state.totalPages = data.totalPages || 1;
-                state.allLoaded = state.infinitePage >= state.totalPages;
-                state.isLoadingMore = false;
-
-                if (els.sentinel) {
-                    els.sentinel.innerHTML = state.allLoaded && data.total > 0 ? '' : '';
-                }
-
-                initInfiniteScroll();
+                // Rebuild pagination nav to match the new result set
+                renderPagination(data.currentPage, data.totalPages, filters);
 
                 // Close mobile drawer
                 if (window.closeFilters) window.closeFilters();
@@ -381,72 +355,40 @@
                 els.activeFilters.innerHTML = html;
             }
 
-            // ─── Infinite scroll ───
-            function initInfiniteScroll() {
-                // Tear down previous observer
-                if (state.infiniteObserver) {
-                    state.infiniteObserver.disconnect();
-                    state.infiniteObserver = null;
-                }
+            // ─── Pagination nav (rebuilt after AJAX filter changes) ───
+            function renderPagination(currentPage, totalPages, filters) {
+                if (!els.paginationNav) return;
+                currentPage = currentPage || 1;
+                totalPages = totalPages || 1;
 
-                if (!els.grid || !els.sentinel) return;
-                if (state.totalPages <= 1) return;
-
-                state.infiniteObserver = new IntersectionObserver(function(entries) {
-                    entries.forEach(function(entry) {
-                        if (entry.isIntersecting && !state.isLoadingMore && !state.allLoaded) {
-                            loadNextPage();
-                        }
-                    });
-                }, { rootMargin: '400px', threshold: 0 });
-
-                state.infiniteObserver.observe(els.sentinel);
-            }
-
-            function loadNextPage() {
-                state.isLoadingMore = true;
-                state.infinitePage++;
-
-                if (state.infinitePage > state.totalPages) {
-                    state.allLoaded = true;
-                    state.isLoadingMore = false;
-                    if (els.sentinel) els.sentinel.innerHTML = '<p class="text-center text-sm text-gray-500 dark:text-gray-400 py-4">— Has visto todos los relojes —</p>';
+                if (totalPages <= 1) {
+                    els.paginationNav.innerHTML = '';
+                    els.paginationNav.style.display = 'none';
                     return;
                 }
 
-                if (els.sentinel) {
-                    els.sentinel.innerHTML = '<div class="flex justify-center py-4"><div class="w-8 h-8 border-2 border-[#00C4FF] border-t-transparent rounded-full animate-spin"></div></div>';
+                els.paginationNav.style.display = '';
+                var html = '';
+
+                if (currentPage > 1) {
+                    html += '<a href="' + buildURL(filters, currentPage - 1).pathname + buildURL(filters, currentPage - 1).search + '" class="inline-flex items-center justify-center h-10 min-w-10 px-2 sm:px-4 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-semibold text-gray-700 dark:text-gray-200 hover:bg-blue-50 hover:border-blue-400 dark:hover:bg-gray-700 shadow-sm transition-all">← Anterior</a>';
                 }
 
-                var filters = getFiltersFromURL();
-                var fetchUrl = new URL(window.location.origin + '/relojes');
-                Object.keys(filters).forEach(function(key) {
-                    if (filters[key]) fetchUrl.searchParams.set(key, filters[key]);
-                });
-                fetchUrl.searchParams.set('page', String(state.infinitePage));
-                fetchUrl.searchParams.set('partial', 'true');
+                for (var p = 1; p <= totalPages; p++) {
+                    if (p === currentPage) {
+                        html += '<span class="inline-flex items-center justify-center w-10 h-10 bg-[#00C4FF] text-white rounded-lg text-sm font-bold shadow-md" aria-current="page">' + p + '</span>';
+                    } else {
+                        var pageUrl = buildURL(filters, p);
+                        html += '<a href="' + pageUrl.pathname + pageUrl.search + '" class="inline-flex items-center justify-center w-10 h-10 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-blue-50 hover:border-blue-400 dark:hover:bg-gray-700 rounded-lg text-sm font-semibold shadow-sm transition-all">' + p + '</a>';
+                    }
+                }
 
-                fetch(fetchUrl.toString())
-                    .then(function(res) {
-                        if (!res.ok) throw new Error('Failed to fetch');
-                        return res.text();
-                    })
-                    .then(function(html) {
-                        if (els.grid) els.grid.insertAdjacentHTML('beforeend', html);
-                        if (els.sentinel) els.sentinel.innerHTML = '';
+                if (currentPage < totalPages) {
+                    var nextUrl = buildURL(filters, currentPage + 1);
+                    html += '<a href="' + nextUrl.pathname + nextUrl.search + '" class="inline-flex items-center justify-center h-10 min-w-10 px-2 sm:px-4 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-semibold text-gray-700 dark:text-gray-200 hover:bg-blue-50 hover:border-blue-400 dark:hover:bg-gray-700 shadow-sm transition-all">Siguiente →</a>';
+                }
 
-                        // Update browser URL with current page
-                        var url = new URL(window.location.href);
-                        url.searchParams.set('page', String(state.infinitePage));
-                        window.history.replaceState(null, '', url.pathname + url.search);
-                    })
-                    .catch(function(e) {
-                        console.error('Infinite scroll error:', e);
-                        if (els.sentinel) els.sentinel.innerHTML = '<p class="text-center text-sm text-red-500 py-4">Error al cargar más productos</p>';
-                    })
-                    .finally(function() {
-                        state.isLoadingMore = false;
-                    });
+                els.paginationNav.innerHTML = html;
             }
 
             // ─── Sync filter UI (radios) across desktop and mobile forms ───
@@ -594,19 +536,6 @@
                 @if($searchQuery)
                 renderResultsInfo({{ $products->total() }}, { q: {!! json_encode($searchQuery) !!} });
                 @endif
-
-                // Init infinite scroll for server-rendered page
-                if (els.grid) {
-                    state.infinitePage = parseInt(els.grid.dataset.currentPage || '1');
-                    state.totalPages = parseInt(els.grid.dataset.totalPages || '1');
-                    state.allLoaded = state.infinitePage >= state.totalPages;
-                }
-
-                if (els.paginationNav) {
-                    setTimeout(function() { els.paginationNav.style.display = 'none'; }, 100);
-                }
-
-                initInfiniteScroll();
             });
         })();
     </script>
