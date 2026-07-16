@@ -114,7 +114,7 @@
                     </nav>
                     @endif
                     @else
-                    <div id="catalog-empty-state" class="text-center py-16 px-4">
+                    <div id="catalog-empty-state" class="text-center py-6 px-4">
                         <div class="max-w-2xl mx-auto">
                             <h3 class="text-xl font-black text-gray-900 dark:text-white mb-2">No encontramos lo que buscás</h3>
                             <p class="text-gray-500 dark:text-gray-400 text-sm mb-6 leading-relaxed">
