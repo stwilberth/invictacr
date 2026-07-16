@@ -15,8 +15,10 @@ class ProductController extends Controller
         $aiResponse = null;
         $aiRawResponse = null;
         $usedAi = false;
+        $aiSkippedReason = null;
         $parsedFilters = [];
         $originalQuery = $request->input("q");
+        $suggestions = collect();
 
         if ($request->filled("genero") && !$request->filled("gender")) {
             $request->merge(["gender" => $request->genero]);
@@ -42,11 +44,12 @@ class ProductController extends Controller
             $products = $this->runSearchQuery($request);
 
             if ($products->total() === 0 && $originalQuery) {
-                $aiFilters = $search->parseWithDeepSeek($originalQuery);
+                $aiFilters = $search->parseWithClaude($originalQuery);
 
                 $usedAi = $search->usedAi;
                 $aiResponse = $search->aiResponse;
                 $aiRawResponse = $search->aiRawResponse;
+                $aiSkippedReason = $search->aiSkippedReason;
 
                 if (!empty($aiFilters)) {
                     $aiQ = $aiFilters["q"] ?? null;
@@ -72,6 +75,11 @@ class ProductController extends Controller
                     $products = $this->runSearchQuery($request);
                 }
             }
+
+            // Generar sugerencias cuando sigue sin haber resultados
+            if ($products->total() === 0) {
+                $suggestions = $this->buildSuggestions($originalQuery);
+            }
         } else {
             $products = $this->runSearchQuery($request);
         }
@@ -90,12 +98,14 @@ class ProductController extends Controller
                 "used_ai" => $usedAi,
                 "ai_response" => $aiResponse,
                 "ai_raw_response" => $aiRawResponse,
+                "ai_skipped_reason" => $aiSkippedReason,
                 "user_id" => $request->user()?->id,
                 "ip_address" => $request->ip(),
                 "real_ip" => $request->header('CF-Connecting-IP') ?: $request->ip(),
                 "user_agent" => $ua,
                 "device_type" => $deviceType,
                 "results_count" => $products->total(),
+                "suggestions" => $suggestions->isNotEmpty() ? $suggestions->toArray() : null,
             ]);
         }
 
@@ -105,7 +115,7 @@ class ProductController extends Controller
 
         $searchQuery = $originalQuery;
 
-        return view("pages.catalog", compact("products", "filters", "gender", "searchQuery"));
+        return view("pages.catalog", compact("products", "filters", "gender", "searchQuery", "suggestions"));
     }
 
     private function applyParsedFilters(Request $request, array $parsed): void
@@ -196,6 +206,94 @@ class ProductController extends Controller
         $query->orderBy($sortField[0], $sortField[1]);
 
         return $query->paginate(48)->withQueryString();
+    }
+
+    /**
+     * Construye sugerencias cuando una busqueda no produce resultados.
+     * Estrategia:
+     *  1. Si la query parece un numero de modelo, buscar modelos con numero
+     *     similar (distancia de edicion) en el catalogo activo.
+     *  2. Buscar productos cuyo modelo/title coleccion/color contengan
+     *     algun token significativo de la query.
+     *  3. Relajar los filtros extraidos (ej: quitar gender si la combinacion
+     *     coleccion+gender no existe).
+     */
+    private function buildSuggestions(?string $query): \Illuminate\Support\Collection
+    {
+        if (! $query) {
+            return collect();
+        }
+
+        $suggestions = collect();
+        $queryLower = mb_strtolower(trim($query));
+
+        // 1. Numero de modelo: fuzzy match por distancia de edicion
+        if (preg_match('/\d{3,}/', $query, $numMatch)) {
+            $needle = $numMatch[0];
+            $candidates = Product::where('activo', true)
+                ->where('stock', '>', 0)
+                ->where('precio_venta', '>', 0)
+                ->select(['id', 'modelo', 'title', 'slug', 'imagen', 'precio_venta'])
+                ->get();
+
+            $scored = $candidates->map(function ($p) use ($needle) {
+                if (! preg_match('/\d{3,}/', $p->modelo, $m)) {
+                    return null;
+                }
+                $dist = levenshtein($needle, $m[0]);
+
+                return ['product' => $p, 'dist' => $dist];
+            })->filter()->sortBy('dist')->take(4);
+
+            foreach ($scored as $item) {
+                if ($item['dist'] <= max(2, (int) (strlen($needle) * 0.3))) {
+                    $suggestions->push($item['product']);
+                }
+            }
+        }
+
+        if ($suggestions->isNotEmpty()) {
+            return $suggestions->unique('id')->values();
+        }
+
+        // 2. Buscar por tokens significativos de la query
+        $stopWords = ['reloj', 'relojes', 'invicta', 'de', 'para', 'con', 'el', 'la', 'los', 'las', 'un', 'una', 'modelo', 'ver', 'buscar'];
+        $tokens = array_values(array_filter(
+            preg_split('/\s+/', $queryLower),
+            fn ($w) => strlen($w) >= 3 && ! in_array($w, $stopWords)
+        ));
+
+        if (! empty($tokens)) {
+            $tokenQuery = Product::where('activo', true)
+                ->where('stock', '>', 0)
+                ->where('precio_venta', '>', 0)
+                ->where(function ($q) use ($tokens) {
+                    foreach ($tokens as $t) {
+                        $q->orWhere('modelo', 'like', "%{$t}%")
+                          ->orWhere('title', 'like', "%{$t}%")
+                          ->orWhere('coleccion', 'like', "%{$t}%")
+                          ->orWhere('color', 'like', "%{$t}%");
+                    }
+                })
+                ->select(['id', 'modelo', 'title', 'slug', 'imagen', 'precio_venta'])
+                ->take(4)
+                ->get();
+
+            $suggestions = $suggestions->merge($tokenQuery);
+        }
+
+        // 3. Fallback: productos mas vistos
+        if ($suggestions->isEmpty()) {
+            $suggestions = Product::where('activo', true)
+                ->where('stock', '>', 0)
+                ->where('precio_venta', '>', 0)
+                ->orderByDesc('vistas')
+                ->select(['id', 'modelo', 'title', 'slug', 'imagen', 'precio_venta'])
+                ->take(4)
+                ->get();
+        }
+
+        return $suggestions->unique('id')->values();
     }
 
     public function byGender(Request $request, string $gender)

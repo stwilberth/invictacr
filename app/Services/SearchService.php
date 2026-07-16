@@ -105,6 +105,8 @@ class SearchService
 
     public ?string $aiRawResponse = null;
 
+    public ?string $aiSkippedReason = null;
+
     public function __construct()
     {
         $this->loadKnownValues();
@@ -142,20 +144,124 @@ class SearchService
 
     public function parseWithDeepSeek(string $query): array
     {
+        return $this->parseWithClaude($query);
+    }
+
+    public function parseWithClaude(string $query): array
+    {
         $this->usedAi = false;
         $this->aiResponse = null;
         $this->aiRawResponse = null;
+        $this->aiSkippedReason = null;
 
-        if (! config('services.deepseek.key')) {
+        if (! config('services.anthropic.key')) {
+            $this->aiSkippedReason = 'no_api_key';
+
             return [];
         }
 
-        $result = $this->parseWithAI($query, true);
+        // Si la consulta es mayormente un numero de modelo (4+ digitos),
+        // NO invocamos la IA: no tiene sentido que "invente" una coleccion
+        // para un modelo que probablemente no existe en el catalogo.
+        if ($this->isModelNumberQuery($query)) {
+            $this->aiSkippedReason = 'model_number_query';
+
+            return [];
+        }
+
+        $result = $this->callClaude($query);
         $this->usedAi = true;
         $this->aiResponse = $result['response'];
         $this->aiRawResponse = $result['raw'];
 
-        return $result['filters'];
+        $filters = $result['filters'];
+
+        // Validar los filtros devueltos por la IA contra productos reales.
+        // Si la IA devuelve un filtro que no produce ningun producto, lo
+        // descartamos en lugar de mostrar 0 resultados enganosos.
+        $filters = $this->validateAiFilters($filters);
+
+        return $filters;
+    }
+
+    /**
+     * Detecta si una consulta es mayormente una busqueda por numero de modelo.
+     * Ej: "69037", "IN-46086", "Pro Diver 26973" (numero significativo).
+     */
+    private function isModelNumberQuery(string $query): bool
+    {
+        // Extraer todos los digitos consecutivos de 4+ caracteres
+        if (preg_match_all('/\d{4,}/', $query, $m)) {
+            return true;
+        }
+
+        // Patrones tipo "IN-504", "in-46086" (prefijo + numero)
+        $normalized = mb_strtolower(trim($query));
+        if (preg_match('/^(?:in|inv|invicta)?[-\s]?\d{3,}/i', $normalized)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Valida que los filtros devueltos por la IA realmente produzcan
+     * productos. Descarta los filtros que no coincidan con nada.
+     */
+    private function validateAiFilters(array $filters): array
+    {
+        if (empty($filters)) {
+            return [];
+        }
+
+        $filterFields = array_filter($filters, fn ($k) => $k !== 'q', ARRAY_FILTER_USE_KEY);
+
+        if (empty($filterFields)) {
+            return $filters;
+        }
+
+        $query = Product::where('activo', true)->where('stock', '>', 0);
+
+        foreach ($filterFields as $field => $value) {
+            switch ($field) {
+                case 'gender':
+                    $query->whereRaw('LOWER(genero) = ?', [mb_strtolower($value)]);
+                    break;
+                case 'color':
+                    $query->whereRaw('LOWER(color) = ?', [mb_strtolower($value)]);
+                    break;
+                case 'coleccion':
+                    $query->whereRaw('LOWER(coleccion) = ?', [mb_strtolower($value)]);
+                    break;
+                case 'brazalete':
+                    $query->whereRaw('LOWER(brazalete) = ?', [mb_strtolower($value)]);
+                    break;
+                case 'tipo_movimiento':
+                    $query->whereRaw('LOWER(tipo_movimiento) = ?', [mb_strtolower($value)]);
+                    break;
+                case 'caja':
+                    $query->whereRaw('LOWER(caja) = ?', [mb_strtolower($value)]);
+                    break;
+                case 'resistencia_agua':
+                    $query->whereRaw('CAST(resistencia_agua AS UNSIGNED) = ?', [(int) $value]);
+                    break;
+            }
+        }
+
+        $count = $query->count();
+
+        if ($count === 0) {
+            // Los filtros de la IA no producen nada: descartarlos todos
+            // y quedarnos solo con 'q' si lo habia, para que el controlador
+            // haga una busqueda de texto libre como fallback.
+            if (isset($filters['q']) && $filters['q'] !== '') {
+                return ['q' => $filters['q']];
+            }
+
+            return [];
+        }
+
+        return $filters;
     }
 
     public function parse(string $query): array
@@ -373,10 +479,18 @@ class SearchService
 
     private function parseWithAI(string $query, bool $fallback = false): array
     {
-        $apiKey = config('services.deepseek.key');
+        return $this->callClaude($query);
+    }
+
+    private function callClaude(string $query): array
+    {
+        $apiKey = config('services.anthropic.key');
         if (! $apiKey) {
             return ['filters' => [], 'response' => null, 'raw' => null];
         }
+
+        $model = config('services.anthropic.model', 'claude-sonnet-4-6');
+        $timeout = (int) config('services.anthropic.timeout', 15);
 
         $fields = [
             'genero' => $this->knownGenders,
@@ -397,6 +511,8 @@ REGLAS:
 4. Si un término no coincide exactamente con ningún valor aceptado, puedes devolverlo en el campo 'q' (texto de búsqueda libre).
 5. Los valores de filtro deben coincidir EXACTAMENTE (respetando mayúsculas) con la lista de valores aceptados.
 6. Piensa en términos relacionados: si alguien busca 'carros' probablemente busca colecciones de carreras (Speedway, Invicta Racing, S1 Rally).
+7. Si la consulta es un NUMERO de modelo (4+ digitos), NO inventes una coleccion. Devuelve el numero en 'q' o {} si no hay nada.
+8. NUNCA inventes un valor que no este en la lista de valores aceptados.
 
 Valores aceptados por campo:
 ".json_encode($fields, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT)."
@@ -406,30 +522,29 @@ Ejemplos:
 - {\"color\":\"Dorado\"} para 'amarillo'
 - {\"coleccion\":\"Speedway\",\"q\":\"carreras\"} para 'carros speedway'
 - {\"color\":\"Rojo\"} para 'rojo'
+- {} para '69037'
 ";
 
         try {
-            $response = Http::timeout(15)->withHeaders([
-                'Authorization' => "Bearer {$apiKey}",
+            $response = Http::timeout($timeout)->withHeaders([
+                'x-api-key' => $apiKey,
+                'anthropic-version' => '2023-06-01',
                 'Content-Type' => 'application/json',
-            ])->post('https://api.deepseek.com/chat/completions', [
-                'model' => 'deepseek-chat',
+            ])->post('https://api.anthropic.com/v1/messages', [
+                'model' => $model,
+                'max_tokens' => 300,
+                'temperature' => 0,
+                'system' => $systemPrompt,
                 'messages' => [
-                    [
-                        'role' => 'system',
-                        'content' => $systemPrompt,
-                    ],
                     [
                         'role' => 'user',
                         'content' => $query,
                     ],
                 ],
-                'temperature' => 0,
-                'max_tokens' => 300,
             ]);
 
             $data = $response->json();
-            $rawContent = $data['choices'][0]['message']['content'] ?? '';
+            $rawContent = $data['content'][0]['text'] ?? '';
             $content = trim($rawContent);
             $content = preg_replace('/^```(?:json)?\s*|\s*```$/', '', $content);
 

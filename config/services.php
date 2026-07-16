@@ -32,6 +32,12 @@ return [
         'key' => env('DEEPSEEK_API_KEY'),
     ],
 
+    'anthropic' => [
+        'key' => env('ANTHROPIC_API_KEY'),
+        'model' => env('ANTHROPIC_MODEL', 'claude-haiku-4-5'),
+        'timeout' => (int) env('ANTHROPIC_TIMEOUT', 15),
+    ],
+
     'google' => [
         'service_account_key_path' => env('GOOGLE_SERVICE_ACCOUNT_KEY_PATH'),
         'analytics_property_id' => env('GOOGLE_ANALYTICS_PROPERTY_ID'),

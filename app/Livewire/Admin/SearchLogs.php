@@ -18,6 +18,7 @@ class SearchLogs extends Component
 
     public $totalSearches = 0;
     public $aiSearches = 0;
+    public $aiSkippedSearches = 0;
     public $noResultsSearches = 0;
     public $uniqueQueries = 0;
     public $topQueries = [];
@@ -43,6 +44,7 @@ class SearchLogs extends Component
     {
         $this->totalSearches = SearchLog::count();
         $this->aiSearches = SearchLog::where("used_ai", true)->count();
+        $this->aiSkippedSearches = SearchLog::whereNotNull("ai_skipped_reason")->count();
         $this->noResultsSearches = SearchLog::where("results_count", 0)->count();
         $this->uniqueQueries = SearchLog::select("query")->distinct()->count();
 

@@ -1,13 +1,17 @@
 <div>
     {{-- Stats Cards --}}
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
         <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-4">
             <p class="text-2xl font-black text-[#00C4FF]">{{ number_format($totalSearches) }}</p>
             <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Búsquedas totales</p>
         </div>
         <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-4">
             <p class="text-2xl font-black text-purple-500">{{ number_format($aiSearches) }}</p>
-            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Con IA</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Con IA (Claude)</p>
+        </div>
+        <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-4">
+            <p class="text-2xl font-black text-amber-500">{{ number_format($aiSkippedSearches) }}</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">IA saltada (anti-falsos)</p>
         </div>
         <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-4">
             <p class="text-2xl font-black text-red-500">{{ number_format($noResultsSearches) }}</p>
@@ -73,6 +77,7 @@
                         <th class="px-4 py-3">Filtros Detectados</th>
                         <th class="px-4 py-3 text-center">IA</th>
                         <th class="px-4 py-3 text-center">Resultados</th>
+                        <th class="px-4 py-3 text-center">Sugerencias</th>
                         <th class="px-4 py-3">Respuesta IA</th>
                     </tr>
                 </thead>
@@ -133,7 +138,18 @@
                         <td class="px-4 py-3 text-center">
                             @if($log->used_ai)
                                 <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 rounded text-[10px] font-bold">
-                                    <i class="fa-solid fa-robot"></i> AI
+                                    <i class="fa-solid fa-robot"></i> Claude
+                                </span>
+                            @elseif($log->ai_skipped_reason)
+                                @php
+                                    $skipLabel = match($log->ai_skipped_reason) {
+                                        'model_number_query' => 'N° modelo',
+                                        'no_api_key' => 'Sin API key',
+                                        default => $log->ai_skipped_reason,
+                                    };
+                                @endphp
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 rounded text-[10px] font-bold" title="IA saltada para evitar falsas coincidencias">
+                                    <i class="fa-solid fa-shield-halved"></i> {{ $skipLabel }}
                                 </span>
                             @else
                                 <span class="text-gray-300 dark:text-gray-600">—</span>
@@ -141,6 +157,15 @@
                         </td>
                         <td class="px-4 py-3 text-center text-gray-700 dark:text-gray-300 font-bold">
                             {{ $log->results_count }}
+                        </td>
+                        <td class="px-4 py-3 max-w-[200px]">
+                            @if($log->suggestions && count($log->suggestions) > 0)
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded text-[10px] font-bold" title="{{ collect($log->suggestions)->pluck('modelo')->implode(', ') }}">
+                                    <i class="fa-solid fa-lightbulb"></i> {{ count($log->suggestions) }} sug.
+                                </span>
+                            @else
+                                <span class="text-gray-400">—</span>
+                            @endif
                         </td>
                         <td class="px-4 py-3 max-w-[200px]">
                             @if($log->ai_response)
@@ -157,7 +182,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="9" class="px-4 py-10 text-center text-gray-400 dark:text-gray-500">
+                        <td colspan="11" class="px-4 py-10 text-center text-gray-400 dark:text-gray-500">
                             No hay búsquedas registradas aún.
                         </td>
                     </tr>

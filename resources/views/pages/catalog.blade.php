@@ -121,6 +121,30 @@
                             <p class="text-gray-500 dark:text-gray-400 text-sm mb-6 leading-relaxed">
                                 No hay resultados para esa búsqueda. Podés intentar con otro modelo, colección o filtro.
                             </p>
+                            @if($suggestions->isNotEmpty())
+                            <div class="mb-6">
+                                <p class="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-3">Tal vez te interese</p>
+                                <div class="grid grid-cols-2 gap-3">
+                                    @foreach($suggestions as $suggestion)
+                                    <a href="{{ route('products.show', $suggestion->slug) }}"
+                                       class="flex items-center gap-3 p-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl hover:border-[#00C4FF] hover:shadow-sm transition-all text-left">
+                                        @if($suggestion->imagen)
+                                        <img src="{{ $suggestion->imagen }}" alt="{{ $suggestion->title }}"
+                                             class="w-12 h-12 object-contain rounded-lg flex-shrink-0" loading="lazy">
+                                        @else
+                                        <div class="w-12 h-12 bg-gray-100 dark:bg-gray-700 rounded-lg flex-shrink-0 flex items-center justify-center">
+                                            <i class="fa-solid fa-clock text-gray-300"></i>
+                                        </div>
+                                        @endif
+                                        <div class="min-w-0">
+                                            <p class="text-xs font-bold text-gray-900 dark:text-white truncate">{{ $suggestion->modelo }}</p>
+                                            <p class="text-[11px] text-gray-500 dark:text-gray-400 truncate">{{ $suggestion->title }}</p>
+                                        </div>
+                                    </a>
+                                    @endforeach
+                                </div>
+                            </div>
+                            @endif
                             <div class="flex flex-col sm:flex-row gap-3 justify-center">
                                 <a href="{{ route('products.index') }}"
                                    class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 font-bold rounded-xl text-sm transition-all border border-gray-200 dark:border-gray-700">
