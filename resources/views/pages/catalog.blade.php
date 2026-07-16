@@ -123,28 +123,9 @@
                             @if($suggestions->isNotEmpty())
                             <div class="mb-6">
                                 <p class="text-sm font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-4">Tal vez te interese</p>
-                                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                                     @foreach($suggestions as $suggestion)
-                                    <a href="{{ route('products.show', $suggestion->slug) }}"
-                                       class="flex flex-col items-center bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl hover:border-[#00C4FF] hover:shadow-lg transition-all overflow-hidden">
-                                        @if($suggestion->imagen)
-                                        <div class="w-full aspect-square bg-gray-50 dark:bg-gray-900 flex items-center justify-center p-3">
-                                            <img src="{{ $suggestion->imagen }}" alt="{{ $suggestion->title }}"
-                                                 class="w-full h-full object-contain" loading="lazy">
-                                        </div>
-                                        @else
-                                        <div class="w-full aspect-square bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
-                                            <i class="fa-solid fa-clock text-3xl text-gray-300"></i>
-                                        </div>
-                                        @endif
-                                        <div class="w-full p-3 text-center">
-                                            <p class="text-sm font-black text-gray-900 dark:text-white truncate">{{ $suggestion->modelo }}</p>
-                                            <p class="text-xs text-gray-500 dark:text-gray-400 truncate mt-0.5">{{ $suggestion->title }}</p>
-                                            @if($suggestion->precio_venta)
-                                            <p class="text-sm font-bold text-[#00C4FF] mt-1">₡{{ number_format($suggestion->precio_venta) }}</p>
-                                            @endif
-                                        </div>
-                                    </a>
+                                        <x-product-card :product="$suggestion" />
                                     @endforeach
                                 </div>
                             </div>

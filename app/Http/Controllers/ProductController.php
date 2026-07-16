@@ -233,7 +233,7 @@ class ProductController extends Controller
             $candidates = Product::where('activo', true)
                 ->where('stock', '>', 0)
                 ->where('precio_venta', '>', 0)
-                ->select(['id', 'modelo', 'title', 'slug', 'imagen', 'precio_venta'])
+                ->select(['id', 'modelo', 'title', 'slug', 'imagen', 'precio_venta', 'descuento', 'coleccion', 'size', 'tipo_movimiento', 'genero', 'proximo', 'stock'])
                 ->get();
 
             $scored = $candidates->map(function ($p) use ($needle) {
@@ -275,7 +275,7 @@ class ProductController extends Controller
                           ->orWhere('color', 'like', "%{$t}%");
                     }
                 })
-                ->select(['id', 'modelo', 'title', 'slug', 'imagen', 'precio_venta'])
+                ->select(['id', 'modelo', 'title', 'slug', 'imagen', 'precio_venta', 'descuento', 'coleccion', 'size', 'tipo_movimiento', 'genero', 'proximo', 'stock'])
                 ->take(4)
                 ->get();
 
@@ -288,7 +288,7 @@ class ProductController extends Controller
                 ->where('stock', '>', 0)
                 ->where('precio_venta', '>', 0)
                 ->orderByDesc('vistas')
-                ->select(['id', 'modelo', 'title', 'slug', 'imagen', 'precio_venta'])
+                ->select(['id', 'modelo', 'title', 'slug', 'imagen', 'precio_venta', 'descuento', 'coleccion', 'size', 'tipo_movimiento', 'genero', 'proximo', 'stock'])
                 ->take(4)
                 ->get();
         }
