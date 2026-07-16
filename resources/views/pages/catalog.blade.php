@@ -114,10 +114,26 @@
                     </nav>
                     @endif
                     @else
-                    <div id="catalog-empty-state" class="text-center py-20">
-                        <i class="fa-solid fa-search text-4xl text-gray-300 dark:text-gray-600 mb-4"></i>
-                        <h3 class="text-xl font-bold text-gray-500 dark:text-gray-400">No se encontraron productos</h3>
-                        <p class="text-gray-400 dark:text-gray-500 mt-2">Intenta con otros filtros o categorías</p>
+                    <div id="catalog-empty-state" class="text-center py-16 px-4">
+                        <div class="max-w-md mx-auto">
+                            <i class="fa-solid fa-clock-rotate-left text-5xl text-[#00C4FF]/30 mb-6"></i>
+                            <h3 class="text-xl font-black text-gray-900 dark:text-white mb-2">No encontramos lo que buscás</h3>
+                            <p class="text-gray-500 dark:text-gray-400 text-sm mb-6 leading-relaxed">
+                                No hay resultados para esa búsqueda. Podés intentar con otro modelo, colección o filtro.
+                                Si buscás un reloj específico que no está en el catálogo, escribinos y lo buscamos para vos.
+                            </p>
+                            <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                                <a href="{{ route('products.index') }}"
+                                   class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 font-bold rounded-xl text-sm transition-all border border-gray-200 dark:border-gray-700">
+                                    <i class="fa-solid fa-clock"></i> Ver todo el catálogo
+                                </a>
+                                <a href="https://wa.me/50686711422?text=Hola%2C%20busco%20un%20reloj%20Invicta"
+                                   target="_blank"
+                                   class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-green-500 hover:bg-green-600 text-white font-bold rounded-xl text-sm transition-all shadow-lg shadow-green-500/20">
+                                    <i class="fa-brands fa-whatsapp text-lg"></i> Escribinos por WhatsApp
+                                </a>
+                            </div>
+                        </div>
                     </div>
                     @endif
                 </div>
@@ -272,7 +288,7 @@
                     var emptyEl2 = document.getElementById('catalog-empty-state');
                     if (emptyEl2) emptyEl2.remove();
                 } else {
-                    els.grid.innerHTML = '<div class="col-span-full text-center py-20"><i class="fa-solid fa-search text-4xl text-gray-300 dark:text-gray-600 mb-4"></i><h3 class="text-xl font-bold text-gray-500 dark:text-gray-400">No se encontraron productos</h3><p class="text-gray-400 dark:text-gray-500 mt-2">Intenta con otros filtros o categorías</p></div>';
+                    els.grid.innerHTML = '<div class="col-span-full text-center py-16 px-4"><div class="max-w-md mx-auto"><i class="fa-solid fa-clock-rotate-left text-5xl text-[#00C4FF]/30 mb-6"></i><h3 class="text-xl font-black text-gray-900 dark:text-white mb-2">No encontramos lo que buscás</h3><p class="text-gray-500 dark:text-gray-400 text-sm mb-6 leading-relaxed">No hay resultados para esa búsqueda. Podés intentar con otro modelo, colección o filtro. Si buscás un reloj específico que no está en el catálogo, escribinos y lo buscamos para vos.</p><div class="flex flex-col sm:flex-row gap-3 justify-center"><a href="/relojes" class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 font-bold rounded-xl text-sm transition-all border border-gray-200 dark:border-gray-700"><i class="fa-solid fa-clock"></i> Ver todo el catálogo</a><a href="https://wa.me/50686711422?text=Hola%2C%20busco%20un%20reloj%20Invicta" target="_blank" class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-green-500 hover:bg-green-600 text-white font-bold rounded-xl text-sm transition-all shadow-lg shadow-green-500/20"><i class="fa-brands fa-whatsapp text-lg"></i> Escribinos por WhatsApp</a></div></div></div>';
                     els.grid.style.opacity = '1';
                     els.grid.style.pointerEvents = '';
                 }
