@@ -16,7 +16,7 @@
 
     $productName = 'Reloj Invicta ' . ($product->coleccion && strtolower($product->coleccion) !== 'otros' ? $product->coleccion . ' ' : '') . ($product->genero && strtolower($product->genero) !== 'unisex' ? 'para ' . $product->genero . ' ' : '') . '(' . $product->modelo . ')';
     $price = $product->price_after_discount ?? $product->precio_venta ?? 0;
-    $availability = ($product->stock ?? 0) > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock';
+    $availability = ($product->stock ?? 0) > 0 && ($product->disponibilidad ?? 'disponible') !== 'agotado' ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock';
 
     $vimeoId = null;
     if ($product->video) {
@@ -57,7 +57,7 @@
 @endpush
 <x-app-layout :title="$seoTitle" :description="$product->descripcion ?? 'Reloj Invicta ' . $product->modelo" :ogImage="asset($ogImage)" ogType="product" :hideWhatsApp="true">
     @php
-        $isAgotado = ($product->stock ?? 0) <= 0;
+        $isAgotado = ($product->stock ?? 0) <= 0 || ($product->disponibilidad ?? 'disponible') === 'agotado';
         $isUpcoming = $product->proximo || $product->precio_venta <= 0;
         $isUpcomingYAgotado = $isUpcoming && $isAgotado;
         $priceAfterDiscount = $product->price_after_discount;
@@ -263,6 +263,11 @@
                         @endif
 
                         @if(!$isAgotado || $isUpcoming)
+                        @if(!$isAgotado && !$isUpcoming && ($product->stock ?? 0) > 0)
+                        <button type="button" onclick="addToCart({{ $product->id }}, this)" class="w-full flex items-center justify-center gap-1 py-1.5 bg-[#00C4FF] hover:bg-[#00a3d6] text-white rounded-lg font-bold uppercase tracking-wide text-[11px] transition-all active:scale-95 shadow-sm">
+                            <i class="fa-solid fa-cart-plus text-xs"></i> Agregar al Carrito
+                        </button>
+                        @endif
                         <a href="{{ $whatsappBuy }}" data-conversion="whatsapp-comprar" target="_blank" rel="noopener noreferrer" class="w-full flex items-center justify-center gap-1 py-1.5 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-lg font-bold uppercase tracking-wide text-[11px] transition-all active:scale-95 no-underline shadow-sm">
                             <i class="fa-brands fa-whatsapp text-xs"></i> Comprar
                         </a>
@@ -277,6 +282,15 @@
                                 <i class="fa-solid fa-pen-to-square text-[10px]"></i>
                                 Editar
                             </a>
+                            @if(!$isAgotado && !$isUpcoming)
+                            <form id="markAgotadoFormMobile" method="POST" action="{{ route('products.mark-agotado', $product->slug) }}" class="w-full">
+                                @csrf
+                                <button type="button" onclick="openAgotadoModal('markAgotadoFormMobile')" class="w-full flex items-center justify-center gap-1 py-1.5 bg-red-500/10 border border-red-500/30 rounded-lg text-red-500 hover:bg-red-500/20 transition-all text-[11px] font-bold uppercase tracking-wide">
+                                    <i class="fa-solid fa-circle-xmark text-[10px]"></i>
+                                    Agotado
+                                </button>
+                            </form>
+                            @endif
                             @endif
                         @endauth
 
@@ -338,10 +352,21 @@
                     </div>
                     @auth
                         @if(auth()->user()->is_admin)
-                        <a href="{{ route('admin.products.edit', $product->id) }}" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1 bg-[#00C4FF]/10 border border-[#00C4FF]/30 rounded-lg text-[#00C4FF] hover:bg-[#00C4FF]/20 transition-all text-xs font-bold uppercase tracking-wider mb-2">
-                            <i class="fa-solid fa-pen-to-square"></i>
-                            Editar producto
-                        </a>
+                        <div class="flex items-center gap-2 flex-wrap mb-2">
+                            <a href="{{ route('admin.products.edit', $product->id) }}" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1 bg-[#00C4FF]/10 border border-[#00C4FF]/30 rounded-lg text-[#00C4FF] hover:bg-[#00C4FF]/20 transition-all text-xs font-bold uppercase tracking-wider">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                                Editar producto
+                            </a>
+                            @if(!$isAgotado && !$isUpcoming)
+                            <form id="markAgotadoFormDesktop" method="POST" action="{{ route('products.mark-agotado', $product->slug) }}" class="inline">
+                                @csrf
+                                <button type="button" onclick="openAgotadoModal('markAgotadoFormDesktop')" class="inline-flex items-center gap-1.5 px-3 py-1 bg-red-500/10 border border-red-500/30 rounded-lg text-red-500 hover:bg-red-500/20 transition-all text-xs font-bold uppercase tracking-wider">
+                                    <i class="fa-solid fa-circle-xmark"></i>
+                                    Marcar agotado
+                                </button>
+                            </form>
+                            @endif
+                        </div>
                         @endif
                     @endauth
                     <div class="flex items-center justify-center md:justify-start gap-3">
@@ -384,14 +409,20 @@
                         </div>
 
                         {{-- Desktop Action buttons --}}
-                        <div class="grid grid-cols-2 gap-2.5 w-full">
-                            <a href="{{ $whatsappBuy }}" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-1 py-2 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-xl font-extrabold uppercase tracking-tight text-xs transition-all hover:-translate-y-0.5 active:scale-95 no-underline shadow-sm hover:shadow-md">
-                                <i class="fa-brands fa-whatsapp text-base"></i> Comprar
-                            </a>
-                            <button type="button" onclick="openShareModal()" class="flex items-center justify-center gap-1 py-2 bg-transparent border border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:border-gray-400 dark:hover:border-gray-500 rounded-xl font-extrabold uppercase tracking-tight text-xs transition-all hover:-translate-y-0.5 active:scale-95 shadow-sm">
-                                <i class="fa-solid fa-share-nodes text-base"></i> Compartir
+                        <div class="flex flex-col gap-2.5 w-full">
+                            @if(!$isAgotado && !$isUpcoming && ($product->stock ?? 0) > 0)
+                            <button type="button" onclick="addToCart({{ $product->id }}, this)" class="w-full flex items-center justify-center gap-1 py-2 bg-[#00C4FF] hover:bg-[#00a3d6] text-white rounded-xl font-extrabold uppercase tracking-tight text-xs transition-all hover:-translate-y-0.5 active:scale-95 shadow-sm hover:shadow-md">
+                                <i class="fa-solid fa-cart-plus text-base"></i> Agregar al Carrito
                             </button>
-
+                            @endif
+                            <div class="grid grid-cols-2 gap-2.5 w-full">
+                                <a href="{{ $whatsappBuy }}" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-1 py-2 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-xl font-extrabold uppercase tracking-tight text-xs transition-all hover:-translate-y-0.5 active:scale-95 no-underline shadow-sm hover:shadow-md">
+                                    <i class="fa-brands fa-whatsapp text-base"></i> Comprar
+                                </a>
+                                <button type="button" onclick="openShareModal()" class="flex items-center justify-center gap-1 py-2 bg-transparent border border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:border-gray-400 dark:hover:border-gray-500 rounded-xl font-extrabold uppercase tracking-tight text-xs transition-all hover:-translate-y-0.5 active:scale-95 shadow-sm">
+                                    <i class="fa-solid fa-share-nodes text-base"></i> Compartir
+                                </button>
+                            </div>
                         </div>
                     </div>
                 @else
@@ -540,6 +571,27 @@
         </div>
     </div>
 
+    {{-- Agotado Confirmation Modal --}}
+    <div id="agotadoModal" class="modal-overlay fixed inset-0 z-[100] hidden items-center justify-center bg-black/85 p-4" onclick="if (event.target === this) closeAgotadoModal()">
+        <div class="relative w-full max-w-md bg-white dark:bg-gray-800 rounded-2xl shadow-2xl overflow-hidden">
+            <div class="p-6 text-center">
+                <div class="w-14 h-14 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fa-solid fa-circle-xmark text-red-600 dark:text-red-400 text-2xl"></i>
+                </div>
+                <h3 class="text-lg font-black text-gray-800 dark:text-white uppercase tracking-tight mb-2">¿Marcar como agotado?</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">Este reloj se ocultará del catálogo y su stock quedará en cero. Podrás restaurarlo desde el panel de administración.</p>
+                <div class="flex gap-3">
+                    <button type="button" onclick="closeAgotadoModal()" class="flex-1 py-2.5 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-xl font-bold uppercase tracking-wide text-xs transition-all">
+                        Cancelar
+                    </button>
+                    <button type="button" onclick="confirmAgotado()" class="flex-1 py-2.5 bg-red-500 hover:bg-red-600 text-white rounded-xl font-bold uppercase tracking-wide text-xs transition-all active:scale-95">
+                        Sí, marcar agotado
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         var pixelModel = "{{ $product->modelo }}";
         var pixelTitle = "{{ $product->title }}";
@@ -551,6 +603,12 @@
         // Share modal
         function openShareModal() { var el = document.getElementById('shareModal'); if (!el) return; el.classList.remove('hidden'); el.classList.add('flex'); requestAnimationFrame(function() { el.classList.add('active'); }); document.body.style.overflow = 'hidden'; }
         function closeShareModal() { var el = document.getElementById('shareModal'); if (!el) return; el.classList.remove('active'); document.body.style.overflow = ''; setTimeout(function() { el.classList.add('hidden'); el.classList.remove('flex'); }, 300); }
+
+        // Agotado confirmation modal
+        var agotadoFormId = null;
+        function openAgotadoModal(formId) { agotadoFormId = formId; var el = document.getElementById('agotadoModal'); if (!el) return; el.classList.remove('hidden'); el.classList.add('flex'); requestAnimationFrame(function() { el.classList.add('active'); }); document.body.style.overflow = 'hidden'; }
+        function closeAgotadoModal() { var el = document.getElementById('agotadoModal'); if (!el) return; el.classList.remove('active'); document.body.style.overflow = ''; setTimeout(function() { el.classList.remove('hidden'); el.classList.remove('flex'); }, 300); agotadoFormId = null; }
+        function confirmAgotado() { if (agotadoFormId) { var form = document.getElementById(agotadoFormId); if (form) form.submit(); } closeAgotadoModal(); }
 
         // Related products slider navigation
         function scrollRelated(dir) {

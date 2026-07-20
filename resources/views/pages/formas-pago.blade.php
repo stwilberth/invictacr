@@ -5,6 +5,26 @@
 
             <!-- Payment Methods -->
             <div class="space-y-8">
+                <!-- PayPal -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-8">
+                    <div class="flex items-center gap-4 mb-6">
+                        <div class="w-12 h-12 bg-[#00C4FF]/10 rounded-xl flex items-center justify-center text-[#003087]">
+                            <i class="fa-brands fa-paypal text-2xl"></i>
+                        </div>
+                        <h2 class="text-2xl font-bold text-gray-900 dark:text-white">PayPal</h2>
+                    </div>
+                    <p class="text-gray-600 dark:text-gray-400 leading-relaxed mb-6">
+                        Paga de forma segura con tu tarjeta de crédito, débito o cuenta de PayPal. Aceptamos Visa, Mastercard y American Express a través de PayPal.
+                    </p>
+                    <div class="bg-blue-50 dark:bg-blue-900/20 p-5 rounded-xl border border-blue-200 dark:border-blue-800/50 flex items-start gap-3">
+                        <i class="fa-solid fa-shield-check text-blue-500 mt-1"></i>
+                        <div>
+                            <p class="text-sm text-blue-800 dark:text-blue-200 font-bold">Pago 100% seguro</p>
+                            <p class="text-xs text-blue-600 dark:text-blue-300 mt-1">Tus datos están protegidos por PayPal. No almacenamos información de tarjetas.</p>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- SINPE Móvil -->
                 <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-8">
                     <div class="flex items-center gap-4 mb-6">

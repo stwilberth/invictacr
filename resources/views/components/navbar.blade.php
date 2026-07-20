@@ -1,6 +1,13 @@
 @props(['q' => null])
 @php
     $currentPath = request()->path();
+    $cartCount = 0;
+    if (session()->has('cart_session_id') || auth()->check()) {
+        try {
+            $cartService = app(\App\Services\CartService::class);
+            $cartCount = $cartService->getItemCount();
+        } catch (\Exception $e) {}
+    }
 @endphp
 
 <nav class="bg-[#0a0f1c] shadow-lg w-full z-[60] print:hidden border-b border-white/5"
@@ -42,9 +49,23 @@
                     Garantía
                 </a>
 
+                <a href="/mis-pedidos"
+                   class="{{ $currentPath === 'mis-pedidos' ? 'text-[#00C4FF] bg-white/5' : 'text-white/90' }} hover:text-[#00C4FF] px-3 py-2 rounded-md text-sm lg:text-base font-black uppercase tracking-tighter transition-all duration-200">
+                    Mis Pedidos
+                </a>
+
                 <div class="hidden lg:block w-64 mr-2">
                     <x-search-bar />
                 </div>
+
+                <a href="{{ route('cart.show') }}" class="relative text-white/80 hover:text-[#00C4FF] p-2 rounded-full transition-all duration-300 hover:bg-white/5" title="Carrito">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z" />
+                    </svg>
+                    @if($cartCount > 0)
+                    <span class="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center">{{ $cartCount > 9 ? '9+' : $cartCount }}</span>
+                    @endif
+                </a>
 
                 <button @click="toggleTheme"
                         class="text-white/80 hover:text-[#00C4FF] p-2 rounded-full transition-all duration-300 hover:bg-white/5"
@@ -87,6 +108,14 @@
             </div>
 
             <div class="md:hidden flex items-center gap-1">
+                <a href="{{ route('cart.show') }}" class="relative text-white p-2 hover:bg-white/5 rounded-lg transition-colors" title="Carrito">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z" />
+                    </svg>
+                    @if($cartCount > 0)
+                    <span class="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center">{{ $cartCount > 9 ? '9+' : $cartCount }}</span>
+                    @endif
+                </a>
                 <button @click="mobileSearchOpen = !mobileSearchOpen"
                         class="p-2 rounded-lg transition-colors"
                         :class="mobileSearchOpen ? 'text-[#00C4FF] bg-white/5' : 'text-white hover:bg-white/5'"
@@ -146,6 +175,10 @@
             <a href="/garantia"
                class="{{ $currentPath === 'garantia' ? 'text-[#00C4FF] bg-white/5' : 'text-gray-300' }} hover:text-white block px-4 py-4 text-lg font-black uppercase tracking-tight border-b border-white/5">
                 Garantía Real
+            </a>
+            <a href="/mis-pedidos"
+               class="{{ $currentPath === 'mis-pedidos' ? 'text-[#00C4FF] bg-white/5' : 'text-gray-300' }} hover:text-white block px-4 py-4 text-lg font-black uppercase tracking-tight border-b border-white/5">
+                Mis Pedidos
             </a>
 
             <div class="border-b border-white/5" x-data="{ mobileSupportOpen: false }">

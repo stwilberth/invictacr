@@ -6,6 +6,9 @@ use App\Http\Controllers\PageController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\InvoicePdfController;
+use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\PayPalController;
+use App\Http\Controllers\OrderTrackingController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -13,11 +16,30 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
     Route::get('/relojes', [ProductController::class, 'index'])->name('products.index')->middleware('throttle:search');
     Route::get('/relojes/{gender}', [ProductController::class, 'byGender'])->name('products.gender')->where('gender', 'hombre|mujer|unisex');
 Route::get('/relojes/{slug}', [ProductController::class, 'show'])->name('products.show');
+Route::post('/relojes/{slug}/marcar-agotado', [ProductController::class, 'markAgotado'])->name('products.mark-agotado')->middleware(['auth', 'admin']);
 Route::get('/relojes/{gender}/{slug}', function ($gender, $slug) {
     return redirect()->route('products.show', ['slug' => $slug], 301);
 })->where('gender', 'hombre|mujer|unisex');
 
 
+
+Route::get('/carrito', [\App\Http\Controllers\CarritoController::class, 'show'])->name('cart.show');
+Route::post('/carrito', [\App\Http\Controllers\CarritoController::class, 'add'])->name('cart.add');
+Route::patch('/carrito/{item}', [\App\Http\Controllers\CarritoController::class, 'update'])->name('cart.update');
+Route::delete('/carrito/{item}', [\App\Http\Controllers\CarritoController::class, 'remove'])->name('cart.remove');
+Route::delete('/carrito', [\App\Http\Controllers\CarritoController::class, 'clear'])->name('cart.clear');
+
+Route::get('/checkout', [CheckoutController::class, 'show'])->name('checkout');
+Route::post('/checkout', [CheckoutController::class, 'process'])->name('checkout.process');
+Route::get('/pedido/confirmado/{invoice}', [CheckoutController::class, 'confirmation'])->name('order.confirmation');
+
+Route::get('/paypal/create', [PayPalController::class, 'create'])->name('paypal.create');
+Route::get('/paypal/execute', [PayPalController::class, 'execute'])->name('paypal.execute');
+Route::get('/paypal/cancel', [PayPalController::class, 'cancel'])->name('paypal.cancel');
+Route::post('/paypal/webhook', [PayPalController::class, 'webhook'])->name('paypal.webhook');
+
+Route::get('/mis-pedidos', [OrderTrackingController::class, 'show'])->name('order-tracking.show');
+Route::post('/mis-pedidos', [OrderTrackingController::class, 'search'])->name('order-tracking.search');
 
 Route::get('/como-comprar', [PageController::class, 'comoComprar'])->name('como-comprar');
 Route::get('/formas-pago', [PageController::class, 'formasPago'])->name('formas-pago');
@@ -56,6 +78,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::get('/optimize-images',  \App\Livewire\Admin\OptimizeImages::class)->name('optimize-images');
     Route::get('/db-backups',       \App\Livewire\Admin\DbBackups::class)->name('db-backups');
     Route::get('/analytics',        \App\Livewire\Admin\AnalyticsDashboard::class)->name('analytics');
+    Route::get('/timeline',         \App\Livewire\Admin\UnifiedTimeline::class)->name('timeline');
     Route::get('/github', \App\Livewire\Admin\GitHubReport::class)->name('github');
 });
 

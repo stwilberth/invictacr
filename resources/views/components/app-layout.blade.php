@@ -332,6 +332,67 @@
     </script>
     @endpush
 
+    @push('scripts')
+    <script>
+    function addToCart(productId, btn) {
+        if (btn && btn.disabled) return;
+        if (btn) {
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-[9px]"></i>';
+        }
+        fetch('{{ route("cart.add") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify({ product_id: productId, quantity: 1 }),
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                if (btn) {
+                    btn.innerHTML = '<i class="fa-solid fa-check text-[9px]"></i> Agregado';
+                    btn.classList.remove('bg-[#00C4FF]', 'hover:bg-[#00a3d6]');
+                    btn.classList.add('bg-green-500');
+                    setTimeout(() => {
+                        btn.innerHTML = '<i class="fa-solid fa-cart-plus text-[9px]"></i> Agregar';
+                        btn.classList.add('bg-[#00C4FF]', 'hover:bg-[#00a3d6]');
+                        btn.classList.remove('bg-green-500');
+                        btn.disabled = false;
+                    }, 1500);
+                }
+                document.querySelectorAll('[data-cart-count]').forEach(el => {
+                    el.textContent = data.cart_count;
+                    el.style.display = data.cart_count > 0 ? '' : 'none';
+                });
+                document.querySelectorAll('.cart-badge-desktop, .cart-badge-mobile').forEach(el => {
+                    if (data.cart_count > 0) {
+                        el.textContent = data.cart_count > 9 ? '9+' : data.cart_count;
+                        el.style.display = '';
+                    } else {
+                        el.style.display = 'none';
+                    }
+                });
+            } else {
+                if (btn) {
+                    btn.innerHTML = '<i class="fa-solid fa-cart-plus text-[9px]"></i> Agregar';
+                    btn.disabled = false;
+                }
+                alert(data.message || 'Error al agregar');
+            }
+        })
+        .catch(() => {
+            if (btn) {
+                btn.innerHTML = '<i class="fa-solid fa-cart-plus text-[9px]"></i> Agregar';
+                btn.disabled = false;
+            }
+        });
+    }
+    </script>
+    @endpush
+
     @stack('scripts')
 </body>
 </html>
