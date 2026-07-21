@@ -117,7 +117,7 @@
         {{-- Main Product Layout --}}
         <div class="grid grid-cols-1 lg:grid-cols-12 items-start gap-3 lg:gap-8">
             {{-- Left Column: Media --}}
-            <div class="lg:col-span-6">
+            <div class="lg:col-span-9">
                 <div class="hidden lg:block lg:sticky lg:top-0">
                     <div class="relative overflow-hidden group/image" x-data='{
                         galleryItems: @json($galleryItems),
@@ -295,7 +295,7 @@
                 </div>
 
                                     {{-- Mobile shipping banner --}}
-                    <div class="w-full flex flex-col items-center justify-center gap-1 py-2 px-4 mt-2">
+                    <div class="lg:hidden w-full flex flex-col items-center justify-center gap-1 py-2 px-4 mt-2">
                         <div class="flex items-center gap-2">
                             <i class="fa-solid fa-truck text-emerald-500 text-xs"></i>
                             <span class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Envío Gratis* Solo Registrados</span>
@@ -323,7 +323,7 @@
             </div>
 
             {{-- Right Column: Buy Box --}}
-            <div class="lg:col-span-6 flex flex-col">
+            <div class="lg:col-span-3 flex flex-col">
                 {{-- Desktop Title Header --}}
                 <div class="hidden lg:block mb-1">
                     <div class="flex items-center gap-3 mb-1">
