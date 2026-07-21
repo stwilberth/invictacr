@@ -117,7 +117,7 @@
         {{-- Main Product Layout --}}
         <div class="grid grid-cols-1 lg:grid-cols-12 items-start gap-3 lg:gap-8">
             {{-- Left Column: Media --}}
-            <div class="lg:col-span-9">
+            <div class="lg:col-span-6">
                 <div class="hidden lg:block lg:sticky lg:top-0">
                     <div class="relative overflow-hidden group/image" x-data='{
                         galleryItems: @json($galleryItems),
@@ -323,7 +323,7 @@
             </div>
 
             {{-- Right Column: Buy Box --}}
-            <div class="lg:col-span-3 flex flex-col">
+            <div class="lg:col-span-6 flex flex-col">
                 {{-- Desktop Title Header --}}
                 <div class="hidden lg:block mb-1">
                     <div class="flex items-center gap-3 mb-1">
