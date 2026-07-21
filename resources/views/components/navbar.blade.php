@@ -94,7 +94,6 @@
                          x-transition:leave-end="opacity-0 scale-95"
                          class="absolute right-0 mt-2 w-48 bg-[#0f172a] border border-white/10 rounded-xl shadow-2xl py-2 z-50 overflow-hidden"
                          style="display: none;">
-                        <a href="/mis-pedidos" class="block px-4 py-2 text-sm text-[#00C4FF] hover:bg-white/5 transition-colors font-bold">Mis Pedidos</a>
                         <a href="/como-comprar" class="block px-4 py-2 text-sm text-white/80 hover:text-white hover:bg-white/5 transition-colors">Cómo Comprar</a>
                         <a href="/sobre-nosotros" class="block px-4 py-2 text-sm text-white/80 hover:text-white hover:bg-white/5 transition-colors">Sobre Nosotros</a>
                         <a href="/resistencia-agua" class="block px-4 py-2 text-sm text-white/80 hover:text-white hover:bg-white/5 transition-colors">Resistencia al Agua</a>
@@ -103,10 +102,31 @@
                 </div>
 
                 @auth
-                    <a href="{{ route('dashboard') }}" class="text-white/80 hover:text-[#00C4FF] px-3 py-2 rounded-md text-sm lg:text-base font-black uppercase tracking-tighter transition-colors flex items-center gap-1.5" title="Mi Cuenta">
-                        <i class="fa-solid fa-circle-user text-xs text-[#00C4FF]/70"></i>
-                        <span class="hidden xl:inline">Mi Cuenta</span>
-                    </a>
+                    <div class="relative" x-data="{ open: false }" @click.away="open = false">
+                        <button @click="open = !open"
+                                class="text-white/80 hover:text-[#00C4FF] px-3 py-2 rounded-md text-sm lg:text-base font-black uppercase tracking-tighter transition-colors flex items-center gap-1.5" title="Mi Cuenta">
+                            <i class="fa-solid fa-circle-user text-xs text-[#00C4FF]/70"></i>
+                            <span class="hidden xl:inline">Mi Cuenta</span>
+                            <svg class="w-3 h-3 opacity-50 transition-transform duration-300" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </button>
+                        <div x-show="open"
+                             x-transition:enter="transition ease-out duration-200"
+                             x-transition:enter-start="opacity-0 scale-95"
+                             x-transition:enter-end="opacity-100 scale-100"
+                             x-transition:leave="transition ease-in duration-150"
+                             x-transition:leave-start="opacity-100 scale-100"
+                             x-transition:leave-end="opacity-0 scale-95"
+                             class="absolute right-0 mt-2 w-48 bg-[#0f172a] border border-white/10 rounded-xl shadow-2xl py-2 z-50 overflow-hidden"
+                             style="display: none;">
+                            <a href="{{ route('dashboard') }}" class="block px-4 py-2 text-sm text-white/80 hover:text-white hover:bg-white/5 transition-colors">Mi Cuenta</a>
+                            <a href="{{ route('profile.show') }}" class="block px-4 py-2 text-sm text-white/80 hover:text-white hover:bg-white/5 transition-colors">Mi Perfil</a>
+                            <a href="{{ route('profile.show') }}#direccion" class="block px-4 py-2 text-sm text-white/80 hover:text-white hover:bg-white/5 transition-colors">Mi Dirección</a>
+                            <a href="/mis-pedidos" class="block px-4 py-2 text-sm text-[#00C4FF] hover:bg-white/5 transition-colors font-bold">Mis Pedidos</a>
+                            <a href="{{ route('cart.show') }}" class="block px-4 py-2 text-sm text-white/80 hover:text-white hover:bg-white/5 transition-colors">Mi Carrito</a>
+                        </div>
+                    </div>
                 @else
                     <a href="{{ route('login') }}" class="text-white/80 hover:text-[#00C4FF] px-3 py-2 rounded-md text-sm lg:text-base font-black uppercase tracking-tighter transition-colors">
                         Iniciar Sesión
@@ -118,6 +138,19 @@
             </div>
 
             <div class="md:hidden flex items-center gap-1">
+                @auth
+                    <a href="{{ route('dashboard') }}" class="text-[#00C4FF] p-2 hover:bg-white/5 rounded-lg transition-colors" title="Mi Cuenta">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                    </a>
+                @else
+                    <a href="{{ route('login') }}" class="text-white p-2 hover:bg-white/5 rounded-lg transition-colors" title="Iniciar Sesión">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                    </a>
+                @endauth
                 <a href="/relojes" class="text-white p-2 hover:bg-white/5 rounded-lg transition-colors" title="Catálogo">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -185,6 +218,28 @@
                     </svg>
                 </button>
             </div>
+            @auth
+                <div class="py-4 border-b border-white/5">
+                    <div class="px-4 mb-3">
+                        <p class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Sesión activa</p>
+                        <p class="text-white font-black truncate">{{ auth()->user()->email }}</p>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 px-4">
+                        <a href="/dashboard" class="flex items-center justify-center bg-white/5 hover:bg-white/10 text-white py-3 rounded-xl font-bold transition-colors">Mi Cuenta</a>
+                        <a href="/mis-pedidos" class="flex items-center justify-center bg-[#00C4FF]/10 hover:bg-[#00C4FF]/20 text-[#00C4FF] py-3 rounded-xl font-bold transition-colors">Mis Pedidos</a>
+                        <a href="{{ route('profile.show') }}" class="flex items-center justify-center bg-white/5 hover:bg-white/10 text-white py-3 rounded-xl font-bold transition-colors">Mi Perfil</a>
+                        <a href="{{ route('cart.show') }}" class="flex items-center justify-center bg-white/5 hover:bg-white/10 text-white py-3 rounded-xl font-bold transition-colors">Mi Carrito</a>
+                        <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class="col-span-2 flex items-center justify-center bg-red-500/10 hover:bg-red-500/20 text-red-400 py-3 rounded-xl font-bold transition-colors">Salir</a>
+                    </div>
+                    <form id="logout-form" action="{{ route('logout') }}" method="POST" class="hidden">@csrf</form>
+                </div>
+            @else
+                <div class="py-4 border-b border-white/5 px-4 space-y-3">
+                    <a href="{{ route('login') }}" class="flex items-center justify-center bg-[#00C4FF] hover:bg-[#00a3d6] text-white py-4 rounded-xl font-black uppercase tracking-tighter transition-colors">Iniciar Sesión</a>
+                    <a href="{{ route('register') }}" class="flex items-center justify-center bg-white/5 hover:bg-white/10 text-white py-4 rounded-xl font-bold transition-colors">Registrarme</a>
+                </div>
+            @endauth
+
             <a href="/relojes"
                class="{{ str_starts_with($currentPath, 'relojes') ? 'text-[#00C4FF] bg-white/5' : 'text-gray-300' }} hover:text-white block px-4 py-4 text-lg font-black uppercase tracking-tight border-b border-white/5">
                 Relojes
@@ -212,7 +267,6 @@
                      x-transition:enter-end="max-h-60"
                      style="display: none;">
                     <div class="pl-6 space-y-3 py-3">
-                        <a href="/mis-pedidos" class="text-[#00C4FF] hover:text-white block py-1 text-base font-bold transition-colors">Mis Pedidos</a>
                         <a href="/como-comprar" class="text-gray-400 hover:text-white block py-1 text-base font-medium transition-colors">Cómo Comprar</a>
                         <a href="/sobre-nosotros" class="text-gray-400 hover:text-white block py-1 text-base font-medium transition-colors">Sobre Nosotros</a>
                         <a href="/resistencia-agua" class="text-gray-400 hover:text-white block py-1 text-base font-medium transition-colors">Resistencia al Agua</a>
@@ -220,25 +274,6 @@
                     </div>
                 </div>
             </div>
-
-            @auth
-                <div class="py-6 border-b border-white/5">
-                    <div class="px-4 mb-4">
-                        <p class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Sesión activa</p>
-                        <p class="text-white font-black truncate">{{ auth()->user()->email }}</p>
-                    </div>
-                    <div class="grid grid-cols-2 gap-2 px-4">
-                        <a href="/dashboard" class="flex items-center justify-center bg-white/5 hover:bg-white/10 text-white py-3 rounded-xl font-bold transition-colors">Mi Cuenta</a>
-                        <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class="flex items-center justify-center bg-red-500/10 hover:bg-red-500/20 text-red-400 py-3 rounded-xl font-bold transition-colors">Salir</a>
-                    </div>
-                    <form id="logout-form" action="{{ route('logout') }}" method="POST" class="hidden">@csrf</form>
-                </div>
-            @else
-                <div class="py-6 border-b border-white/5 px-4 space-y-3">
-                    <a href="{{ route('login') }}" class="flex items-center justify-center bg-[#00C4FF] hover:bg-[#00a3d6] text-white py-4 rounded-xl font-black uppercase tracking-tighter transition-colors">Iniciar Sesión</a>
-                    <a href="{{ route('register') }}" class="flex items-center justify-center bg-white/5 hover:bg-white/10 text-white py-4 rounded-xl font-bold transition-colors">Registrarme</a>
-                </div>
-            @endauth
 
             <div class="pt-6 px-4">
                 <button @click="toggleTheme"

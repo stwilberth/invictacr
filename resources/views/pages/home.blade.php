@@ -57,7 +57,7 @@
                     </div>
                     <div class="flex items-center gap-1.5 sm:gap-2 font-bold text-[10px] sm:text-xs uppercase tracking-wider whitespace-nowrap">
                         <i class="fa-solid fa-truck-fast text-emerald-500 text-sm"></i>
-                        <span class="text-emerald-600 dark:text-emerald-400">Envío Gratis* Solo Registrados</span>
+                        <span class="text-emerald-600 dark:text-emerald-400">Envío Gratis* con tu cuenta</span>
                     </div>
                     <div class="flex items-center gap-1.5 sm:gap-2 text-gray-700 dark:text-gray-300 font-bold text-[10px] sm:text-xs uppercase tracking-wider whitespace-nowrap">
                         <i class="fa-solid fa-hand-holding-dollar text-[#00C4FF] text-sm"></i>
@@ -74,7 +74,7 @@
                     </div>
                     <div class="md:hidden flex items-center gap-1.5 sm:gap-2 font-bold text-[10px] sm:text-xs uppercase tracking-wider whitespace-nowrap">
                         <i class="fa-solid fa-truck-fast text-emerald-500 text-sm"></i>
-                        <span class="text-emerald-600 dark:text-emerald-400">Envío Gratis* Solo Registrados</span>
+                        <span class="text-emerald-600 dark:text-emerald-400">Envío Gratis* con tu cuenta</span>
                     </div>
                     <div class="md:hidden flex items-center gap-1.5 sm:gap-2 text-gray-700 dark:text-gray-300 font-bold text-[10px] sm:text-xs uppercase tracking-wider whitespace-nowrap">
                         <i class="fa-solid fa-hand-holding-dollar text-[#00C4FF] text-sm"></i>

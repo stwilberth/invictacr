@@ -298,7 +298,7 @@
                     <div class="lg:hidden w-full flex flex-col items-center justify-center gap-1 py-2 px-4 mt-2">
                         <div class="flex items-center gap-2">
                             <i class="fa-solid fa-truck text-emerald-500 text-xs"></i>
-                            <span class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Envío Gratis* Solo Registrados</span>
+                            <span class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Envío Gratis* con tu cuenta</span>
                         </div>
                         <div class="flex items-center gap-2">
                             <i class="fa-solid fa-hand-holding-dollar text-[#00C4FF] text-xs"></i>

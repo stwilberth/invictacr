@@ -69,7 +69,13 @@
             <span class="text-[8px] md:text-[10px] font-bold text-slate-500 dark:text-gray-400 uppercase tracking-wider">{{ $product->genero }}</span>
         </div>
 
-        <div class="{{ $compact ? 'my-0.5' : 'my-0.5 md:my-2' }} text-right">
+        <div class="{{ $compact ? 'my-0.5' : 'my-0.5 md:my-2' }} flex items-center justify-between gap-1">
+            @if($product->video)
+            <button type="button" onclick="openVimeoModal('{{ $product->video }}')" title="Ver video" class="inline-flex items-center gap-0.5 md:gap-1 {{ $compact ? 'px-1 py-0.5 text-[7px]' : 'px-1 py-0.5 md:px-2 md:py-1 text-[7px] md:text-[9px]' }} font-black uppercase tracking-wide text-white bg-red-600 hover:bg-red-700 rounded-md transition-colors shadow-sm">
+                <i class="fa-solid fa-play"></i> Ver Video
+            </button>
+            @endif
+            <div class="ml-auto text-right">
             @if($product->proximo && ($product->stock ?? 0) > 0)
                 <div class="py-1">
                     <span class="text-[9px] md:text-xs font-bold px-1.5 md:px-2 py-0.5 bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 rounded-md">Próximamente</span>
@@ -93,6 +99,7 @@
                     <span class="text-[9px] md:text-xs font-bold px-1.5 md:px-2 py-0.5 bg-red-100 text-red-600 rounded-md">AGOTADO</span>
                 </div>
             @endif
+            </div>
         </div>
     </div>
 </div>
