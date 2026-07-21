@@ -50,40 +50,33 @@ class PayPalController extends Controller
             return redirect()->route('checkout')->with('error', 'Datos de checkout no encontrados.');
         }
 
-        $subtotal = 0;
+        $exchangeRate = $this->getExchangeRate();
+
+        $items = [];
+        $totalUSD = 0;
         foreach ($cart->items as $item) {
             $product = $item->product;
             $price = $product->descuento > 0
                 ? $product->precio_venta * (1 - $product->descuento / 100)
                 : $product->precio_venta;
-            $subtotal += $price * $item->quantity;
-        }
+            $priceUSD = round(($price / $exchangeRate), 2);
 
-        $exchangeRate = $this->getExchangeRate();
-        $totalUSD = round(($subtotal / $exchangeRate), 2);
+            $items[] = [
+                'name' => 'Invicta ' . $product->modelo,
+                'description' => $product->title,
+                'unit_amount' => [
+                    'currency_code' => 'USD',
+                    'value' => number_format($priceUSD, 2, '.', ''),
+                ],
+                'quantity' => $item->quantity,
+                'category' => 'PHYSICAL_GOODS',
+            ];
+            $totalUSD += $priceUSD * $item->quantity;
+        }
+        $totalUSD = round($totalUSD, 2);
 
         try {
             $accessToken = $this->getAccessToken();
-
-            $items = [];
-            foreach ($cart->items as $item) {
-                $product = $item->product;
-                $price = $product->descuento > 0
-                    ? $product->precio_venta * (1 - $product->descuento / 100)
-                    : $product->precio_venta;
-                $priceUSD = round(($price / $exchangeRate), 2);
-
-                $items[] = [
-                    'name' => 'Invicta ' . $product->modelo,
-                    'description' => $product->title,
-                    'unit_amount' => [
-                        'currency_code' => 'USD',
-                        'value' => number_format($priceUSD, 2, '.', ''),
-                    ],
-                    'quantity' => $item->quantity,
-                    'category' => 'PHYSICAL_GOODS',
-                ];
-            }
 
             $response = Http::withToken($accessToken)
                 ->post(config('paypal.base_url') . '/v2/checkout/orders', [
