@@ -32,7 +32,9 @@ class CheckoutController extends Controller
             }
         }
 
-        return view('pages.checkout', compact('cart'));
+        $user = auth()->user();
+
+        return view('pages.checkout', compact('cart', 'user'));
     }
 
     public function process(Request $request)

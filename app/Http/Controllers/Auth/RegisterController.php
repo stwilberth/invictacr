@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\Cart;
 use App\Models\User;
+use App\Services\CartService;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -26,6 +28,7 @@ class RegisterController extends Controller
                 "max:255",
                 "unique:users",
             ],
+            "telefono" => ["required", "string", "max:20"],
             "password" => ["required", "string", "min:8", "confirmed"],
         ]);
 
@@ -33,6 +36,7 @@ class RegisterController extends Controller
             $user = User::create([
                 "name" => $request->name,
                 "email" => $request->email,
+                "telefono" => $request->telefono,
                 "password" => $request->password,
             ]);
         } catch (UniqueConstraintViolationException $e) {
@@ -46,6 +50,19 @@ class RegisterController extends Controller
         }
 
         Auth::login($user);
+
+        $oldSessionId = $request->session()->getId();
+        $request->session()->regenerate();
+
+        $guestCart = Cart::where('session_id', $oldSessionId)->whereNull('user_id')->first();
+        if ($guestCart) {
+            $userCart = Cart::firstOrCreate(
+                ['user_id' => $user->id],
+                ['session_id' => $request->session()->getId()]
+            );
+            app(CartService::class)->mergeCarts($guestCart, $userCart);
+            $guestCart->delete();
+        }
 
         return redirect("/dashboard");
     }

@@ -25,6 +25,15 @@
                 </div>
 
                 <div>
+                    <label for="telefono" class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Teléfono</label>
+                    <input type="tel" name="telefono" id="telefono" value="{{ old('telefono') }}" required placeholder="8888-8888"
+                           class="w-full bg-white dark:bg-[#0a0f1c] border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#00C4FF]/50 text-gray-900 dark:text-white" />
+                    @error('telefono')
+                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div>
                     <label for="password" class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Contraseña</label>
                     <input type="password" name="password" id="password" required
                            class="w-full bg-white dark:bg-[#0a0f1c] border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#00C4FF]/50 text-gray-900 dark:text-white" />

@@ -106,7 +106,7 @@ class CartService
         return $this->getCart()->item_count;
     }
 
-    protected function mergeCarts(Cart $from, Cart $to): void
+    public function mergeCarts(Cart $from, Cart $to): void
     {
         foreach ($from->items as $item) {
             $existing = $to->items()->where('product_id', $item->product_id)->first();

@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\Cart;
+use App\Services\CartService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -21,7 +23,19 @@ class LoginController extends Controller
         ]);
 
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
+            $oldSessionId = $request->session()->getId();
             $request->session()->regenerate();
+
+            $guestCart = Cart::where('session_id', $oldSessionId)->whereNull('user_id')->first();
+            if ($guestCart) {
+                $userCart = Cart::firstOrCreate(
+                    ['user_id' => Auth::id()],
+                    ['session_id' => $request->session()->getId()]
+                );
+                app(CartService::class)->mergeCarts($guestCart, $userCart);
+                $guestCart->delete();
+            }
+
             return redirect()->intended('/dashboard');
         }
 

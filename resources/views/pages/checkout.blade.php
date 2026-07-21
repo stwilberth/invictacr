@@ -25,19 +25,19 @@
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <label class="block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">Nombre completo *</label>
-                                    <input type="text" name="name" value="{{ old('name') }}" required
+                                    <input type="text" name="name" value="{{ old('name', $user->name ?? '') }}" required
                                            class="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-gray-600 rounded-xl text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-[#00C4FF] focus:ring-1 focus:ring-[#00C4FF] transition-all">
                                     @error('name')<p class="text-xs text-red-500 mt-1">{{ $message }}</p>@enderror
                                 </div>
                                 <div>
                                     <label class="block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">Correo electrónico *</label>
-                                    <input type="email" name="email" value="{{ old('email', auth()->user()->email ?? '') }}" required
+                                    <input type="email" name="email" value="{{ old('email', $user->email ?? '') }}" required
                                            class="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-gray-600 rounded-xl text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-[#00C4FF] focus:ring-1 focus:ring-[#00C4FF] transition-all">
                                     @error('email')<p class="text-xs text-red-500 mt-1">{{ $message }}</p>@enderror
                                 </div>
                                 <div class="md:col-span-2">
                                     <label class="block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">Teléfono *</label>
-                                    <input type="text" name="phone" value="{{ old('phone') }}" required placeholder="8671-1422"
+                                    <input type="text" name="phone" value="{{ old('phone', $user->phone ?? '') }}" required placeholder="8671-1422"
                                            class="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-gray-600 rounded-xl text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-[#00C4FF] focus:ring-1 focus:ring-[#00C4FF] transition-all">
                                     @error('phone')<p class="text-xs text-red-500 mt-1">{{ $message }}</p>@enderror
                                 </div>
@@ -55,7 +55,7 @@
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div class="md:col-span-2">
                                     <label class="block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">Dirección completa *</label>
-                                    <input type="text" name="address" value="{{ old('address') }}" required placeholder="Barrio, calle, avenida, número de casa..."
+                                    <input type="text" name="address" value="{{ old('address', $user->address ?? '') }}" required placeholder="Barrio, calle, avenida, número de casa..."
                                            class="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-gray-600 rounded-xl text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-[#00C4FF] focus:ring-1 focus:ring-[#00C4FF] transition-all">
                                     @error('address')<p class="text-xs text-red-500 mt-1">{{ $message }}</p>@enderror
                                 </div>
@@ -63,19 +63,15 @@
                                     <label class="block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">Provincia *</label>
                                     <select name="province" required class="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-gray-600 rounded-xl text-sm text-gray-900 dark:text-white focus:outline-none focus:border-[#00C4FF] focus:ring-1 focus:ring-[#00C4FF] transition-all">
                                         <option value="">Seleccionar...</option>
-                                        <option value="San José" {{ old('province') === 'San José' ? 'selected' : '' }}>San José</option>
-                                        <option value="Alajuela" {{ old('province') === 'Alajuela' ? 'selected' : '' }}>Alajuela</option>
-                                        <option value="Cartago" {{ old('province') === 'Cartago' ? 'selected' : '' }}>Cartago</option>
-                                        <option value="Heredia" {{ old('province') === 'Heredia' ? 'selected' : '' }}>Heredia</option>
-                                        <option value="Guanacaste" {{ old('province') === 'Guanacaste' ? 'selected' : '' }}>Guanacaste</option>
-                                        <option value="Puntarenas" {{ old('province') === 'Puntarenas' ? 'selected' : '' }}>Puntarenas</option>
-                                        <option value="Limón" {{ old('province') === 'Limón' ? 'selected' : '' }}>Limón</option>
+                                        @foreach(['San José', 'Alajuela', 'Cartago', 'Heredia', 'Guanacaste', 'Puntarenas', 'Limón'] as $prov)
+                                            <option value="{{ $prov }}" {{ old('province', $user->province ?? '') === $prov ? 'selected' : '' }}>{{ $prov }}</option>
+                                        @endforeach
                                     </select>
                                     @error('province')<p class="text-xs text-red-500 mt-1">{{ $message }}</p>@enderror
                                 </div>
                                 <div>
                                     <label class="block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">Cantón *</label>
-                                    <input type="text" name="canton" value="{{ old('canton') }}" required placeholder="Ej: Escazú, Santa Ana..."
+                                    <input type="text" name="canton" value="{{ old('canton', $user->canton ?? '') }}" required placeholder="Ej: Escazú, Santa Ana..."
                                            class="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-gray-600 rounded-xl text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-[#00C4FF] focus:ring-1 focus:ring-[#00C4FF] transition-all">
                                     @error('canton')<p class="text-xs text-red-500 mt-1">{{ $message }}</p>@enderror
                                 </div>

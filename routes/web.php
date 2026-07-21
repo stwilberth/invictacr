@@ -29,13 +29,15 @@ Route::patch('/carrito/{item}', [\App\Http\Controllers\CarritoController::class,
 Route::delete('/carrito/{item}', [\App\Http\Controllers\CarritoController::class, 'remove'])->name('cart.remove');
 Route::delete('/carrito', [\App\Http\Controllers\CarritoController::class, 'clear'])->name('cart.clear');
 
-Route::get('/checkout', [CheckoutController::class, 'show'])->name('checkout');
-Route::post('/checkout', [CheckoutController::class, 'process'])->name('checkout.process');
-Route::get('/pedido/confirmado/{invoice}', [CheckoutController::class, 'confirmation'])->name('order.confirmation');
+Route::middleware(['auth'])->group(function () {
+    Route::get('/checkout', [CheckoutController::class, 'show'])->name('checkout');
+    Route::post('/checkout', [CheckoutController::class, 'process'])->name('checkout.process');
+    Route::get('/pedido/confirmado/{invoice}', [CheckoutController::class, 'confirmation'])->name('order.confirmation');
 
-Route::get('/paypal/create', [PayPalController::class, 'create'])->name('paypal.create');
-Route::get('/paypal/execute', [PayPalController::class, 'execute'])->name('paypal.execute');
-Route::get('/paypal/cancel', [PayPalController::class, 'cancel'])->name('paypal.cancel');
+    Route::get('/paypal/create', [PayPalController::class, 'create'])->name('paypal.create');
+    Route::get('/paypal/execute', [PayPalController::class, 'execute'])->name('paypal.execute');
+    Route::get('/paypal/cancel', [PayPalController::class, 'cancel'])->name('paypal.cancel');
+});
 
 Route::get('/mis-pedidos', [OrderTrackingController::class, 'show'])->name('order-tracking.show');
 Route::post('/mis-pedidos', [OrderTrackingController::class, 'search'])->name('order-tracking.search');
@@ -55,6 +57,8 @@ Route::get('/sitemap', function () {
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/perfil', [\App\Http\Controllers\ProfileController::class, 'show'])->name('profile.show');
+    Route::put('/perfil', [\App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
     Route::get('/invoices/{invoice}/pdf', [InvoicePdfController::class, 'download'])->name('invoice.pdf');
     Route::get('/invoices/{invoice}/preview', [InvoicePdfController::class, 'preview'])->name('invoice.preview');
 });

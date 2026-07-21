@@ -188,11 +188,11 @@
                     </div>
                 </div>
 
-                {{-- Mobile: Side-by-side grid (image col-span-3, buy box col-span-2) --}}
-                <div class="lg:hidden grid grid-cols-5 gap-2">
+                {{-- Mobile: Side-by-side grid (Image left, Buy Box right) --}}
+                <div class="lg:hidden grid grid-cols-4 gap-2">
                     {{-- Image / Video --}}
-                    <div class="col-span-3">
-                        <div class="relative" style="min-height: 200px;" x-data='{
+                    <div class="col-span-2">
+                        <div class="relative" style="min-height: 150px;" x-data='{
                             galleryItems: @json($galleryItems),
                             currentIndex: 0,
                             init() {
@@ -203,10 +203,10 @@
                                 }
                             }
                         }'>
-                            <div class="relative overflow-hidden" style="min-height: 250px;">
+                            <div class="relative overflow-hidden" style="min-height: 200px;">
                                 <div class="flex" :style="`transform: translateX(-${currentIndex * 100}%); transition: transform 0.5s ease-in-out;`">
                                     <template x-for="(item, idx) in galleryItems" :key="idx">
-                                        <div class="w-full flex-shrink-0 flex items-center justify-center relative" style="min-height: 250px;">
+                                        <div class="w-full flex-shrink-0 flex items-center justify-center relative" style="min-height: 200px;">
                                             <template x-if="item.type === 'image'">
                                                 <div class="absolute inset-0 flex items-center justify-center cursor-zoom-in" @click="openImageModal(item.zoomUrl, '{{ $product->title }}')">
                                                     <img :src="item.url" :alt="'{{ $product->title }} - ' + (idx + 1)" class="w-full max-h-[55vh] object-contain" loading="lazy" />
@@ -216,53 +216,21 @@
                                                 <div class="absolute inset-0 flex items-center justify-center cursor-pointer bg-black" @click="openVimeoModal(item.vimeoUrl)">
                                                     <img :src="galleryItems[0].url" alt="Video del reloj" class="w-full max-h-[55vh] object-contain opacity-50" loading="lazy" />
                                                     <div class="absolute inset-0 flex items-center justify-center">
-                                                        <div class="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center shadow-2xl border-4 border-white/30 hover:border-white/60 transition-all duration-300 hover:scale-110">
+                                                        <div class="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center shadow-2xl border-4 border-white/30 hover:border-white/60 transition-all duration-300 hover:scale-110">
                                                             <i class="fa-solid fa-play text-white text-lg ml-1"></i>
                                                         </div>
-                                                    </div>
-                                                    <div class="absolute bottom-2 left-2 bg-black/60 backdrop-blur-sm text-white text-[8px] font-bold uppercase tracking-wider px-2 py-1 rounded-full">
-                                                        <i class="fa-solid fa-play text-[7px] mr-1"></i> Video
                                                     </div>
                                                 </div>
                                             </template>
                                         </div>
                                     </template>
                                 </div>
-
-                                {{-- Zoom button --}}
-                                <button type="button" x-show="galleryItems[currentIndex]?.type === 'image'" @click="event.preventDefault(); openImageModal(galleryItems[currentIndex].zoomUrl, '{{ $product->title }}')" class="absolute top-2 right-2 w-7 h-7 bg-white/95 dark:bg-gray-900/95 border border-gray-200 dark:border-gray-700/80 text-gray-500 dark:text-gray-400 rounded-md shadow flex items-center justify-center transition-all z-30 cursor-pointer">
-                                    <i class="fa-solid fa-expand text-[10px]"></i>
-                                </button>
                             </div>
-
-                            {{-- Thumbnails overlay at bottom --}}
-                            @if(count($galleryItems) > 1)
-                            <div class="flex gap-1.5 px-2 py-2 overflow-x-auto justify-center bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm border-t border-gray-200 dark:border-gray-700">
-                                @foreach($galleryItems as $i => $item)
-                                    @if($item['type'] === 'image')
-                                    <button type="button" @click="currentIndex = {{ $i }}" data-gallery-img="{{ $item['zoomUrl'] }}" class="w-14 h-14 flex-shrink-0 rounded-lg border-2 overflow-hidden bg-gray-50 dark:bg-gray-900 transition-all"
-                                        :class="currentIndex === {{ $i }} ? 'border-[#00C4FF]' : 'border-transparent'">
-                                        <img src="{{ $item['url'] }}" alt="" class="w-full h-full object-contain" loading="lazy" onerror="this.closest('button').style.display='none'" />
-                                    </button>
-                                    @else
-                                    <button type="button" @click="currentIndex = {{ $i }}" class="w-14 h-14 flex-shrink-0 rounded-lg border-2 overflow-hidden bg-gray-900 transition-all relative"
-                                        :class="currentIndex === {{ $i }} ? 'border-[#00C4FF]' : 'border-transparent'">
-                                        <img src="{{ $galleryItems[0]['url'] }}" alt="" class="w-full h-full object-contain opacity-40" loading="lazy" />
-                                        <div class="absolute inset-0 flex items-center justify-center">
-                                            <div class="w-5 h-5 bg-red-600 rounded-full flex items-center justify-center shadow-lg border-2 border-white/40">
-                                                <i class="fa-solid fa-play text-white text-[7px] ml-0.5"></i>
-                                            </div>
-                                        </div>
-                                    </button>
-                                    @endif
-                                @endforeach
-                            </div>
-                            @endif
                         </div>
                     </div>
 
                     {{-- Buy box (price, buttons, specs) --}}
-                    <div class="col-span-2 flex flex-col items-stretch justify-center gap-1.5">
+                    <div class="col-span-2 flex flex-col items-stretch justify-start gap-1">
                         @if($isUpcoming)
                         <span class="text-lg font-black text-amber-500 tracking-tight text-center leading-none">Próx.</span>
                         @elseif(!$isAgotado)
@@ -270,23 +238,20 @@
                         @endif
 
                         @if(!$isAgotado || $isUpcoming)
-                        @if(!$isAgotado && !$isUpcoming && ($product->stock ?? 0) > 0)
-                            @if($inCart)
-                            <a href="{{ route('cart.show') }}" class="w-full flex items-center justify-center gap-1 py-1.5 bg-gray-800 hover:bg-gray-700 text-white rounded-lg font-bold uppercase tracking-wide text-[11px] transition-all shadow-sm">
-                                <i class="fa-solid fa-cart-shopping text-xs"></i> Ver Carrito
-                            </a>
-                            @else
-                            <button type="button" onclick="addToCart({{ $product->id }}, this)" class="w-full flex items-center justify-center gap-1 py-1.5 bg-[#00C4FF] hover:bg-[#00a3d6] text-white rounded-lg font-bold uppercase tracking-wide text-[11px] transition-all active:scale-95 shadow-sm">
-                                <i class="fa-solid fa-cart-plus text-xs"></i> Agregar al Carrito
-                            </button>
+                            @if(!$isAgotado && !$isUpcoming && ($product->stock ?? 0) > 0)
+                                @if($inCart)
+                                <a href="{{ route('cart.show') }}" class="w-full flex items-center justify-center gap-1 py-1.5 bg-gray-800 hover:bg-gray-700 text-white rounded-lg font-bold uppercase tracking-wide text-[11px] transition-all shadow-sm">
+                                    <i class="fa-solid fa-cart-shopping text-xs"></i> Ver Carrito
+                                </a>
+                                @else
+                                <button type="button" onclick="addToCart({{ $product->id }}, this)" class="w-full flex items-center justify-center gap-1 py-1.5 bg-[#00C4FF] hover:bg-[#00a3d6] text-white rounded-lg font-bold uppercase tracking-wide text-[11px] transition-all active:scale-95 shadow-sm">
+                                    <i class="fa-solid fa-cart-plus text-xs"></i> Agregar
+                                </button>
+                                @endif
                             @endif
-                        @endif
-                        <a href="{{ $whatsappBuy }}" data-conversion="whatsapp-comprar" target="_blank" rel="noopener noreferrer" class="w-full flex items-center justify-center gap-1 py-1.5 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-lg font-bold uppercase tracking-wide text-[11px] transition-all active:scale-95 no-underline shadow-sm">
-                            <i class="fa-brands fa-whatsapp text-xs"></i> Comprar
-                        </a>
-                        <button type="button" onclick="openShareModal()" class="w-full flex items-center justify-center gap-1 py-1.5 bg-transparent border border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:border-gray-400 dark:hover:border-gray-500 rounded-lg font-medium uppercase tracking-wide text-[11px] transition-all active:scale-95">
-                            <i class="fa-solid fa-share-nodes text-xs"></i> Compartir
-                        </button>
+                            <a href="{{ $whatsappBuy }}" data-conversion="whatsapp-comprar" target="_blank" rel="noopener noreferrer" class="w-full flex items-center justify-center gap-1 py-1.5 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-lg font-bold uppercase tracking-wide text-[11px] transition-all active:scale-95 no-underline shadow-sm">
+                                <i class="fa-brands fa-whatsapp text-xs"></i> Contactar
+                            </a>
                         @endif
 
                         @auth
@@ -330,9 +295,15 @@
                 </div>
 
                                     {{-- Mobile shipping banner --}}
-                    <div class="w-full flex lg:hidden items-center justify-center gap-2 py-2 px-4 mt-2">
-                        <i class="fa-solid fa-truck text-[#00C4FF] text-xs"></i>
-                        <span class="text-[10px] font-bold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Envío Gratis y Pago contra entrega*</span>
+                    <div class="w-full flex flex-col items-center justify-center gap-1 py-2 px-4 mt-2">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-truck text-emerald-500 text-xs"></i>
+                            <span class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Envío Gratis* Solo Registrados</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-hand-holding-dollar text-[#00C4FF] text-xs"></i>
+                            <span class="text-[10px] font-bold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Pago contra entrega*</span>
+                        </div>
                     </div>
 
                  {{-- Mobile: Relojes Similares slider (replaces thumbnail strip, since all watches have a single image) --}}
@@ -356,9 +327,6 @@
                 {{-- Desktop Title Header --}}
                 <div class="hidden lg:block mb-1">
                     <div class="flex items-center gap-3 mb-1">
-                        <button type="button" onclick="history.back()" aria-label="Atrás" class="flex items-center justify-center w-9 h-9 rounded-xl border-2 border-[#00C4FF] text-[#00C4FF] hover:bg-[#00C4FF] hover:text-white transition-all flex-shrink-0">
-                            <i class="fa-solid fa-arrow-left"></i>
-                        </button>
                         <h1 class="text-xl sm:text-2xl lg:text-3xl font-black text-gray-800 dark:text-white tracking-tight leading-[1.1] uppercase">
                             {{ $displayTitle }}
                         </h1>
@@ -422,46 +390,38 @@
                         </div>
 
                         {{-- Desktop Action buttons --}}
-                        <div class="flex flex-col gap-2.5 w-full">
+                        <div class="flex gap-2.5 w-full">
                             @if(!$isAgotado && !$isUpcoming && ($product->stock ?? 0) > 0)
                                 @if($inCart)
-                                <a href="{{ route('cart.show') }}" class="w-full flex items-center justify-center gap-1 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-xl font-extrabold uppercase tracking-tight text-xs transition-all hover:-translate-y-0.5 active:scale-95 shadow-sm hover:shadow-md">
+                                <a href="{{ route('cart.show') }}" class="flex-1 flex items-center justify-center gap-1 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-xl font-extrabold uppercase tracking-tight text-xs transition-all hover:-translate-y-0.5 active:scale-95 shadow-sm hover:shadow-md">
                                     <i class="fa-solid fa-cart-shopping text-base"></i> Ver Carrito
                                 </a>
                                 @else
-                                <button type="button" onclick="addToCart({{ $product->id }}, this)" class="w-full flex items-center justify-center gap-1 py-2 bg-[#00C4FF] hover:bg-[#00a3d6] text-white rounded-xl font-extrabold uppercase tracking-tight text-xs transition-all hover:-translate-y-0.5 active:scale-95 shadow-sm hover:shadow-md">
-                                    <i class="fa-solid fa-cart-plus text-base"></i> Agregar al Carrito
+                                <button type="button" onclick="addToCart({{ $product->id }}, this)" class="flex-1 flex items-center justify-center gap-1 py-2 bg-[#00C4FF] hover:bg-[#00a3d6] text-white rounded-xl font-extrabold uppercase tracking-tight text-xs transition-all hover:-translate-y-0.5 active:scale-95 shadow-sm hover:shadow-md">
+                                    <i class="fa-solid fa-cart-plus text-base"></i> Agregar
                                 </button>
                                 @endif
                             @endif
-                            <div class="grid grid-cols-2 gap-2.5 w-full">
-                                <a href="{{ $whatsappBuy }}" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-1 py-2 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-xl font-extrabold uppercase tracking-tight text-xs transition-all hover:-translate-y-0.5 active:scale-95 no-underline shadow-sm hover:shadow-md">
-                                    <i class="fa-brands fa-whatsapp text-base"></i> Comprar
-                                </a>
-                                <button type="button" onclick="openShareModal()" class="flex items-center justify-center gap-1 py-2 bg-transparent border border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:border-gray-400 dark:hover:border-gray-500 rounded-xl font-extrabold uppercase tracking-tight text-xs transition-all hover:-translate-y-0.5 active:scale-95 shadow-sm">
-                                    <i class="fa-solid fa-share-nodes text-base"></i> Compartir
-                                </button>
-                            </div>
+                            <a href="{{ $whatsappBuy }}" target="_blank" rel="noopener noreferrer" class="flex-1 flex items-center justify-center gap-1 py-2 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-xl font-extrabold uppercase tracking-tight text-xs transition-all hover:-translate-y-0.5 active:scale-95 no-underline shadow-sm hover:shadow-md">
+                                <i class="fa-brands fa-whatsapp text-base"></i> Contactar
+                            </a>
                         </div>
                     </div>
                 @else
                     {{-- Desktop Action buttons (no price for upcoming) --}}
                     <div class="hidden lg:flex flex-col items-center gap-2.5 mb-3.5">
-                        <div class="grid grid-cols-2 gap-2.5 w-full">
-                            <a href="{{ $whatsappBuy }}" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-1 py-2 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-xl font-extrabold uppercase tracking-tight text-xs transition-all hover:-translate-y-0.5 active:scale-95 no-underline shadow-sm hover:shadow-md">
-                                <i class="fa-brands fa-whatsapp text-base"></i> Comprar
+                        <div class="flex gap-2.5 w-full">
+                            <a href="{{ $whatsappBuy }}" target="_blank" rel="noopener noreferrer" class="flex-1 flex items-center justify-center gap-1 py-2 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-xl font-extrabold uppercase tracking-tight text-xs transition-all hover:-translate-y-0.5 active:scale-95 no-underline shadow-sm hover:shadow-md">
+                                <i class="fa-brands fa-whatsapp text-base"></i> Contactar
                             </a>
-                            <button type="button" onclick="openShareModal()" class="flex items-center justify-center gap-1 py-2 bg-transparent border border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:border-gray-400 dark:hover:border-gray-500 rounded-xl font-extrabold uppercase tracking-tight text-xs transition-all hover:-translate-y-0.5 active:scale-95 shadow-sm">
-                                <i class="fa-solid fa-share-nodes text-base"></i> Compartir
-                            </button>
                         </div>
                     </div>
                 @endif
 
                 {{-- Especificaciones (siempre visible) --}}
-                <div class="hidden lg:block w-full rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 shadow-sm mb-3.5 mt-4">
+                <div class="hidden lg:block w-full mb-3.5 mt-4">
                     <div class="grid grid-cols-2">
-                        <div class="p-2.5 border-b border-r border-gray-100 dark:border-gray-700 flex items-start gap-2">
+                        <div class="p-2.5 flex items-start gap-2">
                             <div class="mt-1 flex-shrink-0 w-7 h-7 rounded-lg bg-gray-50 dark:bg-gray-900 flex items-center justify-center text-gray-400">
                                 <i class="fa-solid fa-venus-mars text-xs"></i>
                             </div>
@@ -470,7 +430,7 @@
                                 <p class="text-xs font-bold text-gray-900 dark:text-white capitalize">{{ $product->genero ?? 'Unisex' }}</p>
                             </div>
                         </div>
-                        <div class="p-2.5 border-b border-gray-100 dark:border-gray-700 flex items-start gap-2">
+                        <div class="p-2.5 flex items-start gap-2">
                             <div class="mt-1 flex-shrink-0 w-7 h-7 rounded-lg bg-gray-50 dark:bg-gray-900 flex items-center justify-center text-gray-400">
                                 <i class="fa-solid fa-arrows-up-down-left-right text-xs"></i>
                             </div>
@@ -479,7 +439,7 @@
                                 <p class="text-xs font-bold text-gray-900 dark:text-white">{{ $size ? $size . 'mm' : 'N/A' }}</p>
                             </div>
                         </div>
-                        <div class="p-2.5 border-r border-gray-100 dark:border-gray-700 flex items-start gap-2">
+                        <div class="p-2.5 flex items-start gap-2">
                             <div class="mt-1 flex-shrink-0 w-7 h-7 rounded-lg bg-gray-50 dark:bg-gray-900 flex items-center justify-center text-gray-400">
                                 <i class="fa-solid fa-gear text-xs"></i>
                             </div>
@@ -497,7 +457,7 @@
                                 <p class="text-xs font-bold text-gray-900 dark:text-white whitespace-nowrap">{{ $product->resistencia_agua ? $product->resistencia_agua . 'm' : 'Resistente' }}</p>
                             </div>
                         </div>
-                        <div class="p-2.5 border-r border-gray-100 dark:border-gray-700 flex items-start gap-2">
+                        <div class="p-2.5 flex items-start gap-2">
                             <div class="mt-1 flex-shrink-0 w-7 h-7 rounded-lg bg-gray-50 dark:bg-gray-900 flex items-center justify-center text-gray-400">
                                 <i class="fa-solid fa-layer-group text-xs"></i>
                             </div>

@@ -13,14 +13,14 @@
 <nav class="bg-[#0a0f1c] shadow-lg w-full z-[60] print:hidden border-b border-white/5"
      x-data="navbarState()"
      x-init="init()">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-14 md:h-20 items-center">
             <div class="flex-shrink-0 flex items-center justify-center mr-2 md:mr-8">
                 <div class="flex items-center gap-2">
                     <a href="/" class="flex-shrink-0">
-                        <img src="{{ asset('logo.webp') }}" alt="Invicta Costa Rica" class="h-8 md:h-11 w-auto hover:opacity-90 transition-opacity" width="160" height="160" onerror="this.src='{{ asset('logo.png') }}'" />
+                        <img src="{{ asset('logo.webp') }}" alt="Invicta Costa Rica" class="h-12 md:h-11 w-auto hover:opacity-90 transition-opacity" width="160" height="160" onerror="this.src='{{ asset('logo.png') }}'" />
                     </a>
-                    <div class="grid gap-0.5">
+                    <div class="hidden md:grid gap-0.5">
                         <a href="/" class="group text-xs md:text-xl">
                             <p class="text-white/80 font-bold tracking-wider group-hover:text-white transition-colors">Invicta<span class="text-[#00C4FF]">CostaRica</span>.com</p>
                         </a>
@@ -33,6 +33,9 @@
             </div>
 
             <div class="hidden md:flex items-center space-x-1 lg:space-x-4">
+                <div class="hidden lg:block w-64 mr-2">
+                    <x-search-bar />
+                </div>
                 <a href="/relojes"
                    class="{{ str_starts_with($currentPath, 'relojes') ? 'text-[#00C4FF] bg-white/5' : 'text-white/90' }} hover:text-[#00C4FF] px-3 py-2 rounded-md text-sm lg:text-base font-black uppercase tracking-tighter transition-all duration-200">
                     Relojes
@@ -49,13 +52,10 @@
                     Garantía
                 </a>
 
-                <div class="hidden lg:block w-64 mr-2">
-                    <x-search-bar />
-                </div>
 
                 <a href="{{ route('cart.show') }}" class="relative text-white/80 hover:text-[#00C4FF] p-2 rounded-full transition-all duration-300 hover:bg-white/5" title="Carrito">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                     </svg>
                     @if($cartCount > 0)
                      <span class="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center">{{ $cartCount > 9 ? '9+' : $cartCount }}</span>
@@ -101,12 +101,31 @@
                         <a href="https://correos.go.cr/rastreo/" target="_blank" class="block px-4 py-2 text-sm text-white/80 hover:text-white hover:bg-white/5 transition-colors">Rastrear Envío</a>
                     </div>
                 </div>
+
+                @auth
+                    <a href="{{ route('dashboard') }}" class="text-white/80 hover:text-[#00C4FF] px-3 py-2 rounded-md text-sm lg:text-base font-black uppercase tracking-tighter transition-colors flex items-center gap-1.5" title="Mi Cuenta">
+                        <i class="fa-solid fa-circle-user text-xs text-[#00C4FF]/70"></i>
+                        <span class="hidden xl:inline">Mi Cuenta</span>
+                    </a>
+                @else
+                    <a href="{{ route('login') }}" class="text-white/80 hover:text-[#00C4FF] px-3 py-2 rounded-md text-sm lg:text-base font-black uppercase tracking-tighter transition-colors">
+                        Iniciar Sesión
+                    </a>
+                    <a href="{{ route('register') }}" class="bg-[#00C4FF] hover:bg-[#00a3d6] text-white px-4 py-2 rounded-lg text-sm lg:text-base font-black uppercase tracking-tighter transition-colors">
+                        Registrarme
+                    </a>
+                @endauth
             </div>
 
             <div class="md:hidden flex items-center gap-1">
+                <a href="/relojes" class="text-white p-2 hover:bg-white/5 rounded-lg transition-colors" title="Catálogo">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </a>
                 <a href="{{ route('cart.show') }}" class="relative text-white p-2 hover:bg-white/5 rounded-lg transition-colors" title="Carrito">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                     </svg>
                     @if($cartCount > 0)
                     <span class="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center">{{ $cartCount > 9 ? '9+' : $cartCount }}</span>
@@ -148,17 +167,23 @@
 
     <div x-show="mobileMenuOpen"
          x-transition:enter="transition ease-out duration-300"
-         x-transition:enter-start="-translate-y-4 opacity-0"
-         x-transition:enter-end="translate-y-0 opacity-100"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
          x-transition:leave="transition ease-in duration-200"
-         x-transition:leave-start="translate-y-0 opacity-100"
-         x-transition:leave-end="-translate-y-4 opacity-0"
-         class="md:hidden fixed inset-0 top-[56px] bg-black/60 backdrop-blur-sm z-40"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         class="md:hidden fixed inset-0 bg-[#0a0f1c] z-40 overflow-y-auto"
          style="display: none;">
-        <div class="bg-[#0a0f1c] border-b border-white/10">
-        <div class="pt-2 pb-6">
-            <div class="flex items-center justify-between px-4 py-2 border-b border-white/5">
-                <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">Navegación</span>
+        <div class="min-h-screen flex flex-col pt-4 pb-6">
+            <div class="flex items-center justify-between px-4 py-3 border-b border-white/10">
+                <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">Menú</span>
+                <button @click="mobileMenuOpen = false"
+                        class="text-gray-400 hover:text-white p-2 -mr-2 rounded-lg hover:bg-white/10 transition-colors"
+                        aria-label="Cerrar menú">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
             </div>
             <a href="/relojes"
                class="{{ str_starts_with($currentPath, 'relojes') ? 'text-[#00C4FF] bg-white/5' : 'text-gray-300' }} hover:text-white block px-4 py-4 text-lg font-black uppercase tracking-tight border-b border-white/5">
@@ -209,8 +234,9 @@
                     <form id="logout-form" action="{{ route('logout') }}" method="POST" class="hidden">@csrf</form>
                 </div>
             @else
-                <div class="py-6 border-b border-white/5 px-4">
-                    <a href="{{ route('login') }}" class="flex items-center justify-center bg-[#00C4FF] hover:bg-[#00a3d6] text-black py-4 rounded-xl font-black uppercase tracking-tighter transition-colors">Iniciar Sesión</a>
+                <div class="py-6 border-b border-white/5 px-4 space-y-3">
+                    <a href="{{ route('login') }}" class="flex items-center justify-center bg-[#00C4FF] hover:bg-[#00a3d6] text-white py-4 rounded-xl font-black uppercase tracking-tighter transition-colors">Iniciar Sesión</a>
+                    <a href="{{ route('register') }}" class="flex items-center justify-center bg-white/5 hover:bg-white/10 text-white py-4 rounded-xl font-bold transition-colors">Registrarme</a>
                 </div>
             @endauth
 
@@ -236,7 +262,6 @@
                 </button>
             </div>
         </div>
-        </div>
     </div>
 </nav>
 
@@ -254,6 +279,15 @@
                 } else {
                     document.documentElement.classList.remove('dark');
                 }
+                this.$watch('mobileMenuOpen', (val) => {
+                    document.body.style.overflow = val ? 'hidden' : '';
+                    document.documentElement.style.overflow = val ? 'hidden' : '';
+                });
+                this.$watch('mobileSearchOpen', (val) => {
+                    if (this.mobileMenuOpen) return;
+                    document.body.style.overflow = val ? 'hidden' : '';
+                    document.documentElement.style.overflow = val ? 'hidden' : '';
+                });
             },
             toggleTheme() {
                 this.theme = this.theme === 'light' ? 'dark' : 'light';
