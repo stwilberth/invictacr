@@ -17,6 +17,7 @@ class SyncAllAnalytics extends Command
         $this->call(SyncGoogleAds::class, ['--days' => $days]);
         $this->call(SyncSearchConsole::class, ['--days' => $days]);
         $this->call(SyncFacebook::class, ['--days' => $days, '--posts' => 20]);
+        $this->call(SyncFacebookAds::class, ['--days' => $days]);
         $this->call(SyncGitHub::class);
 
         $this->info('All analytics synced successfully.');

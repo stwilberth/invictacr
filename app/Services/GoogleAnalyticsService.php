@@ -76,6 +76,10 @@ class GoogleAnalyticsService
             $data = $response->json('rows.0.metricValues', []);
             if (empty($data)) return null;
 
+            $topPages = $this->fetchTopPages($date);
+            $trafficSources = $this->fetchTrafficSources($date);
+            $deviceBreakdown = $this->fetchDeviceBreakdown($date);
+
             return GoogleAnalyticsReport::updateOrCreate(
                 ['report_date' => $dateStr],
                 [
@@ -85,6 +89,9 @@ class GoogleAnalyticsService
                     'bounce_rate' => (float) ($data[3]['value'] ?? 0),
                     'avg_session_duration' => (float) ($data[4]['value'] ?? 0),
                     'new_users' => (int) ($data[5]['value'] ?? 0),
+                    'top_pages' => $topPages,
+                    'traffic_sources' => $trafficSources,
+                    'device_breakdown' => $deviceBreakdown,
                     'raw_data' => $response->json(),
                 ]
             );
@@ -93,6 +100,85 @@ class GoogleAnalyticsService
         }
 
         return null;
+    }
+
+    public function fetchTrafficSources(\DateTime $date): array
+    {
+        $token = $this->getToken();
+        if (!$token) return [];
+
+        $dateStr = $date->format('Y-m-d');
+
+        try {
+            $response = Http::withToken($token)
+                ->post("https://analyticsdata.googleapis.com/v1beta/properties/{$this->propertyId}:runReport", [
+                    'dateRanges' => [['startDate' => $dateStr, 'endDate' => $dateStr]],
+                    'metrics' => [['name' => 'activeUsers'], ['name' => 'sessions']],
+                    'dimensions' => [['name' => 'sessionSource'], ['name' => 'sessionMedium']],
+                    'orderBys' => [['metric' => ['metricName' => 'activeUsers'], 'desc' => true]],
+                    'limit' => 10,
+                ]);
+
+            if (!$response->successful()) return [];
+
+            $rows = $response->json('rows', []);
+            $sources = [];
+
+            foreach ($rows as $row) {
+                $source = $row['dimensionValues'][0]['value'] ?? '';
+                $medium = $row['dimensionValues'][1]['value'] ?? '';
+                $key = "{$source} / {$medium}";
+                $sources[] = [
+                    'source' => $source,
+                    'medium' => $medium,
+                    'users' => (int) ($row['metricValues'][0]['value'] ?? 0),
+                    'sessions' => (int) ($row['metricValues'][1]['value'] ?? 0),
+                ];
+            }
+
+            return $sources;
+        } catch (\Exception $e) {
+            report($e);
+        }
+
+        return [];
+    }
+
+    public function fetchDeviceBreakdown(\DateTime $date): array
+    {
+        $token = $this->getToken();
+        if (!$token) return [];
+
+        $dateStr = $date->format('Y-m-d');
+
+        try {
+            $response = Http::withToken($token)
+                ->post("https://analyticsdata.googleapis.com/v1beta/properties/{$this->propertyId}:runReport", [
+                    'dateRanges' => [['startDate' => $dateStr, 'endDate' => $dateStr]],
+                    'metrics' => [['name' => 'activeUsers'], ['name' => 'sessions']],
+                    'dimensions' => [['name' => 'deviceCategory']],
+                    'orderBys' => [['metric' => ['metricName' => 'activeUsers'], 'desc' => true]],
+                ]);
+
+            if (!$response->successful()) return [];
+
+            $rows = $response->json('rows', []);
+            $devices = [];
+
+            foreach ($rows as $row) {
+                $devices[] = [
+                    'category' => $row['dimensionValues'][0]['value'] ?? '',
+                    'users' => (int) ($row['metricValues'][0]['value'] ?? 0),
+                    'sessions' => (int) ($row['metricValues'][1]['value'] ?? 0),
+                ];
+            }
+
+            return $devices;
+        } catch (\Exception $e) {
+            report($e);
+        }
+
+        return [];
     }
 
     public function fetchTopPages(\DateTime $date): array
@@ -108,7 +194,7 @@ class GoogleAnalyticsService
                     'dateRanges' => [['startDate' => $dateStr, 'endDate' => $dateStr]],
                     'metrics' => [['name' => 'screenPageViews']],
                     'dimensions' => [['name' => 'pagePath']],
-                    'orderBy' => [['metric' => ['metricName' => 'screenPageViews'], 'desc' => true]],
+                    'orderBys' => [['metric' => ['metricName' => 'screenPageViews'], 'desc' => true]],
                     'limit' => 10,
                 ]);
 

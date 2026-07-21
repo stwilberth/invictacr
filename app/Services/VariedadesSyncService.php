@@ -208,7 +208,7 @@ class VariedadesSyncService
 
                 $product = Product::where("modelo", $modelKey)->first();
                 if ($product && !$product->bloqueado && (int) $product->precio_venta > 0 && (int) $product->stock !== 0) {
-                    $product->update(["stock" => 0]);
+                    $product->update(["stock" => 0, "disponibilidad" => "agotado"]);
                     $markedAgotadoCount++;
                     $markedAgotadoModels[] = $modelKey;
                     $items[] = ['sync_log_id' => $log->id, 'type' => 'marked_agotado', 'modelo' => $modelKey, 'product_id' => $product->id];

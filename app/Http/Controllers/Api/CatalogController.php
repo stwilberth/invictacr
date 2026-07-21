@@ -52,7 +52,7 @@ class CatalogController extends Controller
                 $imageUrl = $this->getImageUrl($product, $baseUrl);
                 $gender = mb_strtolower($product->genero ?? 'unisex');
                 $productUrl = "{$baseUrl}/relojes/{$slug}";
-                $availability = $stock > 0 ? 'in stock' : 'out of stock';
+                $availability = $stock > 0 && ($product->disponibilidad ?? 'disponible') !== 'agotado' ? 'in stock' : 'out of stock';
                 $price = number_format($precioVenta, 2, '.', '') . ' CRC';
 
                 $xmlItems .= '

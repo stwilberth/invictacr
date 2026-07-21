@@ -34,8 +34,9 @@ class GoogleSearchConsoleService
         $dateStr = $date->format('Y-m-d');
 
         try {
+            $encodedSite = urlencode($this->siteUrl);
             $response = Http::withToken($token)
-                ->post("https://searchconsole.googleapis.com/v1/sites/{$this->siteUrl}/searchAnalytics/query", [
+                ->post("https://www.googleapis.com/webmasters/v3/sites/{$encodedSite}/searchAnalytics/query", [
                     'startDate' => $dateStr,
                     'endDate' => $dateStr,
                     'dimensions' => ['query', 'page', 'country', 'device'],

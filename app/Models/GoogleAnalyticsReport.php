@@ -24,6 +24,9 @@ class GoogleAnalyticsReport extends Model
         'report_date' => 'date',
         'bounce_rate' => 'decimal:2',
         'avg_session_duration' => 'decimal:2',
+        'top_pages' => 'array',
+        'traffic_sources' => 'array',
+        'device_breakdown' => 'array',
         'raw_data' => 'json',
     ];
 }

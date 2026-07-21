@@ -15,6 +15,7 @@ class MetaApiController extends Controller
         $products = Product::where('activo', true)
             ->where('precio_venta', '>', 0)
             ->where('stock', '>', 0)
+            ->where('disponibilidad', '!=', 'agotado')
             ->get();
 
         $xml = '<?xml version="1.0"?>';

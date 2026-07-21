@@ -52,6 +52,11 @@ return [
         'page_name' => env('META_PAGE_NAME'),
     ],
 
+    'facebook_ads' => [
+        'access_token' => env('META_ACCESS_TOKEN'),
+        'ad_account_id' => env('FB_AD_ACCOUNT_ID'),
+    ],
+
     'github' => [
         'token' => env('GITHUB_TOKEN'),
         'owner' => env('GITHUB_OWNER'),

@@ -25,6 +25,7 @@ class Product extends Model
         "precio_original",
         "descuento",
         "stock",
+        "disponibilidad",
         "imagen",
         "activo",
         "caracteristicas",

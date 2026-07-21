@@ -424,4 +424,18 @@ class ProductController extends Controller
         );
     }
 
+    public function markAgotado(string $slug)
+    {
+        $product = Product::where("slug", $slug)->firstOrFail();
+
+        $product->update([
+            "stock" => 0,
+            "disponibilidad" => "agotado",
+        ]);
+
+        cache()->forget("product:related_ids:{$product->id}");
+
+        return redirect()->route("products.show", $product->slug)->with("status", "Producto marcado como agotado.");
+    }
+
 }

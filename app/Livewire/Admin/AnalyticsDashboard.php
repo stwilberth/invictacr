@@ -8,9 +8,11 @@ use App\Models\GoogleAdsReport;
 use App\Models\SearchConsoleReport;
 use App\Models\FacebookInsight;
 use App\Models\FacebookPost;
+use App\Models\FacebookAdReport;
 use App\Models\GitHubCommit;
 use App\Models\Invoice;
-use App\Models\Product;
+use App\Models\InvoiceItem;
+use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 use Symfony\Component\Process\Process;
 
@@ -18,13 +20,22 @@ class AnalyticsDashboard extends Component
 {
     public string $period = '30d';
     public array $analyticsSummary = [];
+    public array $topPages = [];
+    public array $trafficSources = [];
+    public array $deviceBreakdown = [];
+    public ?int $realtimeUsers = null;
     public array $revenueData = [];
     public array $adsPerformance = [];
     public array $searchConsoleSummary = [];
+    public array $searchConsoleByDevice = [];
+    public array $searchConsoleByCountry = [];
     public array $facebookSummary = [];
+    public array $fbAdsPerformance = [];
     public array $gitHubSummary = [];
+    public array $topProducts = [];
     public array $externalFactors = [];
     public array $correlationNotes = [];
+    public array $growth = [];
     public bool $syncing = false;
 
     public function mount(): void
@@ -65,8 +76,51 @@ class AnalyticsDashboard extends Component
                 'users' => $r->users,
                 'sessions' => $r->sessions,
                 'pageviews' => $r->pageviews,
-            ]),
+            ])->values()->toArray(),
         ];
+
+        // Top pages from GA
+        $this->topPages = $gaReports
+            ->filter(fn($r) => !empty($r->top_pages))
+            ->flatMap(fn($r) => $r->top_pages)
+            ->groupBy('path')
+            ->map(fn($group) => [
+                'path' => $group->first()['path'] ?? '',
+                'views' => $group->sum('views'),
+            ])
+            ->sortByDesc('views')
+            ->take(10)
+            ->values()
+            ->toArray();
+
+        // Traffic sources from GA
+        $this->trafficSources = $gaReports
+            ->filter(fn($r) => !empty($r->traffic_sources))
+            ->flatMap(fn($r) => $r->traffic_sources)
+            ->groupBy(fn($item) => $item['source'] . ' / ' . $item['medium'])
+            ->map(fn($group) => [
+                'source' => $group->first()['source'] ?? '',
+                'medium' => $group->first()['medium'] ?? '',
+                'users' => $group->sum('users'),
+                'sessions' => $group->sum('sessions'),
+            ])
+            ->sortByDesc('users')
+            ->take(8)
+            ->values()
+            ->toArray();
+
+        // Device breakdown from GA
+        $this->deviceBreakdown = $gaReports
+            ->filter(fn($r) => !empty($r->device_breakdown))
+            ->flatMap(fn($r) => $r->device_breakdown)
+            ->groupBy('category')
+            ->map(fn($group) => [
+                'category' => $group->first()['category'] ?? '',
+                'users' => $group->sum('users'),
+                'sessions' => $group->sum('sessions'),
+            ])
+            ->values()
+            ->toArray();
 
         // Revenue from invoices
         $invoices = Invoice::whereBetween('created_at', [$start, $end])
@@ -76,10 +130,29 @@ class AnalyticsDashboard extends Component
         $dailyRevenue = $invoices->groupBy(fn($i) => $i->created_at->format('Y-m-d'))
             ->map(fn($group) => $group->sum('total'));
 
+        $weeklyRevenue = $invoices->groupBy(fn($i) => $i->created_at->format('o-W'))
+            ->map(fn($group) => [
+                'week' => $group->first()->created_at->format('o-W'),
+                'label' => 'Sem ' . $group->first()->created_at->format('W'),
+                'total' => $group->sum('total'),
+            ])
+            ->sortBy('week')
+            ->values();
+
+        $totalRevenue = $invoices->sum('total');
+        $totalInvoices = $invoices->count();
+        $totalUtility = $invoices->sum(function ($invoice) {
+            $shippingCost = $invoice->shipping_cost ?? 0;
+            return ($invoice->subtotal * 0.30) - $invoice->discount + $invoice->shipping - $shippingCost;
+        });
+
         $this->revenueData = [
-            'total_revenue' => $invoices->sum('total'),
-            'total_invoices' => $invoices->count(),
-            'daily' => $dailyRevenue,
+            'total_revenue' => $totalRevenue,
+            'total_invoices' => $totalInvoices,
+            'total_utility' => $totalUtility,
+            'avg_order_value' => $totalInvoices > 0 ? $totalRevenue / $totalInvoices : 0,
+            'daily' => $dailyRevenue->toArray(),
+            'weekly' => $weeklyRevenue->toArray(),
         ];
 
         // Google Ads
@@ -97,7 +170,7 @@ class AnalyticsDashboard extends Component
                 'clicks' => $group->sum('clicks'),
                 'cost' => $group->sum('cost'),
                 'conversions' => $group->sum('conversions'),
-            ]),
+            ])->toArray(),
         ];
 
         // Search Console
@@ -113,8 +186,29 @@ class AnalyticsDashboard extends Component
             'total_impressions' => $scReports->sum('impressions'),
             'avg_ctr' => $scReports->avg('ctr'),
             'avg_position' => $scReports->avg('position'),
-            'top_queries' => $topQueries,
+            'top_queries' => $topQueries->toArray(),
         ];
+
+        // Search Console by device
+        $this->searchConsoleByDevice = $scReports
+            ->groupBy('device')
+            ->map(fn($group) => [
+                'clicks' => $group->sum('clicks'),
+                'impressions' => $group->sum('impressions'),
+                'avg_position' => $group->avg('position'),
+            ])
+            ->toArray();
+
+        // Search Console by country
+        $this->searchConsoleByCountry = $scReports
+            ->groupBy('country')
+            ->map(fn($group) => [
+                'clicks' => $group->sum('clicks'),
+                'impressions' => $group->sum('impressions'),
+            ])
+            ->sortByDesc('clicks')
+            ->take(10)
+            ->toArray();
 
         // Facebook
         $fbInsights = FacebookInsight::whereBetween('report_date', [$start, $end])->get();
@@ -124,11 +218,30 @@ class AnalyticsDashboard extends Component
             'total_impressions' => $fbInsights->sum('page_impressions'),
             'total_engagement' => $fbInsights->sum('page_engaged_users'),
             'total_follows' => $fbInsights->sum('page_follows'),
-            'total_reactions' => $fbInsights->sum('page_reactions'),
-            'total_comments' => $fbInsights->sum('page_comments'),
-            'total_shares' => $fbInsights->sum('page_shares'),
+            'total_reactions' => $fbPosts->sum('likes'),
+            'total_comments' => $fbPosts->sum('comments'),
+            'total_shares' => $fbPosts->sum('shares'),
+            'total_views' => $fbInsights->sum('page_views'),
             'posts_count' => $fbPosts->count(),
-            'recent_posts' => $fbPosts->sortByDesc('posted_at')->take(10)->values(),
+            'recent_posts' => $fbPosts->sortByDesc('posted_at')->take(10)->values()->toArray(),
+        ];
+
+        // Facebook Ads
+        $fbAds = FacebookAdReport::whereBetween('report_date', [$start, $end])->get();
+        $this->fbAdsPerformance = [
+            'total_impressions' => $fbAds->sum('impressions'),
+            'total_clicks' => $fbAds->sum('clicks'),
+            'total_spend' => $fbAds->sum('spend'),
+            'total_reach' => $fbAds->sum('reach'),
+            'avg_cpm' => $fbAds->avg('cpm'),
+            'avg_cpc' => $fbAds->avg('cpc'),
+            'avg_ctr' => $fbAds->avg('ctr'),
+            'by_campaign' => $fbAds->groupBy('campaign_name')->map(fn($group) => [
+                'impressions' => $group->sum('impressions'),
+                'clicks' => $group->sum('clicks'),
+                'spend' => $group->sum('spend'),
+                'reach' => $group->sum('reach'),
+            ])->toArray(),
         ];
 
         // GitHub
@@ -142,8 +255,20 @@ class AnalyticsDashboard extends Component
                 str_contains(strtolower($c->message), 'deploy') ||
                 str_contains(strtolower($c->message), 'release')
             )->count(),
-            'recent_commits' => $commits->sortByDesc('committed_at')->take(10)->values(),
+            'recent_commits' => $commits->sortByDesc('committed_at')->take(10)->values()->toArray(),
         ];
+
+        // Top products
+        $this->topProducts = InvoiceItem::whereHas('invoice', fn($q) => $q
+            ->whereBetween('created_at', [$start, $end])
+            ->where('status', '!=', 'cancelled')
+        )
+            ->select('product_name', DB::raw('SUM(quantity) as total_qty'), DB::raw('SUM(subtotal) as total_revenue'))
+            ->groupBy('product_name')
+            ->orderByDesc('total_qty')
+            ->take(10)
+            ->get()
+            ->toArray();
 
         // External factors
         $this->externalFactors = ExternalFactor::where('active', true)
@@ -152,8 +277,59 @@ class AnalyticsDashboard extends Component
             ->get()
             ->toArray();
 
+        // Previous period comparison
+        $this->growth = $this->calculateGrowth($start, $end);
+
+        // Realtime users
+        try {
+            $gaService = app(\App\Services\GoogleAnalyticsService::class);
+            $this->realtimeUsers = $gaService->fetchRealtimeUsers();
+        } catch (\Exception $e) {
+            $this->realtimeUsers = null;
+        }
+
         // Generate correlation notes
         $this->correlationNotes = $this->generateCorrelationNotes();
+    }
+
+    protected function calculateGrowth($start, $end): array
+    {
+        $periodDays = match ($this->period) {
+            '7d' => 7,
+            '90d' => 90,
+            '365d' => 365,
+            default => 30,
+        };
+
+        $prevStart = (clone $start)->subDays($periodDays);
+        $prevEnd = (clone $start)->subDay();
+
+        $currentInvoices = Invoice::whereBetween('created_at', [$start, $end])
+            ->where('status', '!=', 'cancelled');
+        $prevInvoices = Invoice::whereBetween('created_at', [$prevStart, $prevEnd])
+            ->where('status', '!=', 'cancelled');
+
+        $currentRevenue = (clone $currentInvoices)->sum('total');
+        $prevRevenue = (clone $prevInvoices)->sum('total');
+        $currentCount = (clone $currentInvoices)->count();
+        $prevCount = (clone $prevInvoices)->count();
+
+        $currentGa = GoogleAnalyticsReport::whereBetween('report_date', [$start, $end])->sum('users');
+        $prevGa = GoogleAnalyticsReport::whereBetween('report_date', [$prevStart, $prevEnd])->sum('users');
+
+        $currentAds = GoogleAdsReport::whereBetween('report_date', [$start, $end])->sum('clicks');
+        $prevAds = GoogleAdsReport::whereBetween('report_date', [$prevStart, $prevEnd])->sum('clicks');
+
+        $currentSc = SearchConsoleReport::whereBetween('report_date', [$start, $end])->sum('clicks');
+        $prevSc = SearchConsoleReport::whereBetween('report_date', [$prevStart, $prevEnd])->sum('clicks');
+
+        return [
+            'revenue' => $prevRevenue > 0 ? round((($currentRevenue - $prevRevenue) / $prevRevenue) * 100, 1) : 0,
+            'invoices' => $prevCount > 0 ? round((($currentCount - $prevCount) / $prevCount) * 100, 1) : 0,
+            'ga_users' => $prevGa > 0 ? round((($currentGa - $prevGa) / $prevGa) * 100, 1) : 0,
+            'ads_clicks' => $prevAds > 0 ? round((($currentAds - $prevAds) / $prevAds) * 100, 1) : 0,
+            'sc_clicks' => $prevSc > 0 ? round((($currentSc - $prevSc) / $prevSc) * 100, 1) : 0,
+        ];
     }
 
     protected function generateCorrelationNotes(): array
@@ -161,21 +337,23 @@ class AnalyticsDashboard extends Component
         $notes = [];
 
         // Check for revenue drops near deploys
-        $recentCommits = $this->gitHubSummary['recent_commits'] ?? collect();
-        $revenue = $this->revenueData['daily'] ?? collect();
+        $recentCommits = $this->gitHubSummary['recent_commits'] ?? [];
+        $revenue = $this->revenueData['daily'] ?? [];
 
-        if ($recentCommits->isNotEmpty() && $revenue->isNotEmpty()) {
+        if (count($recentCommits) > 0 && count($revenue) > 0) {
+            $avgRevenue = count($revenue) > 0 ? array_sum($revenue) / count($revenue) : 0;
             foreach ($recentCommits as $commit) {
-                $commitDate = $commit['committed_at']->format('Y-m-d');
-                $revenueAfter = collect();
+                $commitDate = \Carbon\Carbon::parse($commit['committed_at'])->format('Y-m-d');
+                $revenueAfter = [];
                 for ($i = 1; $i <= 3; $i++) {
-                    $date = $commit['committed_at']->copy()->addDays($i)->format('Y-m-d');
+                    $date = \Carbon\Carbon::parse($commit['committed_at'])->addDays($i)->format('Y-m-d');
                     if (isset($revenue[$date])) {
                         $revenueAfter[$date] = $revenue[$date];
                     }
                 }
 
-                if ($revenueAfter->isNotEmpty() && $revenueAfter->avg() < ($revenue->average() * 0.7)) {
+                $avgAfter = count($revenueAfter) > 0 ? array_sum($revenueAfter) / count($revenueAfter) : 0;
+                if (count($revenueAfter) > 0 && $avgAfter < ($avgRevenue * 0.7)) {
                     $notes[] = [
                         'type' => 'warning',
                         'title' => 'Posible impacto por deploy',
@@ -213,25 +391,30 @@ class AnalyticsDashboard extends Component
     {
         $this->syncing = true;
 
-        $base = base_path();
-        $php = PHP_BINARY;
+        $days = match ($this->period) {
+            '7d' => 7,
+            '90d' => 90,
+            '365d' => 365,
+            default => 30,
+        };
 
-        $commands = [
-            "{$php} {$base}/artisan sync:google-analytics --days=1",
-            "{$php} {$base}/artisan sync:google-ads --days=7",
-            "{$php} {$base}/artisan sync:search-console --days=1",
-            "{$php} {$base}/artisan sync:facebook --days=3",
-            "{$php} {$base}/artisan sync:github --branch=master --limit=10",
-        ];
+        $this->dispatch('sync-started');
 
-        foreach ($commands as $cmd) {
-            $process = Process::fromShellCommandline($cmd);
-            $process->setTimeout(null);
-            $process->start();
+        try {
+            \Illuminate\Support\Facades\Artisan::call('sync:google-analytics', ['--days' => $days]);
+            \Illuminate\Support\Facades\Artisan::call('sync:google-ads', ['--days' => $days]);
+            \Illuminate\Support\Facades\Artisan::call('sync:search-console', ['--days' => $days]);
+            \Illuminate\Support\Facades\Artisan::call('sync:facebook', ['--days' => $days, '--posts' => 20]);
+            \Illuminate\Support\Facades\Artisan::call('sync:facebook-ads', ['--days' => $days]);
+            \Illuminate\Support\Facades\Artisan::call('sync:github');
+
+            $this->loadData();
+            session()->flash('message', "Datos sincronizados para los últimos {$days} días.");
+        } catch (\Exception $e) {
+            session()->flash('error', 'Error al sincronizar: ' . $e->getMessage());
         }
 
         $this->syncing = false;
-        session()->flash('message', 'Sincronización iniciada en segundo plano. Recarga la página en unos momentos para ver los datos actualizados.');
     }
 
     public function render()
