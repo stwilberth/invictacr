@@ -1,5 +1,5 @@
 <x-app-layout title="Cómo Comprar - Invicta Costa Rica">
-    <section class="bg-white dark:bg-[#0a0f1c] py-16 md:py-24">
+    <section class="bg-white dark:bg-[#0a0f1c] pt-8 pb-16 md:pt-12 md:pb-24">
         <div class="max-w-7xl mx-auto px-4">
             <x-page-title title="Guía de Compra Rápida" highlight="Rápida" subtitle="Tu próximo Invicta original está a solo tres pasos de distancia. Diseñamos un proceso simple, seguro y transparente." />
 

@@ -35,7 +35,7 @@
             <div class="hidden md:flex items-center space-x-1 lg:space-x-4">
                 <a href="/relojes"
                    class="{{ str_starts_with($currentPath, 'relojes') ? 'text-[#00C4FF] bg-white/5' : 'text-white/90' }} hover:text-[#00C4FF] px-3 py-2 rounded-md text-sm lg:text-base font-black uppercase tracking-tighter transition-all duration-200">
-                    Ver Relojes
+                    Relojes
                 </a>
 
                 <a href="/resenas"
@@ -49,11 +49,6 @@
                     Garantía
                 </a>
 
-                <a href="/mis-pedidos"
-                   class="{{ $currentPath === 'mis-pedidos' ? 'text-[#00C4FF] bg-white/5' : 'text-white/90' }} hover:text-[#00C4FF] px-3 py-2 rounded-md text-sm lg:text-base font-black uppercase tracking-tighter transition-all duration-200">
-                    Mis Pedidos
-                </a>
-
                 <div class="hidden lg:block w-64 mr-2">
                     <x-search-bar />
                 </div>
@@ -63,7 +58,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z" />
                     </svg>
                     @if($cartCount > 0)
-                    <span class="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center">{{ $cartCount > 9 ? '9+' : $cartCount }}</span>
+                     <span class="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center">{{ $cartCount > 9 ? '9+' : $cartCount }}</span>
                     @endif
                 </a>
 
@@ -99,6 +94,7 @@
                          x-transition:leave-end="opacity-0 scale-95"
                          class="absolute right-0 mt-2 w-48 bg-[#0f172a] border border-white/10 rounded-xl shadow-2xl py-2 z-50 overflow-hidden"
                          style="display: none;">
+                        <a href="/mis-pedidos" class="block px-4 py-2 text-sm text-[#00C4FF] hover:bg-white/5 transition-colors font-bold">Mis Pedidos</a>
                         <a href="/como-comprar" class="block px-4 py-2 text-sm text-white/80 hover:text-white hover:bg-white/5 transition-colors">Cómo Comprar</a>
                         <a href="/sobre-nosotros" class="block px-4 py-2 text-sm text-white/80 hover:text-white hover:bg-white/5 transition-colors">Sobre Nosotros</a>
                         <a href="/resistencia-agua" class="block px-4 py-2 text-sm text-white/80 hover:text-white hover:bg-white/5 transition-colors">Resistencia al Agua</a>
@@ -166,7 +162,7 @@
             </div>
             <a href="/relojes"
                class="{{ str_starts_with($currentPath, 'relojes') ? 'text-[#00C4FF] bg-white/5' : 'text-gray-300' }} hover:text-white block px-4 py-4 text-lg font-black uppercase tracking-tight border-b border-white/5">
-                Ver Relojes
+                Relojes
             </a>
             <a href="/resenas"
                class="{{ $currentPath === 'resenas' ? 'text-[#00C4FF] bg-white/5' : 'text-gray-300' }} hover:text-white block px-4 py-4 text-lg font-black uppercase tracking-tight border-b border-white/5">
@@ -175,10 +171,6 @@
             <a href="/garantia"
                class="{{ $currentPath === 'garantia' ? 'text-[#00C4FF] bg-white/5' : 'text-gray-300' }} hover:text-white block px-4 py-4 text-lg font-black uppercase tracking-tight border-b border-white/5">
                 Garantía Real
-            </a>
-            <a href="/mis-pedidos"
-               class="{{ $currentPath === 'mis-pedidos' ? 'text-[#00C4FF] bg-white/5' : 'text-gray-300' }} hover:text-white block px-4 py-4 text-lg font-black uppercase tracking-tight border-b border-white/5">
-                Mis Pedidos
             </a>
 
             <div class="border-b border-white/5" x-data="{ mobileSupportOpen: false }">
@@ -195,6 +187,7 @@
                      x-transition:enter-end="max-h-60"
                      style="display: none;">
                     <div class="pl-6 space-y-3 py-3">
+                        <a href="/mis-pedidos" class="text-[#00C4FF] hover:text-white block py-1 text-base font-bold transition-colors">Mis Pedidos</a>
                         <a href="/como-comprar" class="text-gray-400 hover:text-white block py-1 text-base font-medium transition-colors">Cómo Comprar</a>
                         <a href="/sobre-nosotros" class="text-gray-400 hover:text-white block py-1 text-base font-medium transition-colors">Sobre Nosotros</a>
                         <a href="/resistencia-agua" class="text-gray-400 hover:text-white block py-1 text-base font-medium transition-colors">Resistencia al Agua</a>

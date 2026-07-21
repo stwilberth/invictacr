@@ -64,6 +64,13 @@
         $whatsappBuy = 'https://wa.me/50686711422?text=' . urlencode("¡Hola! Me interesa el reloj Invicta {$product->modelo}");
         $shareUrl = urlencode(url()->current());
         $shareTitle = urlencode("¡Mira este reloj Invicta!: {$product->title}");
+
+        $inCart = false;
+        if (session()->has('cart_session_id') || auth()->check()) {
+            try {
+                $inCart = app(\App\Services\CartService::class)->getCart()->items->contains('product_id', $product->id);
+            } catch (\Exception $e) {}
+        }
     @endphp
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 lg:py-4">
@@ -264,9 +271,15 @@
 
                         @if(!$isAgotado || $isUpcoming)
                         @if(!$isAgotado && !$isUpcoming && ($product->stock ?? 0) > 0)
-                        <button type="button" onclick="addToCart({{ $product->id }}, this)" class="w-full flex items-center justify-center gap-1 py-1.5 bg-[#00C4FF] hover:bg-[#00a3d6] text-white rounded-lg font-bold uppercase tracking-wide text-[11px] transition-all active:scale-95 shadow-sm">
-                            <i class="fa-solid fa-cart-plus text-xs"></i> Agregar al Carrito
-                        </button>
+                            @if($inCart)
+                            <a href="{{ route('cart.show') }}" class="w-full flex items-center justify-center gap-1 py-1.5 bg-gray-800 hover:bg-gray-700 text-white rounded-lg font-bold uppercase tracking-wide text-[11px] transition-all shadow-sm">
+                                <i class="fa-solid fa-cart-shopping text-xs"></i> Ver Carrito
+                            </a>
+                            @else
+                            <button type="button" onclick="addToCart({{ $product->id }}, this)" class="w-full flex items-center justify-center gap-1 py-1.5 bg-[#00C4FF] hover:bg-[#00a3d6] text-white rounded-lg font-bold uppercase tracking-wide text-[11px] transition-all active:scale-95 shadow-sm">
+                                <i class="fa-solid fa-cart-plus text-xs"></i> Agregar al Carrito
+                            </button>
+                            @endif
                         @endif
                         <a href="{{ $whatsappBuy }}" data-conversion="whatsapp-comprar" target="_blank" rel="noopener noreferrer" class="w-full flex items-center justify-center gap-1 py-1.5 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-lg font-bold uppercase tracking-wide text-[11px] transition-all active:scale-95 no-underline shadow-sm">
                             <i class="fa-brands fa-whatsapp text-xs"></i> Comprar
@@ -411,9 +424,15 @@
                         {{-- Desktop Action buttons --}}
                         <div class="flex flex-col gap-2.5 w-full">
                             @if(!$isAgotado && !$isUpcoming && ($product->stock ?? 0) > 0)
-                            <button type="button" onclick="addToCart({{ $product->id }}, this)" class="w-full flex items-center justify-center gap-1 py-2 bg-[#00C4FF] hover:bg-[#00a3d6] text-white rounded-xl font-extrabold uppercase tracking-tight text-xs transition-all hover:-translate-y-0.5 active:scale-95 shadow-sm hover:shadow-md">
-                                <i class="fa-solid fa-cart-plus text-base"></i> Agregar al Carrito
-                            </button>
+                                @if($inCart)
+                                <a href="{{ route('cart.show') }}" class="w-full flex items-center justify-center gap-1 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-xl font-extrabold uppercase tracking-tight text-xs transition-all hover:-translate-y-0.5 active:scale-95 shadow-sm hover:shadow-md">
+                                    <i class="fa-solid fa-cart-shopping text-base"></i> Ver Carrito
+                                </a>
+                                @else
+                                <button type="button" onclick="addToCart({{ $product->id }}, this)" class="w-full flex items-center justify-center gap-1 py-2 bg-[#00C4FF] hover:bg-[#00a3d6] text-white rounded-xl font-extrabold uppercase tracking-tight text-xs transition-all hover:-translate-y-0.5 active:scale-95 shadow-sm hover:shadow-md">
+                                    <i class="fa-solid fa-cart-plus text-base"></i> Agregar al Carrito
+                                </button>
+                                @endif
                             @endif
                             <div class="grid grid-cols-2 gap-2.5 w-full">
                                 <a href="{{ $whatsappBuy }}" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-1 py-2 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-xl font-extrabold uppercase tracking-tight text-xs transition-all hover:-translate-y-0.5 active:scale-95 no-underline shadow-sm hover:shadow-md">

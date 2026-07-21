@@ -154,7 +154,7 @@
                             <option value="pending">Pendiente</option>
                             <option value="facturado">Facturado</option>
                             <option value="apartado">Apartado</option>
-                            <option value="paid">Pagada</option>
+                            <option value="eliminado">Eliminado</option>
                             <option value="cancelled">Cancelada</option>
                         </select>
                     </div>

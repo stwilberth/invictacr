@@ -35,3 +35,6 @@ Route::get('/sitemap.xml', [UtilityApiController::class, 'sitemap']);
 Route::post('/cache/clear', [UtilityApiController::class, 'clearCache']);
 
 Route::get('/live-search', LiveSearchController::class)->middleware('throttle:search');
+
+// PayPal webhook (sin CSRF para que PayPal pueda enviar notificaciones)
+Route::post('/paypal/webhook', [\App\Http\Controllers\PayPalController::class, 'webhook'])->name('paypal.webhook');

@@ -114,6 +114,20 @@ class InvoiceDetail extends Component
         session()->flash('message', 'Factura actualizada.');
     }
 
+    public function updateStatus($newStatus)
+    {
+        $this->invoice->update(['status' => $newStatus]);
+        $this->status = $newStatus;
+        $this->loadInvoice();
+    }
+
+    public function updateShippingStatus($newStatus)
+    {
+        $this->invoice->update(['shipping_status' => $newStatus]);
+        $this->shipping_status = $newStatus;
+        $this->loadInvoice();
+    }
+
     public function addAbono()
     {
         $this->validate([

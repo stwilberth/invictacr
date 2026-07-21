@@ -1,5 +1,5 @@
 <x-app-layout title="Formas de Pago - Invicta Costa Rica">
-    <section class="bg-white dark:bg-[#0a0f1c] py-16 md:py-24">
+    <section class="bg-white dark:bg-[#0a0f1c] pt-8 pb-16 md:pt-12 md:pb-24">
         <div class="max-w-7xl mx-auto px-4">
             <x-page-title title="Formas de Pago" highlight="Pago" subtitle="Ofrecemos múltiples opciones seguras para que obtengas tu Invicta de la manera más conveniente." />
 

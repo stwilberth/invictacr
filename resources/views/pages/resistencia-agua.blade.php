@@ -1,5 +1,5 @@
 <x-app-layout title="Guía de Resistencia al Agua en Relojes Invicta">
-    <section class="bg-white dark:bg-[#0a0f1c] py-16 md:py-24">
+    <section class="bg-white dark:bg-[#0a0f1c] pt-8 pb-16 md:pt-12 md:pb-24">
         <div class="max-w-7xl mx-auto px-4">
             <x-page-title title="Guía de Resistencia al Agua" highlight="Resistencia" subtitle="Aprende qué significan los números en tu reloj Invicta y cómo proteger tu inversión correctamente." />
 

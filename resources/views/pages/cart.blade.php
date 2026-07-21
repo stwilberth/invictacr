@@ -1,5 +1,5 @@
 <x-app-layout title="Carrito de Compras - Invicta Costa Rica">
-    <section class="bg-white dark:bg-[#0a0f1c] py-16 md:py-24">
+    <section class="bg-white dark:bg-[#0a0f1c] pt-8 pb-16 md:pt-12 md:pb-24">
         <div class="max-w-7xl mx-auto px-4" x-data="cartPage()" x-init="init()">
             <x-page-title title="Mi Carrito" highlight="Carrito" subtitle="Revisa los productos que seleccionaste antes de finalizar tu compra." />
 

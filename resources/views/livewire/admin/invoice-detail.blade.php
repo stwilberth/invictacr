@@ -87,6 +87,7 @@
             </div>
 
             {{-- Abonos --}}
+            @if(strtolower($invoice->status) === 'apartado' || $invoice->abonos->count() > 0)
             <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-5">
                 <h3 class="text-sm font-bold uppercase tracking-wider text-gray-500 mb-4">Abonos</h3>
                 @if($invoice->abonos->count() > 0)
@@ -96,6 +97,7 @@
                             <th class="text-left py-2">Fecha</th>
                             <th class="text-right py-2">Monto</th>
                             <th class="text-left py-2">Nota</th>
+                            <th class="text-right py-2"></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -104,6 +106,9 @@
                             <td class="py-2 text-xs">{{ $abono->date?->format('d/m/Y H:i') ?? '-' }}</td>
                             <td class="py-2 text-right font-medium text-green-600">₡{{ number_format($abono->amount, 0) }}</td>
                             <td class="py-2 text-xs text-gray-500">{{ $abono->note ?? '-' }}</td>
+                            <td class="py-2 text-right">
+                                <button wire:click="deleteAbono({{ $abono->id }})" wire:confirm="¿Eliminar este abono?" class="text-red-500 hover:text-red-700 text-xs">Eliminar</button>
+                            </td>
                         </tr>
                         @endforeach
                     </tbody>
@@ -111,14 +116,14 @@
                         <tr class="font-bold">
                             <td class="pt-3 text-xs text-gray-500">Total abonado</td>
                             <td class="pt-3 text-right text-green-600">₡{{ number_format($invoice->abonos->sum('amount'), 0) }}</td>
-                            <td></td>
+                            <td colspan="2"></td>
                         </tr>
                         @php $saldo = $invoice->total - $invoice->abonos->sum('amount'); @endphp
                         @if($saldo > 0)
                         <tr class="font-bold">
                             <td class="text-xs text-red-500">Saldo pendiente</td>
                             <td class="text-right text-red-500">₡{{ number_format($saldo, 0) }}</td>
-                            <td></td>
+                            <td colspan="2"></td>
                         </tr>
                         @endif
                     </tfoot>
@@ -126,7 +131,28 @@
                 @else
                     <p class="text-sm text-gray-500">Sin abonos registrados.</p>
                 @endif
+                
+                <div class="border-t border-gray-200 dark:border-white/10 pt-4 mt-4">
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-gray-500 mb-3">Agregar abono</h4>
+                    <div class="flex gap-2 items-end flex-wrap">
+                        <div>
+                            <label class="text-xs text-gray-500 block mb-1">Monto</label>
+                            <input wire:model="newAbonoAmount" type="number" step="0.01" class="bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2 text-sm w-32" />
+                            @error('newAbonoAmount') <span class="text-red-500 text-xs block">{{ $message }}</span> @enderror
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-500 block mb-1">Fecha</label>
+                            <input wire:model="newAbonoDate" type="datetime-local" class="bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2 text-sm" />
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-500 block mb-1">Nota</label>
+                            <input wire:model="newAbonoNote" type="text" placeholder="ej: primer abono" class="bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2 text-sm w-48" />
+                        </div>
+                        <button wire:click="addAbono" class="px-4 py-2 text-sm bg-green-600 text-white rounded-xl hover:bg-green-700 font-bold">Agregar</button>
+                    </div>
+                </div>
             </div>
+            @endif
         </div>
 
         {{-- Columna derecha: montos y estados (solo lectura) --}}
@@ -174,12 +200,47 @@
                     <div class="flex justify-between items-center">
                         <span class="text-sm text-gray-500">Factura</span>
                         @php
-                            $statusLabels = ['facturado' => 'Facturado', 'paid' => 'Pagada', 'apartado' => 'Apartado', 'pending' => 'Pendiente', 'eliminado' => 'Eliminado', 'cancelled' => 'Cancelada'];
-                            $statusClasses = ['facturado' => 'bg-green-100 text-green-700', 'paid' => 'bg-green-100 text-green-700', 'apartado' => 'bg-purple-100 text-purple-700', 'pending' => 'bg-amber-100 text-amber-700', 'eliminado' => 'bg-red-100 text-red-700', 'cancelled' => 'bg-gray-100 text-gray-500'];
+                            $statusLabels = ['facturado' => 'Facturado', 'apartado' => 'Apartado', 'pending' => 'Pendiente', 'eliminado' => 'Eliminado', 'cancelled' => 'Cancelada'];
+                            $statusClasses = ['facturado' => 'bg-green-100 text-green-700', 'apartado' => 'bg-purple-100 text-purple-700', 'pending' => 'bg-amber-100 text-amber-700', 'eliminado' => 'bg-red-100 text-red-700', 'cancelled' => 'bg-gray-100 text-gray-500'];
                         @endphp
-                        <span class="px-2 py-1 rounded-lg text-xs font-bold {{ $statusClasses[$invoice->status] ?? 'bg-gray-100 text-gray-500' }}">
-                            {{ $statusLabels[$invoice->status] ?? ucfirst($invoice->status) }}
-                        </span>
+                        <div x-data="{
+                            current: '{{ strtolower($invoice->status) }}',
+                            async change(e) {
+                                let newVal = e.target.value;
+                                let selectEl = e.target;
+                                
+                                const res = await window.Swal.fire({
+                                    title: '¿Confirmar cambio?',
+                                    text: '¿Seguro que deseas cambiar el estado?',
+                                    icon: 'warning',
+                                    showCancelButton: true,
+                                    confirmButtonColor: '#2563eb',
+                                    cancelButtonColor: '#64748b',
+                                    confirmButtonText: 'Sí, cambiar',
+                                    cancelButtonText: 'Cancelar'
+                                });
+                                
+                                if (res.isConfirmed) {
+                                    await $wire.updateStatus(newVal);
+                                    this.current = newVal;
+                                    window.Swal.fire({
+                                        title: '¡Actualizado!',
+                                        text: 'El estado ha sido cambiado.',
+                                        icon: 'success',
+                                        timer: 1500,
+                                        showConfirmButton: false
+                                    });
+                                } else {
+                                    selectEl.value = this.current;
+                                }
+                            }
+                        }">
+                            <select @change="change" class="px-2 py-1 pr-6 rounded-lg text-xs font-bold border-0 cursor-pointer focus:ring-0 appearance-none {{ $statusClasses[strtolower($invoice->status)] ?? 'bg-gray-100 text-gray-500' }}">
+                                @foreach($statusLabels as $val => $label)
+                                    <option value="{{ $val }}" {{ strtolower($invoice->status) === $val ? 'selected' : '' }}>{{ $label }}</option>
+                                @endforeach
+                            </select>
+                        </div>
                     </div>
                     <div class="flex justify-between items-center">
                         <span class="text-sm text-gray-500">Envío</span>
@@ -187,9 +248,44 @@
                             $shippingLabels = ['entregado' => 'Entregado', 'creando' => 'Creando', 'pendiente' => 'Pendiente', 'cancelado' => 'Cancelado'];
                             $shippingClasses = ['entregado' => 'bg-green-100 text-green-700', 'creando' => 'bg-blue-100 text-blue-700', 'pendiente' => 'bg-amber-100 text-amber-700', 'cancelado' => 'bg-red-100 text-red-700'];
                         @endphp
-                        <span class="px-2 py-1 rounded-lg text-xs font-bold {{ $shippingClasses[$invoice->shipping_status] ?? 'bg-gray-100 text-gray-500' }}">
-                            {{ $shippingLabels[$invoice->shipping_status] ?? ucfirst($invoice->shipping_status) }}
-                        </span>
+                        <div x-data="{
+                            current: '{{ strtolower($invoice->shipping_status) }}',
+                            async change(e) {
+                                let newVal = e.target.value;
+                                let selectEl = e.target;
+                                
+                                const res = await window.Swal.fire({
+                                    title: '¿Confirmar cambio?',
+                                    text: '¿Seguro que deseas cambiar el estado de envío?',
+                                    icon: 'warning',
+                                    showCancelButton: true,
+                                    confirmButtonColor: '#2563eb',
+                                    cancelButtonColor: '#64748b',
+                                    confirmButtonText: 'Sí, cambiar',
+                                    cancelButtonText: 'Cancelar'
+                                });
+                                
+                                if (res.isConfirmed) {
+                                    await $wire.updateShippingStatus(newVal);
+                                    this.current = newVal;
+                                    window.Swal.fire({
+                                        title: '¡Actualizado!',
+                                        text: 'El estado de envío ha cambiado.',
+                                        icon: 'success',
+                                        timer: 1500,
+                                        showConfirmButton: false
+                                    });
+                                } else {
+                                    selectEl.value = this.current;
+                                }
+                            }
+                        }">
+                            <select @change="change" class="px-2 py-1 pr-6 rounded-lg text-xs font-bold border-0 cursor-pointer focus:ring-0 appearance-none {{ $shippingClasses[strtolower($invoice->shipping_status)] ?? 'bg-gray-100 text-gray-500' }}">
+                                @foreach($shippingLabels as $val => $label)
+                                    <option value="{{ $val }}" {{ strtolower($invoice->shipping_status) === $val ? 'selected' : '' }}>{{ $label }}</option>
+                                @endforeach
+                            </select>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -304,6 +400,7 @@
             </div>
 
             {{-- Abonos --}}
+            @if(strtolower($invoice->status) === 'apartado' || $invoice->abonos->count() > 0)
             <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-5 space-y-4">
                 <h3 class="text-sm font-bold uppercase tracking-wider text-gray-500">Abonos</h3>
 
@@ -369,6 +466,7 @@
                     </div>
                 </div>
             </div>
+            @endif
         </div>
 
         {{-- Columna derecha: montos y estados --}}
@@ -415,7 +513,6 @@
                             <option value="apartado">Apartado</option>
                             <option value="eliminado">Eliminado</option>
                             <option value="pending">Pendiente</option>
-                            <option value="paid">Pagada</option>
                             <option value="cancelled">Cancelada</option>
                         </select>
                     </div>

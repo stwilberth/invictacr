@@ -126,12 +126,9 @@ class CheckoutController extends Controller
                 ]
             );
 
-            $invoiceNumber = 'INV-' . now()->format('Ymd') . '-' . str_pad(
-                Invoice::whereDate('created_at', today())->count() + 1,
-                4, '0', STR_PAD_LEFT
-            );
+            $invoiceNumber = Invoice::generateUniqueNumber();
 
-            $status = $paymentMethod === 'paypal' ? 'completed' : 'pending';
+            $status = $paymentMethod === 'paypal' ? 'facturado' : 'pending';
 
             $invoice = Invoice::create([
                 'invoice_number' => $invoiceNumber,

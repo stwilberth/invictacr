@@ -36,7 +36,6 @@ Route::get('/pedido/confirmado/{invoice}', [CheckoutController::class, 'confirma
 Route::get('/paypal/create', [PayPalController::class, 'create'])->name('paypal.create');
 Route::get('/paypal/execute', [PayPalController::class, 'execute'])->name('paypal.execute');
 Route::get('/paypal/cancel', [PayPalController::class, 'cancel'])->name('paypal.cancel');
-Route::post('/paypal/webhook', [PayPalController::class, 'webhook'])->name('paypal.webhook');
 
 Route::get('/mis-pedidos', [OrderTrackingController::class, 'show'])->name('order-tracking.show');
 Route::post('/mis-pedidos', [OrderTrackingController::class, 'search'])->name('order-tracking.search');

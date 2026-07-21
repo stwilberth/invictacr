@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Client;
 use App\Models\Invoice;
+use App\Models\InvoiceItem;
 use App\Services\CartService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -22,7 +25,7 @@ class PayPalController extends Controller
         $response = Http::withBasicAuth(
             config('paypal.client_id'),
             config('paypal.client_secret')
-        )->post(config('paypal.base_url') . '/v1/oauth2/token', [
+        )->asForm()->post(config('paypal.base_url') . '/v1/oauth2/token', [
             'grant_type' => 'client_credentials',
         ]);
 
@@ -107,8 +110,8 @@ class PayPalController extends Controller
                         'brand_name' => config('paypal.brand_name'),
                         'landing_page' => 'BILLING',
                         'user_action' => 'PAY_NOW',
-                        'return_url' => config('paypal.return_url'),
-                        'cancel_url' => config('paypal.cancel_url'),
+                        'return_url' => route('paypal.execute'),
+                        'cancel_url' => route('paypal.cancel'),
                         'locale' => 'es-CR',
                     ],
                 ]);
@@ -150,6 +153,7 @@ class PayPalController extends Controller
             $accessToken = $this->getAccessToken();
 
             $response = Http::withToken($accessToken)
+                ->withBody('{}', 'application/json')
                 ->post(config('paypal.base_url') . "/v2/checkout/orders/{$paypalOrderId}/capture");
 
             if (!$response->successful()) {
@@ -162,14 +166,9 @@ class PayPalController extends Controller
 
             $cart = $this->cartService->getCart()->load('items.product');
 
-            $checkoutRequest = new \Illuminate\Http\Request($checkoutData);
-            $checkoutRequest->setLaravelSession(session()->all());
-
-            $checkoutController = new CheckoutController($this->cartService);
-            $invoice = $checkoutController->createInvoice(
-                $checkoutRequest,
+            $invoice = $this->createPayPalInvoice(
+                $checkoutData,
                 $cart,
-                'paypal',
                 $transactionId
             );
 
@@ -209,5 +208,77 @@ class PayPalController extends Controller
             Log::warning('Exchange rate API failed, using default');
         }
         return 520;
+    }
+
+    protected function createPayPalInvoice(array $data, $cart, ?string $transactionId): Invoice
+    {
+        return DB::transaction(function () use ($data, $cart, $transactionId) {
+            $subtotal = 0;
+            $discount = 0;
+
+            foreach ($cart->items as $item) {
+                $product = $item->product;
+                $lineSubtotal = $product->precio_venta * $item->quantity;
+                $lineDiscount = $product->descuento > 0
+                    ? $lineSubtotal * ($product->descuento / 100)
+                    : 0;
+                $subtotal += $lineSubtotal;
+                $discount += $lineDiscount;
+            }
+
+            $total = $subtotal - $discount;
+
+            $client = Client::firstOrCreate(
+                ['email' => $data['email']],
+                [
+                    'name' => $data['name'],
+                    'phone' => $data['phone'],
+                    'address' => "{$data['address']}, {$data['canton']}, {$data['province']}",
+                ]
+            );
+
+            $invoiceNumber = Invoice::generateUniqueNumber();
+
+            $invoice = Invoice::create([
+                'invoice_number' => $invoiceNumber,
+                'client_id' => $client->id,
+                'client_name' => $data['name'],
+                'client_email' => $data['email'],
+                'client_phone' => $data['phone'],
+                'customer_address' => "{$data['address']}, {$data['canton']}, {$data['province']}",
+                'subtotal' => $subtotal,
+                'discount' => $discount,
+                'total' => $total,
+                'status' => 'facturado',
+                'payment_method' => 'paypal',
+                'paypal_transaction_id' => $transactionId,
+                'source' => 'web',
+                'notes' => $data['notes'] ?? null,
+                'issued_at' => now(),
+            ]);
+
+            foreach ($cart->items as $item) {
+                $product = $item->product;
+                $lineSubtotal = $product->precio_venta * $item->quantity;
+
+                InvoiceItem::create([
+                    'invoice_id' => $invoice->id,
+                    'product_id' => $product->id,
+                    'product_name' => $product->title,
+                    'product_model' => $product->modelo,
+                    'quantity' => $item->quantity,
+                    'unit_price' => $product->precio_venta,
+                    'subtotal' => $lineSubtotal,
+                ]);
+
+                $newStock = $product->stock - $item->quantity;
+                $product->update([
+                    'stock' => $newStock,
+                    'disponibilidad' => $newStock <= 0 ? 'agotado' : 'disponible',
+                ]);
+            }
+
+            return $invoice;
+        });
     }
 }

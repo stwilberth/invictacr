@@ -16,7 +16,6 @@
                 <option value="apartado">Apartado</option>
                 <option value="eliminado">Eliminado</option>
                 <option value="pending">Pendiente</option>
-                <option value="paid">Pagada</option>
                 <option value="cancelled">Cancelada</option>
             </select>
             <select wire:model.live="filterShipping" class="bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2 text-xs">
@@ -72,7 +71,6 @@
                         @php
                             $statusClasses = [
                                 'facturado' => 'bg-green-100 text-green-700',
-                                'paid' => 'bg-green-100 text-green-700',
                                 'apartado' => 'bg-purple-100 text-purple-700',
                                 'pending' => 'bg-amber-100 text-amber-700',
                                 'eliminado' => 'bg-red-100 text-red-700',
@@ -80,15 +78,14 @@
                             ];
                             $statusLabels = [
                                 'facturado' => 'Facturado',
-                                'paid' => 'Pagada',
                                 'apartado' => 'Apartado',
                                 'pending' => 'Pendiente',
                                 'eliminado' => 'Eliminado',
                                 'cancelled' => 'Cancelada',
                             ];
                         @endphp
-                        <span class="px-2 py-1 rounded-lg text-xs font-bold {{ $statusClasses[$invoice->status] ?? 'bg-gray-100 text-gray-500' }}">
-                            {{ $statusLabels[$invoice->status] ?? ucfirst($invoice->status) }}
+                        <span class="px-2 py-1 rounded-lg text-xs font-bold {{ $statusClasses[strtolower($invoice->status)] ?? 'bg-gray-100 text-gray-500' }}">
+                            {{ $statusLabels[strtolower($invoice->status)] ?? ucfirst($invoice->status) }}
                         </span>
                     </td>
                     <td class="px-4 py-3 text-center">

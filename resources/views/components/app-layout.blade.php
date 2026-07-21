@@ -357,10 +357,14 @@
                     btn.classList.remove('bg-[#00C4FF]', 'hover:bg-[#00a3d6]');
                     btn.classList.add('bg-green-500');
                     setTimeout(() => {
-                        btn.innerHTML = '<i class="fa-solid fa-cart-plus text-[9px]"></i> Agregar';
-                        btn.classList.add('bg-[#00C4FF]', 'hover:bg-[#00a3d6]');
+                        btn.innerHTML = '<i class="fa-solid fa-cart-shopping text-[9px]"></i> Ver Carrito';
+                        btn.classList.add('bg-gray-800', 'hover:bg-gray-700');
                         btn.classList.remove('bg-green-500');
                         btn.disabled = false;
+                        btn.onclick = function(e) {
+                            e.preventDefault();
+                            window.location.href = '/carrito';
+                        };
                     }, 1500);
                 }
                 document.querySelectorAll('[data-cart-count]').forEach(el => {

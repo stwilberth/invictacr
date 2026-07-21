@@ -1,5 +1,5 @@
 <x-app-layout title="Sobre Nosotros - Relojes Invicta Costa Rica">
-    <section class="bg-white dark:bg-[#0a0f1c] py-16 md:py-24">
+    <section class="bg-white dark:bg-[#0a0f1c] pt-8 pb-16 md:pt-12 md:pb-24">
         <div class="max-w-7xl mx-auto px-4">
             <x-page-title title="Sobre Nosotros" highlight="Nosotros" subtitle="Conoce la historia detrás de Invicta Costa Rica, un emprendimiento familiar basado en la honestidad y la pasión por los relojes." />
 
