@@ -48,6 +48,15 @@
                            class="w-full bg-white dark:bg-[#0a0f1c] border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#00C4FF]/50 text-gray-900 dark:text-white" />
                 </div>
 
+                @if(config('services.turnstile.site_key'))
+                <div class="flex justify-center">
+                    <div class="cf-turnstile" data-sitekey="{{ config('services.turnstile.site_key') }}" data-theme="auto"></div>
+                </div>
+                @error('turnstile')
+                    <p class="text-red-500 text-xs text-center">{{ $message }}</p>
+                @enderror
+                @endif
+
                 <button type="submit" class="w-full bg-[#00C4FF] hover:bg-[#00b0e6] text-[#0a0f1c] font-black py-3 rounded-xl transition-all active:scale-95 uppercase tracking-wider text-sm">
                     Crear Cuenta
                 </button>
@@ -59,4 +68,10 @@
             </p>
         </div>
     </div>
+
+    @if(config('services.turnstile.site_key'))
+    @push('scripts')
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    @endpush
+    @endif
 </x-app-layout>
