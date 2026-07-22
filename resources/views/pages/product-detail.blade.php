@@ -10,9 +10,9 @@
         $imgModelo = preg_replace('/^invicta-/i', '', $product->modelo ?? '');
         $r2 = \Illuminate\Support\Facades\Storage::disk('r2');
         if ($r2->exists("relojes/large/{$imgModelo}.webp")) {
-            $ogImage = "{$cdnBase}/storage/relojes/large/{$imgModelo}.webp";
+            $ogImage = "{$cdnBase}/relojes/large/{$imgModelo}.webp";
         } elseif ($r2->exists("relojes/medium/{$imgModelo}.webp")) {
-            $ogImage = "{$cdnBase}/storage/relojes/medium/{$imgModelo}.webp";
+            $ogImage = "{$cdnBase}/relojes/medium/{$imgModelo}.webp";
         }
     }
 

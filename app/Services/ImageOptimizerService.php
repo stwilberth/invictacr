@@ -265,17 +265,17 @@ class ImageOptimizerService
             ];
         }
 
-        $disk = Storage::disk('public');
+        $r2 = Storage::disk('r2');
         $cdnBase = 'https://cdn.invictacostarica.com';
         $original = $product->imagen;
-        $large = $disk->exists("relojes/large/{$modelo}.webp")
-            ? "{$cdnBase}/storage/relojes/large/{$modelo}.webp"
+        $large = $r2->exists("relojes/large/{$modelo}.webp")
+            ? "{$cdnBase}/relojes/large/{$modelo}.webp"
             : $original;
-        $medium = $disk->exists("relojes/medium/{$modelo}.webp")
-            ? "{$cdnBase}/storage/relojes/medium/{$modelo}.webp"
+        $medium = $r2->exists("relojes/medium/{$modelo}.webp")
+            ? "{$cdnBase}/relojes/medium/{$modelo}.webp"
             : $original;
-        $thumb = $disk->exists("relojes/thumbs/{$modelo}.webp")
-            ? "{$cdnBase}/storage/relojes/thumbs/{$modelo}.webp"
+        $thumb = $r2->exists("relojes/thumbs/{$modelo}.webp")
+            ? "{$cdnBase}/relojes/thumbs/{$modelo}.webp"
             : $original;
 
         return [

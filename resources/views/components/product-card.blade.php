@@ -6,7 +6,7 @@
     $model = preg_replace('/^invicta-/i', '', $product->modelo ?? '');
     $cdnBase = 'https://cdn.invictacostarica.com';
 
-    $thumbUrl = $product->imagen ? "{$cdnBase}/storage/relojes/thumbs/{$model}.webp" : null;
+    $thumbUrl = $product->imagen ? "{$cdnBase}/relojes/thumbs/{$model}.webp" : null;
     $imageUrl = $thumbUrl ?? $product->imagen;
 @endphp
 

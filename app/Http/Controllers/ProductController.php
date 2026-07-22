@@ -388,7 +388,7 @@ class ProductController extends Controller
                 $basename = basename($checkImg);
                 $modelo = pathinfo($basename, PATHINFO_FILENAME);
                 if ($r2->exists("relojes/large/{$modelo}.webp")) {
-                    return "{$cdnBase}/storage/relojes/large/{$modelo}.webp";
+                    return "{$cdnBase}/relojes/large/{$modelo}.webp";
                 }
             }
             return $img;

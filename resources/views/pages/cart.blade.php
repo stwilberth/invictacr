@@ -36,7 +36,7 @@
                         @php
                             $model = preg_replace('/^invicta-/i', '', $item->product->modelo ?? '');
                             $cdnBase = 'https://cdn.invictacostarica.com';
-                            $thumbUrl = $item->product->imagen ? "{$cdnBase}/storage/relojes/thumbs/{$model}.webp" : null;
+                            $thumbUrl = $item->product->imagen ? "{$cdnBase}/relojes/thumbs/{$model}.webp" : null;
                         @endphp
                         <div class="flex gap-4 md:gap-5">
                             <div class="w-20 h-20 md:w-24 md:h-24 flex-shrink-0 bg-gray-50 dark:bg-white/5 rounded-xl overflow-hidden flex items-center justify-center border border-gray-200 dark:border-gray-600">

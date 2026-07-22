@@ -88,7 +88,7 @@
                                         @php
                                             $model = preg_replace('/^invicta-/i', '', $item->product?->modelo ?? $item->product_model ?? '');
                                             $cdnBase = 'https://cdn.invictacostarica.com';
-                                            $thumbUrl = ($item->product?->imagen) ? "{$cdnBase}/storage/relojes/thumbs/{$model}.webp" : null;
+                                            $thumbUrl = ($item->product?->imagen) ? "{$cdnBase}/relojes/thumbs/{$model}.webp" : null;
                                         @endphp
                                         <div class="w-10 h-10 sm:w-14 sm:h-14 flex-shrink-0 bg-gray-50 dark:bg-white/5 rounded-xl overflow-hidden flex items-center justify-center border border-gray-200 dark:border-gray-600">
                                             @if($thumbUrl)

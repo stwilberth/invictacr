@@ -53,7 +53,8 @@ class Product extends Model
         }
 
         if (str_starts_with($value, '/storage/')) {
-            return 'https://cdn.invictacostarica.com' . $value;
+            $path = str_replace('/storage/', '', $value);
+            return 'https://cdn.invictacostarica.com/' . $path;
         }
 
         return $value;
