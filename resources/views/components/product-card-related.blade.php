@@ -60,13 +60,8 @@
             </h3>
         </a>
 
-        <div class="{{ $compact ? 'my-0.5' : 'my-0.5 md:my-2' }} flex items-center justify-between gap-1">
-            @if($product->video)
-            <button type="button" onclick="openVimeoModal('{{ $product->video }}')" title="Ver video" class="inline-flex items-center gap-0.5 md:gap-1 {{ $compact ? 'px-1 py-0.5 text-[7px]' : 'px-1 py-0.5 md:px-2 md:py-1 text-[7px] md:text-[9px]' }} font-black uppercase tracking-wide text-white bg-red-600 hover:bg-red-700 rounded-md transition-colors shadow-sm">
-                <i class="fa-solid fa-play"></i> Ver Video
-            </button>
-            @endif
-            <div class="ml-auto text-right">
+        <div class="{{ $compact ? 'my-0.5' : 'my-0.5 md:my-2' }} flex items-center justify-end gap-1">
+            <div class="text-right">
             @if($product->proximo && ($product->stock ?? 0) > 0)
                 <div class="py-1">
                     <span class="text-[9px] md:text-xs font-bold px-1.5 md:px-2 py-0.5 bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 rounded-md">Próximamente</span>
@@ -79,7 +74,7 @@
             @elseif($product->precio_venta > 0)
                 <div class="flex flex-col items-end w-full">
                     <div class="flex items-baseline gap-1 md:gap-2">
-                        <span class="{{ $compact ? 'text-sm' : 'text-sm md:text-xl' }} text-red-600 dark:text-red-500 tracking-tighter">₡{{ number_format($priceAfterDiscount, 0) }}</span>
+                        <span class="{{ $compact ? 'text-xs' : 'text-xs md:text-sm' }} text-red-600 dark:text-red-500 tracking-tighter">₡{{ number_format($priceAfterDiscount, 0) }}</span>
                     </div>
                 </div>
             @else
