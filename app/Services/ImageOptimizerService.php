@@ -14,6 +14,54 @@ class ImageOptimizerService
     const int MEDIUM_QUALITY = 80;
     const int LARGE_QUALITY = 85;
 
+    private ?array $r2FileCache = null;
+
+    private function getR2Files(): array
+    {
+        if ($this->r2FileCache !== null) {
+            return $this->r2FileCache;
+        }
+
+        $r2 = Storage::disk('r2');
+        $files = [];
+        try {
+            foreach ($r2->getDriver()->listContents('relojes', true) as $item) {
+                if ($item->isFile()) {
+                    $files[$item->path()] = $item->fileSize();
+                }
+            }
+        } catch (\Throwable $e) {
+            // si falla el listado, fallback a exists/size individual
+        }
+
+        return $this->r2FileCache = $files;
+    }
+
+    private function r2Exists(string $path): bool
+    {
+        $files = $this->getR2Files();
+        if (!empty($files)) {
+            return isset($files[$path]);
+        }
+
+        // Fallback solo si el listado falló
+        return Storage::disk('r2')->exists($path);
+    }
+
+    private function r2Size(string $path): ?int
+    {
+        $files = $this->getR2Files();
+        if (isset($files[$path])) {
+            return $files[$path];
+        }
+
+        try {
+            return Storage::disk('r2')->size($path);
+        } catch (\Throwable $e) {
+            return null;
+        }
+    }
+
     public function needsOptimization(Product $product): bool
     {
         if (!$product->imagen) {
@@ -25,11 +73,9 @@ class ImageOptimizerService
             return false;
         }
 
-        $r2 = Storage::disk('r2');
-
-        return !$r2->exists("relojes/thumbs/{$modelo}.webp")
-            || !$r2->exists("relojes/medium/{$modelo}.webp")
-            || !$r2->exists("relojes/large/{$modelo}.webp");
+        return !$this->r2Exists("relojes/thumbs/{$modelo}.webp")
+            || !$this->r2Exists("relojes/medium/{$modelo}.webp")
+            || !$this->r2Exists("relojes/large/{$modelo}.webp");
     }
 
     public function getStats(): array
@@ -150,7 +196,11 @@ class ImageOptimizerService
                 $webpSize = $this->resizeToWebP($sourceImage, $tempPath, $tempTarget, $cfg['width'], $cfg['quality']);
                 
                 if ($webpSize) {
-                    $r2->put("relojes/{$cfg['dir']}/{$modelo}.webp", file_get_contents($tempTarget), 'public');
+                    $r2Path = "relojes/{$cfg['dir']}/{$modelo}.webp";
+                    $r2->put($r2Path, file_get_contents($tempTarget), 'public');
+                    // Actualizar caché para reflejar el nuevo archivo
+                    $this->getR2Files();
+                    $this->r2FileCache[$r2Path] = $webpSize;
                     $result[$key] = true;
                     $result["{$key}_size"] = $webpSize;
                     @unlink($tempTarget);
@@ -213,10 +263,10 @@ class ImageOptimizerService
         $originalInfo = null;
         if ($originalPath) {
             $r2Path = str_starts_with($originalPath, '/storage/') ? substr($originalPath, 9) : $originalPath;
-            if ($r2->exists($r2Path)) {
+            if ($this->r2Exists($r2Path)) {
                 $originalInfo = [
                     'exists' => true,
-                    'size' => $r2->size($r2Path),
+                    'size' => $this->r2Size($r2Path),
                     'width' => null,
                     'height' => null,
                 ];
@@ -227,10 +277,11 @@ class ImageOptimizerService
         $sizes = ['large' => null, 'medium' => null, 'thumb' => null];
         foreach ($sizes as $size => &$info) {
             $dir = $sizeDirs[$size];
-            if ($modelo && $r2->exists("relojes/{$dir}/{$modelo}.webp")) {
+            $path = "relojes/{$dir}/{$modelo}.webp";
+            if ($modelo && $this->r2Exists($path)) {
                 $info = [
                     'exists' => true,
-                    'size' => $r2->size("relojes/{$dir}/{$modelo}.webp"),
+                    'size' => $this->r2Size($path),
                     'width' => null,
                     'height' => null,
                 ];
@@ -265,16 +316,15 @@ class ImageOptimizerService
             ];
         }
 
-        $r2 = Storage::disk('r2');
         $cdnBase = 'https://cdn.invictacostarica.com';
         $original = $product->imagen;
-        $large = $r2->exists("relojes/large/{$modelo}.webp")
+        $large = $this->r2Exists("relojes/large/{$modelo}.webp")
             ? "{$cdnBase}/relojes/large/{$modelo}.webp"
             : $original;
-        $medium = $r2->exists("relojes/medium/{$modelo}.webp")
+        $medium = $this->r2Exists("relojes/medium/{$modelo}.webp")
             ? "{$cdnBase}/relojes/medium/{$modelo}.webp"
             : $original;
-        $thumb = $r2->exists("relojes/thumbs/{$modelo}.webp")
+        $thumb = $this->r2Exists("relojes/thumbs/{$modelo}.webp")
             ? "{$cdnBase}/relojes/thumbs/{$modelo}.webp"
             : $original;
 
