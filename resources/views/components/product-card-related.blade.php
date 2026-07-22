@@ -4,30 +4,10 @@
     $whatsappLink = 'https://wa.me/50686711422?text=' . urlencode("Hola, me interesa el reloj Invicta {$product->modelo}: " . url($productUrl));
     $priceAfterDiscount = $product->precio_venta * (1 - ($product->descuento ?? 0) / 100);
     $model = preg_replace('/^invicta-/i', '', $product->modelo ?? '');
-    $imagePath = "images/relojes/{$model}.jpg";
+    $cdnBase = 'https://cdn.invictacostarica.com';
 
-    $thumbUrl = null;
-    if ($product->imagen && str_starts_with($product->imagen, '/storage/relojes/')) {
-        $basename = basename($product->imagen);
-        $thumbModelo = pathinfo($basename, PATHINFO_FILENAME);
-        $thumbCandidate = public_path("storage/relojes/thumbs/{$thumbModelo}.webp");
-        if (file_exists($thumbCandidate)) {
-            $thumbUrl = "/storage/relojes/thumbs/{$thumbModelo}.webp";
-        }
-    } elseif (file_exists(public_path("storage/relojes/thumbs/{$model}.webp"))) {
-        $thumbUrl = "/storage/relojes/thumbs/{$model}.webp";
-    }
-
-    $imageUrl = null;
-    if ($thumbUrl) {
-        $imageUrl = $thumbUrl;
-    } elseif ($product->imagen && !str_starts_with($product->imagen, 'http')) {
-        $imageUrl = $product->imagen;
-    } elseif (file_exists(public_path("storage/relojes/{$model}.jpg"))) {
-        $imageUrl = asset("storage/relojes/{$model}.jpg");
-    } elseif (file_exists(public_path($imagePath))) {
-        $imageUrl = asset($imagePath);
-    }
+    $thumbUrl = $product->imagen ? "{$cdnBase}/storage/relojes/thumbs/{$model}.webp" : null;
+    $imageUrl = $thumbUrl ?? $product->imagen;
 @endphp
 
 <div class="group relative flex flex-col h-full bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-100 dark:border-white/5 hover:shadow-2xl hover:shadow-blue-500/10 transition-all duration-300 overflow-hidden">

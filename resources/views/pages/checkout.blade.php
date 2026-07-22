@@ -151,15 +151,8 @@
                                 <div class="flex gap-3 items-center">
                                     @php
                                         $model = preg_replace('/^invicta-/i', '', $item->product->modelo ?? '');
-                                        $thumbUrl = null;
-                                        if ($item->product->imagen && str_starts_with($item->product->imagen, '/storage/relojes/')) {
-                                            $thumbModelo = pathinfo(basename($item->product->imagen), PATHINFO_FILENAME);
-                                            if (file_exists(public_path("storage/relojes/thumbs/{$thumbModelo}.webp"))) {
-                                                $thumbUrl = "/storage/relojes/thumbs/{$thumbModelo}.webp";
-                                            }
-                                        } elseif (file_exists(public_path("storage/relojes/thumbs/{$model}.webp"))) {
-                                            $thumbUrl = "/storage/relojes/thumbs/{$model}.webp";
-                                        }
+                                        $cdnBase = 'https://cdn.invictacostarica.com';
+                                        $thumbUrl = $item->product->imagen ? "{$cdnBase}/storage/relojes/thumbs/{$model}.webp" : null;
                                     @endphp
                                     <div class="w-10 h-10 flex-shrink-0 bg-gray-50 dark:bg-white/5 rounded-lg overflow-hidden flex items-center justify-center border border-gray-200 dark:border-gray-600">
                                         @if($thumbUrl)

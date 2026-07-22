@@ -3,14 +3,16 @@
     $displayTitle = 'Reloj Invicta ' . ($product->coleccion && strtolower($product->coleccion) !== 'otros' ? $product->coleccion . ' ' : '') . ($product->genero && strtolower($product->genero) !== 'unisex' ? 'para ' . $product->genero . ' ' : '') . '(' . $product->modelo . ') - ' . $size . ' mm';
     $seoTitle = $displayTitle . ' | Comprar en Costa Rica';
 
+    $cdnBase = 'https://cdn.invictacostarica.com';
     $ogImage = $product->imagen;
-    if ($product->imagen && str_starts_with($product->imagen, '/storage/relojes/')) {
-        $basename = basename($product->imagen);
-        $imgModelo = pathinfo($basename, PATHINFO_FILENAME);
-        if (file_exists(public_path("storage/relojes/large/{$imgModelo}.webp"))) {
-            $ogImage = "/storage/relojes/large/{$imgModelo}.webp";
-        } elseif (file_exists(public_path("storage/relojes/medium/{$imgModelo}.webp"))) {
-            $ogImage = "/storage/relojes/medium/{$imgModelo}.webp";
+    $rawImagen = $product->getRawOriginal('imagen');
+    if ($rawImagen) {
+        $imgModelo = preg_replace('/^invicta-/i', '', $product->modelo ?? '');
+        $r2 = \Illuminate\Support\Facades\Storage::disk('r2');
+        if ($r2->exists("relojes/large/{$imgModelo}.webp")) {
+            $ogImage = "{$cdnBase}/storage/relojes/large/{$imgModelo}.webp";
+        } elseif ($r2->exists("relojes/medium/{$imgModelo}.webp")) {
+            $ogImage = "{$cdnBase}/storage/relojes/medium/{$imgModelo}.webp";
         }
     }
 

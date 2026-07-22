@@ -367,6 +367,9 @@ class ProductController extends Controller
 
         $product->loadMissing('images');
 
+        $cdnBase = 'https://cdn.invictacostarica.com';
+        $r2 = \Illuminate\Support\Facades\Storage::disk('r2');
+        
         $images = collect([$product->imagen]);
         foreach ($product->images as $img) {
             $images->push($img->url);
@@ -374,13 +377,18 @@ class ProductController extends Controller
         $images->push('/storage/relojes/caja.webp');
         $images = $images->filter()->unique()->values();
 
-        $galleryImages = $images->map(function ($img) {
-            if (str_starts_with($img, '/storage/relojes/') && !str_contains($img, '/large/')) {
-                $basename = basename($img);
+        $galleryImages = $images->map(function ($img) use ($cdnBase, $r2) {
+            // Si es URL CDN, extraer ruta relativa para verificar
+            $checkImg = $img;
+            if (str_starts_with($img, 'https://cdn.invictacostarica.com')) {
+                $checkImg = str_replace('https://cdn.invictacostarica.com', '', $img);
+            }
+            
+            if (str_starts_with($checkImg, '/storage/relojes/') && !str_contains($checkImg, '/large/')) {
+                $basename = basename($checkImg);
                 $modelo = pathinfo($basename, PATHINFO_FILENAME);
-                $largePath = public_path("storage/relojes/large/{$modelo}.webp");
-                if (file_exists($largePath)) {
-                    return "/storage/relojes/large/{$modelo}.webp";
+                if ($r2->exists("relojes/large/{$modelo}.webp")) {
+                    return "{$cdnBase}/storage/relojes/large/{$modelo}.webp";
                 }
             }
             return $img;
@@ -391,7 +399,7 @@ class ProductController extends Controller
             $galleryItems->push([
                 'type' => 'image',
                 'url' => $galleryImages[$i] ?? $img,
-                'zoomUrl' => $img,
+                'zoomUrl' => $galleryImages[$i] ?? $img,
             ]);
             if ($i === 0 && $product->video) {
                 $galleryItems->push(['type' => 'video', 'vimeoUrl' => $product->video]);

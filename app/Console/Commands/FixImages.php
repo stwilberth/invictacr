@@ -26,7 +26,7 @@ class FixImages extends Command
     private function fixMainImages(bool $dry): void
     {
         $products = Product::whereNull("imagen")->get();
-        $disk = Storage::disk("public");
+        $r2 = Storage::disk("r2");
 
         $this->info("=== Imágenes principales ===");
         $this->info("Productos sin imagen: {$products->count()}");
@@ -49,7 +49,7 @@ class FixImages extends Command
 
             $filename = null;
             foreach (['jpg', 'jpeg', 'png', 'webp'] as $ext) {
-                if ($disk->exists("relojes/{$modelo}.{$ext}")) {
+                if ($r2->exists("relojes/{$modelo}.{$ext}")) {
                     $filename = "{$modelo}.{$ext}";
                     break;
                 }
@@ -79,7 +79,7 @@ class FixImages extends Command
             ["Estado", "Cantidad"],
             [
                 ["Actualizadas", $updated],
-                ["Sin archivo en disco", $notFound],
+                ["Sin archivo en R2", $notFound],
                 ["Sin modelo", $skipped],
             ]
         );
@@ -87,8 +87,8 @@ class FixImages extends Command
 
     private function fixExtraImages(bool $dry): void
     {
-        $disk = Storage::disk("public");
-        $files = $disk->files("relojes");
+        $r2 = Storage::disk("r2");
+        $files = $r2->files("relojes");
         $extraPattern = '/^relojes\/(\d+)_(\d+)\.(jpg|jpeg|png|webp)$/';
 
         $extraGroups = [];

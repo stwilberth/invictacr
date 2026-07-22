@@ -132,12 +132,10 @@ class ProductForm extends Component
             $filename = strtolower($safeModelo) . "." . $extension;
             $relative = "relojes/" . $filename;
 
-            $this->ensureStorageSymlink();
-            Storage::disk("public")->makeDirectory("relojes");
-            Storage::disk("public")->put($relative, file_get_contents($file->getRealPath()));
+            Storage::disk('r2')->put($relative, file_get_contents($file->getRealPath()), 'public');
 
-            if (!Storage::disk("public")->exists($relative)) {
-                $this->setDownloadError("La imagen no se guardó en disco.");
+            if (!Storage::disk('r2')->exists($relative)) {
+                $this->setDownloadError("La imagen no se guardó en R2.");
                 return;
             }
 
@@ -196,13 +194,11 @@ class ProductForm extends Component
             $filename = strtolower($safeModelo) . "_{$next}." . $extension;
             $relative = "relojes/" . $filename;
 
-            $this->ensureStorageSymlink();
-            Storage::disk("public")->makeDirectory("relojes");
-            Storage::disk("public")->put($relative, file_get_contents($file->getRealPath()));
+            Storage::disk('r2')->put($relative, file_get_contents($file->getRealPath()), 'public');
 
-            if (!Storage::disk("public")->exists($relative)) {
+            if (!Storage::disk('r2')->exists($relative)) {
                 $this->extraDownloadStatus = "error";
-                $this->extraDownloadMessage = "La imagen no se guardó en disco.";
+                $this->extraDownloadMessage = "La imagen no se guardó en R2.";
                 return;
             }
 
@@ -267,13 +263,11 @@ class ProductForm extends Component
             $filename = strtolower($safeModelo) . "_{$next}." . $extension;
             $relative = "relojes/" . $filename;
 
-            $this->ensureStorageSymlink();
-            Storage::disk("public")->makeDirectory("relojes");
-            Storage::disk("public")->put($relative, $response->body());
+            Storage::disk('r2')->put($relative, $response->body(), 'public');
 
-            if (!Storage::disk("public")->exists($relative)) {
+            if (!Storage::disk('r2')->exists($relative)) {
                 $this->extraDownloadStatus = "error";
-                $this->extraDownloadMessage = "La imagen no se guardó en disco.";
+                $this->extraDownloadMessage = "La imagen no se guardó en R2.";
                 return;
             }
 
@@ -339,14 +333,11 @@ class ProductForm extends Component
             $filename = strtolower($safeModelo) . "." . $extension;
             $relative = "relojes/" . $filename;
 
-            $this->ensureStorageSymlink();
+            Storage::disk('r2')->put($relative, $response->body(), 'public');
 
-            Storage::disk("public")->makeDirectory("relojes");
-            Storage::disk("public")->put($relative, $response->body());
-
-            if (!Storage::disk("public")->exists($relative)) {
+            if (!Storage::disk('r2')->exists($relative)) {
                 $this->setDownloadError(
-                    "La imagen se descargó pero no se guardó en disco.",
+                    "La imagen se descargó pero no se guardó en R2.",
                 );
                 return;
             }
@@ -429,39 +420,40 @@ class ProductForm extends Component
 
     private function generateOptimizedVersions(string $filename): void
     {
-        $path = storage_path("app/public/relojes/{$filename}");
-        if (!file_exists($path)) {
+        $r2Path = "relojes/{$filename}";
+        $r2 = Storage::disk('r2');
+        
+        if (!$r2->exists($r2Path)) {
             return;
         }
 
-        $info = @getimagesize($path);
+        $tempPath = storage_path("app/temp/{$filename}");
+        $tempDir = dirname($tempPath);
+        if (!is_dir($tempDir)) {
+            @mkdir($tempDir, 0777, true);
+        }
+
+        file_put_contents($tempPath, $r2->get($r2Path));
+
+        $info = @getimagesize($tempPath);
         if (!$info) {
+            @unlink($tempPath);
             return;
         }
 
         $source = match ($info[2]) {
-            IMAGETYPE_JPEG => @imagecreatefromjpeg($path),
-            IMAGETYPE_PNG => @imagecreatefrompng($path),
-            IMAGETYPE_WEBP => @imagecreatefromwebp($path),
+            IMAGETYPE_JPEG => @imagecreatefromjpeg($tempPath),
+            IMAGETYPE_PNG => @imagecreatefrompng($tempPath),
+            IMAGETYPE_WEBP => @imagecreatefromwebp($tempPath),
             default => null,
         };
 
         if (!$source) {
+            @unlink($tempPath);
             return;
         }
 
         $modelo = pathinfo($filename, PATHINFO_FILENAME);
-        $publicPath = storage_path("app/public");
-
-        foreach (['thumbs', 'medium', 'large'] as $dir) {
-            $dirPath = "{$publicPath}/relojes/{$dir}";
-            if (!is_dir($dirPath)) {
-                @mkdir($dirPath, 0777, true);
-            } elseif (!is_writable($dirPath)) {
-                @chmod($dirPath, 0777);
-            }
-        }
-
         [$origW, $origH] = $info;
 
         $sizes = [
@@ -491,13 +483,16 @@ class ProductForm extends Component
             imagesavealpha($resampled, true);
             imagecopyresampled($resampled, $source, 0, 0, 0, 0, $newW, $newH, $origW, $origH);
 
-            $targetPath = "{$publicPath}/relojes/{$dir}/{$modelo}.webp";
-            imagewebp($resampled, $targetPath, $cfg['quality']);
-            @chmod($targetPath, 0775);
+            $tempTarget = storage_path("app/temp/{$modelo}_{$dir}.webp");
+            imagewebp($resampled, $tempTarget, $cfg['quality']);
             imagedestroy($resampled);
+
+            $r2->put("relojes/{$dir}/{$modelo}.webp", file_get_contents($tempTarget), 'public');
+            @unlink($tempTarget);
         }
 
         imagedestroy($source);
+        @unlink($tempPath);
     }
 
     public function optimizeImage()

@@ -46,6 +46,27 @@ class Product extends Model
         "caracteristicas" => "array",
     ];
 
+    public function getImagenAttribute($value)
+    {
+        if (!$value) {
+            return $value;
+        }
+
+        if (str_starts_with($value, '/storage/')) {
+            return 'https://cdn.invictacostarica.com' . $value;
+        }
+
+        return $value;
+    }
+
+    public function setImagenAttribute($value)
+    {
+        if ($value && str_starts_with($value, 'https://cdn.invictacostarica.com')) {
+            $value = str_replace('https://cdn.invictacostarica.com', '', $value);
+        }
+        $this->attributes['imagen'] = $value;
+    }
+
     public function images(): HasMany
     {
         return $this->hasMany(ProductImage::class)->orderBy('order');

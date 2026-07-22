@@ -25,11 +25,11 @@ class ImageOptimizerService
             return false;
         }
 
-        $disk = Storage::disk('public');
+        $r2 = Storage::disk('r2');
 
-        return !$disk->exists("relojes/thumbs/{$modelo}.webp")
-            || !$disk->exists("relojes/medium/{$modelo}.webp")
-            || !$disk->exists("relojes/large/{$modelo}.webp");
+        return !$r2->exists("relojes/thumbs/{$modelo}.webp")
+            || !$r2->exists("relojes/medium/{$modelo}.webp")
+            || !$r2->exists("relojes/large/{$modelo}.webp");
     }
 
     public function getStats(): array
@@ -94,67 +94,71 @@ class ImageOptimizerService
         ];
 
         try {
+            $r2 = Storage::disk('r2');
             $sourcePath = $this->getSourcePath($product);
             if (!$sourcePath) {
-                $result['error'] = 'No se encontró la imagen origen';
+                $result['error'] = 'No se encontró la imagen en R2';
                 return $result;
             }
 
-            $disk = Storage::disk('public');
-            $fullPath = storage_path("app/public/{$sourcePath}");
+            // Descargar imagen de R2 a temporal
+            $tempPath = storage_path("app/temp/" . basename($sourcePath));
+            $tempDir = dirname($tempPath);
+            if (!is_dir($tempDir)) {
+                mkdir($tempDir, 0777, true);
+            }
+            
+            file_put_contents($tempPath, $r2->get($sourcePath));
 
-            if (!file_exists($fullPath)) {
-                $result['error'] = 'Archivo no existe en disco';
+            if (!file_exists($tempPath)) {
+                $result['error'] = 'No se pudo descargar la imagen de R2';
                 return $result;
             }
 
-            [$width, $height] = @getimagesize($fullPath);
+            [$width, $height] = @getimagesize($tempPath);
             if (!$width || !$height) {
+                @unlink($tempPath);
                 $result['error'] = 'No se pudo leer la imagen';
                 return $result;
             }
 
             $modelo = $this->getModelo($product);
             if (!$modelo) {
+                @unlink($tempPath);
                 $result['error'] = 'No se pudo determinar el modelo';
                 return $result;
             }
 
-            $originalSize = filesize($fullPath);
+            $originalSize = filesize($tempPath);
             $result['original_size'] = $originalSize;
 
-            $disk->makeDirectory('relojes/thumbs');
-            $disk->makeDirectory('relojes/medium');
-            $disk->makeDirectory('relojes/large');
-
-            $sourceImage = $this->createImageFromFile($fullPath);
+            $sourceImage = $this->createImageFromFile($tempPath);
             if (!$sourceImage) {
+                @unlink($tempPath);
                 $result['error'] = 'No se pudo decodificar la imagen';
                 return $result;
             }
 
-            $thumbPath = "relojes/thumbs/{$modelo}.webp";
-            $thumbResult = $this->resizeToWebP($sourceImage, $fullPath, $thumbPath, self::THUMB_WIDTH, self::THUMB_QUALITY);
-            if ($thumbResult) {
-                $result['thumb'] = true;
-                $result['thumb_size'] = $thumbResult;
-            }
+            $sizes = [
+                'thumb' => ['width' => self::THUMB_WIDTH, 'quality' => self::THUMB_QUALITY, 'dir' => 'thumbs'],
+                'medium' => ['width' => self::MEDIUM_WIDTH, 'quality' => self::MEDIUM_QUALITY, 'dir' => 'medium'],
+                'large' => ['width' => self::LARGE_WIDTH, 'quality' => self::LARGE_QUALITY, 'dir' => 'large'],
+            ];
 
-            $mediumPath = "relojes/medium/{$modelo}.webp";
-            $mediumResult = $this->resizeToWebP($sourceImage, $fullPath, $mediumPath, self::MEDIUM_WIDTH, self::MEDIUM_QUALITY);
-            if ($mediumResult) {
-                $result['medium'] = true;
-                $result['medium_size'] = $mediumResult;
-            }
-
-            $largePath = "relojes/large/{$modelo}.webp";
-            $largeResult = $this->resizeToWebP($sourceImage, $fullPath, $largePath, self::LARGE_WIDTH, self::LARGE_QUALITY);
-            if ($largeResult) {
-                $result['large'] = true;
-                $result['large_size'] = $largeResult;
+            foreach ($sizes as $key => $cfg) {
+                $tempTarget = storage_path("app/temp/{$modelo}_{$key}.webp");
+                $webpSize = $this->resizeToWebP($sourceImage, $tempPath, $tempTarget, $cfg['width'], $cfg['quality']);
+                
+                if ($webpSize) {
+                    $r2->put("relojes/{$cfg['dir']}/{$modelo}.webp", file_get_contents($tempTarget), 'public');
+                    $result[$key] = true;
+                    $result["{$key}_size"] = $webpSize;
+                    @unlink($tempTarget);
+                }
             }
 
             imagedestroy($sourceImage);
+            @unlink($tempPath);
 
             $result['success'] = $result['thumb'] || $result['medium'] || $result['large'];
         } catch (\Exception $e) {
@@ -203,19 +207,18 @@ class ImageOptimizerService
     public function getProductImageInfo(Product $product): array
     {
         $modelo = $this->getModelo($product);
-        $disk = Storage::disk('public');
+        $r2 = Storage::disk('r2');
 
-        $originalPath = $product->imagen;
+        $originalPath = $product->getRawOriginal('imagen');
         $originalInfo = null;
-        if ($originalPath && str_starts_with($originalPath, '/storage/')) {
-            $fullPath = public_path(substr($originalPath, 1));
-            if (file_exists($fullPath)) {
-                $dims = @getimagesize($fullPath);
+        if ($originalPath) {
+            $r2Path = str_starts_with($originalPath, '/storage/') ? substr($originalPath, 9) : $originalPath;
+            if ($r2->exists($r2Path)) {
                 $originalInfo = [
                     'exists' => true,
-                    'size' => filesize($fullPath),
-                    'width' => $dims[0] ?? null,
-                    'height' => $dims[1] ?? null,
+                    'size' => $r2->size($r2Path),
+                    'width' => null,
+                    'height' => null,
                 ];
             }
         }
@@ -224,14 +227,12 @@ class ImageOptimizerService
         $sizes = ['large' => null, 'medium' => null, 'thumb' => null];
         foreach ($sizes as $size => &$info) {
             $dir = $sizeDirs[$size];
-            if ($modelo && $disk->exists("relojes/{$dir}/{$modelo}.webp")) {
-                $fullPath = storage_path("app/public/relojes/{$dir}/{$modelo}.webp");
-                $dims = @getimagesize($fullPath);
+            if ($modelo && $r2->exists("relojes/{$dir}/{$modelo}.webp")) {
                 $info = [
                     'exists' => true,
-                    'size' => file_exists($fullPath) ? filesize($fullPath) : null,
-                    'width' => $dims[0] ?? null,
-                    'height' => $dims[1] ?? null,
+                    'size' => $r2->size("relojes/{$dir}/{$modelo}.webp"),
+                    'width' => null,
+                    'height' => null,
                 ];
             } else {
                 $info = ['exists' => false, 'size' => null, 'width' => null, 'height' => null];
@@ -265,15 +266,16 @@ class ImageOptimizerService
         }
 
         $disk = Storage::disk('public');
+        $cdnBase = 'https://cdn.invictacostarica.com';
         $original = $product->imagen;
         $large = $disk->exists("relojes/large/{$modelo}.webp")
-            ? "/storage/relojes/large/{$modelo}.webp"
+            ? "{$cdnBase}/storage/relojes/large/{$modelo}.webp"
             : $original;
         $medium = $disk->exists("relojes/medium/{$modelo}.webp")
-            ? "/storage/relojes/medium/{$modelo}.webp"
+            ? "{$cdnBase}/storage/relojes/medium/{$modelo}.webp"
             : $original;
         $thumb = $disk->exists("relojes/thumbs/{$modelo}.webp")
-            ? "/storage/relojes/thumbs/{$modelo}.webp"
+            ? "{$cdnBase}/storage/relojes/thumbs/{$modelo}.webp"
             : $original;
 
         return [
@@ -286,9 +288,18 @@ class ImageOptimizerService
 
     private function getModelo(Product $product): ?string
     {
-        $imagen = $product->imagen;
+        $imagen = $product->getRawOriginal('imagen');
 
-        if ($imagen && str_starts_with($imagen, '/storage/relojes/')) {
+        if (!$imagen) {
+            return preg_replace('/^invicta-/i', '', $product->modelo ?? '');
+        }
+
+        // Si es URL CDN, extraer la ruta relativa
+        if (str_starts_with($imagen, 'https://cdn.invictacostarica.com')) {
+            $imagen = str_replace('https://cdn.invictacostarica.com', '', $imagen);
+        }
+
+        if (str_starts_with($imagen, '/storage/relojes/')) {
             $filename = basename($imagen);
             $ext = pathinfo($filename, PATHINFO_EXTENSION);
             return $ext ? substr($filename, 0, -(strlen($ext) + 1)) : $filename;
@@ -304,16 +315,18 @@ class ImageOptimizerService
             return null;
         }
 
-        if (str_starts_with($imagen, '/storage/')) {
-            return substr($imagen, 9);
+        // Si es URL CDN, extraer la ruta relativa
+        if (str_starts_with($imagen, 'https://cdn.invictacostarica.com')) {
+            $imagen = str_replace('https://cdn.invictacostarica.com', '', $imagen);
         }
 
-        if (str_starts_with($imagen, '/assets/')) {
-            $relative = ltrim($imagen, '/');
-            $publicPath = public_path($relative);
-            if (file_exists($publicPath)) {
-                return null;
-            }
+        if (str_starts_with($imagen, '/storage/')) {
+            return substr($imagen, 9); // Quitar /storage/
+        }
+
+        // Si es URL externa (invictawatch CDN), no tiene fuente local
+        if (str_starts_with($imagen, 'http')) {
+            return null;
         }
 
         $modelo = $this->getModelo($product);
@@ -321,9 +334,9 @@ class ImageOptimizerService
             return null;
         }
 
-        $disk = Storage::disk('public');
+        $r2 = Storage::disk('r2');
         foreach (['jpg', 'jpeg', 'png', 'webp'] as $ext) {
-            if ($disk->exists("relojes/{$modelo}.{$ext}")) {
+            if ($r2->exists("relojes/{$modelo}.{$ext}")) {
                 return "relojes/{$modelo}.{$ext}";
             }
         }
@@ -348,9 +361,6 @@ class ImageOptimizerService
 
     private function resizeToWebP(\GdImage $source, string $sourcePath, string $targetPath, int $maxWidth, int $quality = 80): ?int
     {
-        $disk = Storage::disk('public');
-        $fullTarget = storage_path("app/public/{$targetPath}");
-
         [$origWidth, $origHeight] = getimagesize($sourcePath);
         if (!$origWidth || !$origHeight) {
             return null;
@@ -375,15 +385,13 @@ class ImageOptimizerService
 
         imagecopyresampled($resampled, $source, 0, 0, 0, 0, $newWidth, $newHeight, $origWidth, $origHeight);
 
-        imagewebp($resampled, $fullTarget, $quality);
+        imagewebp($resampled, $targetPath, $quality);
         imagedestroy($resampled);
 
-        if (!file_exists($fullTarget)) {
+        if (!file_exists($targetPath)) {
             return null;
         }
 
-        @chmod($fullTarget, 0775);
-
-        return filesize($fullTarget);
+        return filesize($targetPath);
     }
 }

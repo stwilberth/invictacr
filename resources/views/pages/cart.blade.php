@@ -35,15 +35,8 @@
                          x-data="{ qty: {{ $item->quantity }} }">
                         @php
                             $model = preg_replace('/^invicta-/i', '', $item->product->modelo ?? '');
-                            $thumbUrl = null;
-                            if ($item->product->imagen && str_starts_with($item->product->imagen, '/storage/relojes/')) {
-                                $thumbModelo = pathinfo(basename($item->product->imagen), PATHINFO_FILENAME);
-                                if (file_exists(public_path("storage/relojes/thumbs/{$thumbModelo}.webp"))) {
-                                    $thumbUrl = "/storage/relojes/thumbs/{$thumbModelo}.webp";
-                                }
-                            } elseif (file_exists(public_path("storage/relojes/thumbs/{$model}.webp"))) {
-                                $thumbUrl = "/storage/relojes/thumbs/{$model}.webp";
-                            }
+                            $cdnBase = 'https://cdn.invictacostarica.com';
+                            $thumbUrl = $item->product->imagen ? "{$cdnBase}/storage/relojes/thumbs/{$model}.webp" : null;
                         @endphp
                         <div class="flex gap-4 md:gap-5">
                             <div class="w-20 h-20 md:w-24 md:h-24 flex-shrink-0 bg-gray-50 dark:bg-white/5 rounded-xl overflow-hidden flex items-center justify-center border border-gray-200 dark:border-gray-600">

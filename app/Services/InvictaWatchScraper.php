@@ -165,9 +165,7 @@ class InvictaWatchScraper
                 $filename = "{$modelo}.{$ext}";
                 $path = "relojes/{$filename}";
 
-                $fullPath = storage_path("app/public/{$path}");
-                Storage::disk("public")->put($path, $response->body());
-                @chmod($fullPath, 0775);
+                Storage::disk('r2')->put($path, $response->body(), 'public');
 
                 return "/storage/{$path}";
             } catch (\Exception $e) {

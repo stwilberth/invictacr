@@ -36,27 +36,61 @@ class MigrateImagesToR2 extends Command
 
         $this->info("Encontrados {$products->count()} productos con imagen");
 
-        $bar = $this->output->createProgressBar($products->count());
+        // Construir lista completa de archivos a subir
+        $filesToMigrate = [];
+        
+        foreach ($products as $product) {
+            $currentPath = $product->imagen;
+            $filename = basename($currentPath);
+            $model = pathinfo($filename, PATHINFO_FILENAME);
+            
+            // Original (JPG)
+            $filesToMigrate[] = [
+                'local' => $currentPath,
+                'remote' => "relojes/{$filename}",
+                'type' => 'original'
+            ];
+            
+            // Thumb WebP
+            $thumbPath = "/storage/relojes/thumbs/{$model}.webp";
+            if (file_exists(public_path($thumbPath))) {
+                $filesToMigrate[] = [
+                    'local' => $thumbPath,
+                    'remote' => "relojes/thumbs/{$model}.webp",
+                    'type' => 'thumb'
+                ];
+            }
+            
+            // Large WebP
+            $largePath = "/storage/relojes/large/{$model}.webp";
+            if (file_exists(public_path($largePath))) {
+                $filesToMigrate[] = [
+                    'local' => $largePath,
+                    'remote' => "relojes/large/{$model}.webp",
+                    'type' => 'large'
+                ];
+            }
+        }
+
+        $this->info("Total archivos a migrar: " . count($filesToMigrate));
+
+        $bar = $this->output->createProgressBar(count($filesToMigrate));
         $bar->start();
 
         $uploaded = 0;
         $skipped = 0;
         $errors = 0;
 
-        foreach ($products as $product) {
-            $currentPath = $product->imagen;
-            $filename = basename($currentPath);
-            $key = "relojes/{$filename}";
-
+        foreach ($filesToMigrate as $file) {
             if ($dryRun) {
                 $this->newLine();
-                $this->info("Subiría: {$currentPath} → relojes/{$filename}");
+                $this->info("Subiría [{$file['type']}]: {$file['local']} → {$file['remote']}");
                 $bar->advance();
                 continue;
             }
 
             try {
-                if ($disk->exists($key)) {
+                if ($disk->exists($file['remote'])) {
                     $skipped++;
                     $bar->advance();
                     continue;
@@ -64,12 +98,12 @@ class MigrateImagesToR2 extends Command
 
                 $downloadUrl = null;
 
-                if (str_starts_with($currentPath, 'http')) {
-                    $downloadUrl = $currentPath;
-                } elseif (str_starts_with($currentPath, '/storage/')) {
-                    $downloadUrl = env('APP_URL') . $currentPath;
-                } elseif (str_starts_with($currentPath, '/images/')) {
-                    $downloadUrl = env('APP_URL') . $currentPath;
+                if (str_starts_with($file['local'], 'http')) {
+                    $downloadUrl = $file['local'];
+                } elseif (str_starts_with($file['local'], '/storage/')) {
+                    $downloadUrl = env('APP_URL') . $file['local'];
+                } elseif (str_starts_with($file['local'], '/images/')) {
+                    $downloadUrl = env('APP_URL') . $file['local'];
                 }
 
                 if (!$downloadUrl) {
@@ -86,12 +120,12 @@ class MigrateImagesToR2 extends Command
                     continue;
                 }
 
-                $disk->put($key, $response->body(), 'public');
+                $disk->put($file['remote'], $response->body(), 'public');
                 $uploaded++;
             } catch (\Throwable $e) {
                 $errors++;
                 $this->newLine();
-                $this->error("Error con producto {$product->id}: " . $e->getMessage());
+                $this->error("Error con {$file['local']}: " . $e->getMessage());
             }
 
             $bar->advance();
