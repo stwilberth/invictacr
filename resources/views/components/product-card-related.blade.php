@@ -74,7 +74,7 @@
             @elseif($product->precio_venta > 0)
                 <div class="flex flex-col items-end w-full">
                     <div class="flex items-baseline gap-1 md:gap-2">
-                        <span class="{{ $compact ? 'text-xs' : 'text-xs md:text-sm' }} text-red-600 dark:text-red-500 tracking-tighter">₡{{ number_format($priceAfterDiscount, 0) }}</span>
+                        <span class="{{ $compact ? 'text-sm' : 'text-sm md:text-base' }} font-bold text-red-600 dark:text-red-500 tracking-tighter">₡{{ number_format($priceAfterDiscount, 0) }}</span>
                     </div>
                 </div>
             @else

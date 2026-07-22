@@ -495,7 +495,7 @@
                     <div id="related-slider" class="flex gap-3 overflow-x-auto pb-1 snap-x snap-mandatory scrollbar-hide" style="scroll-behavior: smooth;">
                         @foreach($relatedProducts as $related)
                         <div class="flex-shrink-0 w-40 snap-start">
-                            <x-product-card :product="$related" />
+                            <x-product-card-related :product="$related" compact />
                         </div>
                         @endforeach
                     </div>
