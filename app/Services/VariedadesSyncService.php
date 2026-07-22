@@ -7,6 +7,7 @@ use App\Models\SyncLog;
 use App\Models\SyncLogItem;
 use App\Services\InvictaWatchScraper;
 use App\Services\DeepseekTranslationService;
+use App\Services\ImageOptimizerService;
 use Illuminate\Support\Facades\Http;
 
 class VariedadesSyncService
@@ -103,6 +104,11 @@ class VariedadesSyncService
                             'imagen' => $iwData['imagen_local'] ?? $product->imagen,
                             'descripcion' => $descripcion,
                         ]);
+
+                        if (!empty($iwData['imagen_local'])) {
+                            $this->optimizeProductImages($product);
+                        }
+
                         $activatedCount++;
                         $activatedModels[] = $modelKey;
                         $items[] = ['sync_log_id' => $log->id, 'type' => 'activated', 'modelo' => $modelKey, 'product_id' => $product->id];
@@ -193,6 +199,10 @@ class VariedadesSyncService
                     $createdCount++;
                     $createdModels[] = $modelKey;
                     $items[] = ['sync_log_id' => $log->id, 'type' => 'created', 'modelo' => $modelKey, 'product_id' => $product->id];
+
+                    if (!empty($iwData['imagen_local'])) {
+                        $this->optimizeProductImages($product);
+                    }
                 }
             }
 
@@ -317,6 +327,16 @@ class VariedadesSyncService
         }
 
         return $body["data"];
+    }
+
+    private function optimizeProductImages(Product $product): void
+    {
+        try {
+            app(ImageOptimizerService::class)->optimizeProduct($product);
+        } catch (\Throwable $e) {
+            // Si falla la optimización no detenemos el sync;
+            // el producto quedará como pendiente en admin/optimize-images
+        }
     }
 
     private function sanitizeNumeric(mixed $value): ?string

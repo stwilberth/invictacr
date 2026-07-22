@@ -5,6 +5,7 @@ namespace App\Livewire\Admin;
 use App\Models\Product;
 use App\Services\InvictaWatchScraper;
 use App\Services\DeepseekTranslationService;
+use App\Services\ImageOptimizerService;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -178,7 +179,7 @@ class Upcoming extends Component
             $this->log('image_fail', 'No se pudo descargar imagen', $modelo);
         }
 
-        Product::create([
+        $product = Product::create([
             'modelo' => $modelo,
             'title' => $title,
             'slug' => 'invicta-' . strtolower($modelo),
@@ -201,6 +202,15 @@ class Upcoming extends Component
         ]);
 
         $this->log('created', 'Producto creado exitosamente', $modelo);
+
+        if ($data['imagen_local']) {
+            try {
+                app(ImageOptimizerService::class)->optimizeProduct($product);
+                $this->log('image_ok', 'Versiones optimizadas generadas (WebP)', $modelo);
+            } catch (\Throwable $e) {
+                $this->log('image_fail', 'No se pudieron generar versiones optimizadas', $modelo);
+            }
+        }
     }
 
     private function log(string $type, string $message, string $modelo = ''): void
