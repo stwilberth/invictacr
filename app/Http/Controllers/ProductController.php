@@ -383,10 +383,8 @@ class ProductController extends Controller
             if (str_starts_with($img, 'https://cdn.invictacostarica.com')) {
                 $checkImg = str_replace('https://cdn.invictacostarica.com', '', $img);
             }
-            // Normalizar: quitar /storage del inicio si existe
-            $checkImg = preg_replace('#^/storage#', '', $checkImg);
-
-            if (str_starts_with($checkImg, '/relojes/') && !str_contains($checkImg, '/large/') && !str_contains($checkImg, '/medium/') && !str_contains($checkImg, '/thumbs/')) {
+            
+            if (str_starts_with($checkImg, '/storage/relojes/') && !str_contains($checkImg, '/large/')) {
                 $basename = basename($checkImg);
                 $modelo = pathinfo($basename, PATHINFO_FILENAME);
                 if ($r2->exists("relojes/large/{$modelo}.webp")) {
