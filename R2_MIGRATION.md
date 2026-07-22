@@ -2,9 +2,11 @@
 
 ## Credenciales R2
 
+Configurar en `.env` de producción:
+
 ```env
-AWS_ACCESS_KEY_ID=5c905f9238c206559e2edf6471d7bd0d
-AWS_SECRET_ACCESS_KEY=a84685b19d9c1f26446dc2a3c67681499e914f9c426023ff4d9045cc66b3c21a
+AWS_ACCESS_KEY_ID=<tu_access_key>
+AWS_SECRET_ACCESS_KEY=<tu_secret_key>
 AWS_DEFAULT_REGION=us-east-1
 AWS_BUCKET=invictacr
 AWS_ENDPOINT=https://fef68f2ef09a1b432764edcf35b21cc5.r2.cloudflarestorage.com
