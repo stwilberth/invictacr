@@ -13,6 +13,7 @@
         "laravel/folio": "^1.1",
         "laravel/framework": "^13.8",
         "laravel/tinker": "^3.0",
+        "league/flysystem-aws-s3-v3": "*",
         "livewire/livewire": "^4.3"
     },
     "require-dev": {
