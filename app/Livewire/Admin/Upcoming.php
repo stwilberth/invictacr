@@ -188,11 +188,11 @@ class Upcoming extends Component
             'stock' => 0,
             'coleccion' => $data['coleccion'],
             'genero' => $data['genero'],
-            'size' => $data['size'],
+            'size' => $this->sanitizeNumeric($data['size']),
             'caja' => $data['caja'],
             'brazalete' => $data['brazalete'],
             'tipo_movimiento' => $data['tipo_movimiento'],
-            'resistencia_agua' => $data['resistencia_agua'],
+            'resistencia_agua' => $this->sanitizeNumeric($data['resistencia_agua']),
             'imagen' => $data['imagen_local'],
             'bloqueado' => false,
             'proximo' => true,
@@ -247,6 +247,21 @@ class Upcoming extends Component
         } catch (\Throwable $e) {
             return false;
         }
+    }
+
+    private function sanitizeNumeric(mixed $value): ?string
+    {
+        if (is_null($value) || trim((string) $value) === '') {
+            return null;
+        }
+        $cleaned = preg_replace('/[^0-9.,]/', '', trim((string) $value));
+        $cleaned = str_replace(',', '.', $cleaned);
+        $cleaned = preg_replace('/\.(?=.*\.)/', '', $cleaned);
+        if (!is_numeric($cleaned)) {
+            return null;
+        }
+        $num = (float) $cleaned;
+        return $num == intval($num) ? (string) intval($num) : rtrim(rtrim(sprintf('%.1f', $num), '0'), '.');
     }
 
     public function render()
