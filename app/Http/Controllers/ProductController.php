@@ -374,7 +374,7 @@ class ProductController extends Controller
         foreach ($product->images as $img) {
             $images->push($img->url);
         }
-        $images->push('/storage/relojes/caja.webp');
+        $images->push(asset('storage/relojes/caja.webp'));
         $images = $images->filter()->unique()->values();
 
         $galleryImages = $images->map(function ($img) use ($cdnBase, $r2) {
@@ -383,11 +383,13 @@ class ProductController extends Controller
             if (str_starts_with($img, 'https://cdn.invictacostarica.com')) {
                 $checkImg = str_replace('https://cdn.invictacostarica.com', '', $img);
             }
-            
-            if (str_starts_with($checkImg, '/storage/relojes/') && !str_contains($checkImg, '/large/')) {
+            // Normalizar: quitar /storage del inicio si existe
+            $checkImg = preg_replace('#^/storage#', '', $checkImg);
+
+            if (str_starts_with($checkImg, '/relojes/') && !str_contains($checkImg, '/large/') && !str_contains($checkImg, '/medium/') && !str_contains($checkImg, '/thumbs/')) {
                 $basename = basename($checkImg);
                 $modelo = pathinfo($basename, PATHINFO_FILENAME);
-                if ($r2->exists("relojes/large/{$modelo}.webp")) {
+                if ($modelo !== 'caja' && $r2->exists("relojes/large/{$modelo}.webp")) {
                     return "{$cdnBase}/relojes/large/{$modelo}.webp";
                 }
             }

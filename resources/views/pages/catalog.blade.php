@@ -86,7 +86,7 @@
                         data-total-pages="{{ $products->lastPage() }}"
                     >
                         @foreach($products as $product)
-                            <x-product-card :product="$product" />
+                            <x-product-card :product="$product" :priority="$loop->index < 4" />
                         @endforeach
                     </div>
 

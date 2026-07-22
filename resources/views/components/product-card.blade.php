@@ -1,4 +1,4 @@
-@props(['product', 'compact' => false])
+@props(['product', 'compact' => false, 'priority' => false])
 @php
     $productUrl = route('products.show', ['slug' => $product->slug]);
     $whatsappLink = 'https://wa.me/50686711422?text=' . urlencode("Hola, me interesa el reloj Invicta {$product->modelo}: " . url($productUrl));
@@ -18,7 +18,7 @@
                 <span class="text-[8px] md:text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mt-1">Invicta</span>
             </div>
             @if($imageUrl)
-                <img src="{{ $imageUrl }}" alt="{{ $product->title }}" class="absolute max-w-full max-h-full object-contain" loading="lazy" onerror="this.style.display='none'; this.previousElementSibling.style.display='flex';" />
+                <img src="{{ $imageUrl }}" alt="{{ $product->title }}" class="absolute max-w-full max-h-full object-contain" loading="{{ $priority ? 'eager' : 'lazy' }}" {{ $priority ? 'fetchpriority="high"' : '' }} onerror="this.style.display='none'; this.previousElementSibling.style.display='flex';" />
             @endif
         </div>
 

@@ -30,43 +30,60 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
     </noscript>
 
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/webfonts/fa-solid-900.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/webfonts/fa-brands-400.woff2" as="font" type="font/woff2" crossorigin />
+
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
+    <link rel="preconnect" href="https://cdn.invictacostarica.com" crossorigin />
     <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin />
     <link rel="preconnect" href="https://connect.facebook.net" crossorigin />
 
     <script>
-        (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-        new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-        j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-        'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-        })(window,document,'script','dataLayer','GTM-MFKHNJ9V');
-    </script>
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push({'gtm.start': new Date().getTime(), event: 'gtm.js'});
 
-    <script>
-        !(function (f, b, e, v, n, t, s) {
+        !(function (f, b, e, v, n) {
             if (f.fbq) return;
             n = f.fbq = function () {
-                n.callMethod
-                    ? n.callMethod.apply(n, arguments)
-                    : n.queue.push(arguments);
+                n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments);
             };
             if (!f._fbq) f._fbq = n;
-            n.push = n;
-            n.loaded = !0;
-            n.version = "2.0";
-            n.queue = [];
-            t = b.createElement(e);
-            t.async = !0;
-            t.src = v;
-            s = b.getElementsByTagName(e)[0];
-            s.parentNode.insertBefore(t, s);
-        })(window, document, "script", "https://connect.facebook.net/en_US/fbevents.js");
+            n.push = n; n.loaded = !0; n.version = "2.0"; n.queue = [];
+        })(window, document, "script");
         fbq("init", "1666700714574473");
         fbq("track", "PageView");
+
+        (function () {
+            var loaded = false;
+            function loadTrackers() {
+                if (loaded) return;
+                loaded = true;
+                var g = document.createElement("script");
+                g.async = true;
+                g.src = "https://www.googletagmanager.com/gtm.js?id=GTM-MFKHNJ9V";
+                document.head.appendChild(g);
+                var fb = document.createElement("script");
+                fb.async = true;
+                fb.src = "https://connect.facebook.net/en_US/fbevents.js";
+                document.head.appendChild(fb);
+                ["scroll", "click", "touchstart", "keydown", "mousemove"].forEach(function (ev) {
+                    window.removeEventListener(ev, loadTrackers, { passive: true });
+                });
+            }
+            ["scroll", "click", "touchstart", "keydown", "mousemove"].forEach(function (ev) {
+                window.addEventListener(ev, loadTrackers, { passive: true, once: true });
+            });
+            if ("requestIdleCallback" in window) {
+                requestIdleCallback(loadTrackers, { timeout: 4000 });
+            } else {
+                setTimeout(loadTrackers, 4000);
+            }
+        })();
     </script>
     <noscript>
+        <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MFKHNJ9V" height="0" width="0" style="display:none;visibility:hidden"></iframe>
         <img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=1666700714574473&ev=PageView&noscript=1" />
     </noscript>
 
@@ -127,16 +144,11 @@
         window.localStorage.setItem("theme", theme);
     </script>
 
-    @fonts
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    {{ $head ?? '' }}
+    {!! $head ?? '' !!}
     @stack('json-ld')
 </head>
 <body class="bg-white text-gray-900 dark:bg-[#121212] dark:text-gray-100">
-    <noscript>
-        <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MFKHNJ9V" height="0" width="0" style="display:none;visibility:hidden"></iframe>
-    </noscript>
-
     @unless($hideNav ?? false)
     <x-navbar :q="$q ?? null" />
     @endunless
