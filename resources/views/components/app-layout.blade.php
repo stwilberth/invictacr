@@ -37,15 +37,11 @@
     <link rel="preconnect" href="https://connect.facebook.net" crossorigin />
 
     <script>
-        (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-        new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-        j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-        'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-        })(window,document,'script','dataLayer','GTM-MFKHNJ9V');
-    </script>
+        // Stubs de GTM y FB Pixel: encolan eventos sin cargar los scripts
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push({'gtm.start': new Date().getTime(), event: 'gtm.js'});
 
-    <script>
-        !(function (f, b, e, v, n, t, s) {
+        !(function (f, b, e, v, n) {
             if (f.fbq) return;
             n = f.fbq = function () {
                 n.callMethod
@@ -57,14 +53,37 @@
             n.loaded = !0;
             n.version = "2.0";
             n.queue = [];
-            t = b.createElement(e);
-            t.async = !0;
-            t.src = v;
-            s = b.getElementsByTagName(e)[0];
-            s.parentNode.insertBefore(t, s);
-        })(window, document, "script", "https://connect.facebook.net/en_US/fbevents.js");
+        })(window, document, "script");
         fbq("init", "1666700714574473");
         fbq("track", "PageView");
+
+        // Carga diferida: primera interacción o idle (máx 4s)
+        (function () {
+            var loaded = false;
+            function loadTrackers() {
+                if (loaded) return;
+                loaded = true;
+                var g = document.createElement("script");
+                g.async = true;
+                g.src = "https://www.googletagmanager.com/gtm.js?id=GTM-MFKHNJ9V";
+                document.head.appendChild(g);
+                var fb = document.createElement("script");
+                fb.async = true;
+                fb.src = "https://connect.facebook.net/en_US/fbevents.js";
+                document.head.appendChild(fb);
+                ["scroll", "click", "touchstart", "keydown", "mousemove"].forEach(function (ev) {
+                    window.removeEventListener(ev, loadTrackers, { passive: true });
+                });
+            }
+            ["scroll", "click", "touchstart", "keydown", "mousemove"].forEach(function (ev) {
+                window.addEventListener(ev, loadTrackers, { passive: true, once: true });
+            });
+            if ("requestIdleCallback" in window) {
+                requestIdleCallback(loadTrackers, { timeout: 4000 });
+            } else {
+                setTimeout(loadTrackers, 4000);
+            }
+        })();
     </script>
     <noscript>
         <img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=1666700714574473&ev=PageView&noscript=1" />
