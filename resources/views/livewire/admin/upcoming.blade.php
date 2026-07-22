@@ -12,7 +12,7 @@
                     <span>Importar</span>
                     @endif
                 </button>
-                <button wire:click="clearAll" wire:confirm="¿Eliminar TODOS los productos próximos? Se hará un backup antes." class="bg-red-500 hover:bg-red-600 text-white font-bold px-4 py-2 rounded-xl text-xs transition-all">Limpiar todo</button>
+                <button wire:click="clearAll" wire:confirm="¿Eliminar TODOS los productos próximos? Se hará un backup antes." class="bg-red-500 hover:bg-red-600 text-white font-bold px-4 py-2 rounded-xl text-xs transition-all disabled:opacity-50" @if($importing) disabled @endif>Limpiar todo</button>
             </div>
 
             @if($importing || count($importLog) > 0)
@@ -135,7 +135,10 @@
             processing = false;
             return;
         }
-        $wire.processNext();
+        $wire.processNext().catch(() => {
+            processing = false;
+            $wire.failImport('Error de comunicación con el servidor. Importación detenida.');
+        });
         scrollLog();
     }
 

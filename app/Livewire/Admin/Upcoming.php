@@ -6,9 +6,14 @@ use App\Models\Product;
 use App\Services\InvictaWatchScraper;
 use App\Services\DeepseekTranslationService;
 use Livewire\Component;
+use Livewire\WithPagination;
 
 class Upcoming extends Component
 {
+    use WithPagination;
+
+    private const MAX_LOG_ENTRIES = 150;
+
     public $search = '';
     public $modelosInput = '';
     public $importLog = [];
@@ -16,56 +21,65 @@ class Upcoming extends Component
     public $totalModelos = 0;
     public $processedModelos = 0;
 
+    public function updatedSearch()
+    {
+        $this->resetPage();
+    }
+
     public function activate($productId)
     {
         $product = Product::findOrFail($productId);
-        $product->update([
-            'proximo' => false,
-            'precio_venta' => $product->precio_original ?? 1,
-            'stock' => max(1, $product->stock),
-        ]);
-        session()->flash('message', "Producto {$product->modelo} activado.");
+        $product->update(['proximo' => false]);
+        session()->flash('message', "Producto {$product->modelo} activado. Permanecerá oculto hasta que el sincronizador le asigne precio desde VariedadesCR.");
     }
 
     public function clearAll()
     {
-        $this->backupDb();
+        if ($this->importing) {
+            session()->flash('error', 'Hay una importación en curso. Espere a que termine.');
+            return;
+        }
+
+        if (!$this->backupDb()) {
+            session()->flash('error', 'No se pudo crear el backup de la base de datos. No se eliminó nada.');
+            return;
+        }
+
         Product::where('proximo', true)->delete();
         $this->importLog = [];
+        session()->forget('upcoming_models');
         session()->flash('message', 'Todos los productos próximos han sido eliminados.');
     }
 
     public function startImport()
     {
-        $this->importing = true;
-        $this->importLog = [];
-        $this->processedModelos = 0;
-
-        $modelos = preg_split('/[\s,;]+/', trim($this->modelosInput));
-        $modelos = array_filter(array_unique($modelos));
-
-        if (empty($modelos)) {
-            session()->flash('error', 'Ingrese al menos un modelo.');
-            $this->importing = false;
+        if ($this->importing) {
             return;
         }
 
-        $this->backupDb();
+        $this->importLog = [];
+        $this->processedModelos = 0;
+
+        $modelos = preg_split('/[\s,;]+/', mb_strtoupper(trim($this->modelosInput)));
+        $modelos = array_values(array_unique(array_filter($modelos)));
+
+        if (empty($modelos)) {
+            session()->flash('error', 'Ingrese al menos un modelo.');
+            return;
+        }
+
+        $this->importing = true;
         $this->totalModelos = count($modelos);
 
-        $this->importLog[] = [
-            'type' => 'info',
-            'modelo' => '',
-            'message' => "Iniciando importación de {$this->totalModelos} modelos...",
-        ];
+        $this->log('info', "Iniciando importación de {$this->totalModelos} modelos...");
 
-        $this->importLog[] = [
-            'type' => 'info',
-            'modelo' => '',
-            'message' => 'Backup de DB completado.',
-        ];
+        if ($this->backupDb()) {
+            $this->log('info', 'Backup de DB completado.');
+        } else {
+            $this->log('error', 'No se pudo crear el backup de la base de datos. La importación continuará sin backup.');
+        }
 
-        session()->put('upcoming_models', array_values(array_map('trim', $modelos)));
+        session()->put('upcoming_models', $modelos);
         $this->modelosInput = '';
 
         $this->dispatch('import-started');
@@ -75,46 +89,48 @@ class Upcoming extends Component
     {
         $models = session('upcoming_models', []);
         if (empty($models)) {
-            $this->importLog[] = [
-                'type' => 'done',
-                'modelo' => '',
-                'message' => 'Importación completada.',
-            ];
+            $this->log('done', 'Importación completada.');
             $this->importing = false;
+            session()->forget('upcoming_models');
             return;
         }
 
-        $modelo = strtoupper(array_shift($models));
+        $modelo = array_shift($models);
         session()->put('upcoming_models', $models);
         $this->processedModelos++;
 
+        try {
+            $this->processModelo($modelo);
+        } catch (\Throwable $e) {
+            $this->log('error', 'Error inesperado: ' . $e->getMessage(), $modelo);
+        }
+
+        $this->dispatch('model-processed');
+    }
+
+    public function failImport(string $message)
+    {
+        $this->log('error', $message);
+        $this->importing = false;
+        session()->forget('upcoming_models');
+    }
+
+    private function processModelo(string $modelo): void
+    {
         $existing = Product::where('modelo', $modelo)->first();
         if ($existing) {
-            $this->importLog[] = [
-                'type' => 'skipped',
-                'modelo' => $modelo,
-                'message' => "Ya existe (ID: {$existing->id})",
-            ];
-            $this->dispatch('model-processed');
+            $this->log('skipped', "Ya existe (ID: {$existing->id})", $modelo);
             return;
         }
 
-        $this->importLog[] = [
-            'type' => 'scraping',
-            'modelo' => $modelo,
-            'message' => 'Consultando InvictaWatch...',
-        ];
+        $this->log('scraping', 'Consultando InvictaWatch...', $modelo);
 
         try {
             $scraper = app(InvictaWatchScraper::class);
             $data = $scraper->scrape($modelo);
         } catch (\Exception $e) {
             $data = null;
-            $this->importLog[] = [
-                'type' => 'error',
-                'modelo' => $modelo,
-                'message' => "Error al scrapear: " . $e->getMessage(),
-            ];
+            $this->log('error', 'Error al scrapear: ' . $e->getMessage(), $modelo);
         }
 
         if (!$data) {
@@ -130,27 +146,21 @@ class Upcoming extends Component
                 'activo' => true,
                 'vistas' => 0,
             ]);
-            $this->importLog[] = [
-                'type' => 'created_basic',
-                'modelo' => $modelo,
-                'message' => 'Creado (InvictaWatch no respondió)',
-            ];
-            $this->dispatch('model-processed');
+            $this->log('created_basic', 'Creado (InvictaWatch no respondió)', $modelo);
             return;
         }
 
-        $this->importLog[] = [
-            'type' => 'scraped',
-            'modelo' => $modelo,
-            'message' => 'Datos obtenidos: ' . ($data['title'] ?? ''),
-        ];
+        $this->log('scraped', 'Datos obtenidos: ' . ($data['title'] ?? ''), $modelo);
 
-        $title = $data['title'];
-        if (preg_match('/^\d+\s*-\s*(.+)$/', $title, $m)) {
+        $title = trim($data['title'] ?? '');
+        if ($title && preg_match('/^\d+\s*-\s*(.+)$/', $title, $m)) {
             $title = trim($m[1]);
         }
-        if (!str_contains($title, 'Invicta')) {
+        if ($title && !str_contains($title, 'Invicta')) {
             $title = 'Invicta ' . $title;
+        }
+        if (!$title) {
+            $title = "Invicta {$modelo}";
         }
 
         $descripcion = $data['descripcion'] ?? null;
@@ -158,26 +168,14 @@ class Upcoming extends Component
             $translator = app(DeepseekTranslationService::class);
             $descripcion = $translator->translateDescription($data);
             if ($descripcion) {
-                $this->importLog[] = [
-                    'type' => 'info',
-                    'modelo' => $modelo,
-                    'message' => 'Descripción generada con IA',
-                ];
+                $this->log('info', 'Descripción generada con IA', $modelo);
             }
         }
 
         if ($data['imagen_local']) {
-            $this->importLog[] = [
-                'type' => 'image_ok',
-                'modelo' => $modelo,
-                'message' => 'Imagen descargada: ' . $data['imagen_local'],
-            ];
+            $this->log('image_ok', 'Imagen descargada: ' . $data['imagen_local'], $modelo);
         } else {
-            $this->importLog[] = [
-                'type' => 'image_fail',
-                'modelo' => $modelo,
-                'message' => 'No se pudo descargar imagen',
-            ];
+            $this->log('image_fail', 'No se pudo descargar imagen', $modelo);
         }
 
         Product::create([
@@ -202,32 +200,53 @@ class Upcoming extends Component
             'vistas' => 0,
         ]);
 
-        $this->importLog[] = [
-            'type' => 'created',
-            'modelo' => $modelo,
-            'message' => 'Producto creado exitosamente',
-        ];
-
-        $this->dispatch('model-processed');
+        $this->log('created', 'Producto creado exitosamente', $modelo);
     }
 
-    private function backupDb(): void
+    private function log(string $type, string $message, string $modelo = ''): void
     {
-        $db = config('database.connections.mysql');
-        $filename = 'invictacr_pre_upcoming_' . date('Ymd_His') . '.sql.gz';
-        $path = storage_path('app/private/backups/' . $filename);
-        if (!is_dir(dirname($path))) {
-            mkdir(dirname($path), 0755, true);
+        $this->importLog[] = [
+            'type' => $type,
+            'modelo' => $modelo,
+            'message' => $message,
+        ];
+
+        if (count($this->importLog) > self::MAX_LOG_ENTRIES) {
+            $this->importLog = array_slice($this->importLog, -self::MAX_LOG_ENTRIES);
         }
-        $cmd = sprintf(
-            'mysqldump --host=%s --user=%s --password=%s %s | gzip > %s',
-            escapeshellarg($db['host']),
-            escapeshellarg($db['username']),
-            escapeshellarg($db['password']),
-            escapeshellarg($db['database']),
-            escapeshellarg($path)
-        );
-        exec($cmd, $output, $exitCode);
+    }
+
+    private function backupDb(): bool
+    {
+        try {
+            $db = config('database.connections.mysql');
+            $filename = 'invictacr_pre_upcoming_' . date('Ymd_His') . '.sql.gz';
+            $dir = storage_path('backups');
+            if (!is_dir($dir)) {
+                mkdir($dir, 0755, true);
+            }
+            $path = $dir . '/' . $filename;
+
+            $cmd = sprintf(
+                'mysqldump --host=%s --port=%s --user=%s --password=%s %s 2>/dev/null | gzip > %s',
+                escapeshellarg($db['host'] ?? '127.0.0.1'),
+                escapeshellarg((string) ($db['port'] ?? '3306')),
+                escapeshellarg($db['username']),
+                escapeshellarg($db['password'] ?? ''),
+                escapeshellarg($db['database']),
+                escapeshellarg($path)
+            );
+            exec($cmd, $output, $exitCode);
+
+            if ($exitCode === 0 && is_file($path) && filesize($path) > 1024) {
+                return true;
+            }
+
+            @unlink($path);
+            return false;
+        } catch (\Throwable $e) {
+            return false;
+        }
     }
 
     public function render()

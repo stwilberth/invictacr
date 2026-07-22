@@ -71,7 +71,7 @@ class VariedadesSyncService
                         continue;
                     }
 
-                    if ($product->proximo) {
+                    if ($product->proximo || (float) $product->precio_venta <= 0) {
                         $increase = random_int(4000, 9000);
                         $roundedPrice = $this->roundUpToThousand($priceVal + $increase);
 
@@ -234,7 +234,7 @@ class VariedadesSyncService
 
             $parts = [];
             if ($createdCount > 0) $parts[] = "{$createdCount} creados";
-            if ($activatedCount > 0) $parts[] = "{$activatedCount} próximos activados";
+            if ($activatedCount > 0) $parts[] = "{$activatedCount} activados";
             if ($stockChangedCount > 0) $parts[] = "{$stockChangedCount} stock actualizado";
             if ($referenceUpdatedCount > 0) $parts[] = "{$referenceUpdatedCount} precios referencia actualizados";
             if ($markedAgotadoCount > 0) $parts[] = "{$markedAgotadoCount} marcados agotados";

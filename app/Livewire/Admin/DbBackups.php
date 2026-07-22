@@ -26,7 +26,7 @@ class DbBackups extends Component
 
         $files = File::files($backupDir);
         $this->backups = collect($files)
-            ->filter(fn ($f) => $f->getExtension() === 'sql')
+            ->filter(fn ($f) => in_array($f->getExtension(), ['sql', 'gz']))
             ->map(fn ($f) => [
                 'name' => $f->getFilename(),
                 'path' => $f->getPathname(),
