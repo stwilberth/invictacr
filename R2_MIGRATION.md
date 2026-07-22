@@ -42,14 +42,15 @@ php artisan images:migrate-r2
 ## Qué hace el comando
 
 1. Lee todos los productos con imagen de la DB
-2. Si la imagen ya está en R2 (URL empieza con `https://pub-...r2.dev`), la saltea
+2. Si la imagen ya está en R2 (mismo filename), la saltea
 3. Descarga la imagen desde la URL actual del sitio
 4. La sube a R2 en la ruta `relojes/{filename}`
-5. Actualiza la columna `imagen` en la DB con la nueva URL de R2
+5. **NO modifica las URLs en la DB** - las imágenes siguen sirviéndose localmente
 
 ## Notas
 
 - El comando es idempotente: se puede ejecutar múltiples veces sin duplicar trabajo
 - Las imágenes se suben con visibilidad `public`
 - Si una descarga falla, se cuenta como error y continúa con la siguiente
-- El comando también actualiza `imagenes_extra` si existen rutas locales
+- **Las URLs en la DB no se modifican** - el usuario no se ve afectado
+- El disk `r2` no tiene URL configurada, solo se usa para upload

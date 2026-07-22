@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Http;
 class MigrateImagesToR2 extends Command
 {
     protected $signature = 'images:migrate-r2 {--dry-run : Solo muestra lo que haría sin ejecutar}';
-    protected $description = 'Migra imágenes de productos desde el servidor local a R2 (Cloudflare)';
+    protected $description = 'Sube imágenes de productos a R2 (Cloudflare) sin afectar las URLs actuales';
 
     public function handle()
     {
@@ -20,7 +20,6 @@ class MigrateImagesToR2 extends Command
             $this->warn('MODO DRY-RUN: No se realizarán cambios');
         }
 
-        // Verificar que el disk R2 esté configurado
         try {
             $disk = Storage::disk('r2');
             $disk->exists('test');
@@ -30,7 +29,6 @@ class MigrateImagesToR2 extends Command
             return 1;
         }
 
-        // Obtener todas las imágenes de la DB
         $products = DB::table('products')
             ->whereNotNull('imagen')
             ->where('imagen', '!=', '')
@@ -44,44 +42,42 @@ class MigrateImagesToR2 extends Command
         $uploaded = 0;
         $skipped = 0;
         $errors = 0;
-        $r2BaseUrl = 'https://pub-fef68f2ef09a1b432764edcf35b21cc5.r2.dev';
 
         foreach ($products as $product) {
             $currentPath = $product->imagen;
-
-            // Si ya está en R2, saltar
-            if (str_starts_with($currentPath, $r2BaseUrl)) {
-                $skipped++;
-                $bar->advance();
-                continue;
-            }
-
-            // Construir URL completa para descargar
-            $downloadUrl = null;
-
-            if (str_starts_with($currentPath, 'http')) {
-                $downloadUrl = $currentPath;
-            } elseif (str_starts_with($currentPath, '/storage/')) {
-                $downloadUrl = env('APP_URL') . $currentPath;
-            } elseif (str_starts_with($currentPath, '/images/')) {
-                $downloadUrl = env('APP_URL') . $currentPath;
-            }
-
-            if (!$downloadUrl) {
-                $errors++;
-                $bar->advance();
-                continue;
-            }
+            $filename = basename($currentPath);
+            $key = "relojes/{$filename}";
 
             if ($dryRun) {
                 $this->newLine();
-                $this->info("Subiría: {$downloadUrl} → {$r2BaseUrl}/relojes/" . basename($currentPath));
+                $this->info("Subiría: {$currentPath} → relojes/{$filename}");
                 $bar->advance();
                 continue;
             }
 
             try {
-                // Descargar imagen
+                if ($disk->exists($key)) {
+                    $skipped++;
+                    $bar->advance();
+                    continue;
+                }
+
+                $downloadUrl = null;
+
+                if (str_starts_with($currentPath, 'http')) {
+                    $downloadUrl = $currentPath;
+                } elseif (str_starts_with($currentPath, '/storage/')) {
+                    $downloadUrl = env('APP_URL') . $currentPath;
+                } elseif (str_starts_with($currentPath, '/images/')) {
+                    $downloadUrl = env('APP_URL') . $currentPath;
+                }
+
+                if (!$downloadUrl) {
+                    $errors++;
+                    $bar->advance();
+                    continue;
+                }
+
                 $response = Http::timeout(30)->get($downloadUrl);
 
                 if (!$response->successful()) {
@@ -90,18 +86,7 @@ class MigrateImagesToR2 extends Command
                     continue;
                 }
 
-                $contents = $response->body();
-                $filename = basename($currentPath);
-                $key = "relojes/{$filename}";
-
-                // Subir a R2
-                Storage::disk('r2')->put($key, $contents, 'public');
-
-                // Actualizar DB
-                DB::table('products')
-                    ->where('id', $product->id)
-                    ->update(['imagen' => "{$r2BaseUrl}/relojes/{$filename}"]);
-
+                $disk->put($key, $response->body(), 'public');
                 $uploaded++;
             } catch (\Throwable $e) {
                 $errors++;
@@ -116,10 +101,10 @@ class MigrateImagesToR2 extends Command
         $this->newLine(2);
 
         if ($dryRun) {
-            $this->info('Dry-run completado. Ejecutá sin --dry-run para migrar.');
+            $this->info('Dry-run completado. Ejecutá sin --dry-run para subir.');
         } else {
             $this->info("Subidas: {$uploaded} | Saltadas (ya en R2): {$skipped} | Errores: {$errors}");
-            $this->info('¡Migración completada!');
+            $this->info('Las URLs en la DB no fueron modificadas. Las imágenes siguen sirviéndose localmente.');
         }
     }
 }
