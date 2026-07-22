@@ -57,7 +57,7 @@
 }
 </script>
 @endpush
-<x-app-layout :title="$seoTitle" :description="$product->descripcion ?? 'Reloj Invicta ' . $product->modelo" :ogImage="asset($ogImage)" ogType="product" :hideWhatsApp="true">
+<x-app-layout :title="$seoTitle" :description="$product->descripcion ?? 'Reloj Invicta ' . $product->modelo" :ogImage="asset($ogImage)" ogType="product" :hideWhatsApp="true" :head="'<link rel=\&quot;preload\&quot; href=\&quot;' . $ogImage . '\&quot; as=\&quot;image\&quot; fetchpriority=\&quot;high\&quot;><link rel=\&quot;preload\&quot; href=\&quot;https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/webfonts/fa-solid-900.woff2\&quot; as=\&quot;font\&quot; type=\&quot;font/woff2\&quot; crossorigin>'">
     @php
         $isAgotado = ($product->stock ?? 0) <= 0 || ($product->disponibilidad ?? 'disponible') === 'agotado';
         $isUpcoming = $product->proximo || $product->precio_venta <= 0;
@@ -138,7 +138,7 @@
                                     <div class="w-full flex-shrink-0 flex items-center justify-center aspect-square relative">
                                         <template x-if="item.type === 'image'">
                                             <div class="absolute inset-0 flex items-center justify-center cursor-zoom-in" @click="openImageModal(item.zoomUrl, '{{ $displayTitle }}')">
-                                                <img :src="item.url" :alt="'{{ $displayTitle }} - ' + (idx + 1)" class="w-full h-full object-contain transition-transform duration-500 hover:scale-[1.02]" loading="lazy" />
+                                                <img :src="idx <= 1 ? item.url : ''" :alt="'{{ $displayTitle }} - ' + (idx + 1)" class="w-full h-full object-contain transition-transform duration-500 hover:scale-[1.02]" :loading="idx === 0 ? 'eager' : 'lazy'" :fetchpriority="idx === 0 ? 'high' : 'auto'" />
                                             </div>
                                         </template>
                                         <template x-if="item.type === 'video'">
@@ -211,7 +211,7 @@
                                         <div class="w-full flex-shrink-0 flex items-center justify-center relative" style="min-height: 200px;">
                                             <template x-if="item.type === 'image'">
                                                 <div class="absolute inset-0 flex items-center justify-center cursor-zoom-in" @click="openImageModal(item.zoomUrl, '{{ $product->title }}')">
-                                                    <img :src="item.url" :alt="'{{ $product->title }} - ' + (idx + 1)" class="w-full max-h-[55vh] object-contain" loading="lazy" />
+                                                    <img :src="idx <= 1 ? item.url : ''" :alt="'{{ $product->title }} - ' + (idx + 1)" class="w-full max-h-[55vh] object-contain" :loading="idx === 0 ? 'eager' : 'lazy'" :fetchpriority="idx === 0 ? 'high' : 'auto'" />
                                                 </div>
                                             </template>
                                             <template x-if="item.type === 'video'">
