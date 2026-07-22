@@ -146,7 +146,6 @@
         window.localStorage.setItem("theme", theme);
     </script>
 
-    @fonts
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     {{ $head ?? '' }}
     @stack('json-ld')
