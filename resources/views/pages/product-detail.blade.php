@@ -494,30 +494,6 @@
                     </div>
                 </div>
 
-                {{-- Desktop: Vistos Recientemente slider --}}
-                @if($recentlyViewed->count() > 0)
-                <div class="hidden lg:block mt-4">
-                    <div class="flex items-center justify-between mb-3">
-                        <h2 class="text-lg font-black text-gray-900 dark:text-white uppercase tracking-tight">Vistos Recientemente</h2>
-                        <div class="flex gap-1.5">
-                            <button type="button" onclick="scrollRecentlyViewed(-1)" aria-label="Anterior" class="w-8 h-8 flex items-center justify-center rounded-full border border-gray-200 dark:border-gray-600 text-gray-400 hover:text-[#00C4FF] hover:border-[#00C4FF] transition-colors">
-                                <i class="fa-solid fa-chevron-left text-xs"></i>
-                            </button>
-                            <button type="button" onclick="scrollRecentlyViewed(1)" aria-label="Siguiente" class="w-8 h-8 flex items-center justify-center rounded-full border border-gray-200 dark:border-gray-600 text-gray-400 hover:text-[#00C4FF] hover:border-[#00C4FF] transition-colors">
-                                <i class="fa-solid fa-chevron-right text-xs"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div id="recently-viewed-slider" class="flex gap-3 overflow-x-auto pb-1 snap-x snap-mandatory scrollbar-hide" style="scroll-behavior: smooth;">
-                        @foreach($recentlyViewed as $recent)
-                        <div class="flex-shrink-0 w-40 snap-start">
-                            <x-product-card-related :product="$recent" compact />
-                        </div>
-                        @endforeach
-                    </div>
-                </div>
-                @endif
-
                 {{-- Desktop: Related products slider with nav buttons --}}
                 @if($relatedProducts->count() > 0)
                 <div class="hidden lg:block mt-4">
@@ -546,6 +522,45 @@
             </div>
         </div>
     </div>
+
+    {{-- Vistos Recientemente --}}
+    @if($recentlyViewed->count() > 0)
+    <div class="max-w-7xl mx-auto px-4 mt-12 mb-8">
+        {{-- Mobile: Vistos Recientemente slider --}}
+        <div class="lg:hidden">
+            <h3 class="text-sm font-black text-gray-600 dark:text-gray-500 uppercase tracking-widest mb-3 px-1">Vistos Recientemente</h3>
+            <div class="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1 snap-x snap-mandatory scrollbar-hide">
+                @foreach($recentlyViewed as $recent)
+                <div class="flex-shrink-0 w-32 snap-start">
+                    <x-product-card-related :product="$recent" compact />
+                </div>
+                @endforeach
+            </div>
+        </div>
+
+        {{-- Desktop: Vistos Recientemente slider --}}
+        <div class="hidden lg:block">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight">Vistos Recientemente</h2>
+                <div class="flex gap-1.5">
+                    <button type="button" onclick="scrollRecentlyViewed(-1)" aria-label="Anterior" class="w-8 h-8 flex items-center justify-center rounded-full border border-gray-200 dark:border-gray-600 text-gray-400 hover:text-[#00C4FF] hover:border-[#00C4FF] transition-colors">
+                        <i class="fa-solid fa-chevron-left text-xs"></i>
+                    </button>
+                    <button type="button" onclick="scrollRecentlyViewed(1)" aria-label="Siguiente" class="w-8 h-8 flex items-center justify-center rounded-full border border-gray-200 dark:border-gray-600 text-gray-400 hover:text-[#00C4FF] hover:border-[#00C4FF] transition-colors">
+                        <i class="fa-solid fa-chevron-right text-xs"></i>
+                    </button>
+                </div>
+            </div>
+            <div id="recently-viewed-slider" class="flex gap-3 overflow-x-auto pb-1 snap-x snap-mandatory scrollbar-hide" style="scroll-behavior: smooth;">
+                @foreach($recentlyViewed as $recent)
+                <div class="flex-shrink-0 w-40 snap-start">
+                    <x-product-card-related :product="$recent" compact />
+                </div>
+                @endforeach
+            </div>
+        </div>
+    </div>
+    @endif
 
     {{-- Floating WhatsApp buttons
     <div class="fixed bottom-6 right-6 z-50 flex flex-col gap-3">
