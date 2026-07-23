@@ -308,6 +308,20 @@
                         </div>
                     </div>
 
+                 {{-- Mobile: Vistos Recientemente slider --}}
+                 @if($recentlyViewed->count() > 0)
+                 <div class="lg:hidden mt-3">
+                     <h3 class="text-[10px] font-black text-gray-600 dark:text-gray-500 uppercase tracking-widest mb-2 px-1">Vistos Recientemente</h3>
+                     <div class="flex gap-1.5 overflow-x-auto pb-2 -mx-1 px-1 snap-x snap-mandatory scrollbar-hide">
+                        @foreach($recentlyViewed as $recent)
+                        <div class="flex-shrink-0 w-24 snap-start">
+                            <x-product-card-related :product="$recent" compact />
+                        </div>
+                        @endforeach
+                    </div>
+                </div>
+                @endif
+
                  {{-- Mobile: Relojes Similares slider (replaces thumbnail strip, since all watches have a single image) --}}
                  @if($relatedProducts->count() > 0)
                  <div class="lg:hidden mt-3">
@@ -480,6 +494,30 @@
                     </div>
                 </div>
 
+                {{-- Desktop: Vistos Recientemente slider --}}
+                @if($recentlyViewed->count() > 0)
+                <div class="hidden lg:block mt-4">
+                    <div class="flex items-center justify-between mb-3">
+                        <h2 class="text-lg font-black text-gray-900 dark:text-white uppercase tracking-tight">Vistos Recientemente</h2>
+                        <div class="flex gap-1.5">
+                            <button type="button" onclick="scrollRecentlyViewed(-1)" aria-label="Anterior" class="w-8 h-8 flex items-center justify-center rounded-full border border-gray-200 dark:border-gray-600 text-gray-400 hover:text-[#00C4FF] hover:border-[#00C4FF] transition-colors">
+                                <i class="fa-solid fa-chevron-left text-xs"></i>
+                            </button>
+                            <button type="button" onclick="scrollRecentlyViewed(1)" aria-label="Siguiente" class="w-8 h-8 flex items-center justify-center rounded-full border border-gray-200 dark:border-gray-600 text-gray-400 hover:text-[#00C4FF] hover:border-[#00C4FF] transition-colors">
+                                <i class="fa-solid fa-chevron-right text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div id="recently-viewed-slider" class="flex gap-3 overflow-x-auto pb-1 snap-x snap-mandatory scrollbar-hide" style="scroll-behavior: smooth;">
+                        @foreach($recentlyViewed as $recent)
+                        <div class="flex-shrink-0 w-40 snap-start">
+                            <x-product-card-related :product="$recent" compact />
+                        </div>
+                        @endforeach
+                    </div>
+                </div>
+                @endif
+
                 {{-- Desktop: Related products slider with nav buttons --}}
                 @if($relatedProducts->count() > 0)
                 <div class="hidden lg:block mt-4">
@@ -595,6 +633,15 @@
         // Related products slider navigation
         function scrollRelated(dir) {
             var slider = document.getElementById("related-slider");
+            if (!slider) return;
+            var card = slider.querySelector(".flex-shrink-0");
+            var step = card ? card.offsetWidth + 12 : 176;
+            slider.scrollBy({ left: step * dir, behavior: "smooth" });
+        }
+
+        // Recently viewed slider navigation
+        function scrollRecentlyViewed(dir) {
+            var slider = document.getElementById("recently-viewed-slider");
             if (!slider) return;
             var card = slider.querySelector(".flex-shrink-0");
             var step = card ? card.offsetWidth + 12 : 176;

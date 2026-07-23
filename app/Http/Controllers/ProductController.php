@@ -428,9 +428,33 @@ class ProductController extends Controller
                 ->get();
         }
 
+        $recentlyViewed = collect();
+        $visitor = \App\Models\Visitor::currentFromRequest(request());
+        if ($visitor) {
+            $recentlyViewedIds = \App\Models\VisitorEvent::where('visitor_id', $visitor->id)
+                ->where('type', 'product_view')
+                ->whereNotNull('product_id')
+                ->where('product_id', '!=', $product->id)
+                ->orderByDesc('created_at')
+                ->limit(20)
+                ->pluck('product_id')
+                ->unique()
+                ->take(10)
+                ->toArray();
+
+            if (!empty($recentlyViewedIds)) {
+                $recentlyViewed = Product::whereIn('id', $recentlyViewedIds)
+                    ->whereIn('id', $recentlyViewedIds)
+                    ->get()
+                    ->sortBy(function ($p) use ($recentlyViewedIds) {
+                        return array_search($p->id, $recentlyViewedIds);
+                    });
+            }
+        }
+
         return view(
             "pages.product-detail",
-            compact("product", "images", "galleryImages", "relatedProducts", "galleryItems"),
+            compact("product", "images", "galleryImages", "relatedProducts", "galleryItems", "recentlyViewed"),
         );
     }
 
