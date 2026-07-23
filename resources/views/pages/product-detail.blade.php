@@ -130,6 +130,12 @@
                                     this.currentIndex = (this.currentIndex + 1) % this.galleryItems.length;
                                 }, 6000);
                             }
+                        },
+                        prev() {
+                            this.currentIndex = (this.currentIndex - 1 + this.galleryItems.length) % this.galleryItems.length;
+                        },
+                        next() {
+                            this.currentIndex = (this.currentIndex + 1) % this.galleryItems.length;
                         }
                     }'>
                         <div class="relative overflow-hidden" style="min-height: 400px;">
@@ -138,7 +144,7 @@
                                     <div class="w-full flex-shrink-0 flex items-center justify-center aspect-square relative">
                                         <template x-if="item.type === 'image'">
                                             <div class="absolute inset-0 flex items-center justify-center cursor-zoom-in" @click="openImageModal(item.zoomUrl, '{{ $displayTitle }}')">
-                                                <img :src="idx <= 1 ? item.url : ''" :alt="'{{ $displayTitle }} - ' + (idx + 1)" class="w-full h-full object-contain transition-transform duration-500 hover:scale-[1.02]" :loading="idx === 0 ? 'eager' : 'lazy'" :fetchpriority="idx === 0 ? 'high' : 'auto'" />
+                                                <img :src="item.url" :alt="'{{ $displayTitle }} - ' + (idx + 1)" class="w-full h-full object-contain transition-transform duration-500 hover:scale-[1.02]" :loading="idx === 0 ? 'eager' : 'lazy'" :fetchpriority="idx === 0 ? 'high' : 'auto'" />
                                             </div>
                                         </template>
                                         <template x-if="item.type === 'video'">
@@ -157,6 +163,14 @@
                                     </div>
                                 </template>
                             </div>
+
+                            {{-- Navigation buttons --}}
+                            <button type="button" @click="prev()" x-show="galleryItems.length > 1" class="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/90 dark:bg-gray-900/90 hover:bg-white dark:hover:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:text-[#00C4FF] rounded-full shadow-lg flex items-center justify-center transition-all duration-300 opacity-0 group-hover/image:opacity-100 z-20">
+                                <i class="fa-solid fa-chevron-left text-sm"></i>
+                            </button>
+                            <button type="button" @click="next()" x-show="galleryItems.length > 1" class="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/90 dark:bg-gray-900/90 hover:bg-white dark:hover:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:text-[#00C4FF] rounded-full shadow-lg flex items-center justify-center transition-all duration-300 opacity-0 group-hover/image:opacity-100 z-20">
+                                <i class="fa-solid fa-chevron-right text-sm"></i>
+                            </button>
                         </div>
 
                         {{-- Thumbnail gallery --}}
@@ -203,15 +217,21 @@
                                         this.currentIndex = (this.currentIndex + 1) % this.galleryItems.length;
                                     }, 6000);
                                 }
+                            },
+                            prev() {
+                                this.currentIndex = (this.currentIndex - 1 + this.galleryItems.length) % this.galleryItems.length;
+                            },
+                            next() {
+                                this.currentIndex = (this.currentIndex + 1) % this.galleryItems.length;
                             }
                         }'>
-                            <div class="relative overflow-hidden" style="min-height: 200px;">
+                            <div class="relative overflow-hidden group/image" style="min-height: 200px;">
                                 <div class="flex" :style="`transform: translateX(-${currentIndex * 100}%); transition: transform 0.5s ease-in-out;`">
                                     <template x-for="(item, idx) in galleryItems" :key="idx">
                                         <div class="w-full flex-shrink-0 flex items-center justify-center relative" style="min-height: 200px;">
                                             <template x-if="item.type === 'image'">
                                                 <div class="absolute inset-0 flex items-center justify-center cursor-zoom-in" @click="openImageModal(item.zoomUrl, '{{ $product->title }}')">
-                                                    <img :src="idx <= 1 ? item.url : ''" :alt="'{{ $product->title }} - ' + (idx + 1)" class="w-full max-h-[55vh] object-contain" :loading="idx === 0 ? 'eager' : 'lazy'" :fetchpriority="idx === 0 ? 'high' : 'auto'" />
+                                                    <img :src="item.url" :alt="'{{ $product->title }} - ' + (idx + 1)" class="w-full max-h-[55vh] object-contain" :loading="idx === 0 ? 'eager' : 'lazy'" :fetchpriority="idx === 0 ? 'high' : 'auto'" />
                                                 </div>
                                             </template>
                                             <template x-if="item.type === 'video'">
@@ -227,6 +247,14 @@
                                         </div>
                                     </template>
                                 </div>
+
+                                {{-- Mobile navigation buttons (smaller) --}}
+                                <button type="button" @click="prev()" x-show="galleryItems.length > 1" class="absolute left-1.5 top-1/2 -translate-y-1/2 w-7 h-7 bg-white/80 dark:bg-gray-900/80 text-gray-600 dark:text-gray-300 rounded-full shadow flex items-center justify-center transition-all opacity-60 z-20">
+                                    <i class="fa-solid fa-chevron-left text-[10px]"></i>
+                                </button>
+                                <button type="button" @click="next()" x-show="galleryItems.length > 1" class="absolute right-1.5 top-1/2 -translate-y-1/2 w-7 h-7 bg-white/80 dark:bg-gray-900/80 text-gray-600 dark:text-gray-300 rounded-full shadow flex items-center justify-center transition-all opacity-60 z-20">
+                                    <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                                </button>
                             </div>
                         </div>
                     </div>
