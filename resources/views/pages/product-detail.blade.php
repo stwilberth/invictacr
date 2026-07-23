@@ -577,6 +577,7 @@
         var pixelModel = "{{ $product->modelo }}";
         var pixelTitle = "{{ $product->title }}";
         var pixelPrice = {{ $product->precio_venta }};
+        window.invictaProductId = {{ $product->id }};
     </script>
 
     @push('scripts')

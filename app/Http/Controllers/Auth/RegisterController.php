@@ -62,6 +62,13 @@ class RegisterController extends Controller
 
         Auth::login($user);
 
+        // Vincular perfil de visitante anónimo con el nuevo usuario
+        try {
+            \App\Models\Visitor::currentFromRequest($request)?->linkToUser($user, $request->telefono);
+        } catch (\Throwable $e) {
+            report($e);
+        }
+
         $oldSessionId = $request->session()->getId();
         $request->session()->regenerate();
 

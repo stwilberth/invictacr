@@ -38,4 +38,9 @@ class PageController extends Controller
     {
         return view('pages.sobre-nosotros');
     }
+
+    public function privacidad()
+    {
+        return view('pages.privacidad');
+    }
 }

@@ -23,6 +23,13 @@ class LoginController extends Controller
         ]);
 
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
+            // Vincular perfil de visitante anónimo con el usuario
+            try {
+                \App\Models\Visitor::currentFromRequest($request)?->linkToUser(Auth::user());
+            } catch (\Throwable $e) {
+                report($e);
+            }
+
             $oldSessionId = $request->session()->getId();
             $request->session()->regenerate();
 

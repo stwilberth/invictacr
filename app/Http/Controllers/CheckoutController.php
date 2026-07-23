@@ -130,6 +130,20 @@ class CheckoutController extends Controller
 
             $invoiceNumber = Invoice::generateUniqueNumber();
 
+            // Guardar datos de contacto en el perfil de visitante
+            try {
+                $visitor = \App\Models\Visitor::currentFromRequest($request);
+                if ($visitor) {
+                    $visitor->fill([
+                        'name' => $visitor->name ?: $request->name,
+                        'email' => $visitor->email ?: $request->email,
+                        'phone' => $visitor->phone ?: $request->phone,
+                    ])->save();
+                }
+            } catch (\Throwable $e) {
+                report($e);
+            }
+
             $status = $paymentMethod === 'paypal' ? 'facturado' : 'pending';
 
             $invoice = Invoice::create([

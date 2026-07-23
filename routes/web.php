@@ -50,6 +50,11 @@ Route::get('/garantia', [PageController::class, 'garantia'])->name('garantia');
 Route::get('/resistencia-agua', [PageController::class, 'resistenciaAgua'])->name('resistencia-agua');
 Route::get('/resenas', [PageController::class, 'resenas'])->name('resenas');
 Route::get('/sobre-nosotros', [PageController::class, 'sobreNosotros'])->name('sobre-nosotros');
+Route::get('/privacidad', [PageController::class, 'privacidad'])->name('privacidad');
+
+// Visitor tracking (sin CSRF: se envía por fetch/sendBeacon)
+Route::post('/track/event', [\App\Http\Controllers\Api\VisitorTrackController::class, 'event'])->middleware('throttle:60,1')->name('track.event');
+Route::post('/track/heartbeat', [\App\Http\Controllers\Api\VisitorTrackController::class, 'heartbeat'])->middleware('throttle:120,1')->name('track.heartbeat');
 Route::get('/sitemap.xml', [\App\Http\Controllers\Api\UtilityApiController::class, 'sitemap']);
 Route::get('/sitemap', function () {
     return redirect('/sitemap.xml', 301);
@@ -81,6 +86,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::get('/optimize-images',  \App\Livewire\Admin\OptimizeImages::class)->name('optimize-images');
     Route::get('/db-backups',       \App\Livewire\Admin\DbBackups::class)->name('db-backups');
     Route::get('/analytics',        \App\Livewire\Admin\AnalyticsDashboard::class)->name('analytics');
+    Route::get('/visitors',         \App\Livewire\Admin\Visitors::class)->name('visitors');
+    Route::get('/visitors/{id}',    \App\Livewire\Admin\VisitorDetail::class)->name('visitors.detail');
     Route::get('/timeline',         \App\Livewire\Admin\UnifiedTimeline::class)->name('timeline');
     Route::get('/github', \App\Livewire\Admin\GitHubReport::class)->name('github');
 });

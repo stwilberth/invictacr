@@ -161,6 +161,7 @@
     @unless($hideWhatsApp ?? false)
         <x-whatsapp-button />
     @endunless
+    <x-cookie-banner />
 
     <!-- Image Modal -->
     <div id="imageModal" class="modal-overlay fixed inset-0 z-[100] hidden items-center justify-center bg-black/85 p-0">
@@ -364,6 +365,9 @@
         .then(r => r.json())
         .then(data => {
             if (data.success) {
+                if (window.invictaTrack) {
+                    window.invictaTrack('add_to_cart', { product_id: productId });
+                }
                 if (btn) {
                     btn.innerHTML = '<i class="fa-solid fa-check text-[9px]"></i> Agregado';
                     btn.classList.remove('bg-[#00C4FF]', 'hover:bg-[#00a3d6]');
@@ -408,6 +412,119 @@
     }
     </script>
     @endpush
+
+    <script>
+    (function () {
+        var productId = typeof window.invictaProductId !== 'undefined' ? window.invictaProductId : null;
+        var eventId = null;
+        var secondsAccum = 0;
+        var lastTick = Date.now();
+        var started = false;
+
+        function consentAccepted() {
+            return window.invictaConsent && window.invictaConsent.accepted();
+        }
+
+        function post(path, data, useBeacon) {
+            var body = JSON.stringify(data);
+            if (useBeacon && navigator.sendBeacon) {
+                navigator.sendBeacon(path, new Blob([body], { type: 'application/json' }));
+                return;
+            }
+            fetch(path, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                body: body,
+                credentials: 'same-origin',
+                keepalive: !!useBeacon
+            }).then(function (r) { return r.json(); })
+              .then(function (res) {
+                  if (res && res.event_id) eventId = res.event_id;
+              })
+              .catch(function () {});
+        }
+
+        function tick() {
+            var now = Date.now();
+            if (document.visibilityState === 'visible') {
+                secondsAccum += Math.round((now - lastTick) / 1000);
+            }
+            lastTick = now;
+        }
+
+        function flushHeartbeat(useBeacon) {
+            tick();
+            if (secondsAccum < 1 || !eventId) return;
+            post('/track/heartbeat', { event_id: eventId, seconds: secondsAccum }, useBeacon);
+            secondsAccum = 0;
+        }
+
+        function start() {
+            if (started || !consentAccepted()) return;
+            started = true;
+
+            var params = new URLSearchParams(window.location.search);
+
+            post('/track/event', {
+                type: productId ? 'product_view' : 'page_view',
+                url: window.location.href,
+                title: document.title,
+                product_id: productId
+            });
+
+            if (params.get('q')) {
+                post('/track/event', {
+                    type: 'search',
+                    url: window.location.href,
+                    title: document.title,
+                    query: params.get('q')
+                });
+            }
+
+            setInterval(function () { flushHeartbeat(false); }, 15000);
+
+            document.addEventListener('visibilitychange', function () {
+                if (document.visibilityState === 'hidden') {
+                    flushHeartbeat(true);
+                } else {
+                    lastTick = Date.now();
+                }
+            });
+
+            window.addEventListener('pagehide', function () {
+                flushHeartbeat(true);
+            });
+
+            document.addEventListener('click', function (e) {
+                var link = e.target.closest('a[href*="wa.me"], a[href*="api.whatsapp.com"]');
+                if (!link) return;
+                post('/track/event', {
+                    type: 'whatsapp_click',
+                    url: window.location.href,
+                    title: document.title,
+                    product_id: productId
+                });
+            });
+        }
+
+        window.invictaTrack = function (type, data) {
+            if (!consentAccepted()) return;
+            data = data || {};
+            data.type = type;
+            data.url = data.url || window.location.href;
+            data.title = data.title || document.title;
+            post('/track/event', data);
+        };
+
+        document.addEventListener('invicta:consent-accepted', start);
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', start);
+        } else {
+            start();
+        }
+    })();
+    </script>
 
     @stack('scripts')
 </body>
