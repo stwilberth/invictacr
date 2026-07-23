@@ -322,17 +322,22 @@ Separá cada variante exactamente con: ---";
         session()->flash('message', 'Anuncio guardado en Marketing.');
     }
 
-public function render()
+    public function render()
     {
-        $query = Product::where('activo', true)->where('precio_venta', '>', 0)
-            ->when($this->productSearch, fn($q) => $q->where('modelo', 'like', '%'.$this->productSearch.'%'));
+        $query = Product::where('activo', true)
+            ->where('precio_venta', '>', 0)
+            ->where('stock', '>', 0)
+            ->when($this->productSearch, fn($q) => $q->where(function($q) {
+                $q->where('modelo', 'like', '%'.$this->productSearch.'%')
+                  ->orWhere('title', 'like', '%'.$this->productSearch.'%');
+            }));
 
         if ($this->productFilter === 'pending') {
             $downloadedIds = DownloadHistory::pluck('product_id');
             $query->whereNotIn('id', $downloadedIds);
         }
 
-        $products = $query->orderBy('modelo')->get();
+        $products = $query->orderBy('modelo')->paginate(30);
         $this->savedAds = MarketingTask::where('type', 'like', 'ad_%')->latest()->take(10)->get();
         $this->loadDownloads();
 

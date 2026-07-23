@@ -54,6 +54,7 @@
                                     <p class="text-[12px] text-gray-400 py-2">Sin resultados</p>
                                 @endforelse
                             </div>
+                            <div class="mt-2">{{ $products->links() }}</div>
                         </div>
                         <div class="grid grid-cols-2 gap-2">
                             <div class="col">
@@ -504,12 +505,15 @@
             function loadImageFromUrl(url) {
                 if (!url) return;
                 const img = new Image();
-                img.crossOrigin = 'anonymous';
                 img.onload = () => {
                     watchImg = img;
                     draw();
                 };
-                img.onerror = () => console.warn('No se pudo cargar la imagen del producto (CORS).');
+                img.onerror = () => {
+                    console.warn('No se pudo cargar la imagen del producto.');
+                    watchImg = null;
+                    draw();
+                };
                 img.src = url;
             }
 
