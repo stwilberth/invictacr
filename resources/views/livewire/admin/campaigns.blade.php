@@ -37,6 +37,20 @@
                                 <button wire:click="setProductFilter('pending')"
                                     class="px-1.5 py-0.5 rounded text-[9px] font-bold {{ $productFilter === 'pending' ? 'bg-[#00C4FF] text-[#0a0f1c]' : 'bg-gray-100 dark:bg-white/5 text-gray-500' }}">Pendientes</button>
                             </div>
+                            <div class="flex gap-1 mb-2 px-1">
+                                <select wire:model.live="filterColeccion" class="flex-1 bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-md px-2 py-1 text-[10px] focus:border-[#00C4FF] outline-none">
+                                    <option value="">Todas las colecciones</option>
+                                    @foreach($colecciones as $col)
+                                        <option value="{{ $col }}">{{ $col }}</option>
+                                    @endforeach
+                                </select>
+                                <select wire:model.live="filterColor" class="flex-1 bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-md px-2 py-1 text-[10px] focus:border-[#00C4FF] outline-none">
+                                    <option value="">Todos los colores</option>
+                                    @foreach($colores as $color)
+                                        <option value="{{ $color }}">{{ $color }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
                             <div class="flex gap-2 overflow-x-auto pb-1">
                                 @forelse($products as $p)
                                     <button wire:click="$set('selectedProductId', {{ $p->id }})"

@@ -70,6 +70,28 @@
     </div>
     @endif
 
+    {{-- Colección --}}
+    @if(isset($filters['colecciones']) && $filters['colecciones']->count() > 0)
+    <div class="mb-2">
+        <button type="button" @click="openSection = openSection === 'coleccion' ? null : 'coleccion'" class="w-full flex items-center justify-between text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider py-2">
+            <span>Colección</span>
+            <i class="fa-solid fa-chevron-down text-[10px] transition-transform" :class="{ 'rotate-180': openSection === 'coleccion' }"></i>
+        </button>
+        <div x-show="openSection === 'coleccion'" x-cloak class="space-y-1 max-h-40 overflow-y-auto pb-2">
+            <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
+                <input type="radio" name="coleccion_{{ $formId }}" value="" {{ !request('coleccion') ? 'checked' : '' }} onchange="window.CatalogManager && window.CatalogManager.setFilter('coleccion', '')" class="text-[#00C4FF]">
+                <span>Todas</span>
+            </label>
+            @foreach($filters['colecciones'] as $col)
+            <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
+                <input type="radio" name="coleccion_{{ $formId }}" value="{{ $col }}" {{ strtolower(request('coleccion')) === strtolower($col) ? 'checked' : '' }} onchange="window.CatalogManager && window.CatalogManager.setFilter('coleccion', '{{ $col }}')" class="text-[#00C4FF]">
+                <span>{{ ucfirst($col) }}</span>
+            </label>
+            @endforeach
+        </div>
+    </div>
+    @endif
+
     {{-- Movimiento --}}
     @if(isset($filters['movimientos']) && $filters['movimientos']->count() > 0)
     <div class="mb-2">

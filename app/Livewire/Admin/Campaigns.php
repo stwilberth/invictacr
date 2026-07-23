@@ -32,6 +32,8 @@ class Campaigns extends Component
     public $savedAds;
     public $productFilter = 'all';
     public $downloads;
+    public $filterColeccion = '';
+    public $filterColor = '';
 
     public function saveDownload()
     {
@@ -330,7 +332,9 @@ Separá cada variante exactamente con: ---";
             ->when($this->productSearch, fn($q) => $q->where(function($q) {
                 $q->where('modelo', 'like', '%'.$this->productSearch.'%')
                   ->orWhere('title', 'like', '%'.$this->productSearch.'%');
-            }));
+            }))
+            ->when($this->filterColeccion, fn($q) => $q->where('coleccion', $this->filterColeccion))
+            ->when($this->filterColor, fn($q) => $q->where('color', $this->filterColor));
 
         if ($this->productFilter === 'pending') {
             $downloadedIds = DownloadHistory::pluck('product_id');
@@ -338,10 +342,27 @@ Separá cada variante exactamente con: ---";
         }
 
         $products = $query->orderBy('modelo')->paginate(30);
+        
+        $colecciones = Product::where('activo', true)
+            ->where('precio_venta', '>', 0)
+            ->whereNotNull('coleccion')
+            ->distinct()
+            ->pluck('coleccion')
+            ->sort()
+            ->values();
+            
+        $colores = Product::where('activo', true)
+            ->where('precio_venta', '>', 0)
+            ->whereNotNull('color')
+            ->distinct()
+            ->pluck('color')
+            ->sort()
+            ->values();
+        
         $this->savedAds = MarketingTask::where('type', 'like', 'ad_%')->latest()->take(10)->get();
         $this->loadDownloads();
 
-        return view('livewire.admin.campaigns', compact('products'))
+        return view('livewire.admin.campaigns', compact('products', 'colecciones', 'colores'))
             ->layout('components.admin-layout', ['title' => 'Campañas']);
     }
 }
