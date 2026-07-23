@@ -36,5 +36,10 @@ Route::post('/cache/clear', [UtilityApiController::class, 'clearCache']);
 
 Route::get('/live-search', LiveSearchController::class)->middleware('throttle:search');
 
+// Image proxy para CORS (usado en campañas para exportar canvas)
+Route::get('/image-proxy/{path}', [\App\Http\Controllers\Api\ImageProxyController::class, 'show'])
+    ->where('path', '.*')
+    ->middleware('throttle:60,1');
+
 // PayPal webhook (sin CSRF para que PayPal pueda enviar notificaciones)
 Route::post('/paypal/webhook', [\App\Http\Controllers\PayPalController::class, 'webhook'])->name('paypal.webhook');

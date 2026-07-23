@@ -504,17 +504,31 @@
 
             function loadImageFromUrl(url) {
                 if (!url) return;
+                
+                // Si la imagen es del CDN, usar proxy para evitar problemas de CORS
+                let imageUrl = url;
+                if (url.includes('cdn.invictacostarica.com')) {
+                    const path = url.replace('https://cdn.invictacostarica.com/', '');
+                    imageUrl = '/api/image-proxy/' + path;
+                }
+                
                 const img = new Image();
+                img.crossOrigin = 'anonymous';
                 img.onload = () => {
                     watchImg = img;
                     draw();
                 };
                 img.onerror = () => {
                     console.warn('No se pudo cargar la imagen del producto.');
-                    watchImg = null;
-                    draw();
+                    // Intentar sin crossOrigin como fallback
+                    const fallbackImg = new Image();
+                    fallbackImg.onload = () => {
+                        watchImg = fallbackImg;
+                        draw();
+                    };
+                    fallbackImg.src = url;
                 };
-                img.src = url;
+                img.src = imageUrl;
             }
 
             // Auto-carga la foto del producto ya seleccionado al montar la pestaña
