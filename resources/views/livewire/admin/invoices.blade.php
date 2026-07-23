@@ -4,6 +4,34 @@
         <a href="{{ route('admin.invoices.create') }}" class="px-4 py-2 text-sm bg-blue-600 text-white rounded-xl hover:bg-blue-700 font-bold">+ Crear Factura</a>
     </div>
 
+    {{-- Totals --}}
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
+        <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-4">
+            <div class="text-xs text-gray-500 uppercase tracking-wider font-bold">Facturas</div>
+            <div class="text-2xl font-black text-gray-900 dark:text-white mt-1">{{ $totals->count }}</div>
+        </div>
+        <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-4">
+            <div class="text-xs text-gray-500 uppercase tracking-wider font-bold">Total Vendido</div>
+            <div class="text-2xl font-black text-green-600 dark:text-green-400 mt-1">₡{{ number_format($totals->totalAmount, 0) }}</div>
+        </div>
+        <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-4">
+            <div class="text-xs text-gray-500 uppercase tracking-wider font-bold">Descuentos</div>
+            <div class="text-2xl font-black text-red-500 mt-1">-₡{{ number_format($totals->totalDiscount, 0) }}</div>
+        </div>
+        <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-4">
+            <div class="text-xs text-gray-500 uppercase tracking-wider font-bold">Envío</div>
+            <div class="text-2xl font-black text-blue-500 mt-1">₡{{ number_format($totals->totalShipping, 0) }}</div>
+        </div>
+        <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-4">
+            <div class="text-xs text-gray-500 uppercase tracking-wider font-bold">Utilidad</div>
+            <div class="text-2xl font-black text-[#00C4FF] mt-1">₡{{ number_format($totals->totalUtility, 0) }}</div>
+        </div>
+        <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-4">
+            <div class="text-xs text-gray-500 uppercase tracking-wider font-bold">Promedio</div>
+            <div class="text-2xl font-black text-gray-500 mt-1">₡{{ number_format($totals->average, 0) }}</div>
+        </div>
+    </div>
+
     <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-4 mb-6 space-y-3">
         <div class="flex gap-2 flex-wrap items-center">
             <input wire:model.live.debounce.300ms="search" type="text" placeholder="Buscar factura, cliente o teléfono..." class="bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2 text-sm min-w-[250px] flex-1" />
@@ -46,6 +74,7 @@
                     <th class="text-left px-4 py-3">Factura</th>
                     <th class="text-left px-4 py-3">Cliente</th>
                     <th class="text-right px-4 py-3">Total</th>
+                    <th class="text-right px-4 py-3">Utilidad</th>
                     <th class="text-center px-4 py-3">Estado</th>
                     <th class="text-center px-4 py-3">Envío</th>
                     <th class="text-right px-4 py-3">Abonos</th>
@@ -67,6 +96,7 @@
                         @endif
                     </td>
                     <td class="px-4 py-3 text-right font-bold text-gray-900 dark:text-white">₡{{ number_format($invoice->total, 0) }}</td>
+                    <td class="px-4 py-3 text-right font-bold {{ $invoice->estimated_utility > 0 ? 'text-[#00C4FF]' : 'text-gray-400' }}">₡{{ number_format($invoice->estimated_utility ?? 0, 0) }}</td>
                     <td class="px-4 py-3 text-center">
                         @php
                             $statusClasses = [
@@ -125,7 +155,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="7" class="px-4 py-8 text-center text-gray-500">No se encontraron facturas</td>
+                    <td colspan="8" class="px-4 py-8 text-center text-gray-500">No se encontraron facturas</td>
                 </tr>
                 @endforelse
             </tbody>

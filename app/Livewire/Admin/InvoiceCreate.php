@@ -13,6 +13,7 @@ class InvoiceCreate extends Component
     public $client_phone = '';
     public $customer_address = '';
     public $cedula = '';
+    public $clientSearch = '';
     public $subtotal = 0;
     public $discount = 0;
     public $shipping = 0;
@@ -29,6 +30,7 @@ class InvoiceCreate extends Component
     public $newItemModel = '';
     public $newItemQuantity = 1;
     public $newItemPrice = 0;
+    public $productSearch = '';
 
     protected function rules()
     {
@@ -49,6 +51,35 @@ class InvoiceCreate extends Component
             'creation_date' => 'nullable|date',
             'estimated_utility' => 'nullable|numeric|min:0',
         ];
+    }
+
+    public function updatedClientName()
+    {
+        $this->clientSearch = $this->client_name;
+    }
+
+    public function selectClient($id)
+    {
+        $client = \App\Models\Client::findOrFail($id);
+        $this->client_name = $client->name;
+        $this->client_email = $client->email ?? '';
+        $this->client_phone = $client->phone ?? '';
+        $this->customer_address = $client->address ?? '';
+        $this->clientSearch = '';
+    }
+
+    public function updatedNewItemModel()
+    {
+        $this->productSearch = $this->newItemModel;
+    }
+
+    public function selectProduct($id)
+    {
+        $product = \App\Models\Product::findOrFail($id);
+        $this->newItemName = $product->title;
+        $this->newItemModel = $product->modelo;
+        $this->newItemPrice = $product->precio_venta;
+        $this->productSearch = '';
     }
 
     public function addItem()
@@ -166,7 +197,22 @@ class InvoiceCreate extends Component
 
     public function render()
     {
-        return view('livewire.admin.invoice-create')
+        $clientResults = [];
+        if (strlen($this->clientSearch) >= 2) {
+            $clientResults = \App\Models\Client::where('name', 'like', '%' . $this->clientSearch . '%')
+                ->orWhere('email', 'like', '%' . $this->clientSearch . '%')
+                ->orWhere('phone', 'like', '%' . $this->clientSearch . '%')
+                ->limit(10)
+                ->get();
+        }
+        $productResults = [];
+        if (strlen($this->productSearch) >= 1) {
+            $productResults = \App\Models\Product::where('modelo', 'like', '%' . $this->productSearch . '%')
+                ->orWhere('title', 'like', '%' . $this->productSearch . '%')
+                ->limit(10)
+                ->get();
+        }
+        return view('livewire.admin.invoice-create', compact('clientResults', 'productResults'))
             ->layout('components.admin-layout', ['title' => 'Crear Factura']);
     }
 }

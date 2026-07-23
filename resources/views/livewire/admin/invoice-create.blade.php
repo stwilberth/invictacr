@@ -23,10 +23,23 @@
             <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-5 space-y-4">
                 <h3 class="text-sm font-bold uppercase tracking-wider text-gray-500">Cliente</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
+                    <div class="relative" x-data="{ open: false }" @click.outside="open = false">
                         <label class="text-xs text-gray-500 block mb-1">Nombre *</label>
-                        <input wire:model="client_name" type="text" class="w-full bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2 text-sm" placeholder="Nombre del cliente" />
+                        <input wire:model.live.debounce.300ms="client_name" type="text" class="w-full bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2 text-sm" placeholder="Nombre del cliente" @focus="open = true" @keydown.escape="open = false" />
                         @error('client_name') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                        @if(strlen($clientSearch) >= 2 && count($clientResults) > 0)
+                        <div x-show="open" class="absolute top-full left-0 right-0 mt-1 z-50 bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-white/10 rounded-xl shadow-xl max-h-48 overflow-y-auto">
+                            @foreach($clientResults as $client)
+                            <button type="button" wire:click="selectClient({{ $client->id }})" @click="open = false" class="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 dark:hover:bg-white/5 border-b border-gray-100 dark:border-white/5 last:border-0">
+                                <div class="font-medium text-gray-900 dark:text-white">{{ $client->name }}</div>
+                                <div class="text-xs text-gray-500">
+                                    @if($client->phone) {{ $client->phone }} @endif
+                                    @if($client->email) · {{ $client->email }} @endif
+                                </div>
+                            </button>
+                            @endforeach
+                        </div>
+                        @endif
                     </div>
                     <div>
                         <label class="text-xs text-gray-500 block mb-1">Email</label>
@@ -55,9 +68,21 @@
                         <label class="text-xs text-gray-500 block mb-1">Nombre *</label>
                         <input wire:model="newItemName" type="text" class="w-full bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2 text-sm" placeholder="Nombre del producto" />
                     </div>
-                    <div>
+                    <div class="relative" x-data="{ open: false }" @click.outside="open = false">
                         <label class="text-xs text-gray-500 block mb-1">Modelo</label>
-                        <input wire:model="newItemModel" type="text" class="w-full bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2 text-sm" placeholder="Modelo" />
+                        <input wire:model.live.debounce.300ms="newItemModel" type="text" class="w-full bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2 text-sm" placeholder="Modelo" @focus="open = true" @keydown.escape="open = false" />
+                        @if(strlen($productSearch) >= 1 && count($productResults) > 0)
+                        <div x-show="open" class="absolute top-full left-0 right-0 mt-1 z-50 bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-white/10 rounded-xl shadow-xl max-h-48 overflow-y-auto">
+                            @foreach($productResults as $product)
+                            <button type="button" wire:click="selectProduct({{ $product->id }})" @click="open = false" class="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 dark:hover:bg-white/5 border-b border-gray-100 dark:border-white/5 last:border-0">
+                                <div class="font-medium text-gray-900 dark:text-white">{{ $product->title }}</div>
+                                <div class="text-xs text-gray-500">
+                                    Modelo: {{ $product->modelo }} · ₡{{ number_format($product->precio_venta, 0) }}
+                                </div>
+                            </button>
+                            @endforeach
+                        </div>
+                        @endif
                     </div>
                     <div>
                         <label class="text-xs text-gray-500 block mb-1">Cantidad</label>

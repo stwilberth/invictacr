@@ -1,8 +1,22 @@
 <div>
     <div class="flex justify-between items-center mb-6">
         <input wire:model.live="search" type="text" placeholder="Buscar clientes..." class="bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2 text-sm w-80" />
-        <button wire:click="create" class="bg-[#00C4FF] hover:bg-[#00b0e6] text-[#0a0f1c] font-black px-5 py-2.5 rounded-xl text-sm transition-all uppercase tracking-wider">+ Nuevo Cliente</button>
+        <div class="flex gap-2">
+            <button wire:click="extractFromInvoices" wire:loading.attr="disabled" class="bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-white font-bold px-4 py-2.5 rounded-xl text-sm transition-all flex items-center gap-2">
+                <i wire:loading.remove wire:target="extractFromInvoices" class="fa-solid fa-file-import"></i>
+                <i wire:loading wire:target="extractFromInvoices" class="fa-solid fa-spinner fa-spin"></i>
+                Extraer de facturas
+            </button>
+            <button wire:click="create" class="bg-[#00C4FF] hover:bg-[#00b0e6] text-[#0a0f1c] font-black px-5 py-2.5 rounded-xl text-sm transition-all uppercase tracking-wider">+ Nuevo Cliente</button>
+        </div>
     </div>
+
+    @if($extractedCount > 0)
+    <div class="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-4 py-3 rounded-xl mb-6 text-sm font-bold flex items-center gap-2">
+        <i class="fa-solid fa-check-circle"></i>
+        {{ $extractedCount }} cliente(s) importado(s) desde facturas exitosamente.
+    </div>
+    @endif
 
     @if($showForm)
     <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-6 mb-6">

@@ -19,6 +19,12 @@ class Invoices extends Component
     public $totalMin = '';
     public $totalMax = '';
 
+    public function mount()
+    {
+        $this->dateFrom = now()->startOfMonth()->format('Y-m-d');
+        $this->dateTo = now()->endOfMonth()->format('Y-m-d');
+    }
+
     public function render()
     {
         $query = Invoice::query();
@@ -63,12 +69,24 @@ class Invoices extends Component
 
         $invoices = $query->with('abonos')->latest()->paginate(20);
 
-        return view('livewire.admin.invoices', compact('invoices'))
+        $totalsQuery = clone $query;
+        $totals = (object) [
+            'count' => (clone $totalsQuery)->count(),
+            'totalAmount' => (clone $totalsQuery)->sum('total'),
+            'totalDiscount' => (clone $totalsQuery)->sum('discount'),
+            'totalShipping' => (clone $totalsQuery)->sum('shipping'),
+            'totalUtility' => (clone $totalsQuery)->sum('estimated_utility'),
+        ];
+        $totals->average = $totals->count > 0 ? $totals->totalAmount / $totals->count : 0;
+
+        return view('livewire.admin.invoices', compact('invoices', 'totals'))
             ->layout('components.admin-layout');
     }
 
     public function resetFilters()
     {
-        $this->reset(['search', 'filterStatus', 'filterShipping', 'filterAbonos', 'dateFrom', 'dateTo', 'totalMin', 'totalMax']);
+        $this->reset(['search', 'filterStatus', 'filterShipping', 'filterAbonos', 'totalMin', 'totalMax']);
+        $this->dateFrom = now()->startOfMonth()->format('Y-m-d');
+        $this->dateTo = now()->endOfMonth()->format('Y-m-d');
     }
 }
