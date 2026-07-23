@@ -460,7 +460,7 @@
         }
 
         function start() {
-            if (started || !consentAccepted()) return;
+            if (started) return;
             started = true;
 
             var params = new URLSearchParams(window.location.search);
@@ -508,15 +508,12 @@
         }
 
         window.invictaTrack = function (type, data) {
-            if (!consentAccepted()) return;
             data = data || {};
             data.type = type;
             data.url = data.url || window.location.href;
             data.title = data.title || document.title;
             post('/track/event', data);
         };
-
-        document.addEventListener('invicta:consent-accepted', start);
 
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', start);

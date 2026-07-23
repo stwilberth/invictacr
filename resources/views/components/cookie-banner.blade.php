@@ -9,7 +9,7 @@
         </p>
         <button type="button" id="cookie-close"
                 class="px-4 py-2 text-xs sm:text-sm font-bold rounded-xl bg-[#00C4FF] hover:bg-[#00b0e6] text-[#0a0f1c] transition-colors shrink-0">
-            Entendido
+            Aceptar
         </button>
     </div>
 </div>
@@ -17,6 +17,7 @@
 <script>
 (function () {
     var HIDE_COOKIE = 'cookie_banner_closed';
+    var CONSENT_COOKIE = 'invicta_consent';
 
     function isHidden() {
         return document.cookie.indexOf(HIDE_COOKIE + '=1') !== -1;
@@ -26,6 +27,8 @@
         var days = 30;
         var expires = new Date(Date.now() + days * 864e5).toUTCString();
         document.cookie = HIDE_COOKIE + '=1; expires=' + expires + '; path=/; SameSite=Lax' + (location.protocol === 'https:' ? '; Secure' : '');
+        // Establecer consentimiento para el tracking
+        document.cookie = CONSENT_COOKIE + '=accepted; expires=' + expires + '; path=/; SameSite=Lax' + (location.protocol === 'https:' ? '; Secure' : '');
     }
 
     var banner = document.getElementById('cookie-banner');
