@@ -6,10 +6,12 @@ use App\Models\Product;
 use App\Models\MarketingTask;
 use App\Models\DownloadHistory;
 use Livewire\Component;
+use Livewire\WithPagination;
 use Illuminate\Support\Facades\Http;
 
 class Campaigns extends Component
 {
+    use WithPagination;
     public $activeTab = 'create';
     public $selectedProductId;
     public $product = null;
@@ -34,26 +36,28 @@ class Campaigns extends Component
     public $downloads;
     public $filterColeccion = '';
     public $filterColor = '';
+    public $sortField = 'modelo';
+    public $sortDirection = 'asc';
 
     public function saveDownload()
     {
         if (!$this->product) return;
 
-        $existing = DownloadHistory::where('product_id', $this->product->id)->first();
-        if ($existing) return;
-
         $text = $this->generatedContent
             ? ($this->generatedContent['headline'] ?? '') . "\n\n" . ($this->generatedContent['body'] ?? '')
             : '';
 
-        DownloadHistory::create([
-            'product_id' => $this->product->id,
-            'model_code' => $this->product->modelo,
-            'product_image' => $this->product->imagen,
-            'text_content' => $text,
-        ]);
+        $existing = DownloadHistory::where('product_id', $this->product->id)->first();
+        if (!$existing) {
+            DownloadHistory::create([
+                'product_id' => $this->product->id,
+                'model_code' => $this->product->modelo,
+                'product_image' => $this->product->imagen,
+                'text_content' => $text,
+            ]);
+            $this->loadDownloads();
+        }
 
-        $this->loadDownloads();
         $this->dispatch('trigger-png-download');
         session()->flash('message', 'Descarga registrada.');
     }
@@ -68,6 +72,16 @@ class Campaigns extends Component
     public function setProductFilter($filter)
     {
         $this->productFilter = $filter;
+    }
+
+    public function sortBy($field)
+    {
+        if ($this->sortField === $field) {
+            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            $this->sortField = $field;
+            $this->sortDirection = 'asc';
+        }
     }
 
     private function loadDownloads()
@@ -85,6 +99,13 @@ class Campaigns extends Component
             'urgente' => ['fa-bolt', 'Urgente'],
             'lujoso' => ['fa-crown', 'Lujo'],
         ];
+    }
+
+    public function updating($property, $value)
+    {
+        if (in_array($property, ['productSearch', 'filterColeccion', 'filterColor', 'productFilter', 'sortField', 'sortDirection'])) {
+            $this->resetPage();
+        }
     }
 
     public function mount()
@@ -341,7 +362,7 @@ Separá cada variante exactamente con: ---";
             $query->whereNotIn('id', $downloadedIds);
         }
 
-        $products = $query->orderBy('modelo')->paginate(30);
+        $products = $query->orderBy($this->sortField, $this->sortDirection)->paginate(30);
         
         $colecciones = Product::where('activo', true)
             ->where('precio_venta', '>', 0)

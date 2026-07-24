@@ -38,6 +38,16 @@
                                     class="px-1.5 py-0.5 rounded text-[9px] font-bold {{ $productFilter === 'pending' ? 'bg-[#00C4FF] text-[#0a0f1c]' : 'bg-gray-100 dark:bg-white/5 text-gray-500' }}">Pendientes</button>
                             </div>
                             <div class="flex gap-1 mb-2 px-1">
+                                <select wire:model.live="sortField" class="flex-1 bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-md px-2 py-1 text-[10px] focus:border-[#00C4FF] outline-none">
+                                    <option value="modelo">Modelo</option>
+                                    <option value="precio_venta">Precio</option>
+                                    <option value="created_at">Fecha</option>
+                                    <option value="size">Tamaño</option>
+                                </select>
+                                <button wire:click="sortBy(sortField)"
+                                    class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-gray-100 dark:bg-white/5 text-gray-500 hover:text-[#00C4FF]">
+                                    <i class="fa-solid {{ $sortDirection === 'asc' ? 'fa-arrow-up-wide-short' : 'fa-arrow-down-wide-short' }}"></i>
+                                </button>
                                 <select wire:model.live="filterColeccion" class="flex-1 bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-md px-2 py-1 text-[10px] focus:border-[#00C4FF] outline-none">
                                     <option value="">Todas las colecciones</option>
                                     @foreach($colecciones as $col)
