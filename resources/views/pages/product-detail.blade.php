@@ -110,11 +110,27 @@
                         <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
                         <span class="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
                     </span>
-                    <span class="text-[10px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-wider">Próximamente</span>
-                </div>
-                @endif
+<span class="text-[10px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-wider">Próximamente</span>
+                 </div>
+                 @endif
+             </div>
+         </div>
+
+        {{-- Mobile: Agotado banner at top --}}
+        @if($isAgotado && !$isUpcoming)
+        <div class="lg:hidden flex items-center gap-3 mt-2 mb-1 bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/50 rounded-xl p-3">
+            <div class="flex-shrink-0 w-9 h-9 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center">
+                <i class="fa-solid fa-circle-xmark text-red-600 dark:text-red-400 text-lg"></i>
             </div>
+            <div class="flex flex-col">
+                <span class="text-sm font-black text-red-700 dark:text-red-400 uppercase leading-tight">Vendido / Agotado</span>
+                <span class="text-[11px] text-red-600/70 dark:text-red-300/60 leading-tight">Este reloj ya no se encuentra en stock disponible.</span>
+            </div>
+            <a href="{{ $product->coleccion && strtolower($product->coleccion) !== 'otros' ? url('/relojes?coleccion=' . urlencode($product->coleccion)) : url('/relojes') }}" class="ml-auto inline-flex items-center text-[11px] font-bold text-red-700 dark:text-red-300 hover:underline gap-1 flex-shrink-0">
+                Ver similares <i class="fa-solid fa-chevron-right text-[8px]"></i>
+            </a>
         </div>
+        @endif
 
         {{-- Main Product Layout --}}
         <div class="grid grid-cols-1 lg:grid-cols-12 items-start gap-3 lg:gap-8">
@@ -204,11 +220,11 @@
                     </div>
                 </div>
 
-                {{-- Mobile: Side-by-side grid (Image left, Buy Box right) --}}
-                <div class="lg:hidden grid grid-cols-4 gap-2">
-                    {{-- Image / Video --}}
-                    <div class="col-span-2">
-                        <div class="relative" style="min-height: 150px;" x-data='{
+                {{-- Mobile: Image (left, larger) + Buy Box (right) side-by-side, image not cropped --}}
+                <div class="lg:hidden grid grid-cols-5 gap-1.5 items-start">
+                    {{-- Image / Video (3/5 = 60% width) --}}
+                    <div class="col-span-3">
+                        <div class="relative" x-data='{
                             galleryItems: @json($galleryItems),
                             currentIndex: 0,
                             init() {
@@ -225,18 +241,18 @@
                                 this.currentIndex = (this.currentIndex + 1) % this.galleryItems.length;
                             }
                         }'>
-                            <div class="relative overflow-hidden group/image" style="min-height: 200px;">
-                                <div class="flex" :style="`transform: translateX(-${currentIndex * 100}%); transition: transform 0.5s ease-in-out;`">
+                            <div class="relative overflow-hidden group/image w-full aspect-square">
+                                <div class="absolute inset-0 flex" :style="`transform: translateX(-${currentIndex * 100}%); transition: transform 0.5s ease-in-out;`">
                                     <template x-for="(item, idx) in galleryItems" :key="idx">
-                                        <div class="w-full flex-shrink-0 flex items-center justify-center relative" style="min-height: 200px;">
+                                        <div class="relative w-full h-full flex-shrink-0 flex items-center justify-center">
                                             <template x-if="item.type === 'image'">
                                                 <div class="absolute inset-0 flex items-center justify-center cursor-zoom-in" @click="openImageModal(item.zoomUrl, '{{ $product->title }}')">
-                                                    <img :src="item.url" :alt="'{{ $product->title }} - ' + (idx + 1)" class="w-full max-h-[55vh] object-contain" :loading="idx === 0 ? 'eager' : 'lazy'" :fetchpriority="idx === 0 ? 'high' : 'auto'" />
+                                                    <img :src="item.url" :alt="'{{ $product->title }} - ' + (idx + 1)" class="w-full h-full object-contain" :loading="idx === 0 ? 'eager' : 'lazy'" :fetchpriority="idx === 0 ? 'high' : 'auto'" />
                                                 </div>
                                             </template>
                                             <template x-if="item.type === 'video'">
                                                 <div class="absolute inset-0 flex items-center justify-center cursor-pointer bg-black" @click="openVimeoModal(item.vimeoUrl)">
-                                                    <img :src="galleryItems[0].url" alt="Video del reloj" class="w-full max-h-[55vh] object-contain opacity-50" loading="lazy" />
+                                                    <img :src="galleryItems[0].url" alt="Video del reloj" class="w-full h-full object-contain opacity-50" loading="lazy" />
                                                     <div class="absolute inset-0 flex items-center justify-center">
                                                         <div class="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center shadow-2xl border-4 border-white/30 hover:border-white/60 transition-all duration-300 hover:scale-110">
                                                             <i class="fa-solid fa-play text-white text-lg ml-1"></i>
@@ -249,17 +265,17 @@
                                 </div>
 
                                 {{-- Mobile navigation buttons (smaller) --}}
-                                <button type="button" @click="prev()" x-show="galleryItems.length > 1" class="absolute left-1.5 top-1/2 -translate-y-1/2 w-7 h-7 bg-white/80 dark:bg-gray-900/80 text-gray-600 dark:text-gray-300 rounded-full shadow flex items-center justify-center transition-all opacity-60 z-20">
+                                <button type="button" @click="prev()" x-show="galleryItems.length > 1" class="absolute left-1 top-1/2 -translate-y-1/2 w-7 h-7 bg-white/80 dark:bg-gray-900/80 text-gray-600 dark:text-gray-300 rounded-full shadow flex items-center justify-center transition-all opacity-60 z-20">
                                     <i class="fa-solid fa-chevron-left text-[10px]"></i>
                                 </button>
-                                <button type="button" @click="next()" x-show="galleryItems.length > 1" class="absolute right-1.5 top-1/2 -translate-y-1/2 w-7 h-7 bg-white/80 dark:bg-gray-900/80 text-gray-600 dark:text-gray-300 rounded-full shadow flex items-center justify-center transition-all opacity-60 z-20">
+                                <button type="button" @click="next()" x-show="galleryItems.length > 1" class="absolute right-1 top-1/2 -translate-y-1/2 w-7 h-7 bg-white/80 dark:bg-gray-900/80 text-gray-600 dark:text-gray-300 rounded-full shadow flex items-center justify-center transition-all opacity-60 z-20">
                                     <i class="fa-solid fa-chevron-right text-[10px]"></i>
                                 </button>
                             </div>
                         </div>
                     </div>
 
-                    {{-- Buy box (price, buttons, specs) --}}
+                    {{-- Buy box (2/5 = 40% width): price, buttons, specs alongside image --}}
                     <div class="col-span-2 flex flex-col items-stretch justify-start gap-1">
                         @if($isUpcoming)
                         <span class="text-lg font-black text-amber-500 tracking-tight text-center leading-none">Próx.</span>
@@ -336,20 +352,6 @@
                         </div>
                     </div>
 
-                 {{-- Mobile: Vistos Recientemente slider --}}
-                 @if($recentlyViewed->count() > 0)
-                 <div class="lg:hidden mt-3">
-                     <h3 class="text-[10px] font-black text-gray-600 dark:text-gray-500 uppercase tracking-widest mb-2 px-1">Vistos Recientemente</h3>
-                     <div class="flex gap-1.5 overflow-x-auto pb-2 -mx-1 px-1 snap-x snap-mandatory scrollbar-hide">
-                        @foreach($recentlyViewed as $recent)
-                        <div class="flex-shrink-0 w-24 snap-start">
-                            <x-product-card-related :product="$recent" compact />
-                        </div>
-                        @endforeach
-                    </div>
-                </div>
-                @endif
-
                  {{-- Mobile: Relojes Similares slider (replaces thumbnail strip, since all watches have a single image) --}}
                  @if($relatedProducts->count() > 0)
                  <div class="lg:hidden mt-3">
@@ -409,7 +411,7 @@
 
                 {{-- Agotado / Próximo State --}}
                 @if($isAgotado && !$isUpcoming)
-                <div class="bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/50 rounded-2xl p-6 text-center mb-10">
+                <div class="hidden lg:block bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/50 rounded-2xl p-6 text-center mb-10">
                     <div class="w-12 h-12 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-3">
                         <i class="fa-solid fa-circle-xmark text-red-600 dark:text-red-400 text-2xl"></i>
                     </div>
