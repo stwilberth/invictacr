@@ -300,24 +300,6 @@
                             </a>
                         @endif
 
-                        @auth
-                            @if(auth()->user()->is_admin)
-                            <a href="{{ route('admin.products.edit', $product->id) }}" target="_blank" class="w-full flex items-center justify-center gap-1 py-1.5 bg-[#00C4FF]/10 border border-[#00C4FF]/30 rounded-lg text-[#00C4FF] hover:bg-[#00C4FF]/20 transition-all text-[11px] font-bold uppercase tracking-wide">
-                                <i class="fa-solid fa-pen-to-square text-[10px]"></i>
-                                Editar
-                            </a>
-                            @if(!$isAgotado && !$isUpcoming)
-                            <form id="markAgotadoFormMobile" method="POST" action="{{ route('products.mark-agotado', $product->slug) }}" class="w-full">
-                                @csrf
-                                <button type="button" onclick="openAgotadoModal('markAgotadoFormMobile')" class="w-full flex items-center justify-center gap-1 py-1.5 bg-red-500/10 border border-red-500/30 rounded-lg text-red-500 hover:bg-red-500/20 transition-all text-[11px] font-bold uppercase tracking-wide">
-                                    <i class="fa-solid fa-circle-xmark text-[10px]"></i>
-                                    Agotado
-                                </button>
-                            </form>
-                            @endif
-                            @endif
-                        @endauth
-
                         {{-- Mobile inline specs card --}}
                         <div id="mobile-specs-card" class="flex-col gap-0 w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/50 overflow-hidden">
                             <div class="flex justify-between items-center px-2 py-1.5 border-b border-gray-100 dark:border-gray-700">
@@ -377,25 +359,6 @@
                             {{ $displayTitle }}
                         </h1>
                     </div>
-                    @auth
-                        @if(auth()->user()->is_admin)
-                        <div class="flex items-center gap-2 flex-wrap mb-2">
-                            <a href="{{ route('admin.products.edit', $product->id) }}" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1 bg-[#00C4FF]/10 border border-[#00C4FF]/30 rounded-lg text-[#00C4FF] hover:bg-[#00C4FF]/20 transition-all text-xs font-bold uppercase tracking-wider">
-                                <i class="fa-solid fa-pen-to-square"></i>
-                                Editar producto
-                            </a>
-                            @if(!$isAgotado && !$isUpcoming)
-                            <form id="markAgotadoFormDesktop" method="POST" action="{{ route('products.mark-agotado', $product->slug) }}" class="inline">
-                                @csrf
-                                <button type="button" onclick="openAgotadoModal('markAgotadoFormDesktop')" class="inline-flex items-center gap-1.5 px-3 py-1 bg-red-500/10 border border-red-500/30 rounded-lg text-red-500 hover:bg-red-500/20 transition-all text-xs font-bold uppercase tracking-wider">
-                                    <i class="fa-solid fa-circle-xmark"></i>
-                                    Marcar agotado
-                                </button>
-                            </form>
-                            @endif
-                        </div>
-                        @endif
-                    @endauth
                     <div class="flex items-center justify-center md:justify-start gap-3">
                         @if($isUpcoming)
                         <div class="flex items-center gap-2 px-4 py-1.5 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/50 rounded-full w-fit">
@@ -635,27 +598,6 @@
         </div>
     </div>
 
-    {{-- Agotado Confirmation Modal --}}
-    <div id="agotadoModal" class="modal-overlay fixed inset-0 z-[100] hidden items-center justify-center bg-black/85 p-4" onclick="if (event.target === this) closeAgotadoModal()">
-        <div class="relative w-full max-w-md bg-white dark:bg-gray-800 rounded-2xl shadow-2xl overflow-hidden">
-            <div class="p-6 text-center">
-                <div class="w-14 h-14 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <i class="fa-solid fa-circle-xmark text-red-600 dark:text-red-400 text-2xl"></i>
-                </div>
-                <h3 class="text-lg font-black text-gray-800 dark:text-white uppercase tracking-tight mb-2">¿Marcar como agotado?</h3>
-                <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">Este reloj se ocultará del catálogo y su stock quedará en cero. Podrás restaurarlo desde el panel de administración.</p>
-                <div class="flex gap-3">
-                    <button type="button" onclick="closeAgotadoModal()" class="flex-1 py-2.5 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-xl font-bold uppercase tracking-wide text-xs transition-all">
-                        Cancelar
-                    </button>
-                    <button type="button" onclick="confirmAgotado()" class="flex-1 py-2.5 bg-red-500 hover:bg-red-600 text-white rounded-xl font-bold uppercase tracking-wide text-xs transition-all active:scale-95">
-                        Sí, marcar agotado
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <script>
         var pixelModel = "{{ $product->modelo }}";
         var pixelTitle = "{{ $product->title }}";
@@ -668,12 +610,6 @@
         // Share modal
         function openShareModal() { var el = document.getElementById('shareModal'); if (!el) return; el.classList.remove('hidden'); el.classList.add('flex'); requestAnimationFrame(function() { el.classList.add('active'); }); document.body.style.overflow = 'hidden'; }
         function closeShareModal() { var el = document.getElementById('shareModal'); if (!el) return; el.classList.remove('active'); document.body.style.overflow = ''; setTimeout(function() { el.classList.add('hidden'); el.classList.remove('flex'); }, 300); }
-
-        // Agotado confirmation modal
-        var agotadoFormId = null;
-        function openAgotadoModal(formId) { agotadoFormId = formId; var el = document.getElementById('agotadoModal'); if (!el) return; el.classList.remove('hidden'); el.classList.add('flex'); requestAnimationFrame(function() { el.classList.add('active'); }); document.body.style.overflow = 'hidden'; }
-        function closeAgotadoModal() { var el = document.getElementById('agotadoModal'); if (!el) return; el.classList.remove('active'); document.body.style.overflow = ''; setTimeout(function() { el.classList.remove('hidden'); el.classList.remove('flex'); }, 300); agotadoFormId = null; }
-        function confirmAgotado() { if (agotadoFormId) { var form = document.getElementById(agotadoFormId); if (form) form.submit(); } closeAgotadoModal(); }
 
         // Related products slider navigation
         function scrollRelated(dir) {
