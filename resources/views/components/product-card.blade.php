@@ -72,7 +72,7 @@
                 <i class="fa-solid fa-play"></i> Ver Video
             </button>
             @endif
-            <a href="{{ $productUrl }}" class="inline-flex items-center gap-0.5 md:gap-1 {{ $compact ? 'px-1 py-0.5 text-[7px]' : 'px-1 py-0.5 md:px-2 md:py-1 text-[7px] md:text-[9px]' }} font-black uppercase tracking-wide text-white bg-slate-800 hover:bg-slate-700 dark:bg-gray-700 dark:hover:bg-gray-600 rounded-md transition-colors shadow-sm no-underline">
+            <a href="{{ $productUrl }}" class="inline-flex items-center gap-0.5 md:gap-1 {{ $compact ? 'px-1 py-0.5 text-[7px]' : 'px-1 py-0.5 md:px-2 md:py-1 text-[7px] md:text-[9px]' }} font-black uppercase tracking-wide text-slate-900 bg-[#00C4FF] hover:bg-[#00a3d6] rounded-md transition-colors shadow-sm no-underline">
                 <i class="fa-solid fa-circle-info"></i> Ver Más
             </a>
         </div>
