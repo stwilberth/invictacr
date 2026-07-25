@@ -13,17 +13,7 @@ class LiveSearchController extends Controller
         $query = Product::where("activo", true)->where("precio_venta", ">", 0)->where("stock", ">", 0);
 
         if ($request->filled("q")) {
-            $term = $request->q;
-            $query->where(function ($q) use ($term) {
-                $q->where("modelo", "like", "%{$term}%")
-                  ->orWhere("title", "like", "%{$term}%")
-                  ->orWhere("descripcion", "like", "%{$term}%")
-                  ->orWhere("coleccion", "like", "%{$term}%")
-                  ->orWhere("color", "like", "%{$term}%")
-                  ->orWhere("genero", "like", "%{$term}%")
-                  ->orWhere("brazalete", "like", "%{$term}%")
-                  ->orWhere("tipo_movimiento", "like", "%{$term}%");
-            });
+            Product::applyTextSearch($query, $request->q);
         }
 
         if ($request->filled("gender")) {

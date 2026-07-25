@@ -151,17 +151,7 @@ class ProductController extends Controller
         }
 
         if ($isSearch) {
-            $term = $request->q;
-            $query->where(function ($q) use ($term) {
-                $q->where("modelo", "like", "%{$term}%")
-                  ->orWhere("title", "like", "%{$term}%")
-                  ->orWhere("descripcion", "like", "%{$term}%")
-                  ->orWhere("coleccion", "like", "%{$term}%")
-                  ->orWhere("color", "like", "%{$term}%")
-                  ->orWhere("genero", "like", "%{$term}%")
-                  ->orWhere("brazalete", "like", "%{$term}%")
-                  ->orWhere("tipo_movimiento", "like", "%{$term}%");
-            });
+            Product::applyTextSearch($query, $request->q);
         }
 
         if ($request->filled("gender")) {

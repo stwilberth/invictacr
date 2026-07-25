@@ -138,6 +138,52 @@ class Product extends Model
         );
     }
 
+    /**
+     * Aplica una busqueda de texto libre sobre los campos relevantes,
+     * incluyendo el `title` (que ahora agrega coleccion/genero/tipo/modelo/size).
+     *
+     * Tokeniza el texto por espacios y aplica AND entre tokens; cada token
+     * se busca via LIKE en OR sobre los campos (modelo, title, coleccion,
+     * color, genero, brazalete, tipo_movimiento, descripcion).
+     *
+     * Normaliza sufijos "mm" (ej: "48mm" -> "48") para que coincidan con
+     * el title que usa "48.0 mm".
+     */
+    public static function applyTextSearch($query, string $text): void
+    {
+        $rawTokens = preg_split('/\s+/', trim($text));
+        if ($rawTokens === false) return;
+
+        $tokens = [];
+        foreach ($rawTokens as $tok) {
+            $tok = trim($tok, ".,()[]{}");
+            if ($tok === '') continue;
+            // "48mm" -> "48", "40.0mm" -> "40.0"
+            if (preg_match('/^(.+?)mm$/i', $tok, $m)) {
+                $tok = $m[1];
+            }
+            if (mb_strlen($tok) >= 2) {
+                $tokens[] = $tok;
+            }
+        }
+        $tokens = array_values(array_unique($tokens));
+
+        if (empty($tokens)) return;
+
+        foreach ($tokens as $tok) {
+            $query->where(function ($q) use ($tok) {
+                $q->where('modelo', 'like', "%{$tok}%")
+                  ->orWhere('title', 'like', "%{$tok}%")
+                  ->orWhere('coleccion', 'like', "%{$tok}%")
+                  ->orWhere('color', 'like', "%{$tok}%")
+                  ->orWhere('genero', 'like', "%{$tok}%")
+                  ->orWhere('brazalete', 'like', "%{$tok}%")
+                  ->orWhere('tipo_movimiento', 'like', "%{$tok}%")
+                  ->orWhere('descripcion', 'like', "%{$tok}%");
+            });
+        }
+    }
+
     public function setBrazaleteAttribute($value)
     {
         $this->attributes['brazalete'] = static::normalizeBrazalete($value);

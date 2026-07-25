@@ -11,24 +11,10 @@ class SearchController extends Controller
     {
         $query = $request->input('q');
 
-        $terms = [$query];
-        if (str_ends_with($query, 's')) {
-            $terms[] = rtrim($query, 's');
-        }
-
         $products = Product::where('activo', true)
             ->where('precio_venta', '>', 0)
-            ->where(function ($q) use ($terms) {
-                foreach ($terms as $term) {
-                    $q->orWhere('title', 'like', "%{$term}%")
-                      ->orWhere('modelo', 'like', "%{$term}%")
-                      ->orWhere('descripcion', 'like', "%{$term}%")
-                      ->orWhere('coleccion', 'like', "%{$term}%")
-                      ->orWhere('color', 'like', "%{$term}%")
-                      ->orWhere('genero', 'like', "%{$term}%")
-                      ->orWhere('brazalete', 'like', "%{$term}%")
-                      ->orWhere('tipo_movimiento', 'like', "%{$term}%");
-                }
+            ->where(function ($q) use ($query) {
+                Product::applyTextSearch($q, $query ?? '');
             })
             ->paginate(48);
 
