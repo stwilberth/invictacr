@@ -91,8 +91,11 @@
                     <td class="px-4 py-3 text-gray-600 dark:text-gray-400 capitalize" data-column="genero">{{ $product->genero }}</td>
                     <td class="px-4 py-3 text-right font-bold text-gray-900 dark:text-white" data-column="precio">₡{{ number_format($product->precio_venta, 0) }}</td>
                     <td class="px-4 py-3 text-center" data-column="imgs">
-                        <span class="text-xs font-bold {{ $product->images_count > 0 ? 'text-[#00C4FF]' : 'text-gray-400' }}">
-                            {{ $product->images_count }}
+                        @php
+                            $totalImgs = $product->images_count + ($product->getRawOriginal('imagen') ? 1 : 0);
+                        @endphp
+                        <span class="text-xs font-bold {{ $totalImgs > 0 ? 'text-[#00C4FF]' : 'text-gray-400' }}">
+                            {{ $totalImgs }}
                         </span>
                     </td>
                     <td class="px-4 py-3 text-center" data-column="stock">

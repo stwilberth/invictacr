@@ -155,7 +155,7 @@
                         }
                     }'>
                         <div class="relative overflow-hidden" style="min-height: 400px;">
-                            <div class="flex" :style="`transform: translateX(-${currentIndex * 100}%); transition: transform 0.5s ease-in-out;`">
+                            <div class="flex" :style="`transform: translateX(-${currentIndex * 100}%); transition: transform 1.5s cubic-bezier(0.4, 0, 0.2, 1);`">
                                 <template x-for="(item, idx) in galleryItems" :key="idx">
                                     <div class="w-full flex-shrink-0 flex items-center justify-center aspect-square relative">
                                         <template x-if="item.type === 'image'">
@@ -242,7 +242,7 @@
                             }
                         }'>
                             <div class="relative overflow-hidden group/image w-full aspect-square">
-                                <div class="absolute inset-0 flex" :style="`transform: translateX(-${currentIndex * 100}%); transition: transform 0.5s ease-in-out;`">
+                                <div class="absolute inset-0 flex" :style="`transform: translateX(-${currentIndex * 100}%); transition: transform 1.5s cubic-bezier(0.4, 0, 0.2, 1);`">
                                     <template x-for="(item, idx) in galleryItems" :key="idx">
                                         <div class="relative w-full h-full flex-shrink-0 flex items-center justify-center">
                                             <template x-if="item.type === 'image'">
