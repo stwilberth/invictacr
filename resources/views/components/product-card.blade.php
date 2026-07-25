@@ -68,11 +68,11 @@
 
         <div class="mt-1 flex items-center justify-center gap-1">
             @if($product->video)
-            <button type="button" onclick="openVimeoModal('{{ $product->video }}')" title="Ver video" class="inline-flex items-center gap-0.5 md:gap-1 {{ $compact ? 'px-1 py-0.5 text-[7px]' : 'px-1 py-0.5 md:px-2 md:py-1 text-[7px] md:text-[9px]' }} font-black uppercase tracking-wide text-white bg-red-600 hover:bg-red-700 rounded-md transition-colors shadow-sm">
+            <button type="button" onclick="openVimeoModal('{{ $product->video }}')" title="Ver video" class="inline-flex items-center gap-0.5 md:gap-1 {{ $compact ? 'px-1 py-0.5 text-[7px]' : 'px-1 py-0.5 md:px-2 md:py-1 text-[7px] md:text-[9px]' }} font-black uppercase tracking-wide text-red-600 border border-red-600 hover:bg-red-600 hover:text-white rounded-md transition-colors">
                 <i class="fa-solid fa-play"></i> Ver Video
             </button>
             @endif
-            <a href="{{ $productUrl }}" class="inline-flex items-center gap-0.5 md:gap-1 {{ $compact ? 'px-1 py-0.5 text-[7px]' : 'px-1 py-0.5 md:px-2 md:py-1 text-[7px] md:text-[9px]' }} font-black uppercase tracking-wide text-slate-900 bg-[#00C4FF] hover:bg-[#00a3d6] rounded-md transition-colors shadow-sm no-underline">
+            <a href="{{ $productUrl }}" class="inline-flex items-center gap-0.5 md:gap-1 {{ $compact ? 'px-1 py-0.5 text-[7px]' : 'px-1 py-0.5 md:px-2 md:py-1 text-[7px] md:text-[9px]' }} font-black uppercase tracking-wide text-[#00a3d6] border border-[#00C4FF] hover:bg-[#00C4FF] hover:text-slate-900 rounded-md transition-colors no-underline">
                 <i class="fa-solid fa-circle-info"></i> Ver Más
             </a>
         </div>
