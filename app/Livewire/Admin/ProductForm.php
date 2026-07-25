@@ -77,9 +77,22 @@ class ProductForm extends Component
         if (!$this->slug) {
             $this->slug = "invicta-" . Str::slug($value);
         }
-        if (!$this->title) {
-            $this->title = $value;
-        }
+        $this->title = Product::buildDisplayTitle($this->coleccion, $this->genero, $this->modelo, $this->size);
+    }
+
+    public function updatedColeccion($value)
+    {
+        $this->title = Product::buildDisplayTitle($this->coleccion, $this->genero, $this->modelo, $this->size);
+    }
+
+    public function updatedGenero($value)
+    {
+        $this->title = Product::buildDisplayTitle($this->coleccion, $this->genero, $this->modelo, $this->size);
+    }
+
+    public function updatedSize($value)
+    {
+        $this->title = Product::buildDisplayTitle($this->coleccion, $this->genero, $this->modelo, $this->size);
     }
 
     public function addImagenExtra()
@@ -639,7 +652,7 @@ class ProductForm extends Component
 
         $data = [
             "modelo" => $this->modelo,
-            "title" => $this->title,
+            "title" => Product::buildDisplayTitle($this->coleccion, $this->genero, $this->modelo, $cleanedSize),
             "slug" => $this->slug,
             "descripcion" => $this->descripcion,
             "color" => $this->color,

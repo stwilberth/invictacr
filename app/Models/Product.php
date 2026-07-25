@@ -96,6 +96,43 @@ class Product extends Model
         return $this->proximo;
     }
 
+    /**
+     * Construye el título de visualización igual al que usa
+     * resources/views/pages/product-detail.blade.php
+     *
+     * Formato: "Reloj Invicta {coleccion} para {genero} ({modelo}) - {size} mm"
+     *  - Se omite la colección si está vacía o es "otros"
+     *  - Se omite "para {genero}" si está vacío o es "unisex"
+     */
+    public static function buildDisplayTitle(?string $coleccion, ?string $genero, ?string $modelo, ?string $size): string
+    {
+        $size = $size ? preg_replace('/\s*mm$/i', '', $size) : '';
+
+        $title = 'Reloj Invicta ';
+
+        if ($coleccion && strtolower($coleccion) !== 'otros') {
+            $title .= $coleccion . ' ';
+        }
+
+        if ($genero && strtolower($genero) !== 'unisex') {
+            $title .= 'para ' . $genero . ' ';
+        }
+
+        $title .= '(' . $modelo . ') - ' . $size . ' mm';
+
+        return $title;
+    }
+
+    public function getDisplayTitleAttribute(): string
+    {
+        return static::buildDisplayTitle(
+            $this->coleccion,
+            $this->genero,
+            $this->modelo,
+            $this->size,
+        );
+    }
+
     public function setBrazaleteAttribute($value)
     {
         $this->attributes['brazalete'] = static::normalizeBrazalete($value);

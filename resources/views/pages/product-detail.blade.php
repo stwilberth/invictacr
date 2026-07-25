@@ -1,6 +1,6 @@
 @php
     $size = $product->size ? preg_replace('/\s*mm$/i', '', $product->size) : '';
-    $displayTitle = 'Reloj Invicta ' . ($product->coleccion && strtolower($product->coleccion) !== 'otros' ? $product->coleccion . ' ' : '') . ($product->genero && strtolower($product->genero) !== 'unisex' ? 'para ' . $product->genero . ' ' : '') . '(' . $product->modelo . ') - ' . $size . ' mm';
+    $displayTitle = $product->display_title;
     $seoTitle = $displayTitle . ' | Comprar en Costa Rica';
 
     $cdnBase = 'https://cdn.invictacostarica.com';
