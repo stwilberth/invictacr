@@ -35,12 +35,12 @@
 
     <div class="{{ $compact ? 'p-1' : 'p-1 md:p-2' }} flex flex-col flex-grow">
         <a href="{{ $productUrl }}" class="block hover:text-blue-600 transition-colors">
-            <h3 class="{{ $compact ? 'text-[10px] min-h-7' : 'text-[10px] min-h-7 md:text-xs md:min-h-14' }} font-bold text-gray-500 dark:text-white leading-tight uppercase tracking-tight group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors text-center">
+            <h3 class="{{ $compact ? 'text-[10px]' : 'text-[10px] md:text-xs' }} font-bold text-gray-500 dark:text-white leading-tight uppercase tracking-tight group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors text-center">
                 {{ $product->title }}
             </h3>
         </a>
 
-        <div class="mt-1 text-center">
+        <div class="text-center">
             @if($product->proximo && ($product->stock ?? 0) > 0)
                 <div class="py-1">
                     <span class="text-[9px] md:text-xs font-bold px-1.5 md:px-2 py-0.5 bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 rounded-md">Próximamente</span>
