@@ -35,7 +35,7 @@
 
     <div class="{{ $compact ? 'p-1' : 'p-1 md:p-2' }} flex flex-col flex-grow bg-slate-50 dark:bg-[#0a0f1c]/50">
         <a href="{{ $productUrl }}" class="{{ $compact ? 'mb-1' : 'mb-1 md:mb-3' }} flex-grow block hover:text-blue-600 transition-colors">
-            <h3 class="{{ $compact ? 'text-[10px] min-h-7' : 'text-[10px] min-h-7 md:text-xs md:min-h-14' }} font-bold text-slate-600 dark:text-gray-200 leading-tight uppercase tracking-tight group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+            <h3 class="{{ $compact ? 'text-[10px] min-h-7' : 'text-[10px] min-h-7 md:text-xs md:min-h-14' }} font-bold text-slate-600 dark:text-gray-200 leading-tight uppercase tracking-tight group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors text-center">
                 {{ $product->title }}
             </h3>
         </a>
