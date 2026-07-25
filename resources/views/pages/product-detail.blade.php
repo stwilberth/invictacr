@@ -323,24 +323,28 @@
                 </div>
 
                                     {{-- Mobile shipping banner --}}
-                    <div class="lg:hidden w-full flex flex-col items-center justify-center gap-1 py-2 px-4 mt-2">
-                        <div class="flex items-center gap-2">
-                            <i class="fa-solid fa-truck text-emerald-500 text-xs"></i>
-                            <span class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Envío Gratis* con tu cuenta</span>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <i class="fa-solid fa-hand-holding-dollar text-[#00C4FF] text-xs"></i>
-                            <span class="text-[10px] font-bold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Pago contra entrega*</span>
+                    <div class="lg:hidden w-full py-2 px-4 mt-2 overflow-hidden bg-gradient-to-r from-emerald-50 to-blue-50 dark:from-emerald-900/20 dark:to-blue-900/20 rounded-lg">
+                        <div class="w-full flex items-center gap-3 animate-scroll">
+                            <i class="fa-solid fa-truck text-emerald-500 text-xs flex-shrink-0"></i>
+                            <span class="text-[8px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider whitespace-nowrap">Envío Gratis para usuarios registrados</span>
+                            <span class="text-gray-400 dark:text-gray-600 flex-shrink-0">•</span>
+                            <i class="fa-solid fa-hand-holding-dollar text-[#00C4FF] text-xs flex-shrink-0"></i>
+                            <span class="text-[8px] font-bold text-gray-600 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Pago contra entrega*</span>
+                            <i class="fa-solid fa-truck text-emerald-500 text-xs flex-shrink-0"></i>
+                            <span class="text-[8px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider whitespace-nowrap">Envío Gratis para usuarios registrados</span>
+                            <span class="text-gray-400 dark:text-gray-600 flex-shrink-0">•</span>
+                            <i class="fa-solid fa-hand-holding-dollar text-[#00C4FF] text-xs flex-shrink-0"></i>
+                            <span class="text-[8px] font-bold text-gray-600 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Pago contra entrega*</span>
                         </div>
                     </div>
 
                  {{-- Mobile: Relojes Similares slider (replaces thumbnail strip, since all watches have a single image) --}}
                  @if($relatedProducts->count() > 0)
-                 <div class="lg:hidden mt-3">
-                     <h3 class="text-[10px] font-black text-gray-600 dark:text-gray-500 uppercase tracking-widest mb-2 px-1">Relojes Similares</h3>
-                     <div class="flex gap-1.5 overflow-x-auto pb-2 -mx-1 px-1 snap-x snap-mandatory scrollbar-hide">
+                 <div class="lg:hidden mt-3" x-data="mobileRelatedSlider()">
+                     <h3 class="text-sm font-black text-gray-600 dark:text-gray-500 uppercase tracking-widest mb-3 px-1">Relojes Similares</h3>
+                     <div id="mobile-related-slider" class="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1 snap-x snap-mandatory scrollbar-hide" style="scroll-behavior: smooth;">
                         @foreach($relatedProducts as $related)
-                        <div class="flex-shrink-0 w-24 snap-start">
+                        <div class="flex-shrink-0 w-32 snap-start">
                             <x-product-card-related :product="$related" compact />
                         </div>
                         @endforeach
@@ -518,11 +522,11 @@
 
     {{-- Vistos Recientemente --}}
     @if($recentlyViewed->count() > 0)
-    <div class="max-w-7xl mx-auto px-4 mt-12 mb-8">
+    <div class="max-w-7xl mx-auto px-4 mt-5 mb-8">
         {{-- Mobile: Vistos Recientemente slider --}}
-        <div class="lg:hidden">
+        <div class="lg:hidden" x-data="mobileRecentlyViewedSlider()">
             <h3 class="text-sm font-black text-gray-600 dark:text-gray-500 uppercase tracking-widest mb-3 px-1">Vistos Recientemente</h3>
-            <div class="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1 snap-x snap-mandatory scrollbar-hide">
+            <div id="mobile-recently-viewed-slider" class="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1 snap-x snap-mandatory scrollbar-hide" style="scroll-behavior: smooth;">
                 @foreach($recentlyViewed as $recent)
                 <div class="flex-shrink-0 w-32 snap-start">
                     <x-product-card-related :product="$recent" compact />
@@ -607,6 +611,72 @@
 
     @push('scripts')
     <script>
+        // Add animation styles
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes scroll-left {
+                0% {
+                    transform: translateX(0);
+                }
+                100% {
+                    transform: translateX(-50%);
+                }
+            }
+            
+            .animate-scroll {
+                animation: scroll-left 20s linear infinite;
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Mobile related slider auto-scroll
+        function mobileRelatedSlider() {
+            return {
+                init() {
+                    const slider = document.getElementById('mobile-related-slider');
+                    if (!slider) return;
+                    
+                    let currentScroll = 0;
+                    const scrollAmount = 148; // w-32 (128px) + gap-2 (8px) + gap (12px)
+                    
+                    setInterval(() => {
+                        currentScroll += scrollAmount;
+                        const maxScroll = slider.scrollWidth - slider.clientWidth;
+                        
+                        if (currentScroll >= maxScroll) {
+                            currentScroll = 0;
+                        }
+                        
+                        slider.scrollTo({ left: currentScroll, behavior: 'smooth' });
+                    }, 4000);
+                }
+            }
+        }
+
+        // Mobile recently viewed slider auto-scroll
+        function mobileRecentlyViewedSlider() {
+            return {
+                init() {
+                    const slider = document.getElementById('mobile-recently-viewed-slider');
+                    if (!slider) return;
+                    
+                    let currentScroll = 0;
+                    const scrollAmount = 148; // w-32 (128px) + gap-2 (8px) + gap (12px)
+                    
+                    setInterval(() => {
+                        currentScroll += scrollAmount;
+                        const maxScroll = slider.scrollWidth - slider.clientWidth;
+                        
+                        if (currentScroll >= maxScroll) {
+                            currentScroll = 0;
+                        }
+                        
+                        slider.scrollTo({ left: currentScroll, behavior: 'smooth' });
+                    }, 4000);
+                }
+            }
+        }
+
         // Share modal
         function openShareModal() { var el = document.getElementById('shareModal'); if (!el) return; el.classList.remove('hidden'); el.classList.add('flex'); requestAnimationFrame(function() { el.classList.add('active'); }); document.body.style.overflow = 'hidden'; }
         function closeShareModal() { var el = document.getElementById('shareModal'); if (!el) return; el.classList.remove('active'); document.body.style.overflow = ''; setTimeout(function() { el.classList.add('hidden'); el.classList.remove('flex'); }, 300); }
