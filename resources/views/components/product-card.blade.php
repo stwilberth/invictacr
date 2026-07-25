@@ -40,13 +40,9 @@
             </h3>
         </a>
         <div class="flex items-center gap-1 {{ $compact ? 'mb-1' : 'mb-1 md:gap-2 md:mb-3' }}">
-            @if($product->size)
-            <span class="text-[8px] md:text-[10px] font-bold text-slate-500 dark:text-gray-400 bg-slate-200/50 dark:bg-white/5 px-1 md:px-2 py-0.5 rounded-md">{{ preg_replace('/\s*mm$/i', '', $product->size) }}MM</span>
-            @endif
             @if($product->tipo_movimiento)
             <span class="text-[8px] md:text-[10px] font-bold text-slate-500 dark:text-gray-400 uppercase tracking-wider">{{ $product->tipo_movimiento }}</span>
             @endif
-            <span class="text-[8px] md:text-[10px] font-bold text-slate-500 dark:text-gray-400 uppercase tracking-wider">{{ $product->genero }}</span>
         </div>
 
         <div class="{{ $compact ? 'my-0.5' : 'my-0.5 md:my-2' }} flex items-center justify-between gap-1">
