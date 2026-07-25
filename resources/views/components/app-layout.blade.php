@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="es" class="transition-colors duration-300">
+<html lang="es" class="transition-colors duration-300" style="overflow-x: clip;">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
@@ -148,7 +148,7 @@
     {!! $head ?? '' !!}
     @stack('json-ld')
 </head>
-<body class="bg-white text-gray-900 dark:bg-[#121212] dark:text-gray-100">
+<body class="bg-white text-gray-900 dark:bg-[#121212] dark:text-gray-100" style="overflow-x: clip;">
     @unless($hideNav ?? false)
     <x-navbar :q="$q ?? null" />
     @endunless

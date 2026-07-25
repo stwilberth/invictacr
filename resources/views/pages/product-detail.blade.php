@@ -324,17 +324,29 @@
 
                                     {{-- Mobile shipping banner --}}
                     <div class="lg:hidden w-full py-2 px-4 mt-2 overflow-hidden bg-gradient-to-r from-emerald-50 to-blue-50 dark:from-emerald-900/20 dark:to-blue-900/20 rounded-lg">
-                        <div class="w-full flex items-center gap-3 animate-scroll">
-                            <i class="fa-solid fa-truck text-emerald-500 text-xs flex-shrink-0"></i>
-                            <span class="text-[8px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider whitespace-nowrap">Envío Gratis para usuarios registrados</span>
-                            <span class="text-gray-400 dark:text-gray-600 flex-shrink-0">•</span>
-                            <i class="fa-solid fa-hand-holding-dollar text-[#00C4FF] text-xs flex-shrink-0"></i>
-                            <span class="text-[8px] font-bold text-gray-600 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Pago contra entrega*</span>
-                            <i class="fa-solid fa-truck text-emerald-500 text-xs flex-shrink-0"></i>
-                            <span class="text-[8px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider whitespace-nowrap">Envío Gratis para usuarios registrados</span>
-                            <span class="text-gray-400 dark:text-gray-600 flex-shrink-0">•</span>
-                            <i class="fa-solid fa-hand-holding-dollar text-[#00C4FF] text-xs flex-shrink-0"></i>
-                            <span class="text-[8px] font-bold text-gray-600 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Pago contra entrega*</span>
+                        <div class="flex animate-scroll" style="width: max-content;">
+                            <div class="flex items-center gap-3 shrink-0 pr-3">
+                                <i class="fa-solid fa-truck text-emerald-500 text-xs flex-shrink-0"></i>
+                                <span class="text-[9px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider whitespace-nowrap">Envío Gratis*</span>
+                                <span class="text-gray-400 dark:text-gray-600 flex-shrink-0">•</span>
+                                <i class="fa-solid fa-hand-holding-dollar text-[#00C4FF] text-xs flex-shrink-0"></i>
+                                <span class="text-[9px] font-bold text-gray-600 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Pago contra entrega*</span>
+                                <span class="text-gray-400 dark:text-gray-600 flex-shrink-0">•</span>
+                                <i class="fa-solid fa-clock text-[#00C4FF] text-xs flex-shrink-0"></i>
+                                <span class="text-[9px] font-bold text-gray-600 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Entrega Inmediata</span>
+                                <span class="text-gray-400 dark:text-gray-600 flex-shrink-0">•</span>
+                            </div>
+                            <div class="flex items-center gap-3 shrink-0 pr-3">
+                                <i class="fa-solid fa-truck text-emerald-500 text-xs flex-shrink-0"></i>
+                                <span class="text-[9px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider whitespace-nowrap">Envío Gratis*</span>
+                                <span class="text-gray-400 dark:text-gray-600 flex-shrink-0">•</span>
+                                <i class="fa-solid fa-hand-holding-dollar text-[#00C4FF] text-xs flex-shrink-0"></i>
+                                <span class="text-[9px] font-bold text-gray-600 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Pago contra entrega*</span>
+                                <span class="text-gray-400 dark:text-gray-600 flex-shrink-0">•</span>
+                                <i class="fa-solid fa-clock text-[#00C4FF] text-xs flex-shrink-0"></i>
+                                <span class="text-[9px] font-bold text-gray-600 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Entrega Inmediata</span>
+                                <span class="text-gray-400 dark:text-gray-600 flex-shrink-0">•</span>
+                            </div>
                         </div>
                     </div>
 
@@ -342,7 +354,7 @@
                  @if($relatedProducts->count() > 0)
                  <div class="lg:hidden mt-3" x-data="mobileRelatedSlider()">
                      <h3 class="text-sm font-black text-gray-600 dark:text-gray-500 uppercase tracking-widest mb-3 px-1">Relojes Similares</h3>
-                     <div id="mobile-related-slider" class="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1 snap-x snap-mandatory scrollbar-hide" style="scroll-behavior: smooth;">
+                     <div id="mobile-related-slider" class="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1 scrollbar-hide">
                         @foreach($relatedProducts as $related)
                         <div class="flex-shrink-0 w-32 snap-start">
                             <x-product-card-related :product="$related" compact />
@@ -526,7 +538,7 @@
         {{-- Mobile: Vistos Recientemente slider --}}
         <div class="lg:hidden" x-data="mobileRecentlyViewedSlider()">
             <h3 class="text-sm font-black text-gray-600 dark:text-gray-500 uppercase tracking-widest mb-3 px-1">Vistos Recientemente</h3>
-            <div id="mobile-recently-viewed-slider" class="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1 snap-x snap-mandatory scrollbar-hide" style="scroll-behavior: smooth;">
+            <div id="mobile-recently-viewed-slider" class="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1 scrollbar-hide">
                 @foreach($recentlyViewed as $recent)
                 <div class="flex-shrink-0 w-32 snap-start">
                     <x-product-card-related :product="$recent" compact />
@@ -624,10 +636,24 @@
             }
             
             .animate-scroll {
-                animation: scroll-left 20s linear infinite;
+                animation: scroll-left 18s linear infinite;
             }
         `;
         document.head.appendChild(style);
+
+        function slowScrollTo(el, target, duration = 1200) {
+            const start = el.scrollLeft;
+            const diff = target - start;
+            if (!diff) return;
+            const t0 = performance.now();
+            function step(now) {
+                const p = Math.min((now - t0) / duration, 1);
+                const ease = p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
+                el.scrollLeft = start + diff * ease;
+                if (p < 1) requestAnimationFrame(step);
+            }
+            requestAnimationFrame(step);
+        }
 
         // Mobile related slider auto-scroll
         function mobileRelatedSlider() {
@@ -637,7 +663,7 @@
                     if (!slider) return;
                     
                     let currentScroll = 0;
-                    const scrollAmount = 148; // w-32 (128px) + gap-2 (8px) + gap (12px)
+                    const scrollAmount = 148;
                     
                     setInterval(() => {
                         currentScroll += scrollAmount;
@@ -647,8 +673,8 @@
                             currentScroll = 0;
                         }
                         
-                        slider.scrollTo({ left: currentScroll, behavior: 'smooth' });
-                    }, 4000);
+                        slowScrollTo(slider, currentScroll, 2000);
+                    }, 7000);
                 }
             }
         }
@@ -661,7 +687,7 @@
                     if (!slider) return;
                     
                     let currentScroll = 0;
-                    const scrollAmount = 148; // w-32 (128px) + gap-2 (8px) + gap (12px)
+                    const scrollAmount = 148;
                     
                     setInterval(() => {
                         currentScroll += scrollAmount;
@@ -671,8 +697,8 @@
                             currentScroll = 0;
                         }
                         
-                        slider.scrollTo({ left: currentScroll, behavior: 'smooth' });
-                    }, 4000);
+                        slowScrollTo(slider, currentScroll, 2000);
+                    }, 7000);
                 }
             }
         }
