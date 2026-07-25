@@ -77,22 +77,27 @@ class ProductForm extends Component
         if (!$this->slug) {
             $this->slug = "invicta-" . Str::slug($value);
         }
-        $this->title = Product::buildDisplayTitle($this->coleccion, $this->genero, $this->modelo, $this->size);
+        $this->title = Product::buildDisplayTitle($this->coleccion, $this->genero, $this->modelo, $this->size, $this->tipo_movimiento);
     }
 
     public function updatedColeccion($value)
     {
-        $this->title = Product::buildDisplayTitle($this->coleccion, $this->genero, $this->modelo, $this->size);
+        $this->title = Product::buildDisplayTitle($this->coleccion, $this->genero, $this->modelo, $this->size, $this->tipo_movimiento);
     }
 
     public function updatedGenero($value)
     {
-        $this->title = Product::buildDisplayTitle($this->coleccion, $this->genero, $this->modelo, $this->size);
+        $this->title = Product::buildDisplayTitle($this->coleccion, $this->genero, $this->modelo, $this->size, $this->tipo_movimiento);
     }
 
     public function updatedSize($value)
     {
-        $this->title = Product::buildDisplayTitle($this->coleccion, $this->genero, $this->modelo, $this->size);
+        $this->title = Product::buildDisplayTitle($this->coleccion, $this->genero, $this->modelo, $this->size, $this->tipo_movimiento);
+    }
+
+    public function updatedTipoMovimiento($value)
+    {
+        $this->title = Product::buildDisplayTitle($this->coleccion, $this->genero, $this->modelo, $this->size, $value);
     }
 
     public function addImagenExtra()
@@ -652,7 +657,7 @@ class ProductForm extends Component
 
         $data = [
             "modelo" => $this->modelo,
-            "title" => Product::buildDisplayTitle($this->coleccion, $this->genero, $this->modelo, $cleanedSize),
+            "title" => Product::buildDisplayTitle($this->coleccion, $this->genero, $this->modelo, $cleanedSize, $this->tipo_movimiento),
             "slug" => $this->slug,
             "descripcion" => $this->descripcion,
             "color" => $this->color,

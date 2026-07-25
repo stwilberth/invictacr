@@ -39,11 +39,6 @@
                 {{ $product->title }}
             </h3>
         </a>
-        <div class="flex items-center gap-1 {{ $compact ? 'mb-1' : 'mb-1 md:gap-2 md:mb-3' }}">
-            @if($product->tipo_movimiento)
-            <span class="text-[8px] md:text-[10px] font-bold text-slate-500 dark:text-gray-400 uppercase tracking-wider">{{ $product->tipo_movimiento }}</span>
-            @endif
-        </div>
 
         <div class="{{ $compact ? 'my-0.5' : 'my-0.5 md:my-2' }} flex items-center justify-between gap-1">
             @if($product->video)

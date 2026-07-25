@@ -104,7 +104,7 @@ class Product extends Model
      *  - Se omite la colección si está vacía o es "otros"
      *  - Se omite "para {genero}" si está vacío o es "unisex"
      */
-    public static function buildDisplayTitle(?string $coleccion, ?string $genero, ?string $modelo, ?string $size): string
+    public static function buildDisplayTitle(?string $coleccion, ?string $genero, ?string $modelo, ?string $size, ?string $tipoMovimiento = null): string
     {
         $size = $size ? preg_replace('/\s*mm$/i', '', $size) : '';
 
@@ -116,6 +116,10 @@ class Product extends Model
 
         if ($genero && strtolower($genero) !== 'unisex') {
             $title .= 'para ' . $genero . ' ';
+        }
+
+        if ($tipoMovimiento && in_array(strtolower($tipoMovimiento), ['cuarzo', 'automatico', 'automático', 'automatic'], true)) {
+            $title .= strtolower($tipoMovimiento) === 'cuarzo' ? 'cuarzo ' : 'automático ';
         }
 
         $title .= '(' . $modelo . ') - ' . $size . ' mm';
@@ -130,6 +134,7 @@ class Product extends Model
             $this->genero,
             $this->modelo,
             $this->size,
+            $this->tipo_movimiento,
         );
     }
 
