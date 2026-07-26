@@ -52,9 +52,19 @@ class Product extends Model
             return $value;
         }
 
+        if (str_starts_with($value, 'http')) {
+            return $value;
+        }
+
+        $cdnBase = 'https://cdn.invictacostarica.com';
+
         if (str_starts_with($value, '/storage/')) {
             $path = str_replace('/storage/', '', $value);
-            return 'https://cdn.invictacostarica.com/' . $path;
+            return $cdnBase . '/' . $path;
+        }
+
+        if (str_starts_with($value, '/')) {
+            return $cdnBase . $value;
         }
 
         return $value;
