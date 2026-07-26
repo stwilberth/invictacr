@@ -31,3 +31,6 @@
 - Agotado: `disponibilidad = 'agotado'` o `stock <= 0`
 - Próximo: `proximo = true` o `precio_venta <= 0`
 - En vistas: `$isAgotado` y `$isUpcoming` (definidos en product-detail.blade.php)
+
+## Al terminar cada tarea
+- **SIEMPRE limpiar cache de Laravel**: `php artisan view:clear && php artisan cache:clear && php artisan config:clear && php artisan route:clear`
