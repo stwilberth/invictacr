@@ -43,7 +43,7 @@
     <div class="{{ $compact ? 'p-1' : 'p-1 md:p-2' }} flex flex-col flex-grow">
         <a href="{{ $productUrl }}" class="block hover:text-blue-600 transition-colors">
             <h3 class="{{ $compact ? 'text-[10px]' : 'text-[10px] md:text-xs' }} font-bold text-gray-500 dark:text-white leading-tight uppercase tracking-tight group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors text-center">
-                {{ $product->title }}
+                {{ trim(($product->coleccion ?? '') . ' ' . $model) }}
             </h3>
         </a>
 
@@ -60,6 +60,9 @@
             @elseif($product->precio_venta > 0)
                 <div class="flex flex-col items-center w-full">
                     <div class="flex items-baseline gap-1 md:gap-2 justify-center">
+                        @if(($product->descuento ?? 0) > 0)
+                            <span class="{{ $compact ? 'text-[10px]' : 'text-xs md:text-sm' }} text-slate-400 dark:text-slate-500 line-through">₡{{ number_format($product->precio_venta, 0) }}</span>
+                        @endif
                         <span class="{{ $compact ? 'text-sm' : 'text-sm md:text-base' }} font-bold text-red-600 dark:text-red-500 tracking-tighter">₡{{ number_format($priceAfterDiscount, 0) }}</span>
                     </div>
                 </div>
@@ -68,17 +71,6 @@
                     <span class="text-[9px] md:text-xs font-bold px-1.5 md:px-2 py-0.5 bg-red-100 text-red-600 rounded-md">AGOTADO</span>
                 </div>
             @endif
-        </div>
-
-        <div class="mt-1 flex items-center justify-center gap-1">
-            @if($product->video)
-            <button type="button" onclick="openVimeoModal('{{ $product->video }}')" title="Ver video" class="inline-flex items-center gap-0.5 md:gap-1 {{ $compact ? 'px-1 py-0.5 text-[7px]' : 'px-1 py-0.5 md:px-2 md:py-1 text-[7px] md:text-[9px]' }} font-black uppercase tracking-wide text-red-600 border border-red-600 hover:bg-red-600 hover:text-white rounded-md transition-colors">
-                <i class="fa-solid fa-play"></i> Ver Video
-            </button>
-            @endif
-            <a href="{{ $productUrl }}" class="inline-flex items-center gap-0.5 md:gap-1 {{ $compact ? 'px-1 py-0.5 text-[7px]' : 'px-1 py-0.5 md:px-2 md:py-1 text-[7px] md:text-[9px]' }} font-black uppercase tracking-wide text-[#00a3d6] border border-[#00C4FF] hover:text-white hover:bg-[#00a3d6] hover:border-[#00a3d6] active:scale-95 rounded-md transition-all duration-200 no-underline cursor-pointer">
-                <i class="fa-solid fa-circle-info"></i> Ver Más
-            </a>
         </div>
     </div>
 </div>
