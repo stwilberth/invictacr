@@ -164,15 +164,15 @@
                                             </div>
                                         </template>
                                         <template x-if="item.type === 'video'">
-                                            <div class="absolute inset-0 flex items-center justify-center cursor-pointer bg-black" @click="openVimeoModal(item.vimeoUrl)">
-                                                <img :src="galleryItems[0].url" alt="Video del reloj" class="w-full h-full object-contain opacity-50" loading="lazy" />
-                                                <div class="absolute inset-0 flex items-center justify-center">
+                                            <div class="absolute inset-0 flex items-center justify-center cursor-pointer" @click="openVimeoModal(item.vimeoUrl)">
+                                                <img :src="galleryItems[0].url" alt="Video del reloj" class="w-full h-full object-contain" loading="lazy" />
+                                                <div class="absolute inset-0 flex flex-col items-center justify-center gap-2">
                                                     <div class="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center shadow-2xl border-4 border-white/30 hover:border-white/60 transition-all duration-300 hover:scale-110">
                                                         <i class="fa-solid fa-play text-white text-2xl ml-1"></i>
                                                     </div>
-                                                </div>
-                                                <div class="absolute bottom-4 left-4 bg-black/60 backdrop-blur-sm text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-full">
-                                                    <i class="fa-solid fa-play text-[9px] mr-1"></i> Ver video
+                                                    <span class="bg-black/60 backdrop-blur-sm text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-full">
+                                                        <i class="fa-solid fa-play text-[9px] mr-1"></i> Ver video
+                                                    </span>
                                                 </div>
                                             </div>
                                         </template>
@@ -251,12 +251,15 @@
                                                 </div>
                                             </template>
                                             <template x-if="item.type === 'video'">
-                                                <div class="absolute inset-0 flex items-center justify-center cursor-pointer bg-black" @click="openVimeoModal(item.vimeoUrl)">
-                                                    <img :src="galleryItems[0].url" alt="Video del reloj" class="w-full h-full object-contain opacity-50" loading="lazy" />
-                                                    <div class="absolute inset-0 flex items-center justify-center">
+                                                <div class="absolute inset-0 flex items-center justify-center cursor-pointer" @click="openVimeoModal(item.vimeoUrl)">
+                                                    <img :src="galleryItems[0].url" alt="Video del reloj" class="w-full h-full object-contain" loading="lazy" />
+                                                    <div class="absolute inset-0 flex flex-col items-center justify-center gap-1.5">
                                                         <div class="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center shadow-2xl border-4 border-white/30 hover:border-white/60 transition-all duration-300 hover:scale-110">
                                                             <i class="fa-solid fa-play text-white text-lg ml-1"></i>
                                                         </div>
+                                                        <span class="bg-black/60 backdrop-blur-sm text-white text-[9px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full">
+                                                            <i class="fa-solid fa-play text-[8px] mr-1"></i> Ver video
+                                                        </span>
                                                     </div>
                                                 </div>
                                             </template>
