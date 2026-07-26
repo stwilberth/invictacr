@@ -28,6 +28,9 @@
                 <a href="{{ route('admin.clients') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors {{ request()->routeIs('admin.clients') ? 'bg-[#00C4FF]/10 text-[#00C4FF]' : 'text-white/70 hover:text-white hover:bg-white/5' }}">
                     <i class="fa-solid fa-users w-5"></i> Clientes
                 </a>
+                <a href="{{ route('admin.users') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors {{ request()->routeIs('admin.users') ? 'bg-[#00C4FF]/10 text-[#00C4FF]' : 'text-white/70 hover:text-white hover:bg-white/5' }}">
+                    <i class="fa-solid fa-user-gear w-5"></i> Usuarios
+                </a>
                 <a href="{{ route('admin.expenses') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors {{ request()->routeIs('admin.expenses') ? 'bg-[#00C4FF]/10 text-[#00C4FF]' : 'text-white/70 hover:text-white hover:bg-white/5' }}">
                     <i class="fa-solid fa-dollar-sign w-5"></i> Gastos
                 </a>
@@ -133,6 +136,9 @@
                     </a>
                     <a href="{{ route('admin.clients') }}" @click="sidebarOpen = false" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors {{ request()->routeIs('admin.clients') ? 'bg-[#00C4FF]/10 text-[#00C4FF]' : 'text-white/70 hover:text-white hover:bg-white/5' }}">
                         <i class="fa-solid fa-users w-5"></i> Clientes
+                    </a>
+                    <a href="{{ route('admin.users') }}" @click="sidebarOpen = false" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors {{ request()->routeIs('admin.users') ? 'bg-[#00C4FF]/10 text-[#00C4FF]' : 'text-white/70 hover:text-white hover:bg-white/5' }}">
+                        <i class="fa-solid fa-user-gear w-5"></i> Usuarios
                     </a>
                     <a href="{{ route('admin.expenses') }}" @click="sidebarOpen = false" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors {{ request()->routeIs('admin.expenses') ? 'bg-[#00C4FF]/10 text-[#00C4FF]' : 'text-white/70 hover:text-white hover:bg-white/5' }}">
                         <i class="fa-solid fa-dollar-sign w-5"></i> Gastos
