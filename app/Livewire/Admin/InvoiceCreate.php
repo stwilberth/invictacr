@@ -122,14 +122,44 @@ class InvoiceCreate extends Component
         $this->total = $this->subtotal - $this->discount + $this->shipping;
     }
 
+    public function updatingDiscount($value)
+    {
+        $this->discount = ($value === '' || $value === null) ? 0 : (float) $value;
+    }
+
     public function updatedDiscount()
     {
         $this->recalculateTotal();
     }
 
+    public function updatingShipping($value)
+    {
+        $this->shipping = ($value === '' || $value === null) ? 0 : (float) $value;
+    }
+
     public function updatedShipping()
     {
         $this->recalculateTotal();
+    }
+
+    public function updatingShippingCost($value)
+    {
+        $this->shipping_cost = ($value === '' || $value === null) ? 0 : (float) $value;
+    }
+
+    public function updatingEstimatedUtility($value)
+    {
+        $this->estimated_utility = ($value === '' || $value === null) ? 0 : (float) $value;
+    }
+
+    public function updatingNewItemPrice($value)
+    {
+        $this->newItemPrice = ($value === '' || $value === null) ? 0 : (float) $value;
+    }
+
+    public function updatingNewItemQuantity($value)
+    {
+        $this->newItemQuantity = ($value === '' || $value === null) ? 1 : (int) $value;
     }
 
     public function save()
