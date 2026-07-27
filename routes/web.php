@@ -78,6 +78,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::get('/invoices/{id}', \App\Livewire\Admin\InvoiceDetail::class)->name('invoices.detail');
     Route::get('/clients', \App\Livewire\Admin\Clients::class)->name('clients');
     Route::get('/users', \App\Livewire\Admin\Users::class)->name('users');
+    Route::get('/subscribers', \App\Livewire\Admin\Subscribers::class)->name('subscribers');
     Route::get('/expenses', \App\Livewire\Admin\Expenses::class)->name('expenses');
     Route::get('/marketing', \App\Livewire\Admin\Marketing::class)->name('marketing');
     Route::get('/campaigns', \App\Livewire\Admin\Campaigns::class)->name('campaigns');
