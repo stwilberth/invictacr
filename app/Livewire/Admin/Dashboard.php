@@ -76,7 +76,7 @@ class Dashboard extends Component
         $this->topCollections = InvoiceItem::whereHas('invoice', fn($q) => $q
             ->where('status', '!=', 'cancelled')
         )
-            ->join('products', 'invoice_items.product_id', '=', 'products.id')
+            ->join('products', 'invoice_items.product_model', '=', 'products.modelo')
             ->select('products.coleccion as name', \Illuminate\Support\Facades\DB::raw('SUM(invoice_items.quantity) as total_qty'), \Illuminate\Support\Facades\DB::raw('SUM(invoice_items.subtotal) as total_revenue'))
             ->whereNotNull('products.coleccion')
             ->where('products.coleccion', '!=', '')
