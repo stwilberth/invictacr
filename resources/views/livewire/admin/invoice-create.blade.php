@@ -147,15 +147,15 @@
                     </div>
                     <div>
                         <label class="text-xs text-gray-500 block mb-1">Descuento (₡)</label>
-                        <input wire:model.live="discount" type="number" step="0.01" min="0" class="w-full bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2 text-sm" />
+                        <input wire:model.blur="discount" type="number" step="0.01" min="0" class="w-full bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2 text-sm" x-on:blur="$el.value = ($el.value === '' || $el.value === null) ? 0 : $el.value" />
                     </div>
                     <div>
                         <label class="text-xs text-gray-500 block mb-1">Envío cobrado (₡)</label>
-                        <input wire:model.live="shipping" type="number" step="0.01" min="0" class="w-full bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2 text-sm" />
+                        <input wire:model.blur="shipping" type="number" step="0.01" min="0" class="w-full bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2 text-sm" x-on:blur="$el.value = ($el.value === '' || $el.value === null) ? 0 : $el.value" />
                     </div>
                     <div>
                         <label class="text-xs text-gray-500 block mb-1">Costo de envío (₡)</label>
-                        <input wire:model="shipping_cost" type="number" step="0.01" min="0" class="w-full bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2 text-sm" />
+                        <input wire:model.blur="shipping_cost" type="number" step="0.01" min="0" class="w-full bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2 text-sm" x-on:blur="$el.value = ($el.value === '' || $el.value === null) ? 0 : $el.value" />
                     </div>
                     <hr class="dark:border-white/10" />
                     <div>
