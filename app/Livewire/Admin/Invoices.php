@@ -89,4 +89,14 @@ class Invoices extends Component
         $this->dateFrom = now()->startOfMonth()->format('Y-m-d');
         $this->dateTo = now()->endOfMonth()->format('Y-m-d');
     }
+
+    public function delete($invoiceId)
+    {
+        $invoice = Invoice::findOrFail($invoiceId);
+        $invoice->items()->delete();
+        $invoice->abonos()->delete();
+        $invoice->delete();
+
+        session()->flash('message', 'Factura eliminada correctamente.');
+    }
 }

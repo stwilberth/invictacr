@@ -158,6 +158,16 @@ class InvoiceDetail extends Component
         session()->flash('message', 'Abono eliminado.');
     }
 
+    public function delete()
+    {
+        $this->invoice->items()->delete();
+        $this->invoice->abonos()->delete();
+        $this->invoice->delete();
+
+        session()->flash('message', 'Factura eliminada.');
+        return redirect()->route('admin.invoices');
+    }
+
     public function render()
     {
         return view('livewire.admin.invoice-detail')
