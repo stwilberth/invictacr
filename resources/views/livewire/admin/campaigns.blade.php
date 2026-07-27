@@ -60,6 +60,12 @@
                                         <option value="{{ $color }}">{{ $color }}</option>
                                     @endforeach
                                 </select>
+                                <select wire:model.live="filterBrazalete" class="flex-1 bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-md px-2 py-1 text-[10px] focus:border-[#00C4FF] outline-none">
+                                    <option value="">Todos los brazaletes</option>
+                                    @foreach($brazaletes as $b)
+                                        <option value="{{ $b }}">{{ $b }}</option>
+                                    @endforeach
+                                </select>
                             </div>
                             <div class="flex gap-2 overflow-x-auto pb-1">
                                 @forelse($products as $p)

@@ -36,6 +36,7 @@ class Campaigns extends Component
     public $downloads;
     public $filterColeccion = '';
     public $filterColor = '';
+    public $filterBrazalete = '';
     public $sortField = 'modelo';
     public $sortDirection = 'asc';
 
@@ -103,7 +104,7 @@ class Campaigns extends Component
 
     public function updating($property, $value)
     {
-        if (in_array($property, ['productSearch', 'filterColeccion', 'filterColor', 'productFilter', 'sortField', 'sortDirection'])) {
+        if (in_array($property, ['productSearch', 'filterColeccion', 'filterColor', 'filterBrazalete', 'productFilter', 'sortField', 'sortDirection'])) {
             $this->resetPage();
         }
     }
@@ -355,7 +356,8 @@ Separá cada variante exactamente con: ---";
                   ->orWhere('title', 'like', '%'.$this->productSearch.'%');
             }))
             ->when($this->filterColeccion, fn($q) => $q->where('coleccion', $this->filterColeccion))
-            ->when($this->filterColor, fn($q) => $q->where('color', $this->filterColor));
+            ->when($this->filterColor, fn($q) => $q->where('color', $this->filterColor))
+            ->when($this->filterBrazalete, fn($q) => $q->where('brazalete', $this->filterBrazalete));
 
         if ($this->productFilter === 'pending') {
             $downloadedIds = DownloadHistory::pluck('product_id');
@@ -380,10 +382,18 @@ Separá cada variante exactamente con: ---";
             ->sort()
             ->values();
         
+        $brazaletes = Product::where('activo', true)
+            ->where('precio_venta', '>', 0)
+            ->whereNotNull('brazalete')
+            ->distinct()
+            ->pluck('brazalete')
+            ->sort()
+            ->values();
+
         $this->savedAds = MarketingTask::where('type', 'like', 'ad_%')->latest()->take(10)->get();
         $this->loadDownloads();
 
-        return view('livewire.admin.campaigns', compact('products', 'colecciones', 'colores'))
+        return view('livewire.admin.campaigns', compact('products', 'colecciones', 'colores', 'brazaletes'))
             ->layout('components.admin-layout', ['title' => 'Campañas']);
     }
 }
