@@ -7,25 +7,7 @@
         <div class="flex gap-2">
             <a href="{{ route('admin.invoices') }}" class="px-4 py-2 text-sm border border-gray-200 dark:border-white/10 rounded-xl hover:bg-gray-50 dark:hover:bg-white/5">Volver</a>
             <a href="{{ route('invoice.pdf', $invoice->id) }}" target="_blank" class="px-4 py-2 text-sm bg-green-600 text-white rounded-xl hover:bg-green-700 font-bold">Descargar PDF</a>
-            <button onclick="confirmDelete()" class="px-4 py-2 text-sm bg-red-600 text-white rounded-xl hover:bg-red-700 font-bold">Eliminar</button>
-            <script>
-                function confirmDelete() {
-                    Swal.fire({
-                        title: '¿Eliminar factura?',
-                        text: 'Se eliminará la factura, sus items y abonos. Esta acción no se puede deshacer.',
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonColor: '#dc2626',
-                        cancelButtonColor: '#64748b',
-                        confirmButtonText: 'Sí, eliminar',
-                        cancelButtonText: 'Cancelar'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            @this.call('delete');
-                        }
-                    });
-                }
-            </script>
+            <button wire:click="delete" wire:confirm="¿Eliminar esta factura y todos sus abonos?" class="px-4 py-2 text-sm bg-red-600 text-white rounded-xl hover:bg-red-700 font-bold">Eliminar</button>
             @if($editing)
                 <button wire:click="$set('editing', false)" class="px-4 py-2 text-sm border border-gray-200 dark:border-white/10 rounded-xl hover:bg-gray-50 dark:hover:bg-white/5">Cancelar</button>
                 <button wire:click="save" class="px-4 py-2 text-sm bg-blue-600 text-white rounded-xl hover:bg-blue-700 font-bold">Guardar cambios</button>
