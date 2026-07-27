@@ -129,14 +129,14 @@
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-6">
-            <h2 class="font-black text-gray-900 dark:text-white mb-4 uppercase tracking-wider text-sm">Productos más vendidos</h2>
+            <h2 class="font-black text-gray-900 dark:text-white mb-4 uppercase tracking-wider text-sm">Colecciones más vendidas</h2>
             @if(count($topProducts) > 0)
             <div class="space-y-2">
                 @foreach($topProducts as $i => $product)
                 <div class="flex items-center gap-3 text-sm">
                     <span class="w-5 text-center font-bold text-gray-400 text-xs">#{{ $i + 1 }}</span>
                     <div class="flex-1 min-w-0">
-                        <p class="text-gray-800 dark:text-gray-200 truncate font-medium">{{ $product['product_name'] }}</p>
+                        <p class="text-gray-800 dark:text-gray-200 truncate font-medium">{{ $product['name'] }}</p>
                     </div>
                     <span class="font-bold text-gray-900 dark:text-white">{{ $product['total_qty'] }} uds</span>
                     <span class="text-[#00C4FF] font-bold w-28 text-right">₡{{ number_format($product['total_revenue']) }}</span>
