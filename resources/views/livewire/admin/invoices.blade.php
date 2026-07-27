@@ -5,7 +5,7 @@
     </div>
 
     {{-- Totals --}}
-    <div class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
+    <div class="grid grid-cols-2 md:grid-cols-{{ $filterStatus === 'apartado' ? '6' : '5' }} gap-3 mb-6">
         <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-4">
             <div class="text-xs text-gray-500 uppercase tracking-wider font-bold">Facturas</div>
             <div class="text-2xl font-black text-gray-900 dark:text-white mt-1">{{ $totals->count }}</div>
@@ -14,6 +14,16 @@
             <div class="text-xs text-gray-500 uppercase tracking-wider font-bold">Total Vendido</div>
             <div class="text-2xl font-black text-green-600 dark:text-green-400 mt-1">₡{{ number_format($totals->totalAmount, 0) }}</div>
         </div>
+        @if($filterStatus === 'apartado')
+        <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-4">
+            <div class="text-xs text-gray-500 uppercase tracking-wider font-bold">Total Abonado</div>
+            <div class="text-2xl font-black text-green-500 mt-1">₡{{ number_format($totals->totalAbonado, 0) }}</div>
+        </div>
+        <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-4">
+            <div class="text-xs text-gray-500 uppercase tracking-wider font-bold">Saldo Pendiente</div>
+            <div class="text-2xl font-black text-amber-500 mt-1">₡{{ number_format($totals->saldoPendiente, 0) }}</div>
+        </div>
+        @endif
         <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-4">
             <div class="text-xs text-gray-500 uppercase tracking-wider font-bold">Descuentos</div>
             <div class="text-2xl font-black text-red-500 mt-1">-₡{{ number_format($totals->totalDiscount, 0) }}</div>

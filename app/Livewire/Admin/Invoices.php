@@ -79,6 +79,14 @@ class Invoices extends Component
         ];
         $totals->average = $totals->count > 0 ? $totals->totalAmount / $totals->count : 0;
 
+        $totals->totalAbonado = 0;
+        $totals->saldoPendiente = 0;
+        if ($this->filterStatus === 'apartado') {
+            $invoiceIds = (clone $totalsQuery)->pluck('id');
+            $totals->totalAbonado = \App\Models\Abono::whereIn('invoice_id', $invoiceIds)->sum('amount');
+            $totals->saldoPendiente = $totals->totalAmount - $totals->totalAbonado;
+        }
+
         return view('livewire.admin.invoices', compact('invoices', 'totals'))
             ->layout('components.admin-layout');
     }
