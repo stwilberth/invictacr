@@ -199,12 +199,57 @@
         </div>
     </section>
 
+    <!-- Newsletter Section -->
+    <section id="newsletter" class="py-10 md:py-16 bg-[#00C4FF] dark:bg-blue-800">
+        <div class="max-w-2xl mx-auto px-4 text-center">
+            <h2 class="text-2xl md:text-3xl font-black text-gray-900 dark:text-white mb-2 uppercase tracking-tight">Suscríbete al Newsletter</h2>
+            <p class="text-gray-700 dark:text-white/80 mb-6 text-sm md:text-base">Recibe ofertas exclusivas, novedades y descuentos directamente en tu correo.</p>
+
+            @if(session('subscriber_success'))
+                <div class="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-4 py-3 rounded-xl mb-6 text-sm font-bold inline-flex items-center gap-2">
+                    <i class="fa-solid fa-check-circle"></i>
+                    {{ session('subscriber_success') }}
+                </div>
+            @endif
+
+            @error('turnstile')
+                <div class="bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 px-4 py-3 rounded-xl mb-6 text-sm font-bold inline-flex items-center gap-2">
+                    <i class="fa-solid fa-exclamation-triangle"></i>
+                    {{ $message }}
+                </div>
+            @enderror
+
+            <form action="{{ route('subscribe') }}" method="POST" class="flex flex-col sm:flex-row gap-3 max-w-lg mx-auto">
+                @csrf
+                <input
+                    type="email"
+                    name="email"
+                    value="{{ old('email') }}"
+                    placeholder="Tu correo electrónico"
+                    required
+                    class="flex-1 px-5 py-3.5 bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/20 rounded-xl text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-white/50 text-sm"
+                />
+                <button type="submit" class="bg-gray-900 hover:bg-gray-800 text-white font-black px-6 py-3.5 rounded-xl transition-all active:scale-95 uppercase tracking-wider text-sm whitespace-nowrap">
+                    Suscribirme
+                </button>
+            </form>
+
+            @if(config('services.turnstile.site_key'))
+            <div class="mt-4 flex justify-center">
+                <div class="cf-turnstile" data-sitekey="{{ config('services.turnstile.site_key') }}" data-theme="auto"></div>
+            </div>
+            @endif
+
+            <p class="text-xs text-gray-600 dark:text-white/50 mt-4">No spam. Solo las mejores ofertas de relojes Invicta.</p>
+        </div>
+    </section>
+
     <!-- WhatsApp Section -->
-    <section id="newsletter" class="py-5 bg-[#00C4FF] dark:bg-blue-800">
-        <div class="max-w-4xl mx-auto px-4 text-center text-gray-800 dark:text-white">
-            <h2 class="text-2xl font-bold mb-4">¡Escríbenos por WhatsApp!</h2>
-            <p class="mb-4">Envíanos un mensaje y te contactaremos con las mejores ofertas y novedades de relojes Invicta.</p>
-            <a href="https://wa.me/50686711422?text=Hola,%20me%20interesan%20las%20ofertas%20y%20novedades%20de%20relojes%20Invicta" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 bg-green-600 text-white font-bold px-6 py-3 rounded-lg hover:bg-green-700 transition-all duration-300">
+    <section class="py-5 bg-green-600 dark:bg-green-700">
+        <div class="max-w-4xl mx-auto px-4 text-center text-white">
+            <h2 class="text-xl font-bold mb-3">¡Escríbenos por WhatsApp!</h2>
+            <p class="mb-4 text-white/90 text-sm">Te contactaremos con las mejores ofertas y novedades de relojes Invicta.</p>
+            <a href="https://wa.me/50686711422?text=Hola,%20me%20interesan%20las%20ofertas%20y%20novedades%20de%20relojes%20Invicta" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 bg-white text-green-700 font-bold px-6 py-3 rounded-lg hover:bg-gray-100 transition-all duration-300">
                 <i class="fab fa-whatsapp text-lg"></i>
                 <span>Enviar mensaje</span>
             </a>
@@ -285,5 +330,9 @@
         el.addEventListener('scroll', () => { if (el.scrollLeft >= el.scrollWidth / 2) el.scrollLeft = 0; });
     })();
     </script>
+
+    @if(config('services.turnstile.site_key'))
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    @endif
     @endpush
 </x-app-layout>

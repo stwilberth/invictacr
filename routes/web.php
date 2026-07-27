@@ -52,6 +52,8 @@ Route::get('/resenas', [PageController::class, 'resenas'])->name('resenas');
 Route::get('/sobre-nosotros', [PageController::class, 'sobreNosotros'])->name('sobre-nosotros');
 Route::get('/privacidad', [PageController::class, 'privacidad'])->name('privacidad');
 
+Route::post('/subscribe', [\App\Http\Controllers\SubscriberController::class, 'subscribe'])->name('subscribe');
+
 // Visitor tracking (sin CSRF: se envía por fetch/sendBeacon)
 Route::post('/track/event', [\App\Http\Controllers\Api\VisitorTrackController::class, 'event'])->middleware('throttle:60,1')->name('track.event');
 Route::post('/track/heartbeat', [\App\Http\Controllers\Api\VisitorTrackController::class, 'heartbeat'])->middleware('throttle:120,1')->name('track.heartbeat');
