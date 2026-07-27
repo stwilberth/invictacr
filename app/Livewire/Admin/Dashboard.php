@@ -18,7 +18,7 @@ class Dashboard extends Component
     public array $stats = [];
     public array $recentSyncs = [];
     public array $recentInvoices = [];
-    public array $topProducts = [];
+    public array $topCollections = [];
     public array $recentSubscribers = [];
     public array $recentFbPosts = [];
     public array $gaSummary = [];
@@ -73,8 +73,7 @@ class Dashboard extends Component
             ])
             ->toArray();
 
-        $this->topProducts = InvoiceItem::whereHas('invoice', fn($q) => $q
-            ->whereBetween('created_at', [$startOfMonth, $endOfMonth])
+        $this->topCollections = InvoiceItem::whereHas('invoice', fn($q) => $q
             ->where('status', '!=', 'cancelled')
         )
             ->join('products', 'invoice_items.product_id', '=', 'products.id')
@@ -83,7 +82,7 @@ class Dashboard extends Component
             ->where('products.coleccion', '!=', '')
             ->groupBy('products.coleccion')
             ->orderByDesc('total_qty')
-            ->take(5)
+            ->take(10)
             ->get()
             ->toArray();
 
