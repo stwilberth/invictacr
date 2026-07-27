@@ -5,7 +5,7 @@
     </div>
 
     {{-- Totals --}}
-    <div class="grid grid-cols-2 md:grid-cols-{{ $filterStatus === 'apartado' ? '6' : '5' }} gap-3 mb-6">
+    <div class="grid grid-cols-2 lg:grid-cols-6 gap-3 mb-6">
         <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-4">
             <div class="text-xs text-gray-500 uppercase tracking-wider font-bold">Facturas</div>
             <div class="text-2xl font-black text-gray-900 dark:text-white mt-1">{{ $totals->count }}</div>
@@ -29,25 +29,17 @@
             <div class="text-2xl font-black text-red-500 mt-1">-₡{{ number_format($totals->totalDiscount, 0) }}</div>
         </div>
         <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-4">
-            <div class="text-xs text-gray-500 uppercase tracking-wider font-bold">Envío</div>
-            <div class="text-2xl font-black text-blue-500 mt-1">₡{{ number_format($totals->totalShipping, 0) }}</div>
-        </div>
-        <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-4">
             <div class="text-xs text-gray-500 uppercase tracking-wider font-bold">Utilidad</div>
             <div class="text-2xl font-black text-[#00C4FF] mt-1">₡{{ number_format($totals->totalUtility, 0) }}</div>
-        </div>
-        <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-4">
-            <div class="text-xs text-gray-500 uppercase tracking-wider font-bold">Promedio</div>
-            <div class="text-2xl font-black text-gray-500 mt-1">₡{{ number_format($totals->average, 0) }}</div>
         </div>
     </div>
 
     <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-4 mb-6 space-y-3">
-        <div class="flex gap-2 flex-wrap items-center">
-            <input wire:model.live.debounce.300ms="search" type="text" placeholder="Buscar factura, cliente o teléfono..." class="bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2 text-sm min-w-[250px] flex-1" />
-            <button wire:click="resetFilters" class="text-xs text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 px-3 py-2 border border-gray-200 dark:border-white/10 rounded-xl">Limpiar filtros</button>
-        </div>
         <div class="flex gap-2 flex-wrap">
+            <div class="flex gap-2 flex-wrap items-center">
+                <input wire:model.live.debounce.300ms="search" type="text" placeholder="Buscar factura, cliente o teléfono..." class="bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2 text-sm min-w-[250px] flex-1" />
+                <button wire:click="resetFilters" class="text-xs text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 px-3 py-2 border border-gray-200 dark:border-white/10 rounded-xl">Limpiar filtros</button>
+            </div>
             <select wire:model.live="filterStatus" class="bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2 text-xs">
                 <option value="">Todos los estados</option>
                 <option value="facturado">Facturado</option>
