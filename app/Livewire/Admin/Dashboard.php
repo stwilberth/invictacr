@@ -58,7 +58,7 @@ class Dashboard extends Component
             'upcoming' => Product::where('proximo', true)->count(),
         ];
 
-        $this->recentSyncs = SyncLog::latest()->take(5)->get();
+        $this->recentSyncs = SyncLog::latest()->take(5)->get()->toArray();
 
         $this->recentInvoices = Invoice::where('status', '!=', 'cancelled')
             ->latest()

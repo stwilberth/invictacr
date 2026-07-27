@@ -187,14 +187,14 @@
             @endif
         </div>
 
-        @if($recentSyncs->count() > 0)
+        @if(count($recentSyncs) > 0)
         <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-6">
             <h2 class="font-black text-gray-900 dark:text-white mb-4 uppercase tracking-wider text-sm">Sincronizaciones recientes</h2>
             <div class="space-y-2">
                 @foreach($recentSyncs as $log)
                 <div class="flex items-center justify-between text-sm">
-                    <span class="text-gray-600 dark:text-gray-400">{{ $log->type }} - {{ $log->message }}</span>
-                    <span class="text-xs text-gray-400">{{ $log->created_at->diffForHumans() }}</span>
+                    <span class="text-gray-600 dark:text-gray-400">{{ $log['type'] }} - {{ $log['message'] }}</span>
+                    <span class="text-xs text-gray-400">{{ \Carbon\Carbon::parse($log['created_at'])->diffForHumans() }}</span>
                 </div>
                 @endforeach
             </div>
