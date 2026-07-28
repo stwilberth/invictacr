@@ -83,7 +83,7 @@
                         @endif
                     </td>
                     <td class="px-4 py-3 font-bold text-gray-900 dark:text-white whitespace-nowrap" data-column="modelo">{{ $product->modelo }}</td>
-                    <td class="px-4 py-3 text-gray-600 dark:text-gray-400 text-xs uppercase" data-column="coleccion">{{ $product->coleccion ?? '—' }}</td>
+                    <td class="px-4 py-3 text-gray-600 dark:text-gray-400 text-xs" data-column="coleccion">{{ $product->coleccion ?? '—' }}</td>
                     <td class="px-4 py-3 text-gray-600 dark:text-gray-400 text-xs" data-column="color">{{ $product->color ?? '—' }}</td>
                     <td class="px-4 py-3 text-gray-600 dark:text-gray-400 text-xs" data-column="tamanio">{{ $product->size ? $product->size . 'mm' : '—' }}</td>
                     <td class="px-4 py-3 text-gray-600 dark:text-gray-400 text-xs" data-column="caja">{{ $product->caja ?? '—' }}</td>
