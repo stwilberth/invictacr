@@ -63,6 +63,7 @@
                     <th class="text-right px-4 py-3 cursor-pointer" data-column="precio" wire:click="sortBy('precio_venta')">Precio</th>
                     <th class="text-center px-4 py-3 cursor-pointer" data-column="imgs" wire:click="sortBy('images_count')">Imgs</th>
                     <th class="text-center px-4 py-3 cursor-pointer" data-column="stock" wire:click="sortBy('stock')">Stock</th>
+                    <th class="text-center px-4 py-3 cursor-pointer" data-column="video" wire:click="sortBy('video')">Video</th>
                     <th class="text-right px-4 py-3" data-column="acciones">Acciones</th>
                 </tr>
             </thead>
@@ -105,6 +106,13 @@
                             @else bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 @endif">
                             {{ $product->stock }}
                         </span>
+                    </td>
+                    <td class="px-4 py-3 text-center" data-column="video">
+                        @if($product->video)
+                            <i class="fa-solid fa-circle-play text-red-500 text-lg" title="Tiene video"></i>
+                        @else
+                            <span class="text-gray-300 dark:text-gray-600">—</span>
+                        @endif
                     </td>
                     <td class="px-4 py-3 text-right whitespace-nowrap" data-column="acciones">
                         <a href="{{ route('products.show', ['slug' => $product->slug]) }}" target="_blank" rel="noopener" class="text-green-600 dark:text-green-400 hover:underline text-xs font-bold" title="Ver en el sitio">Sitio</a>
@@ -153,6 +161,7 @@ document.addEventListener('alpine:init', () => {
                 { key: 'precio', label: 'Precio', visible: true },
                 { key: 'imgs', label: 'Imgs', visible: true },
                 { key: 'stock', label: 'Stock', visible: true },
+                { key: 'video', label: 'Video', visible: true },
                 { key: 'acciones', label: 'Acciones', visible: true },
             ];
             if (saved) {

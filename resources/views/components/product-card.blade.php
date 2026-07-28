@@ -32,7 +32,7 @@
 
         @if($product->tipo_movimiento && in_array(strtolower($product->tipo_movimiento), ['automatico', 'automático', 'automatic'], true))
         <div class="absolute {{ $compact ? 'top-1 right-1' : 'top-1 right-1 md:top-2 md:right-2' }} z-10">
-            <span class="inline-flex items-center rounded-full bg-[#facc15] dark:bg-[#facc15] {{ $compact ? 'px-1 py-0.5 text-[7px]' : 'px-1 py-0.5 text-[7px] md:px-2 md:py-1 md:text-[9px]' }} font-black text-black dark:text-black shadow-lg uppercase tracking-wide">
+            <span class="inline-flex border border-gray-400 dark:border-gray-500 items-center rounded-full bg-[#facc15] dark:bg-[#facc15] {{ $compact ? 'px-1 py-0.5 text-[7px]' : 'px-1 py-0.5 text-[7px] md:px-2 md:py-1 md:text-[9px]' }} font-black text-black dark:text-black shadow-lg uppercase tracking-wide">
                 Automático
             </span>
         </div>
@@ -80,9 +80,6 @@
                 <i class="fa-solid fa-play"></i> Ver Video
             </button>
             @endif
-            <a href="{{ $productUrl }}" class="inline-flex items-center gap-0.5 md:gap-1 {{ $compact ? 'px-1 py-0.5 text-[7px]' : 'px-1 py-0.5 md:px-2 md:py-1 text-[7px] md:text-[9px]' }} uppercase tracking-wide text-[#00a3d6] border border-[#00C4FF] hover:text-white hover:bg-[#00a3d6] hover:border-[#00a3d6] active:scale-95 rounded-md transition-all duration-200 no-underline cursor-pointer">
-                <i class="fa-solid fa-circle-info"></i> Ver Más
-            </a>
         </div>
     </div>
 </div>
