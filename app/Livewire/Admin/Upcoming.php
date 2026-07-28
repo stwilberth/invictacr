@@ -187,7 +187,7 @@ class Upcoming extends Component
             'precio_venta' => 0,
             'precio_original' => $data['msrp'],
             'stock' => 0,
-            'coleccion' => $data['coleccion'],
+            'coleccion' => Product::normalizeColeccion($data['coleccion']),
             'genero' => $data['genero'],
             'size' => $this->sanitizeNumeric($data['size']),
             'caja' => $data['caja'],

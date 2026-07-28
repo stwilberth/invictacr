@@ -107,6 +107,27 @@ class Product extends Model
     }
 
     /**
+     * Normaliza el nombre de la colección: trim, colapsa espacios,
+     * y mapea aliases a su nombre canonical (config/collection_aliases).
+     */
+    public static function normalizeColeccion(?string $coleccion): ?string
+    {
+        if (is_null($coleccion) || trim($coleccion) === '') {
+            return null;
+        }
+        $clean = trim(preg_replace('/\s+/u', ' ', $coleccion));
+        $aliases = config('collection_aliases', []);
+        if (isset($aliases[$clean])) {
+            return $aliases[$clean];
+        }
+        $lower = mb_strtolower($clean);
+        if (isset($aliases[$lower])) {
+            return $aliases[$lower];
+        }
+        return $clean;
+    }
+
+    /**
      * Construye el título de visualización igual al que usa
      * resources/views/pages/product-detail.blade.php
      *

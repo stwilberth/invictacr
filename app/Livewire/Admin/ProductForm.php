@@ -662,7 +662,7 @@ class ProductForm extends Component
             "descripcion" => $this->descripcion,
             "color" => $this->color,
             "brazalete" => $this->brazalete,
-            "coleccion" => $this->coleccion,
+            "coleccion" => Product::normalizeColeccion($this->coleccion),
             "tipo_movimiento" => $this->tipo_movimiento,
             "size" => $cleanedSize,
             "genero" => $this->genero,
