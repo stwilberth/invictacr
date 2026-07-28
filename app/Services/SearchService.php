@@ -93,10 +93,10 @@ class SearchService
         "piloto" => ["coleccion" => "Aviator"],
         "avion" => ["coleccion" => "Aviator"],
         "vuelo" => ["coleccion" => "Aviator"],
-        "buzo" => ["coleccion" => "pro diver"],
-        "buceo" => ["coleccion" => "pro diver"],
-        "agua" => ["coleccion" => "pro diver"],
-        "sumergible" => ["coleccion" => "pro diver"],
+        "buzo" => ["coleccion" => "Pro Diver"],
+        "buceo" => ["coleccion" => "Pro Diver"],
+        "agua" => ["coleccion" => "Pro Diver"],
+        "sumergible" => ["coleccion" => "Pro Diver"],
     ];
 
     public bool $usedAi = false;
