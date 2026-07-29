@@ -24,6 +24,11 @@
                 <option value="yes">Activos</option>
                 <option value="no">Inactivos</option>
             </select>
+            <select wire:model.live="filterBloqueado" class="bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2 text-sm">
+                <option value="all">Bloqueados: Todos</option>
+                <option value="yes">Solo bloqueados</option>
+                <option value="no">Sin bloquear</option>
+            </select>
         </div>
         <div class="flex gap-2 items-center">
             <div class="relative" @click.outside="open = false">

@@ -110,27 +110,11 @@
                         <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
                         <span class="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
                     </span>
-<span class="text-[10px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-wider">Próximamente</span>
+                    <span class="text-[10px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-wider">Próximamente</span>
                  </div>
                  @endif
              </div>
          </div>
-
-        {{-- Mobile: Agotado banner at top --}}
-        @if($isAgotado && !$isUpcoming)
-        <div class="lg:hidden flex items-center gap-3 mt-2 mb-1 bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/50 rounded-xl p-3">
-            <div class="flex-shrink-0 w-9 h-9 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center">
-                <i class="fa-solid fa-circle-xmark text-red-600 dark:text-red-400 text-lg"></i>
-            </div>
-            <div class="flex flex-col">
-                <span class="text-sm font-black text-red-700 dark:text-red-400 uppercase leading-tight">Vendido / Agotado</span>
-                <span class="text-[11px] text-red-600/70 dark:text-red-300/60 leading-tight">Este reloj ya no se encuentra en stock disponible.</span>
-            </div>
-            <a href="{{ $product->coleccion && strtolower($product->coleccion) !== 'otros' ? url('/relojes?coleccion=' . urlencode($product->coleccion)) : url('/relojes') }}" class="ml-auto inline-flex items-center text-[11px] font-bold text-red-700 dark:text-red-300 hover:underline gap-1 flex-shrink-0">
-                Ver similares <i class="fa-solid fa-chevron-right text-[8px]"></i>
-            </a>
-        </div>
-        @endif
 
         {{-- Main Product Layout --}}
         <div class="grid grid-cols-1 lg:grid-cols-12 items-start gap-3 lg:gap-8">
@@ -302,6 +286,15 @@
                                 <i class="fa-brands fa-whatsapp text-xs"></i> Contactar
                             </a>
                         @endif
+                        
+                        {{-- Mobile: Agotado banner at top --}}
+                        @if($isAgotado && !$isUpcoming)
+                        <div class="lg:hidden flex items-center gap-3 mt-2 mb-1 bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/50 rounded-xl p-3">
+                            <div class="flex flex-col">
+                                <span class="text-xs font-black text-red-700 dark:text-red-400 uppercase leading-tight">Agotado</span>
+                            </div>
+                        </div>
+                        @endif
 
                         {{-- Mobile inline specs card --}}
                         <div id="mobile-specs-card" class="flex-col gap-0 w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/50 overflow-hidden">
@@ -325,33 +318,33 @@
                     </div>
                 </div>
 
-                                    {{-- Mobile shipping banner --}}
-                    <div class="lg:hidden w-full py-2 px-4 mt-2 overflow-hidden bg-gradient-to-r from-emerald-50 to-blue-50 dark:from-emerald-900/20 dark:to-blue-900/20 rounded-lg">
-                        <div class="flex animate-scroll" style="width: max-content;">
-                            <div class="flex items-center gap-3 shrink-0 pr-3">
-                                <i class="fa-solid fa-truck text-emerald-500 text-xs flex-shrink-0"></i>
-                                <span class="text-[9px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider whitespace-nowrap">Envío Gratis*</span>
-                                <span class="text-gray-400 dark:text-gray-600 flex-shrink-0">•</span>
-                                <i class="fa-solid fa-hand-holding-dollar text-[#00C4FF] text-xs flex-shrink-0"></i>
-                                <span class="text-[9px] font-bold text-gray-600 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Pago contra entrega*</span>
-                                <span class="text-gray-400 dark:text-gray-600 flex-shrink-0">•</span>
-                                <i class="fa-solid fa-clock text-[#00C4FF] text-xs flex-shrink-0"></i>
-                                <span class="text-[9px] font-bold text-gray-600 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Entrega Inmediata</span>
-                                <span class="text-gray-400 dark:text-gray-600 flex-shrink-0">•</span>
-                            </div>
-                            <div class="flex items-center gap-3 shrink-0 pr-3">
-                                <i class="fa-solid fa-truck text-emerald-500 text-xs flex-shrink-0"></i>
-                                <span class="text-[9px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider whitespace-nowrap">Envío Gratis*</span>
-                                <span class="text-gray-400 dark:text-gray-600 flex-shrink-0">•</span>
-                                <i class="fa-solid fa-hand-holding-dollar text-[#00C4FF] text-xs flex-shrink-0"></i>
-                                <span class="text-[9px] font-bold text-gray-600 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Pago contra entrega*</span>
-                                <span class="text-gray-400 dark:text-gray-600 flex-shrink-0">•</span>
-                                <i class="fa-solid fa-clock text-[#00C4FF] text-xs flex-shrink-0"></i>
-                                <span class="text-[9px] font-bold text-gray-600 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Entrega Inmediata</span>
-                                <span class="text-gray-400 dark:text-gray-600 flex-shrink-0">•</span>
-                            </div>
+                {{-- Mobile shipping banner --}}
+                <div class="lg:hidden w-full py-2 px-4 mt-2 overflow-hidden bg-gradient-to-r from-emerald-50 to-blue-50 dark:from-emerald-900/20 dark:to-blue-900/20 rounded-lg">
+                    <div class="flex animate-scroll" style="width: max-content;">
+                        <div class="flex items-center gap-3 shrink-0 pr-3">
+                            <i class="fa-solid fa-truck text-emerald-500 text-xs flex-shrink-0"></i>
+                            <span class="text-[9px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider whitespace-nowrap">Envío Gratis*</span>
+                            <span class="text-gray-400 dark:text-gray-600 flex-shrink-0">•</span>
+                            <i class="fa-solid fa-hand-holding-dollar text-[#00C4FF] text-xs flex-shrink-0"></i>
+                            <span class="text-[9px] font-bold text-gray-600 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Pago contra entrega*</span>
+                            <span class="text-gray-400 dark:text-gray-600 flex-shrink-0">•</span>
+                            <i class="fa-solid fa-clock text-[#00C4FF] text-xs flex-shrink-0"></i>
+                            <span class="text-[9px] font-bold text-gray-600 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Entrega Inmediata</span>
+                            <span class="text-gray-400 dark:text-gray-600 flex-shrink-0">•</span>
+                        </div>
+                        <div class="flex items-center gap-3 shrink-0 pr-3">
+                            <i class="fa-solid fa-truck text-emerald-500 text-xs flex-shrink-0"></i>
+                            <span class="text-[9px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider whitespace-nowrap">Envío Gratis*</span>
+                            <span class="text-gray-400 dark:text-gray-600 flex-shrink-0">•</span>
+                            <i class="fa-solid fa-hand-holding-dollar text-[#00C4FF] text-xs flex-shrink-0"></i>
+                            <span class="text-[9px] font-bold text-gray-600 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Pago contra entrega*</span>
+                            <span class="text-gray-400 dark:text-gray-600 flex-shrink-0">•</span>
+                            <i class="fa-solid fa-clock text-[#00C4FF] text-xs flex-shrink-0"></i>
+                            <span class="text-[9px] font-bold text-gray-600 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Entrega Inmediata</span>
+                            <span class="text-gray-400 dark:text-gray-600 flex-shrink-0">•</span>
                         </div>
                     </div>
+                </div>
 
                  {{-- Mobile: Relojes Similares slider (replaces thumbnail strip, since all watches have a single image) --}}
                  @if($relatedProducts->count() > 0)
@@ -393,16 +386,8 @@
 
                 {{-- Agotado / Próximo State --}}
                 @if($isAgotado && !$isUpcoming)
-                <div class="hidden lg:block bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/50 rounded-2xl p-6 text-center mb-10">
-                    <div class="w-12 h-12 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-3">
-                        <i class="fa-solid fa-circle-xmark text-red-600 dark:text-red-400 text-2xl"></i>
-                    </div>
-                    <h3 class="text-lg font-bold text-red-700 dark:text-red-400 mb-1 leading-tight">Vendido / Agotado</h3>
-                    <p class="text-sm text-red-600/70 dark:text-red-300/60 mb-4">Este reloj ya no se encuentra en stock disponible.</p>
-                    <a href="{{ $product->coleccion && strtolower($product->coleccion) !== 'otros' ? url('/relojes?coleccion=' . urlencode($product->coleccion)) : url('/relojes') }}" class="inline-flex items-center text-sm font-bold text-red-700 dark:text-red-300 hover:underline gap-2">
-                        Ver similares{{ $product->coleccion && strtolower($product->coleccion) !== 'otros' ? ' en ' . $product->coleccion : '' }}
-                        <i class="fa-solid fa-chevron-right text-[10px]"></i>
-                    </a>
+                <div class="hidden lg:block bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/50 rounded-2xl p-3 mt-2 text-center">
+                    <h3 class="text-lg font-bold text-red-700 dark:text-red-400 mb-1 leading-tight">Agotado</h3>
                 </div>
                 @elseif(!$isUpcoming)
                     {{-- Desktop Price & Action Buttons --}}

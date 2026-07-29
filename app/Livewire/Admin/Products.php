@@ -18,6 +18,7 @@ class Products extends Component
     public $filterColeccion = "";
     public $filterStock = "in";
     public $filterActivo = "all";
+    public $filterBloqueado = "all";
 
     public ?int $optimizingProductId = null;
 
@@ -96,6 +97,12 @@ class Products extends Component
             $query->where("activo", true);
         } elseif ($this->filterActivo === "no") {
             $query->where("activo", false);
+        }
+
+        if ($this->filterBloqueado === "yes") {
+            $query->where("bloqueado", true);
+        } elseif ($this->filterBloqueado === "no") {
+            $query->where("bloqueado", false);
         }
 
         $products = $query
