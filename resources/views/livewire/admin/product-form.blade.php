@@ -278,6 +278,14 @@
                         <span class="block text-xs font-normal text-gray-400">Evita que el sync de VariedadesCR cambie el stock y precio</span>
                     </label>
                 </div>
+                <div class="mt-3">
+                    <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Disponibilidad</label>
+                    <select wire:model="disponibilidad" class="w-full bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm">
+                        <option value="disponible">Disponible</option>
+                        <option value="agotado">Agotado</option>
+                    </select>
+                    <p class="mt-1 text-xs text-gray-400">Si tiene stock pero marca "Agotado", no se mostrará como disponible en el sitio.</p>
+                </div>
             </div>
             <div class="flex gap-3">
                 <button type="submit" class="bg-[#00C4FF] hover:bg-[#00b0e6] text-[#0a0f1c] font-black px-8 py-3 rounded-xl transition-all uppercase tracking-wider text-sm">
