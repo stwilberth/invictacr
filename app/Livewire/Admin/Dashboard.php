@@ -25,9 +25,15 @@ class Dashboard extends Component
     public array $trafficSources = [];
     public bool $syncing = false;
 
+    public string $codeServerStatus = 'unknown';
+    public string $opencodeWebStatus = 'unknown';
+    public string $devToolsMessage = '';
+    public string $devToolsError = '';
+
     public function mount(): void
     {
         $this->loadData();
+        $this->loadDevToolsStatus();
     }
 
     public function loadData(): void
@@ -152,6 +158,50 @@ class Dashboard extends Component
         }
 
         $this->syncing = false;
+    }
+
+    protected function runSystemctl(string $action, string $unit): ?string
+    {
+        $allowed = ['start', 'stop', 'is-active', 'status'];
+        $allowedUnits = ['code-server@bitnami', 'opencode-web'];
+        if (!in_array($action, $allowed, true) || !in_array($unit, $allowedUnits, true)) {
+            return null;
+        }
+
+        $cmd = sprintf('sudo -n /usr/bin/systemctl %s %s 2>&1', escapeshellarg($action), escapeshellarg($unit));
+        $out = shell_exec($cmd);
+        return $out !== null ? trim($out) : '';
+    }
+
+    public function loadDevToolsStatus(): void
+    {
+        $this->codeServerStatus = $this->runSystemctl('is-active', 'code-server@bitnami') ?? 'unknown';
+        $this->opencodeWebStatus = $this->runSystemctl('is-active', 'opencode-web') ?? 'unknown';
+    }
+
+    public function toggleDevTool(string $unit): void
+    {
+        $allowedUnits = ['code-server@bitnami', 'opencode-web'];
+        if (!in_array($unit, $allowedUnits, true)) {
+            return;
+        }
+
+        $current = $this->runSystemctl('is-active', $unit);
+        $action = $current === 'active' ? 'stop' : 'start';
+        $out = $this->runSystemctl($action, $unit);
+        sleep(2);
+        $newStatus = $this->runSystemctl('is-active', $unit);
+
+        $label = $unit === 'code-server@bitnami' ? 'code-server' : 'opencode web';
+        $expected = $action === 'stop' ? 'inactive' : 'active';
+
+        if ($newStatus === $expected) {
+            $this->devToolsMessage = sprintf('%s %s correctamente (estado: %s).', $label, $action === 'stop' ? 'detenido' : 'iniciado', $newStatus);
+        } else {
+            $this->devToolsError = sprintf('No se pudo %s %s. Salida: %s', $action, $label, $out);
+        }
+
+        $this->loadDevToolsStatus();
     }
 
     public function render()

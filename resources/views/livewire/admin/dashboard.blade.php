@@ -201,4 +201,47 @@
         </div>
         @endif
     </div>
+
+    @if($devToolsMessage)
+    <div class="mb-6 p-4 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800/50 rounded-xl text-sm font-bold text-emerald-700 dark:text-emerald-400">
+        {{ $devToolsMessage }}
+    </div>
+    @endif
+    @if($devToolsError)
+    <div class="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/50 rounded-xl text-sm font-bold text-red-700 dark:text-red-400">
+        {{ $devToolsError }}
+    </div>
+    @endif
+
+    <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-6 mb-8">
+        <h2 class="font-black text-gray-900 dark:text-white mb-4 uppercase tracking-wider text-sm">Herramientas de desarrollo</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="flex items-center justify-between p-4 rounded-xl border border-gray-100 dark:border-white/5">
+                <div>
+                    <p class="font-bold text-gray-900 dark:text-white text-sm">Code Server <span class="text-xs font-normal text-gray-500">(IDE en navegador)</span></p>
+                    <a href="https://code.invictacostarica.com" target="_blank" rel="noopener noreferrer" class="text-xs text-[#00C4FF] hover:underline">code.invictacostarica.com <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i></a>
+                    <p class="text-xs mt-1">
+                        Estado: <span class="font-bold {{ $codeServerStatus === 'active' ? 'text-emerald-600' : 'text-red-500' }}">{{ $codeServerStatus }}</span>
+                    </p>
+                </div>
+                <button wire:click="toggleDevTool('code-server@bitnami')" wire:loading.attr="disabled" class="px-4 py-2 rounded-xl text-xs font-bold transition-colors {{ $codeServerStatus === 'active' ? 'bg-red-100 text-red-600 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400' : 'bg-emerald-100 text-emerald-600 hover:bg-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400' }} disabled:opacity-50">
+                    <span wire:loading.remove wire:target="toggleDevTool('{{ $codeServerStatus === 'active' ? 'stop' : 'start' }}')">{{ $codeServerStatus === 'active' ? 'Detener' : 'Iniciar' }}</span>
+                    <span wire:loading wire:target="toggleDevTool('code-server@bitnami')">...</span>
+                </button>
+            </div>
+            <div class="flex items-center justify-between p-4 rounded-xl border border-gray-100 dark:border-white/5">
+                <div>
+                    <p class="font-bold text-gray-900 dark:text-white text-sm">OpenCode Web <span class="text-xs font-normal text-gray-500">(agente IA en navegador)</span></p>
+                    <a href="https://ide.invictacostarica.com" target="_blank" rel="noopener noreferrer" class="text-xs text-[#00C4FF] hover:underline">ide.invictacostarica.com <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i></a>
+                    <p class="text-xs mt-1">
+                        Estado: <span class="font-bold {{ $opencodeWebStatus === 'active' ? 'text-emerald-600' : 'text-red-500' }}">{{ $opencodeWebStatus }}</span>
+                    </p>
+                </div>
+                <button wire:click="toggleDevTool('opencode-web')" wire:loading.attr="disabled" class="px-4 py-2 rounded-xl text-xs font-bold transition-colors {{ $opencodeWebStatus === 'active' ? 'bg-red-100 text-red-600 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400' : 'bg-emerald-100 text-emerald-600 hover:bg-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400' }} disabled:opacity-50">
+                    <span wire:loading.remove wire:target="toggleDevTool('opencode-web')">{{ $opencodeWebStatus === 'active' ? 'Detener' : 'Iniciar' }}</span>
+                    <span wire:loading wire:target="toggleDevTool('opencode-web')">...</span>
+                </button>
+            </div>
+        </div>
+    </div>
 </div>
