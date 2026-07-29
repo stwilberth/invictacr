@@ -67,7 +67,7 @@ class Invoices extends Component
             $query->where('total', '<=', (float) $this->totalMax);
         }
 
-        $invoices = $query->with('abonos')->latest()->paginate(20);
+        $invoices = $query->with('abonos', 'items.product')->latest()->paginate(20);
 
         $totalsQuery = clone $query;
         $totals = (object) [

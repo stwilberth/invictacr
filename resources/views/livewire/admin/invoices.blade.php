@@ -75,6 +75,7 @@
                 <tr class="border-b border-gray-200 dark:border-white/5 text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider">
                     <th class="text-left px-4 py-3">Factura</th>
                     <th class="text-left px-4 py-3">Cliente</th>
+                    <th class="text-left px-4 py-3">Modelos</th>
                     <th class="text-right px-4 py-3">Total</th>
                     <th class="text-right px-4 py-3">Utilidad</th>
                     <th class="text-center px-4 py-3">Estado</th>
@@ -96,6 +97,18 @@
                         @if($invoice->client_phone)
                             <div class="text-xs text-gray-500">{{ $invoice->client_phone }}</div>
                         @endif
+                    </td>
+                    <td class="px-4 py-3">
+                        @foreach($invoice->items as $item)
+                            @if($item->product)
+                                <a href="{{ route('admin.products.edit', $item->product->id) }}" class="text-[#00C4FF] hover:underline text-xs font-bold" title="Editar producto">
+                                    {{ $item->product_model }}
+                                </a>
+                            @else
+                                <span class="text-xs text-gray-500">{{ $item->product_model }}</span>
+                            @endif
+                            @if(!$loop->last), @endif
+                        @endforeach
                     </td>
                     <td class="px-4 py-3 text-right font-bold text-gray-900 dark:text-white">₡{{ number_format($invoice->total, 0) }}</td>
                     <td class="px-4 py-3 text-right font-bold {{ $invoice->estimated_utility > 0 ? 'text-[#00C4FF]' : 'text-gray-400' }}">₡{{ number_format($invoice->estimated_utility ?? 0, 0) }}</td>
@@ -157,7 +170,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="8" class="px-4 py-8 text-center text-gray-500">No se encontraron facturas</td>
+                    <td colspan="9" class="px-4 py-8 text-center text-gray-500">No se encontraron facturas</td>
                 </tr>
                 @endforelse
             </tbody>
