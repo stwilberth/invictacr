@@ -129,6 +129,7 @@ class VariedadesSyncService
 
                     if ($prevStock !== $stockVal) {
                         $updates["stock"] = $stockVal;
+                        $updates["disponibilidad"] = $stockVal > 0 ? "disponible" : "agotado";
                         $stockChangedCount++;
                         $stockChangedModels[] = $modelKey;
                         $items[] = ['sync_log_id' => $log->id, 'type' => 'stock_updated', 'modelo' => $modelKey, 'product_id' => $product->id];
