@@ -36,6 +36,10 @@
                                     class="px-1.5 py-0.5 rounded text-[9px] font-bold {{ $productFilter === 'all' ? 'bg-[#00C4FF] text-[#0a0f1c]' : 'bg-gray-100 dark:bg-white/5 text-gray-500' }}">Todos</button>
                                 <button wire:click="setProductFilter('pending')"
                                     class="px-1.5 py-0.5 rounded text-[9px] font-bold {{ $productFilter === 'pending' ? 'bg-[#00C4FF] text-[#0a0f1c]' : 'bg-gray-100 dark:bg-white/5 text-gray-500' }}">Pendientes</button>
+                                <button wire:click="exportFiltered"
+                                    class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400 hover:bg-green-200 dark:hover:bg-green-900/30 transition-all">
+                                    <i class="fa-solid fa-table"></i> Exportar
+                                </button>
                             </div>
                             <div class="flex flex-wrap gap-1 mb-2 px-1">
                                 <select wire:model.live="sortField" class="flex-1 bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-md px-2 py-1 text-[10px] focus:border-[#00C4FF] outline-none">

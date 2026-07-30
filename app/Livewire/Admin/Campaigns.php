@@ -349,22 +349,7 @@ Separá cada variante exactamente con: ---";
 
     public function render()
     {
-        $query = Product::where('activo', true)
-            ->where('precio_venta', '>', 0)
-            ->where('stock', '>', 0)
-            ->when($this->productSearch, fn($q) => $q->where(function($q) {
-                $q->where('modelo', 'like', '%'.$this->productSearch.'%')
-                  ->orWhere('title', 'like', '%'.$this->productSearch.'%');
-            }))
-            ->when($this->filterColeccion, fn($q) => $q->where('coleccion', $this->filterColeccion))
-            ->when($this->filterColor, fn($q) => $q->where('color', $this->filterColor))
-            ->when($this->filterBrazalete, fn($q) => $q->where('brazalete', $this->filterBrazalete))
-            ->when($this->filterGenero, fn($q) => $q->where('genero', $this->filterGenero));
-
-        if ($this->productFilter === 'pending') {
-            $downloadedIds = DownloadHistory::pluck('product_id');
-            $query->whereNotIn('id', $downloadedIds);
-        }
+        $query = $this->buildFilteredQuery();
 
         $products = $query->orderBy($this->sortField, $this->sortDirection)->paginate(30);
         
@@ -397,5 +382,61 @@ Separá cada variante exactamente con: ---";
 
         return view('livewire.admin.campaigns', compact('products', 'colecciones', 'colores', 'brazaletes'))
             ->layout('components.admin-layout', ['title' => 'Campañas']);
+    }
+
+    public function exportFiltered()
+    {
+        $products = $this->buildFilteredQuery()
+            ->orderBy($this->sortField, $this->sortDirection)
+            ->get();
+
+        $csv = "modelo,coleccion,color,genero,brazalete,tipo_movimiento,size,resistencia_agua,precio_venta,precio_original,descuento,stock,disponibilidad,title\n";
+
+        foreach ($products as $p) {
+            $row = [
+                $p->modelo,
+                $p->coleccion,
+                $p->color,
+                $p->genero,
+                $p->brazalete,
+                $p->tipo_movimiento,
+                $p->size,
+                $p->resistencia_agua,
+                $p->precio_venta,
+                $p->precio_original,
+                $p->descuento,
+                $p->stock,
+                $p->disponibilidad,
+                $p->title,
+            ];
+            $escaped = array_map(fn($v) => '"' . str_replace('"', '""', $v ?? '') . '"', $row);
+            $csv .= implode(',', $escaped) . "\n";
+        }
+
+        return response()->streamDownload(function () use ($csv) {
+            echo $csv;
+        }, 'productos-filtrados.csv', ['Content-Type' => 'text/csv; charset=utf-8']);
+    }
+
+    private function buildFilteredQuery()
+    {
+        $query = Product::where('activo', true)
+            ->where('precio_venta', '>', 0)
+            ->where('stock', '>', 0)
+            ->when($this->productSearch, fn($q) => $q->where(function($q) {
+                $q->where('modelo', 'like', '%'.$this->productSearch.'%')
+                  ->orWhere('title', 'like', '%'.$this->productSearch.'%');
+            }))
+            ->when($this->filterColeccion, fn($q) => $q->where('coleccion', $this->filterColeccion))
+            ->when($this->filterColor, fn($q) => $q->where('color', $this->filterColor))
+            ->when($this->filterBrazalete, fn($q) => $q->where('brazalete', $this->filterBrazalete))
+            ->when($this->filterGenero, fn($q) => $q->where('genero', $this->filterGenero));
+
+        if ($this->productFilter === 'pending') {
+            $downloadedIds = DownloadHistory::pluck('product_id');
+            $query->whereNotIn('id', $downloadedIds);
+        }
+
+        return $query;
     }
 }
