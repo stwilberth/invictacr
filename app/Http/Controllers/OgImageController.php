@@ -9,8 +9,8 @@ use Illuminate\Support\Facades\Storage;
 
 class OgImageController extends Controller
 {
-    private const W = 1200;
-    private const H = 630;
+    private const W = 1080;
+    private const H = 1080;
     private const FONT_BOLD = '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf';
     private const FONT_REGULAR = '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf';
 
@@ -36,7 +36,6 @@ class OgImageController extends Controller
         $goldDark = imagecolorallocate($img, 0x8a, 0x5a, 0x00);
         $goldLight = imagecolorallocate($img, 0xe6, 0xb8, 0x00);
         $cream = imagecolorallocate($img, 0xfd, 0xf6, 0xe3);
-        $darkText = imagecolorallocate($img, 0x1c, 0x1c, 0x1e);
         $white = imagecolorallocate($img, 0xff, 0xff, 0xff);
         $muted = imagecolorallocate($img, 0xcc, 0xcc, 0xcc);
 
@@ -49,47 +48,46 @@ class OgImageController extends Controller
             imageline($img, 0, $y, self::W, $y, $color);
         }
 
-        $circleSize = 500;
-        $circleCx = (int) (self::W * 0.72);
-        $circleCy = self::H / 2;
-        imagefilledellipse($img, $circleCx, $circleCy, $circleSize, $circleSize, $cream);
-        imageellipse($img, $circleCx, $circleCy, $circleSize, $circleSize, $goldDark);
-
-        $productImage = $this->loadProductImage($product);
-        if ($productImage !== null) {
-            $inner = 440;
-            $circle = $this->copyIntoCircle($productImage, $inner);
-            if ($circle !== null) {
-                $dx = $circleCx - $inner / 2;
-                $dy = $circleCy - $inner / 2;
-                imagecopy($img, $circle, (int) $dx, (int) $dy, 0, 0, $inner, $inner);
-                imagedestroy($circle);
-            }
-            imagedestroy($productImage);
-        }
-
-        $this->drawText($img, 'INVICTA COSTA RICA', 36, 70, $white, self::FONT_BOLD, true);
+        $this->drawCentered($img, 'INVICTA COSTA RICA', 44, 90, $white, self::FONT_BOLD);
 
         if ($product) {
             $coleccion = $product->coleccion && strtolower($product->coleccion) !== 'otros' ? strtoupper($product->coleccion) : 'RELOJ';
-            $this->drawText($img, $coleccion, 28, 110, $goldLight, self::FONT_BOLD, true);
+            $this->drawCentered($img, $coleccion, 30, 150, $goldLight, self::FONT_BOLD);
 
-            $titleSize = 56;
+            $circleSize = 560;
+            $circleCy = (int) (self::H * 0.44);
+            imagefilledellipse($img, (int) (self::W / 2), $circleCy, $circleSize, $circleSize, $cream);
+            imageellipse($img, (int) (self::W / 2), $circleCy, $circleSize, $circleSize, $goldDark);
+
+            $productImage = $this->loadProductImage($product);
+            if ($productImage !== null) {
+                $inner = 500;
+                $circle = $this->copyIntoCircle($productImage, $inner);
+                if ($circle !== null) {
+                    $dx = (int) (self::W / 2 - $inner / 2);
+                    $dy = (int) ($circleCy - $inner / 2);
+                    imagecopy($img, $circle, $dx, $dy, 0, 0, $inner, $inner);
+                    imagedestroy($circle);
+                }
+                imagedestroy($productImage);
+            }
+
+            $titleSize = 62;
             $title = $product->modelo;
             if ($product->size) {
                 $size = preg_replace('/\s*mm$/i', '', $product->size);
                 $title .= ' · ' . $size . ' mm';
             }
-            $this->drawWrappedText($img, $title, 80, 250, 640, $titleSize, $white, self::FONT_BOLD);
+            $this->drawCentered($img, $title, $titleSize, 790, $white, self::FONT_BOLD);
 
             $price = '₡' . number_format((float) $product->price_after_discount, 0);
-            $priceY = self::H - 100;
-            $this->drawText($img, $price, 64, $priceY, $white, self::FONT_BOLD, true);
+            $this->drawCentered($img, $price, 72, 880, $white, self::FONT_BOLD);
 
-            $this->drawText($img, 'Envío gratis en GAM · WhatsApp 8671-1422', 22, self::H - 40, $muted, self::FONT_REGULAR, true);
+            $this->drawCentered($img, 'Envío gratis en GAM · WhatsApp 8671-1422', 24, 950, $muted, self::FONT_REGULAR);
+            $this->drawCentered($img, 'InvictaCostaRica.com', 24, 990, $muted, self::FONT_REGULAR);
         } else {
-            $this->drawText($img, 'Relojes originales', 56, 250, $white, self::FONT_BOLD, true);
-            $this->drawText($img, 'InvictaCostaRica.com', 28, 330, $muted, self::FONT_BOLD, true);
+            $this->drawCentered($img, 'Relojes originales', 62, 500, $white, self::FONT_BOLD);
+            $this->drawCentered($img, 'InvictaCostaRica.com', 30, 580, $muted, self::FONT_BOLD);
         }
 
         ob_start();
@@ -212,6 +210,16 @@ class OgImageController extends Controller
             imagettftext($img, $size, 0, 82, $y + 3, $shadowColor, $font, $text);
         }
         imagettftext($img, $size, 0, 80, $y, $color, $font, $text);
+    }
+
+    private function drawCentered($img, string $text, int $size, int $y, int $color, string $font): void
+    {
+        $box = imagettfbbox($size, 0, $font, $text);
+        $textWidth = $box[2] - $box[0];
+        $x = (self::W - $textWidth) / 2;
+        $shadowColor = imagecolorallocate($img, 0, 0, 0);
+        imagettftext($img, $size, 0, $x + 3, $y + 3, $shadowColor, $font, $text);
+        imagettftext($img, $size, 0, $x, $y, $color, $font, $text);
     }
 
     private function drawWrappedText($img, string $text, int $x, int $y, int $maxWidth, int $fontSize, int $color, string $font): void

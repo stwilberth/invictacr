@@ -390,32 +390,39 @@ Separá cada variante exactamente con: ---";
             ->orderBy($this->sortField, $this->sortDirection)
             ->get();
 
-        $csv = "modelo,coleccion,color,genero,brazalete,tipo_movimiento,size,resistencia_agua,precio_venta,precio_original,descuento,stock,disponibilidad,title\n";
-
-        foreach ($products as $p) {
-            $row = [
-                $p->modelo,
-                $p->coleccion,
-                $p->color,
-                $p->genero,
-                $p->brazalete,
-                $p->tipo_movimiento,
-                $p->size,
-                $p->resistencia_agua,
-                $p->precio_venta,
-                $p->precio_original,
-                $p->descuento,
-                $p->stock,
-                $p->disponibilidad,
-                $p->title,
-            ];
-            $escaped = array_map(fn($v) => '"' . str_replace('"', '""', $v ?? '') . '"', $row);
-            $csv .= implode(',', $escaped) . "\n";
+        if ($products->isEmpty()) {
+            session()->flash('error', 'No hay productos para exportar.');
+            return;
         }
 
-        return response()->streamDownload(function () use ($csv) {
-            echo $csv;
-        }, 'productos-filtrados.csv', ['Content-Type' => 'text/csv; charset=utf-8']);
+        $zipPath = storage_path('app/public/productos-filtrados.zip');
+        $zip = new \ZipArchive();
+        if ($zip->open($zipPath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) !== true) {
+            session()->flash('error', 'No se pudo crear el ZIP.');
+            return;
+        }
+
+        $adImage = new \App\Http\Controllers\AdImageController();
+        $count = 0;
+
+        foreach ($products as $p) {
+            try {
+                $png = $adImage->generate($p);
+                $zip->addFromString($p->modelo . '.png', $png);
+                $count++;
+            } catch (\Throwable $e) {
+                \Log::warning("Ad image export failed for {$p->modelo}: " . $e->getMessage());
+            }
+        }
+
+        $zip->close();
+
+        if ($count === 0) {
+            session()->flash('error', 'No se pudieron generar las imágenes.');
+            return;
+        }
+
+        return response()->download($zipPath, 'productos-filtrados.zip')->deleteFileAfterSend(true);
     }
 
     private function buildFilteredQuery()

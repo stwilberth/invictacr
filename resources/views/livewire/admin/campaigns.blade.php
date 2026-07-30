@@ -688,40 +688,51 @@
                 ctx.restore();
 
                 // ===== BADGE DE PRECIO (modificar tamaño y posición) =====
-                const badgePadX = 50; // padding horizontal interno del badge
+                const badgePadX = 40; // padding desde el borde izquierdo
                 const badgeY = H - 240; // posición Y del badge
-                const badgeW = 480; // ancho del badge
-                const badgeH = 170; // alto del badge
-                const badgeRadius = 90; // bordes redondeados
+                const badgeW = 520; // ancho del badge
+                const badgeH = 160; // alto del badge
+                const badgeRadius = 80; // bordes redondeados
                 ctx.save();
+                ctx.shadowColor = 'rgba(0,0,0,.25)';
+                ctx.shadowBlur = 20;
+                ctx.shadowOffsetY = 8;
                 ctx.fillStyle = t.badge;
-                roundRect(0, badgeY, badgeW, badgeH, badgeRadius);
+                roundRect(badgePadX, badgeY, badgeW, badgeH, badgeRadius);
                 ctx.fill();
                 ctx.restore();
 
                 // etiqueta amarilla de envío (sobre el badge)
-                const tagH = 60;
-                const tagRadius = 25;
+                const tagH = 48;
+                const tagRadius = 24;
+                const tagW = 320;
                 ctx.save();
+                ctx.shadowColor = 'rgba(0,0,0,.2)';
+                ctx.shadowBlur = 12;
+                ctx.shadowOffsetY = 4;
                 ctx.fillStyle = '#f2c400';
-                roundRect(badgePadX, badgeY - tagH / 2 + 4, 360, tagH, tagRadius);
+                roundRect(badgePadX + 30, badgeY - tagH / 2, tagW, tagH, tagRadius);
                 ctx.fill();
-                ctx.font = 'bold 20px Arial';
+                ctx.font = 'bold 22px Arial';
                 ctx.fillStyle = '#1c1c1c';
                 ctx.textBaseline = 'middle';
-                ctx.fillText(document.getElementById('imgShipping').value, badgePadX + 40, badgeY + 6);
+                ctx.textAlign = 'center';
+                ctx.fillText(document.getElementById('imgShipping').value, badgePadX + 30 + tagW / 2, badgeY);
                 ctx.restore();
 
                 // precio centrado vertical y horizontalmente dentro del badge
                 ctx.save();
                 const priceText = document.getElementById('imgPrice').value;
-                const priceFontSize = 72;
+                const priceFontSize = 68;
                 ctx.font = `italic bold ${priceFontSize}px Arial`;
                 ctx.fillStyle = '#ffffff';
                 ctx.textBaseline = 'middle';
-                const priceCenterX = badgeW / 2;
-                const priceCenterY = badgeY + badgeH / 2 + 20;
+                const priceCenterX = badgePadX + badgeW / 2;
+                const priceCenterY = badgeY + badgeH / 2 + 24;
                 ctx.textAlign = 'center';
+                ctx.shadowColor = 'rgba(0,0,0,.3)';
+                ctx.shadowBlur = 4;
+                ctx.shadowOffsetY = 2;
                 ctx.fillText(priceText, priceCenterX, priceCenterY);
                 ctx.restore();
 
