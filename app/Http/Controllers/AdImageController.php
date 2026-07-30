@@ -26,30 +26,28 @@ class AdImageController extends Controller
         $cream = imagecolorallocate($img, 0xfd, 0xf6, 0xe3);
         $white = imagecolorallocate($img, 0xff, 0xff, 0xff);
         $darkText = imagecolorallocate($img, 0x1c, 0x1c, 0x1e);
-        $muted = imagecolorallocate($img, 0xcc, 0xcc, 0xcc);
         $badgeRed = imagecolorallocate($img, 0xc0, 0x21, 0x2b);
 
-        // Fondo gradiente dorado
+        // Fondo: lado izquierdo gradiente dorado, lado derecho crema (split diagonal)
+        $splitX = self::W * 0.5;
+        $offsetTop = 120;
+        $offsetBottom = -120;
+
+        // Relleno base con crema (lado derecho)
+        imagefilledrectangle($img, 0, 0, self::W, self::H, $cream);
+
+        // Lado izquierdo: gradiente dorado con borde diagonal
         for ($y = 0; $y < self::H; $y++) {
             $t = $y / self::H;
             $r = (int) (0x8a + (0xe6 - 0x8a) * $t);
             $g = (int) (0x5a + (0xb8 - 0x5a) * $t);
             $b = 0;
             $color = imagecolorallocate($img, $r, $g, $b);
-            imageline($img, 0, $y, self::W, $y, $color);
-        }
 
-        // Franja diagonal clara (como en el canvas)
-        $splitX = self::W * 0.5;
-        for ($y = 0; $y < self::H; $y++) {
-            $t = $y / self::H;
-            $alpha = (int) ($t * 0.3);
-            $color = imagecolorallocatealpha($img, 0xfd, 0xf6, 0xe3, $alpha);
-            // Dibujar la franja diagonal
-            $x1 = $splitX + 120 - ($y * 0.24);
-            $x2 = $splitX - 120 + ($y * 0.24);
-            for ($x = (int) $x1; $x <= (int) $x2; $x++) {
-                if ($x >= 0 && $x < self::W) {
+            // Calcular el borde diagonal en este Y
+            $splitAtY = $splitX + $offsetTop + (($offsetBottom - $offsetTop) * $t);
+            for ($x = 0; $x < (int) $splitAtY; $x++) {
+                if ($x < self::W) {
                     imagesetpixel($img, $x, $y, $color);
                 }
             }
@@ -76,12 +74,13 @@ class AdImageController extends Controller
             imagedestroy($productImage);
         }
 
-        // Título
+        // Título (auto-reducir si no cabe)
         $title = 'INVICTA ' . strtoupper($product->coleccion ?? $product->modelo ?? '');
-        $titleSize = 64;
+        $titleSize = 72;
+        $maxTitleWidth = self::W - 500; // dejar espacio para el WhatsApp
         $titleBox = imagettfbbox($titleSize, 0, self::FONT_BOLD, $title);
         $titleWidth = $titleBox[2] - $titleBox[0];
-        while ($titleWidth > self::W - 400 && $titleSize > 40) {
+        while ($titleWidth > $maxTitleWidth && $titleSize > 36) {
             $titleSize -= 4;
             $titleBox = imagettfbbox($titleSize, 0, self::FONT_BOLD, $title);
             $titleWidth = $titleBox[2] - $titleBox[0];
@@ -90,9 +89,9 @@ class AdImageController extends Controller
 
         // Modelo
         $modelCode = $product->codigo_comercial ?? $product->modelo;
-        $this->drawText($img, $modelCode, 32, 70 + $titleSize + 30, $white, self::FONT_REGULAR);
+        $this->drawText($img, $modelCode, 30, 70 + $titleSize + 24, $white, self::FONT_REGULAR);
 
-        // Especificaciones (lado derecho)
+        // Especificaciones (lado derecho, más grandes)
         $specs = [];
         if ($product->size) {
             $size = preg_replace('/\s*mm$/i', '', $product->size);
@@ -108,42 +107,42 @@ class AdImageController extends Controller
             $specs[] = $product->brazalete;
         }
 
-        $specY = $cy - ((count($specs) - 1) * 30) - 30 + 500;
+        $specY = $cy - ((count($specs) - 1) * 35) - 30 + 500;
         foreach ($specs as $i => $spec) {
-            $this->drawRightText($img, $spec, 30, (int) ($specY + $i * 60), $darkText, self::FONT_REGULAR);
+            $this->drawRightText($img, $spec, 32, (int) ($specY + $i * 70), $darkText, self::FONT_REGULAR);
         }
 
-        // Badge de precio
+        // Badge de precio (más compacto)
         $badgePadX = 40;
-        $badgeY = self::H - 240;
-        $badgeW = 520;
-        $badgeH = 160;
-        $badgeRadius = 80;
+        $badgeY = self::H - 260;
+        $badgeW = 480;
+        $badgeH = 150;
+        $badgeRadius = 75;
         $this->roundRect($img, $badgePadX, $badgeY, $badgeW, $badgeH, $badgeRadius, $badgeRed);
 
-        // Badge de envío gratis
-        $tagH = 52;
-        $tagW = 340;
-        $this->roundRect($img, $badgePadX + 30, $badgeY - $tagH / 2, $tagW, $tagH, 26, $goldLight);
-        $this->drawCenteredText($img, 'ENVÍO GRATIS', 24, (int) ($badgeY), $darkText, self::FONT_BOLD, $badgePadX + 30 + $tagW / 2);
+        // Badge de envío gratis (más grande y centrado)
+        $tagH = 56;
+        $tagW = 360;
+        $this->roundRect($img, $badgePadX + 30, $badgeY - $tagH / 2, $tagW, $tagH, 28, $goldLight);
+        $this->drawCenteredText($img, 'ENVÍO GRATIS', 26, (int) ($badgeY), $darkText, self::FONT_BOLD, $badgePadX + 30 + $tagW / 2);
 
-        // Precio
+        // Precio (auto-reducir si no cabe)
         $price = '₡' . number_format((float) $product->price_after_discount, 0);
-        $priceSize = 60;
+        $priceSize = 64;
         $priceBox = imagettfbbox($priceSize, 0, self::FONT_BOLD, $price);
         $priceWidth = $priceBox[2] - $priceBox[0];
-        while ($priceWidth > $badgeW - 80 && $priceSize > 40) {
+        while ($priceWidth > $badgeW - 60 && $priceSize > 40) {
             $priceSize -= 4;
             $priceBox = imagettfbbox($priceSize, 0, self::FONT_BOLD, $price);
             $priceWidth = $priceBox[2] - $priceBox[0];
         }
-        $this->drawCenteredText($img, $price, $priceSize, (int) ($badgeY + $badgeH / 2 + 24), $white, self::FONT_BOLD, $badgePadX + $badgeW / 2);
+        $this->drawCenteredText($img, $price, $priceSize, (int) ($badgeY + $badgeH / 2 + 20), $white, self::FONT_BOLD, $badgePadX + $badgeW / 2);
 
-        // WhatsApp
-        $this->drawRightText($img, '8671-1422', 38, 70, $darkText, self::FONT_BOLD);
+        // WhatsApp (más pequeño y con icono)
+        $this->drawRightText($img, '8671-1422', 32, 70, $darkText, self::FONT_BOLD);
 
         // Website
-        $this->drawRightText($img, 'INVICTACR.COM', 42, self::H - 30, $darkText, self::FONT_BOLD);
+        $this->drawRightText($img, 'INVICTACR.COM', 38, self::H - 40, $darkText, self::FONT_BOLD);
 
         ob_start();
         imagepng($img, null, 8);
