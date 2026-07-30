@@ -16,6 +16,11 @@ class Products extends Component
     public $sortDirection = "desc";
     public $filterGender = "";
     public $filterColeccion = "";
+    public $filterColor = "";
+    public $filterCaja = "";
+    public $filterBrazalete = "";
+    public $filterResistencia = "";
+    public $filterTamano = "";
     public $filterStock = "in";
     public $filterActivo = "all";
     public $filterBloqueado = "all";
@@ -87,6 +92,26 @@ class Products extends Component
             ]);
         }
 
+        if ($this->filterColor) {
+            $query->where("color", $this->filterColor);
+        }
+
+        if ($this->filterCaja) {
+            $query->where("caja", $this->filterCaja);
+        }
+
+        if ($this->filterBrazalete) {
+            $query->where("brazalete", $this->filterBrazalete);
+        }
+
+        if ($this->filterResistencia) {
+            $query->where("resistencia_agua", $this->filterResistencia);
+        }
+
+        if ($this->filterTamano) {
+            $query->whereRaw("size + 0 = ?", [$this->filterTamano]);
+        }
+
         if ($this->filterStock === "in") {
             $query->where("stock", ">", 0);
         } elseif ($this->filterStock === "out") {
@@ -116,6 +141,34 @@ class Products extends Component
             ->sort(fn($a, $b) => strcasecmp($a, $b))
             ->values();
 
+        $colores = collect(config("colors", []))
+            ->map(fn($c) => trim($c))
+            ->filter()
+            ->unique()
+            ->sort(fn($a, $b) => strcasecmp($a, $b))
+            ->values();
+
+        $brazaletes = collect(config("brazaletes", []))
+            ->map(fn($b) => trim($b))
+            ->filter()
+            ->unique()
+            ->sort(fn($a, $b) => strcasecmp($a, $b))
+            ->values();
+
+        $resistencias = Product::whereNotNull('resistencia_agua')
+            ->where('resistencia_agua', '!=', '')
+            ->distinct()
+            ->pluck('resistencia_agua')
+            ->sort()
+            ->values();
+
+        $tamanios = Product::whereNotNull('size')
+            ->where('size', '!=', '')
+            ->distinct()
+            ->pluck('size')
+            ->sort(fn($a, $b) => floatval($a) - floatval($b))
+            ->values();
+
         $service = app(ImageOptimizerService::class);
         $optimizationStatus = [];
         foreach ($products as $product) {
@@ -126,7 +179,7 @@ class Products extends Component
 
         return view(
             "livewire.admin.products",
-            compact("products", "colecciones", "optimizationStatus"),
+            compact("products", "colecciones", "colores", "brazaletes", "resistencias", "tamanios", "optimizationStatus"),
         )->layout("components.admin-layout");
     }
 }

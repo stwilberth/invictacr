@@ -1,36 +1,68 @@
 <div x-data="columnManager()" x-init="init()">
-    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-        <div class="flex gap-2 flex-wrap">
-            <input wire:model.live="search" type="text" placeholder="Buscar productos..." class="bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2 text-sm w-60" />
-            <select wire:model.live="filterGender" class="bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2 text-sm">
-                <option value="">Todos los géneros</option>
-                <option value="hombre">Hombre</option>
-                <option value="mujer">Mujer</option>
-                <option value="unisex">Unisex</option>
-            </select>
-            <select wire:model.live="filterColeccion" class="bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2 text-sm">
-                <option value="">Todas las colecciones</option>
-                @foreach($colecciones as $col)
-                    <option value="{{ $col }}">{{ $col }}</option>
-                @endforeach
-            </select>
-            <select wire:model.live="filterStock" class="bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2 text-sm">
-                <option value="all">Todo el stock</option>
-                <option value="in">Con stock</option>
-                <option value="out">Sin stock</option>
-            </select>
-            <select wire:model.live="filterActivo" class="bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2 text-sm">
-                <option value="all">Todos</option>
-                <option value="yes">Activos</option>
-                <option value="no">Inactivos</option>
-            </select>
-            <select wire:model.live="filterBloqueado" class="bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2 text-sm">
-                <option value="all">Bloqueados: Todos</option>
-                <option value="yes">Solo bloqueados</option>
-                <option value="no">Sin bloquear</option>
-            </select>
+    <div class="flex flex-col gap-4 mb-6">
+        <div class="flex justify-center">
+            <div class="flex gap-2 flex-wrap justify-center">
+                <input wire:model.live="search" type="text" placeholder="Buscar productos..." class="bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2 text-sm w-60" />
+                <select wire:model.live="filterGender" class="bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2 text-sm">
+                    <option value="">Todos los géneros</option>
+                    <option value="hombre">Hombre</option>
+                    <option value="mujer">Mujer</option>
+                    <option value="unisex">Unisex</option>
+                </select>
+                <select wire:model.live="filterColeccion" class="bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2 text-sm">
+                    <option value="">Todas las colecciones</option>
+                    @foreach($colecciones as $col)
+                        <option value="{{ $col }}">{{ $col }}</option>
+                    @endforeach
+                </select>
+                <select wire:model.live="filterColor" class="bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2 text-sm">
+                    <option value="">Todos los colores</option>
+                    @foreach($colores as $color)
+                        <option value="{{ $color }}">{{ $color }}</option>
+                    @endforeach
+                </select>
+                <select wire:model.live="filterCaja" class="bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2 text-sm">
+                    <option value="">Todas las cajas</option>
+                    @foreach($brazaletes as $caja)
+                        <option value="{{ $caja }}">{{ $caja }}</option>
+                    @endforeach
+                </select>
+                <select wire:model.live="filterBrazalete" class="bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2 text-sm">
+                    <option value="">Todos los brazaletes</option>
+                    @foreach($brazaletes as $braz)
+                        <option value="{{ $braz }}">{{ $braz }}</option>
+                    @endforeach
+                </select>
+                <select wire:model.live="filterResistencia" class="bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2 text-sm">
+                    <option value="">Todas las resistencias</option>
+                    @foreach($resistencias as $res)
+                        <option value="{{ $res }}">{{ $res }}</option>
+                    @endforeach
+                </select>
+                <select wire:model.live="filterTamano" class="bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2 text-sm">
+                    <option value="">Todos los tamaños</option>
+                    @foreach($tamanios as $tam)
+                        <option value="{{ $tam }}">{{ $tam }}mm</option>
+                    @endforeach
+                </select>
+                <select wire:model.live="filterStock" class="bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2 text-sm">
+                    <option value="all">Todo el stock</option>
+                    <option value="in">Con stock</option>
+                    <option value="out">Sin stock</option>
+                </select>
+                <select wire:model.live="filterActivo" class="bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2 text-sm">
+                    <option value="all">Todos</option>
+                    <option value="yes">Activos</option>
+                    <option value="no">Inactivos</option>
+                </select>
+                <select wire:model.live="filterBloqueado" class="bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2 text-sm">
+                    <option value="all">Bloqueados: Todos</option>
+                    <option value="yes">Solo bloqueados</option>
+                    <option value="no">Sin bloquear</option>
+                </select>
+            </div>
         </div>
-        <div class="flex gap-2 items-center">
+        <div class="flex justify-end gap-2 items-center">
             <div class="relative" @click.outside="open = false">
                 <button @click="open = !open" class="bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm font-bold text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-all flex items-center gap-2">
                     <i class="fa-solid fa-table-cells"></i>
