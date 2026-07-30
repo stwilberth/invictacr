@@ -47,9 +47,9 @@ class OgImageController extends Controller
             // Imagen del producto centrada, encajando en un cuadrado con padding
             $productImage = $this->loadProductImage($product);
             if ($productImage !== null) {
-                $boxSize = 800; // tamaño del cuadrado blanco donde encaja la imagen
+                $boxSize = 1000;
                 $boxX = (self::W - $boxSize) / 2;
-                $boxY = 100;
+                $boxY = (self::H - $boxSize) / 2;
 
                 // Dibujar borde sutil del cuadrado
                 $borderColor = imagecolorallocate($img, 0xe0, 0xe0, 0xe0);
@@ -67,21 +67,6 @@ class OgImageController extends Controller
                 imagecopyresampled($img, $productImage, $dx, $dy, 0, 0, $dw, $dh, $sw, $sh);
                 imagedestroy($productImage);
             }
-
-            // Título debajo del cuadrado
-            $title = 'INVICTA ' . strtoupper($product->coleccion ?? $product->modelo ?? '');
-            $this->drawCentered($img, $title, 44, 940, $darkText, self::FONT_BOLD);
-
-            // Modelo y precio
-            $subtitle = $product->modelo;
-            if ($product->size) {
-                $size = preg_replace('/\s*mm$/i', '', $product->size);
-                $subtitle .= ' · ' . $size . ' mm';
-            }
-            $this->drawCentered($img, $subtitle, 30, 1000, $muted, self::FONT_REGULAR);
-
-            $price = '₡' . number_format((float) $product->price_after_discount, 0);
-            $this->drawCentered($img, $price, 48, 1060, $goldDark, self::FONT_BOLD);
         } else {
             $this->drawCentered($img, 'Relojes originales', 56, 500, $darkText, self::FONT_BOLD);
             $this->drawCentered($img, 'InvictaCostaRica.com', 28, 580, $muted, self::FONT_REGULAR);
