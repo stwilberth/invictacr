@@ -37,57 +37,54 @@ class OgImageController extends Controller
         $goldLight = imagecolorallocate($img, 0xe6, 0xb8, 0x00);
         $cream = imagecolorallocate($img, 0xfd, 0xf6, 0xe3);
         $white = imagecolorallocate($img, 0xff, 0xff, 0xff);
-        $muted = imagecolorallocate($img, 0xcc, 0xcc, 0xcc);
+        $muted = imagecolorallocate($img, 0x88, 0x88, 0x88);
+        $darkText = imagecolorallocate($img, 0x1c, 0x1c, 0x1e);
 
-        for ($y = 0; $y < self::H; $y++) {
-            $t = $y / self::H;
-            $r = (int) (0x8a + (0xe6 - 0x8a) * $t);
-            $g = (int) (0x5a + (0xb8 - 0x5a) * $t);
-            $b = 0;
-            $color = imagecolorallocate($img, $r, $g, $b);
-            imageline($img, 0, $y, self::W, $y, $color);
-        }
-
-        $this->drawCentered($img, 'INVICTA COSTA RICA', 44, 90, $white, self::FONT_BOLD);
+        // Fondo blanco
+        imagefill($img, 0, 0, $white);
 
         if ($product) {
-            $coleccion = $product->coleccion && strtolower($product->coleccion) !== 'otros' ? strtoupper($product->coleccion) : 'RELOJ';
-            $this->drawCentered($img, $coleccion, 30, 150, $goldLight, self::FONT_BOLD);
-
-            $circleSize = 560;
-            $circleCy = (int) (self::H * 0.44);
-            imagefilledellipse($img, (int) (self::W / 2), $circleCy, $circleSize, $circleSize, $cream);
-            imageellipse($img, (int) (self::W / 2), $circleCy, $circleSize, $circleSize, $goldDark);
-
+            // Imagen del producto centrada, encajando en un cuadrado con padding
             $productImage = $this->loadProductImage($product);
             if ($productImage !== null) {
-                $inner = 500;
-                $circle = $this->copyIntoCircle($productImage, $inner);
-                if ($circle !== null) {
-                    $dx = (int) (self::W / 2 - $inner / 2);
-                    $dy = (int) ($circleCy - $inner / 2);
-                    imagecopy($img, $circle, $dx, $dy, 0, 0, $inner, $inner);
-                    imagedestroy($circle);
-                }
+                $boxSize = 800; // tamaño del cuadrado blanco donde encaja la imagen
+                $boxX = (self::W - $boxSize) / 2;
+                $boxY = 100;
+
+                // Dibujar borde sutil del cuadrado
+                $borderColor = imagecolorallocate($img, 0xe0, 0xe0, 0xe0);
+                imagerectangle($img, (int) $boxX, (int) $boxY, (int) ($boxX + $boxSize), (int) ($boxY + $boxSize), $borderColor);
+
+                // Redimensionar imagen para que encaje (contain)
+                $sw = imagesx($productImage);
+                $sh = imagesy($productImage);
+                $scale = min($boxSize / $sw, $boxSize / $sh);
+                $dw = (int) ($sw * $scale);
+                $dh = (int) ($sh * $scale);
+                $dx = (int) ($boxX + ($boxSize - $dw) / 2);
+                $dy = (int) ($boxY + ($boxSize - $dh) / 2);
+
+                imagecopyresampled($img, $productImage, $dx, $dy, 0, 0, $dw, $dh, $sw, $sh);
                 imagedestroy($productImage);
             }
 
-            $titleSize = 62;
-            $title = $product->modelo;
+            // Título debajo del cuadrado
+            $title = 'INVICTA ' . strtoupper($product->coleccion ?? $product->modelo ?? '');
+            $this->drawCentered($img, $title, 44, 940, $darkText, self::FONT_BOLD);
+
+            // Modelo y precio
+            $subtitle = $product->modelo;
             if ($product->size) {
                 $size = preg_replace('/\s*mm$/i', '', $product->size);
-                $title .= ' · ' . $size . ' mm';
+                $subtitle .= ' · ' . $size . ' mm';
             }
-            $this->drawCentered($img, $title, $titleSize, 790, $white, self::FONT_BOLD);
+            $this->drawCentered($img, $subtitle, 30, 1000, $muted, self::FONT_REGULAR);
 
             $price = '₡' . number_format((float) $product->price_after_discount, 0);
-            $this->drawCentered($img, $price, 72, 880, $white, self::FONT_BOLD);
-
-            $this->drawCentered($img, 'Envío gratis en GAM · WhatsApp 8671-1422', 24, 950, $muted, self::FONT_REGULAR);
-            $this->drawCentered($img, 'InvictaCostaRica.com', 24, 990, $muted, self::FONT_REGULAR);
+            $this->drawCentered($img, $price, 48, 1060, $goldDark, self::FONT_BOLD);
         } else {
-            $this->drawCentered($img, 'Relojes originales', 62, 500, $white, self::FONT_BOLD);
-            $this->drawCentered($img, 'InvictaCostaRica.com', 30, 580, $muted, self::FONT_BOLD);
+            $this->drawCentered($img, 'Relojes originales', 56, 500, $darkText, self::FONT_BOLD);
+            $this->drawCentered($img, 'InvictaCostaRica.com', 28, 580, $muted, self::FONT_REGULAR);
         }
 
         ob_start();
@@ -216,7 +213,7 @@ class OgImageController extends Controller
     {
         $box = imagettfbbox($size, 0, $font, $text);
         $textWidth = $box[2] - $box[0];
-        $x = (self::W - $textWidth) / 2;
+        $x = (int) ((self::W - $textWidth) / 2);
         $shadowColor = imagecolorallocate($img, 0, 0, 0);
         imagettftext($img, $size, 0, $x + 3, $y + 3, $shadowColor, $font, $text);
         imagettftext($img, $size, 0, $x, $y, $color, $font, $text);
