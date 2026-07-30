@@ -37,7 +37,7 @@
                                 <button wire:click="setProductFilter('pending')"
                                     class="px-1.5 py-0.5 rounded text-[9px] font-bold {{ $productFilter === 'pending' ? 'bg-[#00C4FF] text-[#0a0f1c]' : 'bg-gray-100 dark:bg-white/5 text-gray-500' }}">Pendientes</button>
                             </div>
-                            <div class="flex gap-1 mb-2 px-1">
+                            <div class="flex flex-wrap gap-1 mb-2 px-1">
                                 <select wire:model.live="sortField" class="flex-1 bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-md px-2 py-1 text-[10px] focus:border-[#00C4FF] outline-none">
                                     <option value="modelo">Modelo</option>
                                     <option value="precio_venta">Precio</option>
@@ -65,6 +65,12 @@
                                     @foreach($brazaletes as $b)
                                         <option value="{{ $b }}">{{ $b }}</option>
                                     @endforeach
+                                </select>
+                                <select wire:model.live="filterGenero" class="flex-1 bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-md px-2 py-1 text-[10px] focus:border-[#00C4FF] outline-none">
+                                    <option value="">Todos los géneros</option>
+                                    <option value="hombre">Hombre</option>
+                                    <option value="mujer">Mujer</option>
+                                    <option value="unisex">Unisex</option>
                                 </select>
                             </div>
                             <div class="flex gap-2 overflow-x-auto pb-1">
@@ -286,17 +292,29 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100 dark:divide-white/5">
-                    @foreach ($downloads as $d)
-                    <tr class="text-gray-600 dark:text-gray-400">
-                        <td class="py-1 pr-2 font-bold text-gray-800 dark:text-gray-200">{{ $d->model_code }}</td>
-                        <td class="py-1 px-2">
-                            @if ($d->product_image)
-                            <img src="{{ $d->product_image }}" class="w-8 h-8 object-contain rounded" />
-                            @endif
-                        </td>
-                        <td class="py-1 px-2 max-w-[200px] truncate" title="{{ $d->text_content }}">{{ $d->text_content }}</td>
-                        <td class="py-1 pl-2 whitespace-nowrap">{{ $d->created_at->format('d/m H:i') }}</td>
-                    </tr>
+                    @php
+                        $grouped = $downloads->groupBy(fn($d) => $d->created_at->format('Y-m-d'));
+                    @endphp
+                    @foreach ($grouped as $date => $items)
+                        <tr class="bg-gray-50 dark:bg-white/5">
+                            <td colspan="4" class="py-1.5 px-2 font-bold text-[10px] uppercase tracking-wider text-[#00C4FF]">
+                                <i class="fa-regular fa-calendar"></i>
+                                {{ \Carbon\Carbon::parse($date)->translatedFormat('l d/m/Y') }}
+                                <span class="text-gray-400 dark:text-gray-500 font-normal normal-case">({{ $items->count() }})</span>
+                            </td>
+                        </tr>
+                        @foreach ($items as $d)
+                        <tr class="text-gray-600 dark:text-gray-400">
+                            <td class="py-1 pr-2 font-bold text-gray-800 dark:text-gray-200">{{ $d->model_code }}</td>
+                            <td class="py-1 px-2">
+                                @if ($d->product_image)
+                                <img src="{{ $d->product_image }}" class="w-8 h-8 object-contain rounded" />
+                                @endif
+                            </td>
+                            <td class="py-1 px-2 max-w-[200px] truncate" title="{{ $d->text_content }}">{{ $d->text_content }}</td>
+                            <td class="py-1 pl-2 whitespace-nowrap">{{ $d->created_at->format('H:i') }}</td>
+                        </tr>
+                        @endforeach
                     @endforeach
                 </tbody>
             </table>

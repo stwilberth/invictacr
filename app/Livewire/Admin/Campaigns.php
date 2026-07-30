@@ -37,6 +37,7 @@ class Campaigns extends Component
     public $filterColeccion = '';
     public $filterColor = '';
     public $filterBrazalete = '';
+    public $filterGenero = '';
     public $sortField = 'modelo';
     public $sortDirection = 'asc';
 
@@ -104,7 +105,7 @@ class Campaigns extends Component
 
     public function updating($property, $value)
     {
-        if (in_array($property, ['productSearch', 'filterColeccion', 'filterColor', 'filterBrazalete', 'productFilter', 'sortField', 'sortDirection'])) {
+        if (in_array($property, ['productSearch', 'filterColeccion', 'filterColor', 'filterBrazalete', 'filterGenero', 'productFilter', 'sortField', 'sortDirection'])) {
             $this->resetPage();
         }
     }
@@ -357,7 +358,8 @@ Separá cada variante exactamente con: ---";
             }))
             ->when($this->filterColeccion, fn($q) => $q->where('coleccion', $this->filterColeccion))
             ->when($this->filterColor, fn($q) => $q->where('color', $this->filterColor))
-            ->when($this->filterBrazalete, fn($q) => $q->where('brazalete', $this->filterBrazalete));
+            ->when($this->filterBrazalete, fn($q) => $q->where('brazalete', $this->filterBrazalete))
+            ->when($this->filterGenero, fn($q) => $q->where('genero', $this->filterGenero));
 
         if ($this->productFilter === 'pending') {
             $downloadedIds = DownloadHistory::pluck('product_id');
