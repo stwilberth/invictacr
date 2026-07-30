@@ -1,20 +1,25 @@
 @php
     $size = $product->size ? preg_replace('/\s*mm$/i', '', $product->size) : '';
     $displayTitle = $product->display_title;
-    $seoTitle = $displayTitle . ' | Comprar en Costa Rica';
 
-    $cdnBase = 'https://cdn.invictacostarica.com';
-    $ogImage = $product->imagen;
-    $rawImagen = $product->getRawOriginal('imagen');
-    if ($rawImagen) {
-        $imgModelo = preg_replace('/^invicta-/i', '', $product->modelo ?? '');
-        $r2 = \Illuminate\Support\Facades\Storage::disk('r2');
-        if ($r2->exists("relojes/large/{$imgModelo}.webp")) {
-            $ogImage = "{$cdnBase}/relojes/large/{$imgModelo}.webp";
-        } elseif ($r2->exists("relojes/medium/{$imgModelo}.webp")) {
-            $ogImage = "{$cdnBase}/relojes/medium/{$imgModelo}.webp";
-        }
-    }
+    $seoTitleParts = array_filter([
+        'Reloj Invicta',
+        $product->coleccion && strtolower($product->coleccion) !== 'otros' ? $product->coleccion : null,
+        $product->modelo,
+        $size ? $size . ' mm' : null,
+    ]);
+    $seoTitle = trim(implode(' ', $seoTitleParts)) . ' | Invicta Costa Rica';
+
+    $ogImage = route('og.product', $product->slug);
+
+    $priceFmt = '₡' . number_format((float) ($product->price_after_discount ?? $product->precio_venta ?? 0), 0);
+    $descParts = array_filter([
+        $product->coleccion && strtolower($product->coleccion) !== 'otros' ? $product->coleccion : null,
+        $product->size ? $size . ' mm' : null,
+        $product->tipo_movimiento ? $product->tipo_movimiento : null,
+    ]);
+    $seoDescription = $product->descripcion
+        ?: ('Reloj Invicta ' . ($descParts ? implode(' · ', $descParts) . ' ' : '') . '— ' . $priceFmt . '. Envío gratis en GAM. Pago contra entrega. WhatsApp +506 8671-1422.');
 
     $productName = 'Reloj Invicta ' . ($product->coleccion && strtolower($product->coleccion) !== 'otros' ? $product->coleccion . ' ' : '') . ($product->genero && strtolower($product->genero) !== 'unisex' ? 'para ' . $product->genero . ' ' : '') . '(' . $product->modelo . ')';
     $price = $product->price_after_discount ?? $product->precio_venta ?? 0;
@@ -30,17 +35,17 @@
 <script type="application/ld+json">
 {
     "@@context": "https://schema.org",
-    "@type": "Product",
+    "@@type": "Product",
     "name": {!! json_encode($productName) !!},
-    "image": {!! json_encode(asset($ogImage)) !!},
-    "description": {!! json_encode($product->descripcion ?? 'Reloj Invicta ' . $product->modelo) !!},
+    "image": {!! json_encode($ogImage) !!},
+    "description": {!! json_encode($seoDescription) !!},
     "sku": {!! json_encode($product->modelo) !!},
     "brand": {"@type": "Brand", "name": "Invicta"},
     @if($vimeoId)
     "video": {
-        "@type": "VideoObject",
+        "@@type": "VideoObject",
         "name": {!! json_encode($productName) !!},
-        "description": {!! json_encode($product->descripcion ?? 'Video del reloj Invicta ' . $product->modelo) !!},
+        "description": {!! json_encode($seoDescription) !!},
         "thumbnailUrl": {!! json_encode('https://vumbnail.com/' . $vimeoId . '.jpg') !!},
         "contentUrl": {!! json_encode('https://player.vimeo.com/video/' . $vimeoId) !!},
         "embedUrl": {!! json_encode('https://player.vimeo.com/video/' . $vimeoId) !!},
@@ -48,7 +53,7 @@
     },
     @endif
     "offers": {
-        "@type": "Offer",
+        "@@type": "Offer",
         "url": {!! json_encode(url()->current()) !!},
         "priceCurrency": "CRC",
         "price": {!! json_encode($price) !!},
@@ -57,7 +62,7 @@
 }
 </script>
 @endpush
-<x-app-layout :title="$seoTitle" :description="$product->descripcion ?? 'Reloj Invicta ' . $product->modelo" :ogImage="asset($ogImage)" ogType="product" :hideWhatsApp="true" :head="'<link rel=&quot;preload&quot; href=&quot;' . $ogImage . '&quot; as=&quot;image&quot; fetchpriority=&quot;high&quot;>'" >
+<x-app-layout :title="$seoTitle" :description="$seoDescription" :ogImage="$ogImage" ogType="product" :hideWhatsApp="true" :titleSuffix="false" :head="'<link rel=&quot;preload&quot; href=&quot;' . $ogImage . '&quot; as=&quot;image&quot; fetchpriority=&quot;high&quot;>'" >
     @php
         $isAgotado = ($product->stock ?? 0) <= 0 || ($product->disponibilidad ?? 'disponible') === 'agotado';
         $isUpcoming = $product->proximo || $product->precio_venta <= 0;

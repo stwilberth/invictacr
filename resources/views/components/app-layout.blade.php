@@ -7,12 +7,12 @@
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="icon" type="image/png" sizes="32x32" href="/logo.webp" />
     <link rel="apple-touch-icon" href="/logo.png" />
-    <title>{{ $title ?? '' }} | Invicta Costa Rica</title>
+    <title>{{ $title ?? '' }}{{ ($titleSuffix ?? true) ? ' | Invicta Costa Rica' : '' }}</title>
     <meta name="description" content="{{ $description ?? 'Invicta Costa Rica - Relojes de alta calidad con los mejores precios. Pago contra entrega en GAM y envío gratis a todo el país.' }}" />
     <link rel="canonical" href="{{ url()->current() }}" />
     <link rel="sitemap" href="/sitemap.xml" />
 
-    <meta property="og:title" content="{{ $title ?? '' }} | Invicta Costa Rica" />
+    <meta property="og:title" content="{{ $title ?? '' }}{{ ($titleSuffix ?? true) ? ' | Invicta Costa Rica' : '' }}" />
     <meta property="og:description" content="{{ $description ?? 'Invicta Costa Rica - Relojes de alta calidad con los mejores precios. Pago contra entrega en GAM y envío gratis a todo el país.' }}" />
     <meta property="og:type" content="{{ $ogType ?? 'website' }}" />
     <meta property="og:url" content="{{ url()->current() }}" />
@@ -21,7 +21,7 @@
     <meta property="og:locale" content="es_CR" />
 
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="{{ $title ?? '' }} | Invicta Costa Rica" />
+    <meta name="twitter:title" content="{{ $title ?? '' }}{{ ($titleSuffix ?? true) ? ' | Invicta Costa Rica' : '' }}" />
     <meta name="twitter:description" content="{{ $description ?? 'Invicta Costa Rica - Relojes de alta calidad con los mejores precios. Pago contra entrega en GAM y envío gratis a todo el país.' }}" />
     <meta name="twitter:image" content="{{ $ogImage ?? asset('logo.webp') }}" />
 
