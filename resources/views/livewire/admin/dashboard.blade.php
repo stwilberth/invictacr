@@ -21,7 +21,7 @@
         <span class="text-xs font-bold px-2 py-1 rounded bg-gray-100 text-gray-500 dark:bg-white/5 dark:text-gray-400 uppercase tracking-wider">Admin</span>
     </div>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 mb-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
         {{-- Usuarios --}}
         <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-5">
             <div class="flex items-start justify-between">
@@ -62,12 +62,10 @@
                 </div>
             </div>
         </div>
-    </div>
 
-    {{-- Próximos relojes --}}
-    <div class="mb-6">
+        {{-- Próximos relojes --}}
         <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-5">
-            <div class="flex items-start justify-between mb-4">
+            <div class="flex items-start justify-between mb-3">
                 <div>
                     <p class="text-sm text-gray-500 dark:text-gray-400">Próximos relojes</p>
                     <p class="text-2xl font-black text-amber-500 mt-1">{{ $upcomingCount }}</p>
@@ -75,14 +73,16 @@
                 <i class="fa-solid fa-clock text-gray-300 dark:text-gray-600 text-xl"></i>
             </div>
             @if(count($upcomingProducts) > 0)
-            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+            <div class="space-y-2">
                 @foreach($upcomingProducts as $prod)
-                <div class="text-center">
-                    <div class="aspect-square bg-gray-50 dark:bg-white/5 rounded-xl overflow-hidden mb-2">
+                <div class="flex items-center gap-2">
+                    <div class="w-10 h-10 bg-gray-50 dark:bg-white/5 rounded-lg overflow-hidden shrink-0">
                         <img src="{{ $prod['image'] }}" alt="{{ $prod['name'] }}" class="w-full h-full object-cover" loading="lazy">
                     </div>
-                    <p class="text-xs font-bold text-gray-700 dark:text-gray-300 truncate">{{ $prod['name'] }}</p>
-                    <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400">Próximamente</span>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-xs font-bold text-gray-700 dark:text-gray-300 truncate">{{ $prod['name'] }}</p>
+                    </div>
+                    <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400 shrink-0">Próximamente</span>
                 </div>
                 @endforeach
             </div>
