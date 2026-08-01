@@ -10,6 +10,8 @@
     $activeSection = null;
     if (request('gender') || $gender) $activeSection = "'gender'";
     elseif (request('color')) $activeSection = "'color'";
+    elseif (request('coleccion')) $activeSection = "'coleccion'";
+    elseif (request('brazalete')) $activeSection = "'brazalete'";
     elseif (request('tipo_movimiento')) $activeSection = "'movimiento'";
     elseif (request('size')) $activeSection = "'size'";
     elseif (request('precio_min') || request('precio_max')) $activeSection = "'precio'";
@@ -86,6 +88,28 @@
             <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
                 <input type="radio" name="coleccion_{{ $formId }}" value="{{ $col }}" {{ strtolower(request('coleccion')) === strtolower($col) ? 'checked' : '' }} onchange="window.CatalogManager && window.CatalogManager.setFilter('coleccion', '{{ $col }}')" class="text-[#00C4FF]">
                 <span>{{ ucfirst($col) }}</span>
+            </label>
+            @endforeach
+        </div>
+    </div>
+    @endif
+
+    {{-- Brazalete --}}
+    @if(isset($filters['brazaletes']) && $filters['brazaletes']->count() > 0)
+    <div class="mb-2">
+        <button type="button" @click="openSection = openSection === 'brazalete' ? null : 'brazalete'" class="w-full flex items-center justify-between text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider py-2">
+            <span>Brazalete</span>
+            <i class="fa-solid fa-chevron-down text-[10px] transition-transform" :class="{ 'rotate-180': openSection === 'brazalete' }"></i>
+        </button>
+        <div x-show="openSection === 'brazalete'" x-cloak class="space-y-1 max-h-40 overflow-y-auto pb-2">
+            <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
+                <input type="radio" name="brazalete_{{ $formId }}" value="" {{ !request('brazalete') ? 'checked' : '' }} onchange="window.CatalogManager && window.CatalogManager.setFilter('brazalete', '')" class="text-[#00C4FF]">
+                <span>Todos</span>
+            </label>
+            @foreach($filters['brazaletes'] as $brazalete)
+            <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
+                <input type="radio" name="brazalete_{{ $formId }}" value="{{ $brazalete }}" {{ strtolower(request('brazalete')) === strtolower($brazalete) ? 'checked' : '' }} onchange="window.CatalogManager && window.CatalogManager.setFilter('brazalete', '{{ $brazalete }}')" class="text-[#00C4FF]">
+                <span>{{ $brazalete }}</span>
             </label>
             @endforeach
         </div>

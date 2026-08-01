@@ -2,27 +2,42 @@
 
 namespace App\Livewire\Admin;
 
-use App\Models\Product;
+use App\Models\ExternalFactor;
+use App\Models\FacebookAdReport;
+use App\Models\GoogleAdsReport;
+use App\Models\GoogleAnalyticsReport;
 use App\Models\Invoice;
 use App\Models\InvoiceItem;
+use App\Models\Product;
 use App\Models\Subscriber;
 use App\Models\SyncLog;
-use App\Models\GoogleAnalyticsReport;
-use App\Models\FacebookPost;
-use App\Models\FacebookInsight;
+use App\Models\User;
 use App\Models\VisitorEvent;
+use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 
 class Dashboard extends Component
 {
-    public array $stats = [];
-    public array $recentSyncs = [];
+    // Gestión interna (Admin)
+    public array $userStats = [];
+    public array $inventory = [];
+    public array $stockAlerts = [];
     public array $recentInvoices = [];
-    public array $topCollections = [];
     public array $recentSubscribers = [];
-    public array $recentFbPosts = [];
-    public array $gaSummary = [];
+    public array $recentSyncs = [];
+
+    // Métricas de negocio (Analytics)
+    public string $period = '30d';
+    public array $revenueData = [];
+    public array $topProducts = [];
+    public array $analyticsSummary = [];
     public array $trafficSources = [];
+    public array $adsPerformance = [];
+    public array $fbAdsPerformance = [];
+    public array $growth = [];
+    public array $correlationNotes = [];
+    public ?int $realtimeUsers = null;
+
     public bool $syncing = false;
 
     public string $codeServerStatus = 'unknown';
@@ -32,39 +47,70 @@ class Dashboard extends Component
 
     public function mount(): void
     {
-        $this->loadData();
+        $this->loadAdminData();
+        $this->loadAnalytics();
         $this->loadDevToolsStatus();
     }
 
-    public function loadData(): void
+    public function updatedPeriod(): void
+    {
+        $this->loadAnalytics();
+    }
+
+    protected function getDateRange(): array
+    {
+        return match ($this->period) {
+            '7d' => [now()->subDays(7), now()],
+            '90d' => [now()->subDays(90), now()],
+            '365d' => [now()->subDays(365), now()],
+            default => [now()->subDays(30), now()],
+        };
+    }
+
+    protected function loadAdminData(): void
     {
         $now = now();
         $startOfMonth = $now->copy()->startOfMonth();
         $endOfMonth = $now->copy()->endOfMonth();
 
-        $monthInvoices = Invoice::whereBetween('created_at', [$startOfMonth, $endOfMonth])
-            ->where('status', '!=', 'cancelled')
-            ->get();
+        $admins = User::where('is_admin', true)->count();
+        $totalUsers = User::count();
 
-        $totalRevenue = $monthInvoices->sum('total');
-        $totalInvoices = $monthInvoices->count();
-
-        $this->stats = [
-            'products' => Product::where('activo', true)->count(),
-            'monthly_revenue' => $totalRevenue,
-            'monthly_invoices' => $totalInvoices,
-            'avg_order_value' => $totalInvoices > 0 ? $totalRevenue / $totalInvoices : 0,
-            'visitors_today' => $this->getTodayVisitors(),
+        $this->userStats = [
+            'total' => $totalUsers,
+            'admins' => $admins,
+            'clients' => $totalUsers - $admins,
+            'new_this_month' => User::whereBetween('created_at', [$startOfMonth, $endOfMonth])->count(),
+            'visitors_today' => VisitorEvent::where('type', 'page_view')
+                ->whereDate('created_at', $now->toDateString())
+                ->distinct('visitor_id')
+                ->count('visitor_id'),
             'whatsapp_clicks' => VisitorEvent::where('type', 'whatsapp_click')
                 ->whereBetween('created_at', [$startOfMonth, $endOfMonth])
                 ->count(),
-            'monthly_subscribers' => Subscriber::whereBetween('created_at', [$startOfMonth, $endOfMonth])->count(),
-            'low_stock' => Product::where('stock', '<', 5)->where('stock', '>', 0)->count(),
-            'out_of_stock' => Product::where('stock', 0)->count(),
-            'upcoming' => Product::where('proximo', true)->count(),
         ];
 
-        $this->recentSyncs = SyncLog::latest()->take(5)->get()->toArray();
+        $this->inventory = [
+            'active' => Product::where('activo', true)->count(),
+            'upcoming' => Product::where('proximo', true)->count(),
+            'value' => Product::where('activo', true)->where('stock', '>', 0)
+                ->sum(DB::raw('precio_venta * stock')),
+        ];
+
+        $this->stockAlerts = [
+            'low' => Product::where('stock', '<', 5)->where('stock', '>', 0)->count(),
+            'out' => Product::where(fn($q) => $q->where('stock', '<=', 0)->orWhere('disponibilidad', 'agotado'))->count(),
+            'products' => Product::where(fn($q) => $q->where('stock', '<', 5)->orWhere('disponibilidad', 'agotado'))
+                ->orderBy('stock')
+                ->take(5)
+                ->get(['modelo', 'title', 'stock', 'disponibilidad'])
+                ->map(fn($p) => [
+                    'name' => $p->title ?: $p->modelo,
+                    'stock' => $p->stock,
+                    'agotado' => $p->stock <= 0 || $p->disponibilidad === 'agotado',
+                ])
+                ->toArray(),
+        ];
 
         $this->recentInvoices = Invoice::where('status', '!=', 'cancelled')
             ->latest()
@@ -79,19 +125,6 @@ class Dashboard extends Component
             ])
             ->toArray();
 
-        $this->topCollections = InvoiceItem::whereHas('invoice', fn($q) => $q
-            ->where('status', '!=', 'cancelled')
-        )
-            ->join('products', 'invoice_items.product_model', '=', 'products.modelo')
-            ->select('products.coleccion as name', \Illuminate\Support\Facades\DB::raw('SUM(invoice_items.quantity) as total_qty'), \Illuminate\Support\Facades\DB::raw('SUM(invoice_items.subtotal) as total_revenue'))
-            ->whereNotNull('products.coleccion')
-            ->where('products.coleccion', '!=', '')
-            ->groupBy('products.coleccion')
-            ->orderByDesc('total_qty')
-            ->take(10)
-            ->get()
-            ->toArray();
-
         $this->recentSubscribers = Subscriber::latest()->take(5)->get()
             ->map(fn($s) => [
                 'email' => $s->email,
@@ -99,18 +132,16 @@ class Dashboard extends Component
             ])
             ->toArray();
 
-        $this->recentFbPosts = FacebookPost::latest('posted_at')->take(5)->get()
-            ->map(fn($p) => [
-                'message' => \Illuminate\Support\Str::limit($p->message ?? 'Sin texto', 80),
-                'likes' => $p->likes ?? 0,
-                'comments' => $p->comments ?? 0,
-                'shares' => $p->shares ?? 0,
-                'posted_at' => $p->posted_at ? $p->posted_at->format('d/m/Y') : 'N/A',
-            ])
-            ->toArray();
+        $this->recentSyncs = SyncLog::latest()->take(5)->get()->toArray();
+    }
 
-        $gaReports = GoogleAnalyticsReport::latest('report_date')->take(30)->get();
-        $this->gaSummary = [
+    protected function loadAnalytics(): void
+    {
+        [$start, $end] = $this->getDateRange();
+
+        // Tráfico web (Google Analytics)
+        $gaReports = GoogleAnalyticsReport::whereBetween('report_date', [$start, $end])->get();
+        $this->analyticsSummary = [
             'total_users' => $gaReports->sum('users'),
             'total_sessions' => $gaReports->sum('sessions'),
             'total_pageviews' => $gaReports->sum('pageviews'),
@@ -122,37 +153,177 @@ class Dashboard extends Component
             ->flatMap(fn($r) => $r->traffic_sources)
             ->groupBy(fn($item) => ($item['source'] ?? '') . ' / ' . ($item['medium'] ?? ''))
             ->map(fn($group) => [
-                'source' => $group->first()['source'] ?? '(direct)',
+                'source' => $group->first()['source'] ?? '',
                 'users' => $group->sum('users'),
             ])
             ->sortByDesc('users')
-            ->take(6)
+            ->take(8)
             ->values()
             ->toArray();
+
+        // Ingresos y utilidad
+        $invoices = Invoice::whereBetween('created_at', [$start, $end])
+            ->where('status', '!=', 'cancelled')
+            ->get();
+
+        $weeklyRevenue = $invoices->groupBy(fn($i) => $i->created_at->format('o-W'))
+            ->map(fn($group) => [
+                'week' => $group->first()->created_at->format('o-W'),
+                'label' => 'Sem ' . $group->first()->created_at->format('W'),
+                'total' => $group->sum('total'),
+            ])
+            ->sortBy('week')
+            ->values();
+
+        $totalRevenue = $invoices->sum('total');
+        $totalInvoices = $invoices->count();
+        $totalUtility = $invoices->sum(function ($invoice) {
+            $shippingCost = $invoice->shipping_cost ?? 0;
+            return ($invoice->subtotal * 0.30) - $invoice->discount + $invoice->shipping - $shippingCost;
+        });
+
+        $this->revenueData = [
+            'total_revenue' => $totalRevenue,
+            'total_invoices' => $totalInvoices,
+            'total_utility' => $totalUtility,
+            'avg_order_value' => $totalInvoices > 0 ? $totalRevenue / $totalInvoices : 0,
+            'weekly' => $weeklyRevenue->toArray(),
+        ];
+
+        // Ventas por producto
+        $this->topProducts = InvoiceItem::whereHas('invoice', fn($q) => $q
+            ->whereBetween('created_at', [$start, $end])
+            ->where('status', '!=', 'cancelled')
+        )
+            ->select('product_name', DB::raw('SUM(quantity) as total_qty'), DB::raw('SUM(subtotal) as total_revenue'))
+            ->groupBy('product_name')
+            ->orderByDesc('total_qty')
+            ->take(10)
+            ->get()
+            ->toArray();
+
+        // Campañas Google Ads
+        $adsReports = GoogleAdsReport::whereBetween('report_date', [$start, $end])->get();
+        $this->adsPerformance = [
+            'total_clicks' => $adsReports->sum('clicks'),
+            'total_cost' => $adsReports->sum('cost'),
+            'by_campaign' => $adsReports->groupBy('campaign_name')->map(fn($group) => [
+                'impressions' => $group->sum('impressions'),
+                'clicks' => $group->sum('clicks'),
+                'cost' => $group->sum('cost'),
+                'conversions' => $group->sum('conversions'),
+            ])->toArray(),
+        ];
+
+        // Campañas Meta Ads
+        $fbAds = FacebookAdReport::whereBetween('report_date', [$start, $end])->get();
+        $this->fbAdsPerformance = [
+            'total_clicks' => $fbAds->sum('clicks'),
+            'total_spend' => $fbAds->sum('spend'),
+            'by_campaign' => $fbAds->groupBy('campaign_name')->map(fn($group) => [
+                'impressions' => $group->sum('impressions'),
+                'clicks' => $group->sum('clicks'),
+                'spend' => $group->sum('spend'),
+                'reach' => $group->sum('reach'),
+            ])->toArray(),
+        ];
+
+        // Crecimiento vs período anterior
+        $this->growth = $this->calculateGrowth($start, $end);
+
+        // Usuarios en tiempo real
+        try {
+            $gaService = app(\App\Services\GoogleAnalyticsService::class);
+            $this->realtimeUsers = $gaService->fetchRealtimeUsers();
+        } catch (\Exception $e) {
+            $this->realtimeUsers = null;
+        }
+
+        $this->correlationNotes = $this->generateCorrelationNotes($start, $end);
     }
 
-    protected function getTodayVisitors(): int
+    protected function calculateGrowth($start, $end): array
     {
-        return VisitorEvent::where('type', 'page_view')
-            ->whereDate('created_at', now()->toDateString())
-            ->distinct('visitor_id')
-            ->count('visitor_id');
+        $periodDays = match ($this->period) {
+            '7d' => 7,
+            '90d' => 90,
+            '365d' => 365,
+            default => 30,
+        };
+
+        $prevStart = (clone $start)->subDays($periodDays);
+        $prevEnd = (clone $start)->subDay();
+
+        $currentRevenue = Invoice::whereBetween('created_at', [$start, $end])
+            ->where('status', '!=', 'cancelled')->sum('total');
+        $prevRevenue = Invoice::whereBetween('created_at', [$prevStart, $prevEnd])
+            ->where('status', '!=', 'cancelled')->sum('total');
+
+        $currentGa = GoogleAnalyticsReport::whereBetween('report_date', [$start, $end])->sum('users');
+        $prevGa = GoogleAnalyticsReport::whereBetween('report_date', [$prevStart, $prevEnd])->sum('users');
+
+        $currentAds = GoogleAdsReport::whereBetween('report_date', [$start, $end])->sum('clicks');
+        $prevAds = GoogleAdsReport::whereBetween('report_date', [$prevStart, $prevEnd])->sum('clicks');
+
+        return [
+            'revenue' => $prevRevenue > 0 ? round((($currentRevenue - $prevRevenue) / $prevRevenue) * 100, 1) : 0,
+            'ga_users' => $prevGa > 0 ? round((($currentGa - $prevGa) / $prevGa) * 100, 1) : 0,
+            'ads_clicks' => $prevAds > 0 ? round((($currentAds - $prevAds) / $prevAds) * 100, 1) : 0,
+        ];
+    }
+
+    protected function generateCorrelationNotes($start, $end): array
+    {
+        $notes = [];
+
+        $ads = $this->adsPerformance;
+        if (isset($ads['total_cost']) && $ads['total_cost'] < 1000 && $ads['total_clicks'] > 0) {
+            $notes[] = [
+                'type' => 'info',
+                'title' => 'Inversión en anuncios baja',
+                'description' => 'El gasto en Google Ads es bajo. Considerar aumentar presupuesto si las ventas están cayendo.',
+            ];
+        }
+
+        $highImpactFactors = ExternalFactor::where('active', true)
+            ->where('impact_level', 'high')
+            ->whereBetween('event_date', [$start, $end])
+            ->orderByDesc('event_date')
+            ->get();
+
+        foreach ($highImpactFactors as $factor) {
+            $notes[] = [
+                'type' => 'external',
+                'title' => "Factor externo: {$factor->category}",
+                'description' => "{$factor->title}: {$factor->description}",
+            ];
+        }
+
+        return $notes;
     }
 
     public function syncData(): void
     {
         $this->syncing = true;
 
+        $days = match ($this->period) {
+            '7d' => 7,
+            '90d' => 90,
+            '365d' => 365,
+            default => 30,
+        };
+
         try {
-            \Illuminate\Support\Facades\Artisan::call('sync:google-analytics', ['--days' => 7]);
-            \Illuminate\Support\Facades\Artisan::call('sync:google-ads', ['--days' => 7]);
-            \Illuminate\Support\Facades\Artisan::call('sync:search-console', ['--days' => 7]);
-            \Illuminate\Support\Facades\Artisan::call('sync:facebook', ['--days' => 7, '--posts' => 10]);
-            \Illuminate\Support\Facades\Artisan::call('sync:facebook-ads', ['--days' => 7]);
+            \Illuminate\Support\Facades\Artisan::call('sync:google-analytics', ['--days' => $days]);
+            \Illuminate\Support\Facades\Artisan::call('sync:google-ads', ['--days' => $days]);
+            \Illuminate\Support\Facades\Artisan::call('sync:search-console', ['--days' => $days]);
+            \Illuminate\Support\Facades\Artisan::call('sync:facebook', ['--days' => $days, '--posts' => 20]);
+            \Illuminate\Support\Facades\Artisan::call('sync:facebook-ads', ['--days' => $days]);
             \Illuminate\Support\Facades\Artisan::call('sync:github');
 
-            $this->loadData();
-            session()->flash('message', 'Datos actualizados correctamente.');
+            $this->loadAdminData();
+            $this->loadAnalytics();
+            session()->flash('message', "Datos sincronizados para los últimos {$days} días.");
         } catch (\Exception $e) {
             session()->flash('error', 'Error al sincronizar: ' . $e->getMessage());
         }
@@ -207,6 +378,6 @@ class Dashboard extends Component
     public function render()
     {
         return view('livewire.admin.dashboard')
-            ->layout('components.admin-layout');
+            ->layout('components.admin-layout', ['title' => 'Dashboard']);
     }
 }

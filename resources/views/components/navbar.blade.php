@@ -125,6 +125,14 @@
                             <a href="{{ route('profile.show') }}#direccion" class="block px-4 py-2 text-sm text-white/80 hover:text-white hover:bg-white/5 transition-colors">Mi Dirección</a>
                             <a href="/mis-pedidos" class="block px-4 py-2 text-sm text-[#00C4FF] hover:bg-white/5 transition-colors font-bold">Mis Pedidos</a>
                             <a href="{{ route('cart.show') }}" class="block px-4 py-2 text-sm text-white/80 hover:text-white hover:bg-white/5 transition-colors">Mi Carrito</a>
+                            <div class="border-t border-white/10 my-1"></div>
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button type="submit" class="w-full text-left px-4 py-2 text-sm text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors flex items-center gap-2">
+                                    <i class="fa-solid fa-right-from-bracket"></i>
+                                    Cerrar Sesión
+                                </button>
+                            </form>
                         </div>
                     </div>
                 @else

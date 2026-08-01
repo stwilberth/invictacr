@@ -60,9 +60,6 @@
                 </a>
                 <hr class="border-white/10 my-4">
                 <p class="px-4 text-xs text-white/40 uppercase tracking-wider font-black mb-2">Analytics</p>
-                <a href="{{ route('admin.analytics') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors {{ request()->routeIs('admin.analytics') ? 'bg-[#00C4FF]/10 text-[#00C4FF]' : 'text-white/70 hover:text-white hover:bg-white/5' }}">
-                    <i class="fa-solid fa-chart-pie w-5"></i> Dashboard Analytics
-                </a>
                 <a href="{{ route('admin.visitors') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors {{ request()->routeIs('admin.visitors*') ? 'bg-[#00C4FF]/10 text-[#00C4FF]' : 'text-white/70 hover:text-white hover:bg-white/5' }}">
                     <i class="fa-solid fa-user-secret w-5"></i> Visitantes
                 </a>
@@ -172,9 +169,6 @@
                     </a>
                     <hr class="border-white/10 my-4">
                     <p class="px-4 text-xs text-white/40 uppercase tracking-wider font-black mb-2">Analytics</p>
-                    <a href="{{ route('admin.analytics') }}" @click="sidebarOpen = false" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors {{ request()->routeIs('admin.analytics') ? 'bg-[#00C4FF]/10 text-[#00C4FF]' : 'text-white/70 hover:text-white hover:bg-white/5' }}">
-                        <i class="fa-solid fa-chart-pie w-5"></i> Dashboard Analytics
-                    </a>
                     <a href="{{ route('admin.visitors') }}" @click="sidebarOpen = false" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors {{ request()->routeIs('admin.visitors*') ? 'bg-[#00C4FF]/10 text-[#00C4FF]' : 'text-white/70 hover:text-white hover:bg-white/5' }}">
                         <i class="fa-solid fa-user-secret w-5"></i> Visitantes
                     </a>

@@ -90,6 +90,23 @@
                 </div>
             </div>
 
+            @if($user->is_admin)
+            {{-- Admin Dashboard --}}
+            <div class="mb-10">
+                <h2 class="text-lg font-black text-gray-900 dark:text-white uppercase tracking-tight mb-5">Admin Dashboard</h2>
+                <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-4 bg-gradient-to-r from-[#00C4FF]/10 to-purple-500/10 dark:from-[#00C4FF]/20 dark:to-purple-500/20 rounded-2xl border border-[#00C4FF]/20 dark:border-[#00C4FF]/30 p-5 hover:shadow-lg transition-all group">
+                    <div class="w-12 h-12 bg-[#00C4FF]/20 dark:bg-[#00C4FF]/30 rounded-xl flex items-center justify-center text-[#00C4FF] shrink-0 group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-gauge-high text-xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-base font-black text-gray-900 dark:text-white">Panel de Administración</p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Gestionar productos, pedidos, facturas y más</p>
+                    </div>
+                    <i class="fa-solid fa-arrow-right text-[#00C4FF] ml-auto opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                </a>
+            </div>
+            @endif
+
             {{-- Cerrar Sesión --}}
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
