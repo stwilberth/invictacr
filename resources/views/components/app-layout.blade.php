@@ -161,7 +161,8 @@
     @unless($hideWhatsApp ?? false)
         <x-whatsapp-button />
     @endunless
-    <x-cookie-banner />
+    <x-delivery-alert />
+    {{-- <x-cookie-banner /> --}}
 
     <!-- Image Modal -->
     <div id="imageModal" class="modal-overlay fixed inset-0 z-[100] hidden items-center justify-center bg-black/85 p-0">

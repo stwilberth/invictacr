@@ -7,6 +7,11 @@
                 <i wire:loading wire:target="extractFromInvoices" class="fa-solid fa-spinner fa-spin"></i>
                 Extraer de facturas
             </button>
+            <button wire:click="exportVcf" wire:loading.attr="disabled" title="Descarga un archivo .vcf para importar en Contactos de Android" class="bg-gray-700 hover:bg-gray-800 dark:bg-white/10 dark:hover:bg-white/20 disabled:opacity-50 text-white font-bold px-4 py-2.5 rounded-xl text-sm transition-all flex items-center gap-2">
+                <i wire:loading.remove wire:target="exportVcf" class="fa-solid fa-file-export"></i>
+                <i wire:loading wire:target="exportVcf" class="fa-solid fa-spinner fa-spin"></i>
+                Exportar contactos
+            </button>
             <button wire:click="create" class="bg-[#00C4FF] hover:bg-[#00b0e6] text-[#0a0f1c] font-black px-5 py-2.5 rounded-xl text-sm transition-all uppercase tracking-wider">+ Nuevo Cliente</button>
         </div>
     </div>

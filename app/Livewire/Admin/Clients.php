@@ -82,6 +82,62 @@ class Clients extends Component
         $this->reset(['name', 'email', 'phone', 'notes', 'editingClientId']);
     }
 
+    public function exportVcf()
+    {
+        $query = Client::query();
+        if ($this->search) {
+            $query->where(function ($q) {
+                $q->where('name', 'like', "%{$this->search}%")
+                  ->orWhere('email', 'like', "%{$this->search}%")
+                  ->orWhere('phone', 'like', "%{$this->search}%");
+            });
+        }
+        $clients = $query->orderBy('name')->get();
+
+        $vcf = '';
+        foreach ($clients as $client) {
+            $vcf .= $this->clientToVcard($client);
+        }
+
+        $filename = 'clientes-invicta-' . now()->format('Y-m-d') . '.vcf';
+
+        return response()->streamDownload(function () use ($vcf) {
+            echo $vcf;
+        }, $filename, ['Content-Type' => 'text/vcard; charset=utf-8']);
+    }
+
+    protected function clientToVcard(Client $client): string
+    {
+        $name = $this->vcardEscape($client->name);
+        $lines = ['BEGIN:VCARD', 'VERSION:3.0', "FN:{$name}", "N:;{$name};;;"];
+
+        if ($client->phone) {
+            $lines[] = 'TEL;TYPE=CELL:' . $this->vcardEscape($client->phone);
+        }
+        if ($client->email) {
+            $lines[] = 'EMAIL;TYPE=INTERNET:' . $this->vcardEscape($client->email);
+        }
+        if ($client->address) {
+            $lines[] = 'ADR;TYPE=HOME:;;' . $this->vcardEscape($client->address) . ';;;;';
+        }
+        if ($client->notes) {
+            $lines[] = 'NOTE:' . $this->vcardEscape($client->notes);
+        }
+        $lines[] = 'ORG:Invicta Costa Rica';
+        $lines[] = 'END:VCARD';
+
+        return implode("\r\n", $lines) . "\r\n";
+    }
+
+    protected function vcardEscape(?string $value): string
+    {
+        if (!$value) {
+            return '';
+        }
+        $value = str_replace(['\\', ',', ';'], ['\\\\', '\\,', '\\;'], $value);
+        return str_replace(["\r\n", "\n", "\r"], '\\n', $value);
+    }
+
     public function render()
     {
         $query = Client::query();
