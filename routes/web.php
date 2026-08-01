@@ -91,7 +91,6 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::get('/search-logs', \App\Livewire\Admin\SearchLogs::class)->name('search-logs');
     Route::get('/optimize-images',  \App\Livewire\Admin\OptimizeImages::class)->name('optimize-images');
     Route::get('/db-backups',       \App\Livewire\Admin\DbBackups::class)->name('db-backups');
-    Route::get('/analytics',        fn() => redirect()->route('admin.dashboard'))->name('analytics');
     Route::get('/visitors',         \App\Livewire\Admin\Visitors::class)->name('visitors');
     Route::get('/visitors/{id}',    \App\Livewire\Admin\VisitorDetail::class)->name('visitors.detail');
     Route::get('/timeline',         \App\Livewire\Admin\UnifiedTimeline::class)->name('timeline');
