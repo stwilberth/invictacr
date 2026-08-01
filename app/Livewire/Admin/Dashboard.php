@@ -8,19 +8,16 @@ use App\Models\GoogleAdsReport;
 use App\Models\GoogleAnalyticsReport;
 use App\Models\Invoice;
 use App\Models\Product;
-use App\Models\Subscriber;
 use App\Models\User;
 use App\Models\VisitorEvent;
-use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 
 class Dashboard extends Component
 {
     // Gestión interna (Admin)
     public array $userStats = [];
-    public array $inventory = [];
-    public array $stockAlerts = [];
-    public array $recentSubscribers = [];
+    public array $upcomingProducts = [];
+    public int $upcomingCount = 0;
 
     // Métricas de negocio (Analytics)
     public string $period = '30d';
@@ -85,32 +82,14 @@ class Dashboard extends Component
                 ->count(),
         ];
 
-        $this->inventory = [
-            'active' => Product::where('activo', true)->count(),
-            'upcoming' => Product::where('proximo', true)->count(),
-            'value' => Product::where('activo', true)->where('stock', '>', 0)
-                ->sum(DB::raw('precio_venta * stock')),
-        ];
-
-        $this->stockAlerts = [
-            'low' => Product::where('stock', '<', 5)->where('stock', '>', 0)->count(),
-            'out' => Product::where(fn($q) => $q->where('stock', '<=', 0)->orWhere('disponibilidad', 'agotado'))->count(),
-            'products' => Product::where(fn($q) => $q->where('stock', '<', 5)->orWhere('disponibilidad', 'agotado'))
-                ->orderBy('stock')
-                ->take(5)
-                ->get(['modelo', 'title', 'stock', 'disponibilidad'])
-                ->map(fn($p) => [
-                    'name' => $p->title ?: $p->modelo,
-                    'stock' => $p->stock,
-                    'agotado' => $p->stock <= 0 || $p->disponibilidad === 'agotado',
-                ])
-                ->toArray(),
-        ];
-
-        $this->recentSubscribers = Subscriber::latest()->take(5)->get()
-            ->map(fn($s) => [
-                'email' => $s->email,
-                'created_at' => $s->created_at ? $s->created_at->format('d/m/Y') : 'N/A',
+        $this->upcomingCount = Product::where('proximo', true)->count();
+        $this->upcomingProducts = Product::where('proximo', true)
+            ->orderByDesc('updated_at')
+            ->take(4)
+            ->get(['modelo', 'title', 'imagen'])
+            ->map(fn($p) => [
+                'name' => $p->title ?: $p->modelo,
+                'image' => $p->imagen,
             ])
             ->toArray();
     }

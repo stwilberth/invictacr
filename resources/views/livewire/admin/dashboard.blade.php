@@ -21,7 +21,7 @@
         <span class="text-xs font-bold px-2 py-1 rounded bg-gray-100 text-gray-500 dark:bg-white/5 dark:text-gray-400 uppercase tracking-wider">Admin</span>
     </div>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 mb-6">
         {{-- Usuarios --}}
         <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-5">
             <div class="flex items-start justify-between">
@@ -62,69 +62,37 @@
                 </div>
             </div>
         </div>
-
-        {{-- Inventario --}}
-        <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-5">
-            <div class="flex items-start justify-between">
-                <div>
-                    <p class="text-sm text-gray-500 dark:text-gray-400">Inventario</p>
-                    <p class="text-2xl font-black text-blue-500 mt-1">{{ number_format($inventory['active'] ?? 0) }}</p>
-                </div>
-                <i class="fa-solid fa-boxes-stacked text-gray-300 dark:text-gray-600 text-xl"></i>
-            </div>
-            <div class="mt-3 pt-3 border-t border-gray-100 dark:border-white/5 flex justify-between items-center text-xs text-gray-500">
-                <span>{{ $inventory['upcoming'] ?? 0 }} próximos · ₡{{ number_format($inventory['value'] ?? 0) }} en stock</span>
-                <a href="{{ route('admin.products') }}" class="font-bold text-[#00C4FF] hover:underline">Ver <i class="fa-solid fa-arrow-right text-[10px]"></i></a>
-            </div>
-        </div>
-
-        {{-- Alertas de stock --}}
-        <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-5">
-            <div class="flex items-start justify-between mb-3">
-                <p class="text-sm text-gray-500 dark:text-gray-400">Alertas de stock</p>
-                <i class="fa-solid fa-triangle-exclamation text-gray-300 dark:text-gray-600 text-xl"></i>
-            </div>
-            <div class="flex gap-2 mb-3">
-                <div class="flex-1 text-center bg-amber-50 dark:bg-amber-900/10 rounded-xl p-2">
-                    <p class="text-lg font-black text-amber-500">{{ $stockAlerts['low'] ?? 0 }}</p>
-                    <p class="text-[10px] text-gray-500 uppercase tracking-wider">Stock bajo</p>
-                </div>
-                <div class="flex-1 text-center bg-red-50 dark:bg-red-900/10 rounded-xl p-2">
-                    <p class="text-lg font-black text-red-500">{{ $stockAlerts['out'] ?? 0 }}</p>
-                    <p class="text-[10px] text-gray-500 uppercase tracking-wider">Agotados</p>
-                </div>
-            </div>
-            @if(count($stockAlerts['products'] ?? []) > 0)
-            <div class="space-y-1">
-                @foreach($stockAlerts['products'] as $alert)
-                <div class="flex items-center justify-between text-xs">
-                    <span class="text-gray-700 dark:text-gray-300 truncate">{{ $alert['name'] }}</span>
-                    <span class="font-bold shrink-0 ml-2 {{ $alert['agotado'] ? 'text-red-500' : 'text-amber-500' }}">
-                        {{ $alert['agotado'] ? 'Agotado' : $alert['stock'] . ' uds' }}
-                    </span>
-                </div>
-                @endforeach
-            </div>
-            @else
-            <p class="text-xs text-emerald-500 font-bold">Sin alertas. Inventario saludable.</p>
-            @endif
-        </div>
     </div>
 
+    {{-- Próximos relojes --}}
     <div class="mb-6">
-        <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-6">
-            <h2 class="font-black text-gray-900 dark:text-white mb-4 uppercase tracking-wider text-sm">Nuevos suscriptores</h2>
-            @if(count($recentSubscribers) > 0)
-            <div class="space-y-2">
-                @foreach($recentSubscribers as $sub)
-                <div class="flex items-center justify-between text-sm pb-2 border-b border-gray-100 dark:border-white/5 last:border-0 last:pb-0">
-                    <span class="text-gray-700 dark:text-gray-300 truncate">{{ $sub['email'] }}</span>
-                    <span class="text-xs text-gray-400 shrink-0 ml-3">{{ $sub['created_at'] }}</span>
+        <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-5">
+            <div class="flex items-start justify-between mb-4">
+                <div>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">Próximos relojes</p>
+                    <p class="text-2xl font-black text-amber-500 mt-1">{{ $upcomingCount }}</p>
+                </div>
+                <i class="fa-solid fa-clock text-gray-300 dark:text-gray-600 text-xl"></i>
+            </div>
+            @if(count($upcomingProducts) > 0)
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                @foreach($upcomingProducts as $prod)
+                <div class="text-center">
+                    <div class="aspect-square bg-gray-50 dark:bg-white/5 rounded-xl overflow-hidden mb-2">
+                        <img src="{{ $prod['image'] }}" alt="{{ $prod['name'] }}" class="w-full h-full object-cover" loading="lazy">
+                    </div>
+                    <p class="text-xs font-bold text-gray-700 dark:text-gray-300 truncate">{{ $prod['name'] }}</p>
+                    <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400">Próximamente</span>
                 </div>
                 @endforeach
             </div>
+            @if($upcomingCount > count($upcomingProducts))
+            <div class="mt-3 pt-3 border-t border-gray-100 dark:border-white/5 flex justify-end">
+                <a href="{{ route('admin.upcoming') }}" class="text-xs font-bold text-[#00C4FF] hover:underline">Ver todos ({{ $upcomingCount }}) <i class="fa-solid fa-arrow-right text-[10px]"></i></a>
+            </div>
+            @endif
             @else
-            <p class="text-gray-500 text-sm">Sin suscriptores nuevos.</p>
+            <p class="text-sm text-gray-500">No hay próximos relojes programados.</p>
             @endif
         </div>
     </div>
