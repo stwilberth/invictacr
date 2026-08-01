@@ -111,34 +111,7 @@
         </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-6">
-            <h2 class="font-black text-gray-900 dark:text-white mb-4 uppercase tracking-wider text-sm">Últimas facturas</h2>
-            @if(count($recentInvoices) > 0)
-            <div class="space-y-3">
-                @foreach($recentInvoices as $inv)
-                <div class="flex items-center justify-between text-sm pb-3 border-b border-gray-100 dark:border-white/5 last:border-0 last:pb-0">
-                    <div class="min-w-0 flex-1">
-                        <p class="font-bold text-gray-900 dark:text-white truncate">{{ $inv['client'] }}</p>
-                        <p class="text-xs text-gray-400">{{ $inv['created_at'] }}</p>
-                    </div>
-                    <div class="flex items-center gap-3 shrink-0">
-                        <span class="text-xs font-bold px-2 py-1 rounded
-                            {{ $inv['status'] === 'paid' ? 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400' : '' }}
-                            {{ $inv['status'] === 'pending' ? 'bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400' : '' }}
-                            {{ $inv['status'] === 'cancelled' ? 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400' : '' }}
-                            {{ !in_array($inv['status'], ['paid', 'pending', 'cancelled']) ? 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400' : '' }}
-                        ">{{ $inv['status'] }}</span>
-                        <span class="font-bold text-gray-900 dark:text-white">₡{{ number_format($inv['total']) }}</span>
-                    </div>
-                </div>
-                @endforeach
-            </div>
-            @else
-            <p class="text-gray-500 text-sm">Sin facturas recientes.</p>
-            @endif
-        </div>
-
+    <div class="mb-6">
         <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-6">
             <h2 class="font-black text-gray-900 dark:text-white mb-4 uppercase tracking-wider text-sm">Nuevos suscriptores</h2>
             @if(count($recentSubscribers) > 0)
@@ -155,20 +128,6 @@
             @endif
         </div>
     </div>
-
-    @if(count($recentSyncs) > 0)
-    <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-6 mb-6">
-        <h2 class="font-black text-gray-900 dark:text-white mb-4 uppercase tracking-wider text-sm">Sincronizaciones recientes</h2>
-        <div class="space-y-2">
-            @foreach($recentSyncs as $log)
-            <div class="flex items-center justify-between text-sm">
-                <span class="text-gray-600 dark:text-gray-400">{{ $log['type'] }} - {{ $log['message'] }}</span>
-                <span class="text-xs text-gray-400">{{ \Carbon\Carbon::parse($log['created_at'])->diffForHumans() }}</span>
-            </div>
-            @endforeach
-        </div>
-    </div>
-    @endif
 
     @if($devToolsMessage)
     <div class="mb-6 p-4 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800/50 rounded-xl text-sm font-bold text-emerald-700 dark:text-emerald-400">
@@ -313,56 +272,19 @@
     </div>
 
     {{-- Charts --}}
-    @if(count($revenueData['weekly'] ?? []) > 0 || count($trafficSources) > 0)
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-        <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-6 lg:col-span-2" wire:ignore>
-            <h2 class="font-black text-gray-900 dark:text-white mb-4 uppercase tracking-wider text-sm">Ingresos semanales</h2>
-            @if(count($revenueData['weekly'] ?? []) > 0)
-            <div style="position:relative;height:220px">
-                <canvas id="weeklyRevenueChart" style="height:100%"></canvas>
-            </div>
-            @else
-            <p class="text-gray-500 text-sm">Sin datos de ingresos en este período.</p>
-            @endif
-        </div>
+    @if(count($trafficSources) > 0)
+    <div class="mb-6">
         <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-6" wire:ignore>
             <h2 class="font-black text-gray-900 dark:text-white mb-4 uppercase tracking-wider text-sm">Tráfico por fuente</h2>
-            @if(count($trafficSources) > 0)
-            <div style="position:relative;height:220px">
+            <div style="position:relative;height:220px;max-width:420px;margin-left:auto;margin-right:auto">
                 <canvas id="trafficChart" style="height:100%"></canvas>
             </div>
-            @else
-            <p class="text-gray-500 text-sm">Sin datos de tráfico en este período.</p>
-            @endif
         </div>
     </div>
     @endif
 
-    {{-- Ventas por producto + campañas --}}
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-6">
-            <div class="flex items-center justify-between mb-4">
-                <h2 class="font-black text-gray-900 dark:text-white uppercase tracking-wider text-sm">Ventas por producto</h2>
-                <span class="text-xs text-gray-500">{{ count($topProducts) }} productos</span>
-            </div>
-            @if(count($topProducts) > 0)
-            <div class="space-y-2">
-                @foreach($topProducts as $i => $product)
-                <div class="flex items-center gap-3 text-sm">
-                    <span class="w-5 text-center font-bold text-gray-400 text-xs">#{{ $i + 1 }}</span>
-                    <div class="flex-1 min-w-0">
-                        <p class="text-gray-800 dark:text-gray-200 truncate font-medium">{{ $product['product_name'] }}</p>
-                    </div>
-                    <span class="font-bold text-gray-900 dark:text-white">{{ $product['total_qty'] }} uds</span>
-                    <span class="text-[#00C4FF] font-bold w-24 text-right">₡{{ number_format($product['total_revenue']) }}</span>
-                </div>
-                @endforeach
-            </div>
-            @else
-            <p class="text-gray-500 text-sm">Sin ventas registradas en este período.</p>
-            @endif
-        </div>
-
+    {{-- Campañas --}}
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-6">
             <h2 class="font-black text-gray-900 dark:text-white mb-4 uppercase tracking-wider text-sm">Google Ads</h2>
             @if(count($adsPerformance['by_campaign'] ?? []) > 0)
@@ -410,57 +332,9 @@
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <script>
-    let weeklyChartInstance = null;
     let trafficChartInstance = null;
 
     function initCharts() {
-        // Weekly Revenue Bar Chart
-        const revCanvas = document.getElementById('weeklyRevenueChart');
-        if (revCanvas) {
-            const weekly = @json($revenueData['weekly'] ?? []);
-            const revLabels = weekly.map(w => w.label);
-            const revData = weekly.map(w => w.total);
-            if (weeklyChartInstance) weeklyChartInstance.destroy();
-            weeklyChartInstance = new Chart(revCanvas.getContext('2d'), {
-                type: 'bar',
-                data: {
-                    labels: revLabels,
-                    datasets: [{
-                        label: 'Ingresos (₡)',
-                        data: revData,
-                        backgroundColor: 'rgba(0, 196, 255, 0.6)',
-                        borderColor: 'rgba(0, 196, 255, 1)',
-                        borderWidth: 1,
-                        borderRadius: 4,
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                callback: v => '₡' + (v / 1000).toFixed(0) + 'k',
-                                color: '#9ca3af',
-                            },
-                            grid: { color: 'rgba(255,255,255,0.05)' }
-                        },
-                        x: {
-                            ticks: {
-                                maxRotation: 0,
-                                color: '#9ca3af',
-                            },
-                            grid: { display: false }
-                        }
-                    }
-                }
-            });
-        }
-
         // Traffic Sources Doughnut
         const trafficCanvas = document.getElementById('trafficChart');
         if (trafficCanvas) {

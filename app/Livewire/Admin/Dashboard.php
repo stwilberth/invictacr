@@ -7,10 +7,8 @@ use App\Models\FacebookAdReport;
 use App\Models\GoogleAdsReport;
 use App\Models\GoogleAnalyticsReport;
 use App\Models\Invoice;
-use App\Models\InvoiceItem;
 use App\Models\Product;
 use App\Models\Subscriber;
-use App\Models\SyncLog;
 use App\Models\User;
 use App\Models\VisitorEvent;
 use Illuminate\Support\Facades\DB;
@@ -22,14 +20,11 @@ class Dashboard extends Component
     public array $userStats = [];
     public array $inventory = [];
     public array $stockAlerts = [];
-    public array $recentInvoices = [];
     public array $recentSubscribers = [];
-    public array $recentSyncs = [];
 
     // Métricas de negocio (Analytics)
     public string $period = '30d';
     public array $revenueData = [];
-    public array $topProducts = [];
     public array $analyticsSummary = [];
     public array $trafficSources = [];
     public array $adsPerformance = [];
@@ -112,27 +107,12 @@ class Dashboard extends Component
                 ->toArray(),
         ];
 
-        $this->recentInvoices = Invoice::where('status', '!=', 'cancelled')
-            ->latest()
-            ->take(5)
-            ->get()
-            ->map(fn($inv) => [
-                'id' => $inv->id,
-                'client' => $inv->client_name ?? $inv->client->name ?? 'N/A',
-                'total' => $inv->total,
-                'status' => $inv->status,
-                'created_at' => $inv->created_at->format('d/m/Y'),
-            ])
-            ->toArray();
-
         $this->recentSubscribers = Subscriber::latest()->take(5)->get()
             ->map(fn($s) => [
                 'email' => $s->email,
                 'created_at' => $s->created_at ? $s->created_at->format('d/m/Y') : 'N/A',
             ])
             ->toArray();
-
-        $this->recentSyncs = SyncLog::latest()->take(5)->get()->toArray();
     }
 
     protected function loadAnalytics(): void
@@ -166,15 +146,6 @@ class Dashboard extends Component
             ->where('status', '!=', 'cancelled')
             ->get();
 
-        $weeklyRevenue = $invoices->groupBy(fn($i) => $i->created_at->format('o-W'))
-            ->map(fn($group) => [
-                'week' => $group->first()->created_at->format('o-W'),
-                'label' => 'Sem ' . $group->first()->created_at->format('W'),
-                'total' => $group->sum('total'),
-            ])
-            ->sortBy('week')
-            ->values();
-
         $totalRevenue = $invoices->sum('total');
         $totalInvoices = $invoices->count();
         $totalUtility = $invoices->sum(function ($invoice) {
@@ -187,20 +158,7 @@ class Dashboard extends Component
             'total_invoices' => $totalInvoices,
             'total_utility' => $totalUtility,
             'avg_order_value' => $totalInvoices > 0 ? $totalRevenue / $totalInvoices : 0,
-            'weekly' => $weeklyRevenue->toArray(),
         ];
-
-        // Ventas por producto
-        $this->topProducts = InvoiceItem::whereHas('invoice', fn($q) => $q
-            ->whereBetween('created_at', [$start, $end])
-            ->where('status', '!=', 'cancelled')
-        )
-            ->select('product_name', DB::raw('SUM(quantity) as total_qty'), DB::raw('SUM(subtotal) as total_revenue'))
-            ->groupBy('product_name')
-            ->orderByDesc('total_qty')
-            ->take(10)
-            ->get()
-            ->toArray();
 
         // Campañas Google Ads
         $adsReports = GoogleAdsReport::whereBetween('report_date', [$start, $end])->get();
