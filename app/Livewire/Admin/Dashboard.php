@@ -8,6 +8,7 @@ use App\Models\GoogleAdsReport;
 use App\Models\GoogleAnalyticsReport;
 use App\Models\Invoice;
 use App\Models\Product;
+use App\Models\SearchConsoleReport;
 use App\Models\User;
 use App\Models\VisitorEvent;
 use Livewire\Component;
@@ -24,6 +25,11 @@ class Dashboard extends Component
     public array $revenueData = [];
     public array $analyticsSummary = [];
     public array $trafficSources = [];
+    public array $topPages = [];
+    public array $deviceBreakdown = [];
+    public array $searchConsoleSummary = [];
+    public array $searchConsoleByDevice = [];
+    public array $searchConsoleByCountry = [];
     public array $adsPerformance = [];
     public array $fbAdsPerformance = [];
     public array $growth = [];
@@ -105,6 +111,8 @@ class Dashboard extends Component
             'total_sessions' => $gaReports->sum('sessions'),
             'total_pageviews' => $gaReports->sum('pageviews'),
             'avg_bounce_rate' => $gaReports->avg('bounce_rate'),
+            'avg_session_duration' => $gaReports->avg('avg_session_duration'),
+            'total_new_users' => $gaReports->sum('new_users'),
         ];
 
         $this->trafficSources = $gaReports
@@ -118,6 +126,68 @@ class Dashboard extends Component
             ->sortByDesc('users')
             ->take(8)
             ->values()
+            ->toArray();
+
+        // Páginas más vistas (GA)
+        $this->topPages = $gaReports
+            ->filter(fn($r) => !empty($r->top_pages))
+            ->flatMap(fn($r) => $r->top_pages)
+            ->groupBy('path')
+            ->map(fn($group) => [
+                'path' => $group->first()['path'] ?? '',
+                'views' => $group->sum('views'),
+            ])
+            ->sortByDesc('views')
+            ->take(10)
+            ->values()
+            ->toArray();
+
+        // Dispositivos (GA)
+        $this->deviceBreakdown = $gaReports
+            ->filter(fn($r) => !empty($r->device_breakdown))
+            ->flatMap(fn($r) => $r->device_breakdown)
+            ->groupBy('category')
+            ->map(fn($group) => [
+                'category' => $group->first()['category'] ?? '',
+                'users' => $group->sum('users'),
+                'sessions' => $group->sum('sessions'),
+            ])
+            ->values()
+            ->toArray();
+
+        // Search Console
+        $scReports = SearchConsoleReport::whereBetween('report_date', [$start, $end])->get();
+        $topQueries = $scReports->groupBy('query')->map(fn($group) => [
+            'clicks' => $group->sum('clicks'),
+            'impressions' => $group->sum('impressions'),
+            'avg_position' => $group->avg('position'),
+        ])->sortByDesc('clicks')->take(20);
+
+        $this->searchConsoleSummary = [
+            'total_clicks' => $scReports->sum('clicks'),
+            'total_impressions' => $scReports->sum('impressions'),
+            'avg_ctr' => $scReports->avg('ctr'),
+            'avg_position' => $scReports->avg('position'),
+            'top_queries' => $topQueries->toArray(),
+        ];
+
+        $this->searchConsoleByDevice = $scReports
+            ->groupBy('device')
+            ->map(fn($group) => [
+                'clicks' => $group->sum('clicks'),
+                'impressions' => $group->sum('impressions'),
+                'avg_position' => $group->avg('position'),
+            ])
+            ->toArray();
+
+        $this->searchConsoleByCountry = $scReports
+            ->groupBy('country')
+            ->map(fn($group) => [
+                'clicks' => $group->sum('clicks'),
+                'impressions' => $group->sum('impressions'),
+            ])
+            ->sortByDesc('clicks')
+            ->take(10)
             ->toArray();
 
         // Ingresos y utilidad

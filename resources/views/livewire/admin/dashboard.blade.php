@@ -251,6 +251,129 @@
     </div>
     @endif
 
+    {{-- Google Analytics + Search Console --}}
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="font-black text-gray-900 dark:text-white uppercase tracking-wider text-sm">Google Analytics</h2>
+                @if($realtimeUsers !== null)
+                <span class="text-xs font-bold px-2 py-1 rounded bg-green-100 text-green-600">{{ $realtimeUsers }} ahora</span>
+                @endif
+            </div>
+            <div class="grid grid-cols-4 gap-3 mb-4">
+                <div class="bg-gray-50 dark:bg-white/5 rounded-xl p-3">
+                    <p class="text-xs text-gray-500">Sesiones</p>
+                    <p class="text-xl font-black text-gray-900 dark:text-white">{{ number_format($analyticsSummary['total_sessions'] ?? 0) }}</p>
+                </div>
+                <div class="bg-gray-50 dark:bg-white/5 rounded-xl p-3">
+                    <p class="text-xs text-gray-500">Usuarios</p>
+                    <p class="text-xl font-black text-gray-900 dark:text-white">{{ number_format($analyticsSummary['total_users'] ?? 0) }}</p>
+                </div>
+                <div class="bg-gray-50 dark:bg-white/5 rounded-xl p-3">
+                    <p class="text-xs text-gray-500">Nuevos</p>
+                    <p class="text-xl font-black text-gray-900 dark:text-white">{{ number_format($analyticsSummary['total_new_users'] ?? 0) }}</p>
+                </div>
+                <div class="bg-gray-50 dark:bg-white/5 rounded-xl p-3">
+                    <p class="text-xs text-gray-500">Páginas/sesión</p>
+                    <p class="text-xl font-black text-gray-900 dark:text-white">
+                        @php $sessions = $analyticsSummary['total_sessions'] ?? 0; @endphp
+                        {{ $sessions > 0 ? number_format(($analyticsSummary['total_pageviews'] ?? 0) / $sessions, 1) : 0 }}
+                    </p>
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-3 mb-4">
+                <div class="bg-gray-50 dark:bg-white/5 rounded-xl p-3">
+                    <p class="text-xs text-gray-500">Bounce Rate</p>
+                    <p class="text-lg font-black text-gray-900 dark:text-white">{{ number_format($analyticsSummary['avg_bounce_rate'] ?? 0, 1) }}%</p>
+                </div>
+                <div class="bg-gray-50 dark:bg-white/5 rounded-xl p-3">
+                    <p class="text-xs text-gray-500">Duración media</p>
+                    <p class="text-lg font-black text-gray-900 dark:text-white">{{ gmdate('i:s', (int) ($analyticsSummary['avg_session_duration'] ?? 0)) }}</p>
+                </div>
+            </div>
+
+            @if(count($deviceBreakdown) > 0)
+            <h3 class="font-bold text-xs text-gray-500 uppercase tracking-wider mb-2">Dispositivos</h3>
+            <div class="flex gap-2 mb-4">
+                @foreach($deviceBreakdown as $dev)
+                @php $total = collect($deviceBreakdown)->sum('users'); @endphp
+                @php $pct = $total > 0 ? round(($dev['users'] / $total) * 100) : 0; @endphp
+                <div class="flex-1 text-center p-2 bg-gray-50 dark:bg-white/5 rounded-xl">
+                    <p class="text-xs text-gray-500">{{ $dev['category'] }}</p>
+                    <p class="text-lg font-bold text-gray-900 dark:text-white">{{ $dev['users'] }}</p>
+                    <p class="text-xs text-gray-400">{{ $pct }}%</p>
+                </div>
+                @endforeach
+            </div>
+            @endif
+
+            @if(count($topPages) > 0)
+            <h3 class="font-bold text-xs text-gray-500 uppercase tracking-wider mb-2">Páginas</h3>
+            <div class="space-y-1 max-h-32 overflow-y-auto">
+                @foreach($topPages as $page)
+                <div class="flex justify-between text-xs">
+                    <span class="text-gray-700 dark:text-gray-300 truncate max-w-[220px]">{{ $page['path'] }}</span>
+                    <span class="text-gray-500 font-medium">{{ $page['views'] }} vistas</span>
+                </div>
+                @endforeach
+            </div>
+            @endif
+        </div>
+
+        <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-6">
+            <h2 class="font-black text-gray-900 dark:text-white mb-4 uppercase tracking-wider text-sm">Search Console</h2>
+            <div class="grid grid-cols-3 gap-3 mb-4">
+                <div class="bg-gray-50 dark:bg-white/5 rounded-xl p-3">
+                    <p class="text-xs text-gray-500">Clics</p>
+                    <p class="text-xl font-black text-gray-900 dark:text-white">{{ number_format($searchConsoleSummary['total_clicks'] ?? 0) }}</p>
+                </div>
+                <div class="bg-gray-50 dark:bg-white/5 rounded-xl p-3">
+                    <p class="text-xs text-gray-500">Impresiones</p>
+                    <p class="text-xl font-black text-gray-900 dark:text-white">{{ number_format($searchConsoleSummary['total_impressions'] ?? 0) }}</p>
+                </div>
+                <div class="bg-gray-50 dark:bg-white/5 rounded-xl p-3">
+                    <p class="text-xs text-gray-500">Posición</p>
+                    <p class="text-xl font-black text-gray-900 dark:text-white">{{ number_format($searchConsoleSummary['avg_position'] ?? 0, 1) }}</p>
+                </div>
+            </div>
+
+            @if(count($searchConsoleByDevice) > 0)
+            <div class="flex gap-2 mb-4">
+                @foreach($searchConsoleByDevice as $device => $data)
+                <div class="flex-1 text-center p-2 bg-gray-50 dark:bg-white/5 rounded-xl">
+                    <p class="text-xs text-gray-500 mb-1">{{ $device ? ucfirst($device) : 'N/A' }}</p>
+                    <p class="text-sm font-bold text-gray-900 dark:text-white">{{ $data['clicks'] }}</p>
+                    <p class="text-xs text-gray-400">pos {{ number_format($data['avg_position'] ?? 0, 1) }}</p>
+                </div>
+                @endforeach
+            </div>
+            @endif
+
+            @if(count($searchConsoleByCountry) > 0)
+            <h3 class="font-bold text-xs text-gray-500 uppercase tracking-wider mb-2">Países</h3>
+            <div class="flex flex-wrap gap-2 mb-4">
+                @foreach($searchConsoleByCountry as $country => $data)
+                <span class="text-xs px-2 py-1 bg-gray-50 dark:bg-white/5 rounded-lg text-gray-700 dark:text-gray-300">
+                    {{ $country ?: 'Desconocido' }} <strong>{{ $data['clicks'] }}</strong>
+                </span>
+                @endforeach
+            </div>
+            @endif
+
+            @if(count($searchConsoleSummary['top_queries'] ?? []) > 0)
+            <h3 class="font-bold text-xs text-gray-500 uppercase tracking-wider mb-2">Top consultas</h3>
+            <div class="space-y-1 max-h-32 overflow-y-auto">
+                @foreach($searchConsoleSummary['top_queries'] as $query => $data)
+                <div class="flex justify-between text-xs">
+                    <span class="text-gray-700 dark:text-gray-300 truncate max-w-[200px]">{{ $query }}</span>
+                    <span class="text-gray-500">{{ $data['clicks'] }} clics · pos {{ number_format($data['avg_position'], 1) }}</span>
+                </div>
+                @endforeach
+            </div>
+            @endif
+        </div>
+    </div>
+
     {{-- Campañas --}}
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-6">
