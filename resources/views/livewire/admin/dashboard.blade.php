@@ -27,7 +27,7 @@
             <div class="flex items-start justify-between">
                 <div>
                     <p class="text-sm text-gray-500 dark:text-gray-400">Usuarios</p>
-                    <p class="text-lg sm:text-2xl font-black text-[#00C4FF] mt-1">{{ number_format($userStats['total'] ?? 0) }}</p>
+                    <p class="text-base sm:text-2xl font-black text-[#00C4FF] mt-1">{{ number_format($userStats['total'] ?? 0) }}</p>
                 </div>
                 <i class="fa-solid fa-users text-gray-300 dark:text-gray-600 text-xl"></i>
             </div>
@@ -68,7 +68,7 @@
             <div class="flex items-start justify-between mb-3">
                 <div>
                     <p class="text-sm text-gray-500 dark:text-gray-400">Próximos relojes</p>
-                    <p class="text-lg sm:text-2xl font-black text-amber-500 mt-1">{{ $upcomingCount }}</p>
+                    <p class="text-base sm:text-2xl font-black text-amber-500 mt-1">{{ $upcomingCount }}</p>
                 </div>
                 <i class="fa-solid fa-clock text-gray-300 dark:text-gray-600 text-xl"></i>
             </div>
@@ -167,7 +167,7 @@
             <div class="flex items-start justify-between">
                 <div>
                     <p class="text-sm text-gray-500 dark:text-gray-400">Ingresos</p>
-                    <p class="text-lg sm:text-2xl font-black text-[#00C4FF] mt-1">₡{{ number_format($revenueData['total_revenue'] ?? 0) }}</p>
+                    <p class="text-base sm:text-2xl font-black text-[#00C4FF] mt-1">₡{{ number_format($revenueData['total_revenue'] ?? 0) }}</p>
                 </div>
                 @if(isset($growth['revenue']) && $growth['revenue'] != 0)
                 <span class="text-xs font-bold px-2 py-1 rounded {{ $growth['revenue'] > 0 ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600' }}">
@@ -186,7 +186,7 @@
             <div class="flex items-start justify-between">
                 <div>
                     <p class="text-sm text-gray-500 dark:text-gray-400">Utilidad estimada</p>
-                    <p class="text-lg sm:text-2xl font-black text-emerald-500 mt-1">₡{{ number_format($revenueData['total_utility'] ?? 0) }}</p>
+                    <p class="text-base sm:text-2xl font-black text-emerald-500 mt-1">₡{{ number_format($revenueData['total_utility'] ?? 0) }}</p>
                 </div>
             </div>
             <div class="mt-3 pt-3 border-t border-gray-100 dark:border-white/5 flex flex-wrap gap-4 text-xs text-gray-500">
@@ -200,7 +200,7 @@
             <div class="flex items-start justify-between">
                 <div>
                     <p class="text-sm text-gray-500 dark:text-gray-400">Tráfico web</p>
-                    <p class="text-lg sm:text-2xl font-black text-green-500 mt-1">{{ number_format($analyticsSummary['total_users'] ?? 0) }} usuarios</p>
+                    <p class="text-base sm:text-2xl font-black text-green-500 mt-1">{{ number_format($analyticsSummary['total_users'] ?? 0) }} usuarios</p>
                 </div>
                 <div class="flex flex-col items-end gap-1">
                     @if(isset($growth['ga_users']) && $growth['ga_users'] != 0)
@@ -224,7 +224,7 @@
             <div class="flex items-start justify-between">
                 <div>
                     <p class="text-sm text-gray-500 dark:text-gray-400">Campañas activas</p>
-                    <p class="text-lg sm:text-2xl font-black text-blue-500 mt-1">{{ count($adsPerformance['by_campaign'] ?? []) + count($fbAdsPerformance['by_campaign'] ?? []) }}</p>
+                    <p class="text-base sm:text-2xl font-black text-blue-500 mt-1">{{ count($adsPerformance['by_campaign'] ?? []) + count($fbAdsPerformance['by_campaign'] ?? []) }}</p>
                 </div>
                 @if(isset($growth['ads_clicks']) && $growth['ads_clicks'] != 0)
                 <span class="text-xs font-bold px-2 py-1 rounded {{ $growth['ads_clicks'] > 0 ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600' }}">
@@ -263,19 +263,19 @@
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
                 <div class="bg-gray-50 dark:bg-white/5 rounded-xl p-3">
                     <p class="text-xs text-gray-500">Sesiones</p>
-                    <p class="text-lg sm:text-xl font-black text-gray-900 dark:text-white">{{ number_format($analyticsSummary['total_sessions'] ?? 0) }}</p>
+                    <p class="text-base sm:text-xl font-black text-gray-900 dark:text-white">{{ number_format($analyticsSummary['total_sessions'] ?? 0) }}</p>
                 </div>
                 <div class="bg-gray-50 dark:bg-white/5 rounded-xl p-3">
                     <p class="text-xs text-gray-500">Usuarios</p>
-                    <p class="text-lg sm:text-xl font-black text-gray-900 dark:text-white">{{ number_format($analyticsSummary['total_users'] ?? 0) }}</p>
+                    <p class="text-base sm:text-xl font-black text-gray-900 dark:text-white">{{ number_format($analyticsSummary['total_users'] ?? 0) }}</p>
                 </div>
                 <div class="bg-gray-50 dark:bg-white/5 rounded-xl p-3">
                     <p class="text-xs text-gray-500">Nuevos</p>
-                    <p class="text-lg sm:text-xl font-black text-gray-900 dark:text-white">{{ number_format($analyticsSummary['total_new_users'] ?? 0) }}</p>
+                    <p class="text-base sm:text-xl font-black text-gray-900 dark:text-white">{{ number_format($analyticsSummary['total_new_users'] ?? 0) }}</p>
                 </div>
                 <div class="bg-gray-50 dark:bg-white/5 rounded-xl p-3">
                     <p class="text-xs text-gray-500">Páginas/sesión</p>
-                    <p class="text-lg sm:text-xl font-black text-gray-900 dark:text-white">
+                    <p class="text-base sm:text-xl font-black text-gray-900 dark:text-white">
                         @php $sessions = $analyticsSummary['total_sessions'] ?? 0; @endphp
                         {{ $sessions > 0 ? number_format(($analyticsSummary['total_pageviews'] ?? 0) / $sessions, 1) : 0 }}
                     </p>
@@ -325,15 +325,15 @@
             <div class="grid grid-cols-3 gap-3 mb-4">
                 <div class="bg-gray-50 dark:bg-white/5 rounded-xl p-3">
                     <p class="text-xs text-gray-500">Clics</p>
-                    <p class="text-lg sm:text-xl font-black text-gray-900 dark:text-white">{{ number_format($searchConsoleSummary['total_clicks'] ?? 0) }}</p>
+                    <p class="text-base sm:text-xl font-black text-gray-900 dark:text-white">{{ number_format($searchConsoleSummary['total_clicks'] ?? 0) }}</p>
                 </div>
                 <div class="bg-gray-50 dark:bg-white/5 rounded-xl p-3">
                     <p class="text-xs text-gray-500">Impresiones</p>
-                    <p class="text-lg sm:text-xl font-black text-gray-900 dark:text-white">{{ number_format($searchConsoleSummary['total_impressions'] ?? 0) }}</p>
+                    <p class="text-base sm:text-xl font-black text-gray-900 dark:text-white">{{ number_format($searchConsoleSummary['total_impressions'] ?? 0) }}</p>
                 </div>
                 <div class="bg-gray-50 dark:bg-white/5 rounded-xl p-3">
                     <p class="text-xs text-gray-500">Posición</p>
-                    <p class="text-lg sm:text-xl font-black text-gray-900 dark:text-white">{{ number_format($searchConsoleSummary['avg_position'] ?? 0, 1) }}</p>
+                    <p class="text-base sm:text-xl font-black text-gray-900 dark:text-white">{{ number_format($searchConsoleSummary['avg_position'] ?? 0, 1) }}</p>
                 </div>
             </div>
 
