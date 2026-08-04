@@ -16,11 +16,18 @@
         </div>
     </div>
 
-    @if($extractedCount > 0)
-    <div class="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-4 py-3 rounded-xl mb-6 text-sm font-bold flex items-center gap-2">
-        <i class="fa-solid fa-check-circle"></i>
-        {{ $extractedCount }} cliente(s) importado(s) desde facturas exitosamente.
-    </div>
+    @if($hasExtracted)
+        @if($extractedCount > 0)
+        <div class="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-4 py-3 rounded-xl mb-6 text-sm font-bold flex items-center gap-2">
+            <i class="fa-solid fa-check-circle"></i>
+            {{ $extractedCount }} cliente(s) importado(s) desde facturas exitosamente.
+        </div>
+        @else
+        <div class="bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 px-4 py-3 rounded-xl mb-6 text-sm font-bold flex items-center gap-2">
+            <i class="fa-solid fa-circle-info"></i>
+            No hay clientes nuevos por importar. Todos los clientes de las facturas ya están registrados.
+        </div>
+        @endif
     @endif
 
     @if($showForm)
@@ -38,6 +45,10 @@
             <div>
                 <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Teléfono</label>
                 <input wire:model="phone" type="text" class="w-full bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm" />
+            </div>
+            <div>
+                <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Dirección</label>
+                <input wire:model="address" type="text" class="w-full bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm" />
             </div>
             <div>
                 <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Notas</label>

@@ -12,10 +12,11 @@ class Clients extends Component
     use WithPagination;
 
     public $search = '';
-    public $name, $email, $phone, $notes;
+    public $name, $email, $phone, $address, $notes;
     public $editingClientId = null;
     public $showForm = false;
     public $extractedCount = 0;
+    public $hasExtracted = false;
 
     public function extractFromInvoices()
     {
@@ -47,11 +48,12 @@ class Clients extends Component
         }
 
         $this->extractedCount = $imported;
+        $this->hasExtracted = true;
     }
 
     public function create()
     {
-        $this->reset(['name', 'email', 'phone', 'notes', 'editingClientId']);
+        $this->reset(['name', 'email', 'phone', 'address', 'notes', 'editingClientId']);
         $this->showForm = true;
     }
 
@@ -62,6 +64,7 @@ class Clients extends Component
         $this->name = $client->name;
         $this->email = $client->email;
         $this->phone = $client->phone;
+        $this->address = $client->address;
         $this->notes = $client->notes;
         $this->showForm = true;
     }
@@ -70,7 +73,7 @@ class Clients extends Component
     {
         $this->validate(['name' => 'required|string|max:255']);
 
-        $data = ['name' => $this->name, 'email' => $this->email, 'phone' => $this->phone, 'notes' => $this->notes];
+        $data = ['name' => $this->name, 'email' => $this->email, 'phone' => $this->phone, 'address' => $this->address, 'notes' => $this->notes];
 
         if ($this->editingClientId) {
             Client::findOrFail($this->editingClientId)->update($data);
@@ -79,7 +82,7 @@ class Clients extends Component
         }
 
         $this->showForm = false;
-        $this->reset(['name', 'email', 'phone', 'notes', 'editingClientId']);
+        $this->reset(['name', 'email', 'phone', 'address', 'notes', 'editingClientId']);
     }
 
     public function exportVcf()

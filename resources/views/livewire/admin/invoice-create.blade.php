@@ -43,19 +43,19 @@
                     </div>
                     <div>
                         <label class="text-xs text-gray-500 block mb-1">Email</label>
-                        <input wire:model="client_email" type="email" class="w-full bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2 text-sm" placeholder="correo@ejemplo.com" />
+                        <input wire:model="client_email" type="email" value="{{ $this->client_email }}" class="w-full bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2 text-sm" placeholder="correo@ejemplo.com" />
                     </div>
                     <div>
                         <label class="text-xs text-gray-500 block mb-1">Teléfono</label>
-                        <input wire:model="client_phone" type="text" class="w-full bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2 text-sm" placeholder="8888-8888" />
+                        <input wire:model="client_phone" type="text" value="{{ $this->client_phone }}" class="w-full bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2 text-sm" placeholder="8888-8888" />
                     </div>
                     <div>
                         <label class="text-xs text-gray-500 block mb-1">Cédula</label>
-                        <input wire:model="cedula" type="text" class="w-full bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2 text-sm" placeholder="Número de cédula" />
+                        <input wire:model="cedula" type="text" value="{{ $this->cedula }}" class="w-full bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2 text-sm" placeholder="Número de cédula" />
                     </div>
                     <div class="md:col-span-2">
                         <label class="text-xs text-gray-500 block mb-1">Dirección</label>
-                        <input wire:model="customer_address" type="text" class="w-full bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2 text-sm" placeholder="Dirección de entrega" />
+                        <input wire:model="customer_address" type="text" value="{{ $this->customer_address }}" class="w-full bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2 text-sm" placeholder="Dirección de entrega" />
                     </div>
                 </div>
             </div>
@@ -66,7 +66,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-3 items-end">
                     <div class="md:col-span-2">
                         <label class="text-xs text-gray-500 block mb-1">Nombre *</label>
-                        <input wire:model="newItemName" type="text" class="w-full bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2 text-sm" placeholder="Nombre del producto" />
+                        <input wire:model="newItemName" type="text" value="{{ $this->newItemName }}" class="w-full bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2 text-sm" placeholder="Nombre del producto" />
                     </div>
                     <div class="relative" x-data="{ open: false }" @click.outside="open = false">
                         <label class="text-xs text-gray-500 block mb-1">Modelo</label>
@@ -90,7 +90,7 @@
                     </div>
                     <div>
                         <label class="text-xs text-gray-500 block mb-1">Precio (₡) *</label>
-                        <input wire:model="newItemPrice" type="number" step="0.01" min="0" class="w-full bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2 text-sm" placeholder="0" />
+                        <input wire:model="newItemPrice" type="number" step="0.01" min="0" value="{{ $this->newItemPrice }}" class="w-full bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2 text-sm" placeholder="0" />
                     </div>
                     <div class="md:col-span-2">
                         <button wire:click="addItem" class="w-full px-4 py-2 text-sm bg-green-600 text-white rounded-xl hover:bg-green-700 font-bold">Agregar producto</button>

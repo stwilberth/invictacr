@@ -2,13 +2,13 @@
     <div class="flex flex-wrap justify-between items-center gap-3 mb-6">
         <h1 class="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tight">Dashboard</h1>
         <div class="flex flex-wrap items-center gap-3">
-            <div class="flex gap-2">
-                <button wire:click="$set('period', '7d')" class="px-3 py-2 rounded-xl text-xs font-bold transition-colors {{ $period === '7d' ? 'bg-[#00C4FF] text-white' : 'bg-white dark:bg-[#0f172a] text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-white/10' }}">7 días</button>
-                <button wire:click="$set('period', '30d')" class="px-3 py-2 rounded-xl text-xs font-bold transition-colors {{ $period === '30d' ? 'bg-[#00C4FF] text-white' : 'bg-white dark:bg-[#0f172a] text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-white/10' }}">30 días</button>
-                <button wire:click="$set('period', '90d')" class="px-3 py-2 rounded-xl text-xs font-bold transition-colors {{ $period === '90d' ? 'bg-[#00C4FF] text-white' : 'bg-white dark:bg-[#0f172a] text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-white/10' }}">90 días</button>
-                <button wire:click="$set('period', '365d')" class="px-3 py-2 rounded-xl text-xs font-bold transition-colors {{ $period === '365d' ? 'bg-[#00C4FF] text-white' : 'bg-white dark:bg-[#0f172a] text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-white/10' }}">1 año</button>
+            <div class="flex flex-wrap gap-2 w-full sm:w-auto">
+                <button wire:click="$set('period', '7d')" class="flex-1 sm:flex-none px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-colors {{ $period === '7d' ? 'bg-[#00C4FF] text-white' : 'bg-white dark:bg-[#0f172a] text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-white/10' }}">7 días</button>
+                <button wire:click="$set('period', '30d')" class="flex-1 sm:flex-none px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-colors {{ $period === '30d' ? 'bg-[#00C4FF] text-white' : 'bg-white dark:bg-[#0f172a] text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-white/10' }}">30 días</button>
+                <button wire:click="$set('period', '90d')" class="flex-1 sm:flex-none px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-colors {{ $period === '90d' ? 'bg-[#00C4FF] text-white' : 'bg-white dark:bg-[#0f172a] text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-white/10' }}">90 días</button>
+                <button wire:click="$set('period', '365d')" class="flex-1 sm:flex-none px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-colors {{ $period === '365d' ? 'bg-[#00C4FF] text-white' : 'bg-white dark:bg-[#0f172a] text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-white/10' }}">1 año</button>
             </div>
-            <button wire:click="syncData" wire:loading.attr="disabled" class="px-4 py-2 rounded-xl text-sm font-bold transition-colors bg-[#00C4FF] text-white hover:bg-[#00a8d6] disabled:opacity-50">
+            <button wire:click="syncData" wire:loading.attr="disabled" class="w-full sm:w-auto px-4 py-2 rounded-xl text-sm font-bold text-center transition-colors bg-[#00C4FF] text-white hover:bg-[#00a8d6] disabled:opacity-50">
                 <span wire:loading.remove wire:target="syncData">Actualizar datos</span>
                 <span wire:loading wire:target="syncData">Sincronizando...</span>
             </button>
@@ -27,11 +27,11 @@
             <div class="flex items-start justify-between">
                 <div>
                     <p class="text-sm text-gray-500 dark:text-gray-400">Usuarios</p>
-                    <p class="text-2xl font-black text-[#00C4FF] mt-1">{{ number_format($userStats['total'] ?? 0) }}</p>
+                    <p class="text-lg sm:text-2xl font-black text-[#00C4FF] mt-1">{{ number_format($userStats['total'] ?? 0) }}</p>
                 </div>
                 <i class="fa-solid fa-users text-gray-300 dark:text-gray-600 text-xl"></i>
             </div>
-            <div class="mt-3 pt-3 border-t border-gray-100 dark:border-white/5 flex justify-between items-center text-xs text-gray-500">
+            <div class="mt-3 pt-3 border-t border-gray-100 dark:border-white/5 flex flex-wrap justify-between items-center text-xs text-gray-500">
                 <span>+{{ $userStats['new_this_month'] ?? 0 }} este mes</span>
                 <a href="{{ route('admin.users') }}" class="font-bold text-[#00C4FF] hover:underline">Gestionar <i class="fa-solid fa-arrow-right text-[10px]"></i></a>
             </div>
@@ -68,7 +68,7 @@
             <div class="flex items-start justify-between mb-3">
                 <div>
                     <p class="text-sm text-gray-500 dark:text-gray-400">Próximos relojes</p>
-                    <p class="text-2xl font-black text-amber-500 mt-1">{{ $upcomingCount }}</p>
+                    <p class="text-lg sm:text-2xl font-black text-amber-500 mt-1">{{ $upcomingCount }}</p>
                 </div>
                 <i class="fa-solid fa-clock text-gray-300 dark:text-gray-600 text-xl"></i>
             </div>
@@ -111,7 +111,7 @@
     <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-6 mb-10">
         <h2 class="font-black text-gray-900 dark:text-white mb-4 uppercase tracking-wider text-sm">Herramientas de desarrollo</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="flex items-center justify-between p-4 rounded-xl border border-gray-100 dark:border-white/5">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 rounded-xl border border-gray-100 dark:border-white/5">
                 <div>
                     <p class="font-bold text-gray-900 dark:text-white text-sm">Code Server <span class="text-xs font-normal text-gray-500">(IDE en navegador)</span></p>
                     <a href="https://code.invictacostarica.com" target="_blank" rel="noopener noreferrer" class="text-xs text-[#00C4FF] hover:underline">code.invictacostarica.com <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i></a>
@@ -119,12 +119,12 @@
                         Estado: <span class="font-bold {{ $codeServerStatus === 'active' ? 'text-emerald-600' : 'text-red-500' }}">{{ $codeServerStatus }}</span>
                     </p>
                 </div>
-                <button wire:click="toggleDevTool('code-server@bitnami')" wire:loading.attr="disabled" class="px-4 py-2 rounded-xl text-xs font-bold transition-colors {{ $codeServerStatus === 'active' ? 'bg-red-100 text-red-600 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400' : 'bg-emerald-100 text-emerald-600 hover:bg-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400' }} disabled:opacity-50">
+                <button wire:click="toggleDevTool('code-server@bitnami')" wire:loading.attr="disabled" class="w-full sm:w-auto px-4 py-2 rounded-xl text-xs font-bold text-center transition-colors {{ $codeServerStatus === 'active' ? 'bg-red-100 text-red-600 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400' : 'bg-emerald-100 text-emerald-600 hover:bg-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400' }} disabled:opacity-50">
                     <span wire:loading.remove wire:target="toggleDevTool('{{ $codeServerStatus === 'active' ? 'stop' : 'start' }}')">{{ $codeServerStatus === 'active' ? 'Detener' : 'Iniciar' }}</span>
                     <span wire:loading wire:target="toggleDevTool('code-server@bitnami')">...</span>
                 </button>
             </div>
-            <div class="flex items-center justify-between p-4 rounded-xl border border-gray-100 dark:border-white/5">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 rounded-xl border border-gray-100 dark:border-white/5">
                 <div>
                     <p class="font-bold text-gray-900 dark:text-white text-sm">OpenCode Web <span class="text-xs font-normal text-gray-500">(agente IA en navegador)</span></p>
                     <a href="https://ide.invictacostarica.com" target="_blank" rel="noopener noreferrer" class="text-xs text-[#00C4FF] hover:underline">ide.invictacostarica.com <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i></a>
@@ -132,7 +132,7 @@
                         Estado: <span class="font-bold {{ $opencodeWebStatus === 'active' ? 'text-emerald-600' : 'text-red-500' }}">{{ $opencodeWebStatus }}</span>
                     </p>
                 </div>
-                <button wire:click="toggleDevTool('opencode-web')" wire:loading.attr="disabled" class="px-4 py-2 rounded-xl text-xs font-bold transition-colors {{ $opencodeWebStatus === 'active' ? 'bg-red-100 text-red-600 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400' : 'bg-emerald-100 text-emerald-600 hover:bg-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400' }} disabled:opacity-50">
+                <button wire:click="toggleDevTool('opencode-web')" wire:loading.attr="disabled" class="w-full sm:w-auto px-4 py-2 rounded-xl text-xs font-bold text-center transition-colors {{ $opencodeWebStatus === 'active' ? 'bg-red-100 text-red-600 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400' : 'bg-emerald-100 text-emerald-600 hover:bg-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400' }} disabled:opacity-50">
                     <span wire:loading.remove wire:target="toggleDevTool('opencode-web')">{{ $opencodeWebStatus === 'active' ? 'Detener' : 'Iniciar' }}</span>
                     <span wire:loading wire:target="toggleDevTool('opencode-web')">...</span>
                 </button>
@@ -167,7 +167,7 @@
             <div class="flex items-start justify-between">
                 <div>
                     <p class="text-sm text-gray-500 dark:text-gray-400">Ingresos</p>
-                    <p class="text-2xl font-black text-[#00C4FF] mt-1">₡{{ number_format($revenueData['total_revenue'] ?? 0) }}</p>
+                    <p class="text-lg sm:text-2xl font-black text-[#00C4FF] mt-1">₡{{ number_format($revenueData['total_revenue'] ?? 0) }}</p>
                 </div>
                 @if(isset($growth['revenue']) && $growth['revenue'] != 0)
                 <span class="text-xs font-bold px-2 py-1 rounded {{ $growth['revenue'] > 0 ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600' }}">
@@ -175,7 +175,7 @@
                 </span>
                 @endif
             </div>
-            <div class="mt-3 pt-3 border-t border-gray-100 dark:border-white/5 flex gap-4 text-xs text-gray-500">
+            <div class="mt-3 pt-3 border-t border-gray-100 dark:border-white/5 flex flex-wrap gap-4 text-xs text-gray-500">
                 <span>{{ $revenueData['total_invoices'] ?? 0 }} facturas</span>
                 <span>₡{{ number_format($revenueData['avg_order_value'] ?? 0) }} x orden</span>
             </div>
@@ -186,10 +186,10 @@
             <div class="flex items-start justify-between">
                 <div>
                     <p class="text-sm text-gray-500 dark:text-gray-400">Utilidad estimada</p>
-                    <p class="text-2xl font-black text-emerald-500 mt-1">₡{{ number_format($revenueData['total_utility'] ?? 0) }}</p>
+                    <p class="text-lg sm:text-2xl font-black text-emerald-500 mt-1">₡{{ number_format($revenueData['total_utility'] ?? 0) }}</p>
                 </div>
             </div>
-            <div class="mt-3 pt-3 border-t border-gray-100 dark:border-white/5 flex gap-4 text-xs text-gray-500">
+            <div class="mt-3 pt-3 border-t border-gray-100 dark:border-white/5 flex flex-wrap gap-4 text-xs text-gray-500">
                 <span>{{ $revenueData['total_invoices'] ?? 0 }} facturas</span>
                 <span>{{ ($revenueData['total_revenue'] ?? 0) > 0 ? number_format((($revenueData['total_utility'] ?? 0) / $revenueData['total_revenue']) * 100, 1) : 0 }}% margen</span>
             </div>
@@ -200,7 +200,7 @@
             <div class="flex items-start justify-between">
                 <div>
                     <p class="text-sm text-gray-500 dark:text-gray-400">Tráfico web</p>
-                    <p class="text-2xl font-black text-green-500 mt-1">{{ number_format($analyticsSummary['total_users'] ?? 0) }} usuarios</p>
+                    <p class="text-lg sm:text-2xl font-black text-green-500 mt-1">{{ number_format($analyticsSummary['total_users'] ?? 0) }} usuarios</p>
                 </div>
                 <div class="flex flex-col items-end gap-1">
                     @if(isset($growth['ga_users']) && $growth['ga_users'] != 0)
@@ -213,7 +213,7 @@
                     @endif
                 </div>
             </div>
-            <div class="mt-3 pt-3 border-t border-gray-100 dark:border-white/5 flex gap-4 text-xs text-gray-500">
+            <div class="mt-3 pt-3 border-t border-gray-100 dark:border-white/5 flex flex-wrap gap-4 text-xs text-gray-500">
                 <span>{{ number_format($analyticsSummary['total_sessions'] ?? 0) }} sesiones</span>
                 <span>{{ number_format($analyticsSummary['avg_bounce_rate'] ?? 0, 1) }}% rebote</span>
             </div>
@@ -224,7 +224,7 @@
             <div class="flex items-start justify-between">
                 <div>
                     <p class="text-sm text-gray-500 dark:text-gray-400">Campañas activas</p>
-                    <p class="text-2xl font-black text-blue-500 mt-1">{{ count($adsPerformance['by_campaign'] ?? []) + count($fbAdsPerformance['by_campaign'] ?? []) }}</p>
+                    <p class="text-lg sm:text-2xl font-black text-blue-500 mt-1">{{ count($adsPerformance['by_campaign'] ?? []) + count($fbAdsPerformance['by_campaign'] ?? []) }}</p>
                 </div>
                 @if(isset($growth['ads_clicks']) && $growth['ads_clicks'] != 0)
                 <span class="text-xs font-bold px-2 py-1 rounded {{ $growth['ads_clicks'] > 0 ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600' }}">
@@ -232,7 +232,7 @@
                 </span>
                 @endif
             </div>
-            <div class="mt-3 pt-3 border-t border-gray-100 dark:border-white/5 flex gap-4 text-xs text-gray-500">
+            <div class="mt-3 pt-3 border-t border-gray-100 dark:border-white/5 flex flex-wrap gap-4 text-xs text-gray-500">
                 <span>₡{{ number_format(($adsPerformance['total_cost'] ?? 0) + ($fbAdsPerformance['total_spend'] ?? 0)) }} gastado</span>
                 <span>{{ number_format(($adsPerformance['total_clicks'] ?? 0) + ($fbAdsPerformance['total_clicks'] ?? 0)) }} clics</span>
             </div>
@@ -260,22 +260,22 @@
                 <span class="text-xs font-bold px-2 py-1 rounded bg-green-100 text-green-600">{{ $realtimeUsers }} ahora</span>
                 @endif
             </div>
-            <div class="grid grid-cols-4 gap-3 mb-4">
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
                 <div class="bg-gray-50 dark:bg-white/5 rounded-xl p-3">
                     <p class="text-xs text-gray-500">Sesiones</p>
-                    <p class="text-xl font-black text-gray-900 dark:text-white">{{ number_format($analyticsSummary['total_sessions'] ?? 0) }}</p>
+                    <p class="text-lg sm:text-xl font-black text-gray-900 dark:text-white">{{ number_format($analyticsSummary['total_sessions'] ?? 0) }}</p>
                 </div>
                 <div class="bg-gray-50 dark:bg-white/5 rounded-xl p-3">
                     <p class="text-xs text-gray-500">Usuarios</p>
-                    <p class="text-xl font-black text-gray-900 dark:text-white">{{ number_format($analyticsSummary['total_users'] ?? 0) }}</p>
+                    <p class="text-lg sm:text-xl font-black text-gray-900 dark:text-white">{{ number_format($analyticsSummary['total_users'] ?? 0) }}</p>
                 </div>
                 <div class="bg-gray-50 dark:bg-white/5 rounded-xl p-3">
                     <p class="text-xs text-gray-500">Nuevos</p>
-                    <p class="text-xl font-black text-gray-900 dark:text-white">{{ number_format($analyticsSummary['total_new_users'] ?? 0) }}</p>
+                    <p class="text-lg sm:text-xl font-black text-gray-900 dark:text-white">{{ number_format($analyticsSummary['total_new_users'] ?? 0) }}</p>
                 </div>
                 <div class="bg-gray-50 dark:bg-white/5 rounded-xl p-3">
                     <p class="text-xs text-gray-500">Páginas/sesión</p>
-                    <p class="text-xl font-black text-gray-900 dark:text-white">
+                    <p class="text-lg sm:text-xl font-black text-gray-900 dark:text-white">
                         @php $sessions = $analyticsSummary['total_sessions'] ?? 0; @endphp
                         {{ $sessions > 0 ? number_format(($analyticsSummary['total_pageviews'] ?? 0) / $sessions, 1) : 0 }}
                     </p>
@@ -325,15 +325,15 @@
             <div class="grid grid-cols-3 gap-3 mb-4">
                 <div class="bg-gray-50 dark:bg-white/5 rounded-xl p-3">
                     <p class="text-xs text-gray-500">Clics</p>
-                    <p class="text-xl font-black text-gray-900 dark:text-white">{{ number_format($searchConsoleSummary['total_clicks'] ?? 0) }}</p>
+                    <p class="text-lg sm:text-xl font-black text-gray-900 dark:text-white">{{ number_format($searchConsoleSummary['total_clicks'] ?? 0) }}</p>
                 </div>
                 <div class="bg-gray-50 dark:bg-white/5 rounded-xl p-3">
                     <p class="text-xs text-gray-500">Impresiones</p>
-                    <p class="text-xl font-black text-gray-900 dark:text-white">{{ number_format($searchConsoleSummary['total_impressions'] ?? 0) }}</p>
+                    <p class="text-lg sm:text-xl font-black text-gray-900 dark:text-white">{{ number_format($searchConsoleSummary['total_impressions'] ?? 0) }}</p>
                 </div>
                 <div class="bg-gray-50 dark:bg-white/5 rounded-xl p-3">
                     <p class="text-xs text-gray-500">Posición</p>
-                    <p class="text-xl font-black text-gray-900 dark:text-white">{{ number_format($searchConsoleSummary['avg_position'] ?? 0, 1) }}</p>
+                    <p class="text-lg sm:text-xl font-black text-gray-900 dark:text-white">{{ number_format($searchConsoleSummary['avg_position'] ?? 0, 1) }}</p>
                 </div>
             </div>
 
