@@ -8,16 +8,21 @@ use Illuminate\Console\Command;
 
 class BackfillColors extends Command
 {
-    protected $signature = 'invicta:backfill-colors {--dry-run : Solo mostrar los cambios, no escribir} {--limit= : Límite de productos a procesar}';
+    protected $signature = 'invicta:backfill-colors {--dry-run : Solo mostrar los cambios, no escribir} {--force : Reprocesar también productos que ya tienen color} {--limit= : Límite de productos a procesar}';
 
     protected $description = 'Rellena el campo color de productos sin color scrapeando invictawatch.com';
 
     public function handle(): int
     {
         $dry = (bool) $this->option('dry-run');
+        $force = (bool) $this->option('force');
         $limit = (int) $this->option('limit');
 
         $query = Product::whereNull('color')->orWhere('color', '');
+
+        if ($force) {
+            $query = Product::query();
+        }
 
         if ($limit > 0) {
             $query->limit($limit);

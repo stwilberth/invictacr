@@ -48,7 +48,7 @@ class InvictaWatchScraper
         $imagePath = $this->downloadImage($modelo, $imageUrl);
 
         $movimientoRaw = $features["movimiento"] ?? null;
-        $color = $this->detectColor($title, $descripcion, $this->parseSpecColors($html));
+        $color = $this->detectColor($title, $descripcion, $features["brazalete"] ?? null, $this->parseSpecColors($html));
 
         return [
             "title" => $title,
@@ -133,26 +133,53 @@ class InvictaWatchScraper
     private function parseSpecColors(string $html): array
     {
         $colors = [];
-        if (preg_match_all('/<span>\s*([A-Za-z\s]+?)\s*:\s*([^<]+?)<\/span>/', $html, $m, PREG_SET_ORDER)) {
-            foreach ($m as $pair) {
-                $key = trim($pair[1]);
-                if (preg_match('/Color$/i', $key)) {
-                    $colors[] = ["key" => $key, "value" => trim($pair[2])];
+        if (preg_match_all('/<div class="spec-row">\s*<div class="spec-name"[^>]*>\s*([^<]+?)\s*<\/div>\s*<div class="spec-values"[^>]*>(.*?)<\/div>\s*<\/div>/is', $html, $rows, PREG_SET_ORDER)) {
+            foreach ($rows as $row) {
+                $section = trim($row[1]);
+                if (!preg_match_all('/<span>\s*([^:<]+?)\s*:\s*([^<]+?)<\/span>/', $row[2], $pairs, PREG_SET_ORDER)) {
+                    continue;
+                }
+                foreach ($pairs as $pair) {
+                    $key = trim($pair[1]);
+                    $value = trim($pair[2]);
+                    if (mb_strtolower($key) === 'tone' && mb_strtolower($section) === 'band') {
+                        $colors[] = ["key" => "Band Tone", "value" => $value];
+                    } elseif (preg_match('/color$/i', $key)) {
+                        $colors[] = ["key" => $key, "value" => $value];
+                    }
                 }
             }
         }
         return $colors;
     }
 
-    private function detectColor(string $title, string $description, array $specColors): ?string
+    private function detectColor(string $title, string $description, ?string $bandFeature, array $specColors): ?string
     {
+        // El campo color = color del brazalete: prioriza el "Tone" de la sección Band.
+        foreach ($specColors as $spec) {
+            if ($spec["key"] === "Band Tone") {
+                $match = $this->matchColor($spec["value"]);
+                if ($match !== null) {
+                    return $match;
+                }
+            }
+        }
+
+        // Fallback: material del brazalete (feature "Band").
+        if ($bandFeature !== null && trim($bandFeature) !== '') {
+            $match = $this->matchColor($bandFeature);
+            if ($match !== null) {
+                return $match;
+            }
+        }
+
+        // Fallback: colores de specs (Bezel/Dial).
         $priority = ["Bezel Color", "Case Color", "Dial Color", "Band Color"];
         usort($specColors, function ($a, $b) use ($priority) {
             $pa = array_search($a["key"], $priority);
             $pb = array_search($b["key"], $priority);
             return ($pa === false ? 999 : $pa) <=> ($pb === false ? 999 : $pb);
         });
-
         foreach ($specColors as $spec) {
             $match = $this->matchColor($spec["value"]);
             if ($match !== null) {
@@ -160,6 +187,7 @@ class InvictaWatchScraper
             }
         }
 
+        // Último recurso: título + descripción.
         return $this->matchColor($title . " " . $description);
     }
 
