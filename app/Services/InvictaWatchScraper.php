@@ -48,6 +48,7 @@ class InvictaWatchScraper
         $imagePath = $this->downloadImage($modelo, $imageUrl);
 
         $movimientoRaw = $features["movimiento"] ?? null;
+        $color = $this->detectColor($title, $descripcion, $this->parseSpecColors($html));
 
         return [
             "title" => $title,
@@ -56,6 +57,7 @@ class InvictaWatchScraper
             "imagen_local" => $imagePath,
             "coleccion" => $collection,
             "genero" => $genero,
+            "color" => $color,
             "msrp" => $msrp,
             "size" => $features["size"] ?? null,
             "caja" => $features["caja"] ?? null,
@@ -125,6 +127,71 @@ class InvictaWatchScraper
         if (preg_match('/MSRP\s*\$?\s*([\d,]+)/i', $html, $m)) {
             return (int) str_replace(",", "", $m[1]);
         }
+        return null;
+    }
+
+    private function parseSpecColors(string $html): array
+    {
+        $colors = [];
+        if (preg_match_all('/<span>\s*([A-Za-z\s]+?)\s*:\s*([^<]+?)<\/span>/', $html, $m, PREG_SET_ORDER)) {
+            foreach ($m as $pair) {
+                $key = trim($pair[1]);
+                if (preg_match('/Color$/i', $key)) {
+                    $colors[] = ["key" => $key, "value" => trim($pair[2])];
+                }
+            }
+        }
+        return $colors;
+    }
+
+    private function detectColor(string $title, string $description, array $specColors): ?string
+    {
+        $priority = ["Bezel Color", "Case Color", "Dial Color", "Band Color"];
+        usort($specColors, function ($a, $b) use ($priority) {
+            $pa = array_search($a["key"], $priority);
+            $pb = array_search($b["key"], $priority);
+            return ($pa === false ? 999 : $pa) <=> ($pb === false ? 999 : $pb);
+        });
+
+        foreach ($specColors as $spec) {
+            $match = $this->matchColor($spec["value"]);
+            if ($match !== null) {
+                return $match;
+            }
+        }
+
+        return $this->matchColor($title . " " . $description);
+    }
+
+    private function matchColor(string $text): ?string
+    {
+        $text = mb_strtolower(html_entity_decode($text, ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+        if ($text === '') {
+            return null;
+        }
+
+        $rules = [
+            "Oro Rosa" => ["rose gold", "or rosa", "pink gold", "pink"],
+            "Plateado Dorado" => ["two-tone", "two tone", "bicolor", "combinado", "gold and silver"],
+            "Titanio" => ["titanium", "titanio"],
+            "Azul" => ["blue", "azul"],
+            "Negro" => ["black", "negro"],
+            "Blanco" => ["white", "blanco"],
+            "Verde" => ["green", "verde"],
+            "Rojo" => ["red", "rojo", "burgundy"],
+            "Gris Oscuro" => ["grey", "gray", "gris"],
+            "Dorado" => ["gold", "yellow", "dorado", "amarillo"],
+            "Plateado" => ["silver", "chrome", "plata", "plateado", "steel", "stainless", "acero"],
+        ];
+
+        foreach ($rules as $canonical => $keywords) {
+            foreach ($keywords as $keyword) {
+                if (str_contains($text, $keyword)) {
+                    return $canonical;
+                }
+            }
+        }
+
         return null;
     }
 
