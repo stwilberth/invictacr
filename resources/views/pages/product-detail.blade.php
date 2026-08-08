@@ -153,7 +153,7 @@
                                             </div>
                                         </template>
                                         <template x-if="item.type === 'video'">
-                                            <div class="absolute inset-0 flex items-center justify-center cursor-pointer" @click="openVimeoModal(item.vimeoUrl)">
+                                            <div class="absolute inset-0 flex items-center justify-center cursor-pointer" @click="openVimeoModal(item.videoUid || item.vimeoUrl)">
                                                 <img :src="item.thumbnail || galleryItems[0].url" alt="Video del reloj" class="w-full h-full object-cover" loading="lazy" />
                                                 <div class="absolute inset-0 flex flex-col items-center justify-center gap-2">
                                                     <div class="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center shadow-2xl border-4 border-white/30 hover:border-white/60 transition-all duration-300 hover:scale-110">
@@ -240,7 +240,7 @@
                                                 </div>
                                             </template>
                                             <template x-if="item.type === 'video'">
-                                                <div class="absolute inset-0 flex items-center justify-center cursor-pointer" @click="openVimeoModal(item.vimeoUrl)">
+                                                <div class="absolute inset-0 flex items-center justify-center cursor-pointer" @click="openVimeoModal(item.videoUid || item.vimeoUrl)">
                                                     <img :src="item.thumbnail || galleryItems[0].url" alt="Video del reloj" class="w-full h-full object-cover" loading="lazy" />
                                                     <div class="absolute inset-0 flex flex-col items-center justify-center gap-1.5">
                                                         <div class="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center shadow-2xl border-4 border-white/30 hover:border-white/60 transition-all duration-300 hover:scale-110">

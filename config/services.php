@@ -75,4 +75,10 @@ return [
         ],
     ],
 
+    'cloudflare' => [
+        'account_id' => env('CLOUDFLARE_ACCOUNT_ID'),
+        'api_token' => env('CLOUDFLARE_API_TOKEN'),
+        'stream_customer_subdomain' => env('CLOUDFLARE_STREAM_CUSTOMER_SUBDOMAIN', 'customer-8ybt5aiee4vaophw'),
+    ],
+
 ];

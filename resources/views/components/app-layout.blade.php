@@ -182,14 +182,14 @@
         </div>
     </div>
 
-    <!-- Vimeo Video Modal -->
+    <!-- Video Modal -->
     <div id="vimeoModal" class="modal-overlay fixed inset-0 z-[100] hidden items-center justify-center bg-black/90 backdrop-blur-sm p-2 sm:p-4">
         <div class="relative modal-content flex items-center justify-center" id="vimeoContainer" style="width: 90vw; height: 80vh;">
             <button type="button" onclick="closeVimeoModal()" aria-label="Cerrar" class="absolute -top-3 right-2 sm:right-0 z-20 flex items-center justify-center w-10 h-10 bg-white/90 hover:bg-white text-gray-900 rounded-full text-base shadow-2xl border-2 border-gray-300 hover:border-gray-600 transition-all duration-200">
                 <i class="fa-solid fa-xmark"></i>
             </button>
             <div class="w-full h-full bg-black rounded-2xl overflow-hidden shadow-2xl shadow-black/50 flex items-center justify-center">
-                <iframe id="vimeoFrame" src="" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen class="w-full h-full" frameborder="0"></iframe>
+                <iframe id="videoFrame" src="" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen class="w-full h-full" frameborder="0"></iframe>
             </div>
         </div>
     </div>
@@ -280,10 +280,27 @@
         next.style.display = show ? '' : 'none';
     }
 
+    var streamCustomerSubdomain = '{{ config("services.cloudflare.stream_customer_subdomain") }}';
+
+    function isStreamUid(input) {
+        return input && typeof input === 'string' && /^[0-9a-f]{32}$/i.test(input.trim());
+    }
+
     function openVimeoModal(input) {
-        var frame = document.getElementById('vimeoFrame');
+        var frame = document.getElementById('videoFrame');
         var container = document.getElementById('vimeoContainer');
         if (!frame || !container) return;
+        if (!input) return;
+        input = input.trim();
+        if (isStreamUid(input)) {
+            frame.src = 'https://' + streamCustomerSubdomain + '.cloudflarestream.com/' + input + '/iframe?autoplay=1';
+            openModal('vimeoModal');
+            var vw = window.innerWidth;
+            var vh = window.innerHeight;
+            container.style.width = Math.round(vw * 0.92) + 'px';
+            container.style.height = Math.round(vh * 0.88) + 'px';
+            return;
+        }
         var id = getVimeoId(input);
         if (!id) return;
         frame.src = 'https://player.vimeo.com/video/' + id + '?autoplay=1&title=0&byline=0&portrait=0';
@@ -310,7 +327,7 @@
             .catch(function() {});
     }
     function closeVimeoModal() {
-        var frame = document.getElementById('vimeoFrame');
+        var frame = document.getElementById('videoFrame');
         if (frame) frame.src = '';
         closeModal('vimeoModal');
     }

@@ -21,6 +21,7 @@ class Product extends Model
         "caja",
         "resistencia_agua",
         "video",
+        "video_uid",
         "precio_venta",
         "precio_original",
         "descuento",
