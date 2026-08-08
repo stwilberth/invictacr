@@ -42,12 +42,14 @@ class VariedadesSyncService
             $stockChangedCount = 0;
             $referenceUpdatedCount = 0;
             $markedAgotadoCount = 0;
+            $priceUpdatedCount = 0;
 
             $createdModels = [];
             $activatedModels = [];
             $stockChangedModels = [];
             $referenceUpdatedModels = [];
             $markedAgotadoModels = [];
+            $priceUpdatedModels = [];
 
             $items = [];
 
@@ -73,9 +75,6 @@ class VariedadesSyncService
                     }
 
                     if ($product->proximo || (float) $product->precio_venta <= 0) {
-                        $increase = random_int(4000, 9000);
-                        $roundedPrice = $this->roundUpToThousand($priceVal + $increase);
-
                         $iwData = null;
                         try {
                             $scraper = app(InvictaWatchScraper::class);
@@ -91,7 +90,7 @@ class VariedadesSyncService
 
                         $product->update([
                             'proximo' => false,
-                            'precio_venta' => $roundedPrice,
+                            'precio_venta' => $this->randomPrice($modelKey, $priceVal),
                             'precio_original' => $priceVal,
                             'stock' => max(1, $stockVal),
                             'genero' => $iwData['genero'] ?? $product->genero,
@@ -146,13 +145,20 @@ class VariedadesSyncService
                         $didChange = true;
                     }
 
+                    $isAgotado = (int) $product->stock <= 0 || $product->disponibilidad === "agotado";
+                    $newPrice = $priceVal > 0 ? $this->randomPrice($modelKey, $priceVal) : 0;
+                    if ($newPrice > 0 && (float) $product->precio_venta > 0 && $product->activo && !$isAgotado && (int) $product->precio_venta !== $newPrice) {
+                        $updates["precio_venta"] = $newPrice;
+                        $priceUpdatedCount++;
+                        $priceUpdatedModels[] = $modelKey;
+                        $items[] = ['sync_log_id' => $log->id, 'type' => 'price_updated', 'modelo' => $modelKey, 'product_id' => $product->id];
+                        $didChange = true;
+                    }
+
                     if ($didChange) {
                         $product->update($updates);
                     }
                 } else {
-                    $increase = random_int(4000, 9000);
-                    $roundedPrice = $this->roundUpToThousand($priceVal + $increase);
-
                     $iwData = null;
                     try {
                         $scraper = app(InvictaWatchScraper::class);
@@ -181,7 +187,7 @@ class VariedadesSyncService
                         "title" => $title,
                         "slug" => "invicta-" . strtolower($modelKey),
                         "descripcion" => $descripcion,
-                        "precio_venta" => $roundedPrice,
+                        "precio_venta" => $this->randomPrice($modelKey, $priceVal),
                         "precio_original" => $priceVal,
                         "descuento" => 0,
                         "genero" => $iwData['genero'] ?? $generoApi,
@@ -238,6 +244,8 @@ class VariedadesSyncService
                 "referencia_actualizada_modelos" => $referenceUpdatedModels,
                 "marcados_agotados" => $markedAgotadoCount,
                 "marcados_agotados_modelos" => $markedAgotadoModels,
+                "precios_actualizados" => $priceUpdatedCount,
+                "precios_actualizados_modelos" => $priceUpdatedModels,
             ];
 
             if (!empty($items)) {
@@ -249,6 +257,7 @@ class VariedadesSyncService
             if ($activatedCount > 0) $parts[] = "{$activatedCount} activados";
             if ($stockChangedCount > 0) $parts[] = "{$stockChangedCount} stock actualizado";
             if ($referenceUpdatedCount > 0) $parts[] = "{$referenceUpdatedCount} precios referencia actualizados";
+            if ($priceUpdatedCount > 0) $parts[] = "{$priceUpdatedCount} precios actualizados";
             if ($markedAgotadoCount > 0) $parts[] = "{$markedAgotadoCount} marcados agotados";
             $msg = implode(", ", $parts) ?: "Sin cambios";
 
@@ -286,9 +295,11 @@ class VariedadesSyncService
             ->exists();
     }
 
-    private function roundUpToThousand(int $value): int
+    private function randomPrice(string $modelKey, int $base): int
     {
-        return (int) (ceil($value / 1000) * 1000);
+        $hash = crc32($modelKey);
+        $offset = ($hash % 6001) - 3000;
+        return (int) (round(($base + $offset) / 1000) * 1000);
     }
 
     private function mapGender(int $code): string
