@@ -58,6 +58,11 @@
             <option value="yes">Sí</option>
             <option value="no">No</option>
         </select>
+        <select wire:model.live="filterProximo" class="bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-lg px-2 py-1.5 text-xs">
+            <option value="all">Próximos</option>
+            <option value="yes">Sí</option>
+            <option value="no">No</option>
+        </select>
         <div class="relative" @click.outside="open = false">
             <button @click="open = !open" class="bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-lg px-3 py-1.5 text-xs font-bold text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-all flex items-center gap-1.5">
                 <i class="fa-solid fa-table-cells"></i>
