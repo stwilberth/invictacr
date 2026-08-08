@@ -33,7 +33,10 @@ class Invoices extends Component
             $query->where(function ($q) {
                 $q->where('invoice_number', 'like', "%{$this->search}%")
                   ->orWhere('client_name', 'like', "%{$this->search}%")
-                  ->orWhere('client_phone', 'like', "%{$this->search}%");
+                  ->orWhere('client_phone', 'like', "%{$this->search}%")
+                  ->orWhereHas('items', function ($items) {
+                      $items->where('product_model', 'like', "%{$this->search}%");
+                  });
             });
         }
 

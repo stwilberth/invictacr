@@ -37,7 +37,7 @@
     <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-4 mb-6 space-y-3">
         <div class="flex gap-2 flex-wrap">
             <div class="flex gap-2 flex-wrap items-center">
-                <input wire:model.live.debounce.300ms="search" type="text" placeholder="Buscar factura, cliente o teléfono..." class="bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2 text-sm min-w-[250px] flex-1" />
+                <input wire:model.live.debounce.300ms="search" type="text" placeholder="Buscar factura, cliente, teléfono o modelo..." class="bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2 text-sm min-w-[250px] flex-1" />
                 <button wire:click="resetFilters" class="text-xs text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 px-3 py-2 border border-gray-200 dark:border-white/10 rounded-xl">Limpiar filtros</button>
             </div>
             <select wire:model.live="filterStatus" class="bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2 text-xs">
@@ -101,7 +101,7 @@
                     <td class="px-4 py-3">
                         @foreach($invoice->items as $item)
                             @if($item->product)
-                                <a href="{{ route('admin.products.edit', $item->product->id) }}" class="text-[#00C4FF] hover:underline text-xs font-bold" title="Editar producto">
+                                <a href="{{ route('products.show', $item->product->slug) }}" class="text-[#00C4FF] hover:underline text-xs font-bold" title="Ver reloj">
                                     {{ $item->product_model }}
                                 </a>
                             @else
