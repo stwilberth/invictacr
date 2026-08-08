@@ -132,9 +132,13 @@ class Products extends Component
         }
 
         if ($this->filterProximo === "yes") {
-            $query->where("proximo", true);
+            $query->where(function ($q) {
+                $q->where("proximo", true)
+                  ->orWhere("precio_venta", "<=", 0);
+            });
         } elseif ($this->filterProximo === "no") {
-            $query->where("proximo", false);
+            $query->where("proximo", false)
+                ->where("precio_venta", ">", 0);
         }
 
         $products = $query
