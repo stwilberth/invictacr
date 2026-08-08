@@ -24,12 +24,6 @@
     $productName = 'Reloj Invicta ' . ($product->coleccion && strtolower($product->coleccion) !== 'otros' ? $product->coleccion . ' ' : '') . ($product->genero && strtolower($product->genero) !== 'unisex' ? 'para ' . $product->genero . ' ' : '') . '(' . $product->modelo . ')';
     $price = $product->price_after_discount ?? $product->precio_venta ?? 0;
     $availability = ($product->stock ?? 0) > 0 && ($product->disponibilidad ?? 'disponible') !== 'agotado' ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock';
-
-    $vimeoId = null;
-    if ($product->video) {
-        preg_match('/(\d+)/', basename($product->video), $matches);
-        $vimeoId = $matches[1] ?? null;
-    }
 @endphp
 @push('json-ld')
 <script type="application/ld+json">
@@ -41,14 +35,14 @@
     "description": {!! json_encode($seoDescription) !!},
     "sku": {!! json_encode($product->modelo) !!},
     "brand": {"@type": "Brand", "name": "Invicta"},
-    @if($vimeoId)
+    @if($product->video_uid)
     "video": {
         "@@type": "VideoObject",
         "name": {!! json_encode($productName) !!},
         "description": {!! json_encode($seoDescription) !!},
-        "thumbnailUrl": {!! json_encode('https://vumbnail.com/' . $vimeoId . '.jpg') !!},
-        "contentUrl": {!! json_encode('https://player.vimeo.com/video/' . $vimeoId) !!},
-        "embedUrl": {!! json_encode('https://player.vimeo.com/video/' . $vimeoId) !!},
+        "thumbnailUrl": {!! json_encode('https://' . config('services.cloudflare.stream_customer_subdomain') . '.cloudflarestream.com/' . $product->video_uid . '/thumbnails/thumbnail.jpg') !!},
+        "contentUrl": {!! json_encode('https://' . config('services.cloudflare.stream_customer_subdomain') . '.cloudflarestream.com/' . $product->video_uid . '/iframe') !!},
+        "embedUrl": {!! json_encode('https://' . config('services.cloudflare.stream_customer_subdomain') . '.cloudflarestream.com/' . $product->video_uid . '/iframe') !!},
         "uploadDate": {!! json_encode($product->created_at ? $product->created_at->toIso8601String() : date('c')) !!}
     },
     @endif
@@ -153,7 +147,7 @@
                                             </div>
                                         </template>
                                         <template x-if="item.type === 'video'">
-                                            <div class="absolute inset-0 flex items-center justify-center cursor-pointer" @click="openVimeoModal(item.videoUid || item.vimeoUrl)">
+                                            <div class="absolute inset-0 flex items-center justify-center cursor-pointer" @click="openVideoModal(item.videoUid)">
                                                 <img :src="item.thumbnail || galleryItems[0].url" alt="Video del reloj" class="w-full h-full object-cover" loading="lazy" />
                                                 <div class="absolute inset-0 flex flex-col items-center justify-center gap-2">
                                                     <div class="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center shadow-2xl border-4 border-white/30 hover:border-white/60 transition-all duration-300 hover:scale-110">
@@ -240,7 +234,7 @@
                                                 </div>
                                             </template>
                                             <template x-if="item.type === 'video'">
-                                                <div class="absolute inset-0 flex items-center justify-center cursor-pointer" @click="openVimeoModal(item.videoUid || item.vimeoUrl)">
+                                                <div class="absolute inset-0 flex items-center justify-center cursor-pointer" @click="openVideoModal(item.videoUid)">
                                                     <img :src="item.thumbnail || galleryItems[0].url" alt="Video del reloj" class="w-full h-full object-cover" loading="lazy" />
                                                     <div class="absolute inset-0 flex flex-col items-center justify-center gap-1.5">
                                                         <div class="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center shadow-2xl border-4 border-white/30 hover:border-white/60 transition-all duration-300 hover:scale-110">

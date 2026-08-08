@@ -8,15 +8,32 @@
             />
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                @foreach(['1182052076', '1192763867', '1175093984', '1175094082', '1175094337', '1175094102', '1175094166', '1175094314', '1175094251', '1175094129', '1175093934', '1175094037', '1175094366', '1175094283', '1182052049', '1182052076'] as $vimeoId)
+                @foreach([
+                    'd4706b409ea647743ec9dffe96f9503f',
+                    '4320502d8b65b23e44ca8b8860a6c4d5',
+                    '1b164d924ff877e04eabf3ff350f4863',
+                    '06e9614540af48daa4d1ef5e47d17490',
+                    '63a7acc4e00b2d5de8e8ebdd57dfd107',
+                    '7be4a398961006e5b739b3c5c9347585',
+                    '0e2de703b549ffd0a92446bad6708dff',
+                    '87c4be1598d31afea67f8db764ef4333',
+                    'ac90c6f10848a7b50d7fc9e1100c4c8a',
+                    'c7ca6438b0601a62566602b18d0376be',
+                    '439fee2f0ae352fa2b31fe4cc7bd6bb7',
+                    '655c426e46289c58cacfef0fa95791e2',
+                    '7b5b1a983980f50f7ac626c61b457b3b',
+                    '71f183de26e242d24f6c9bd9cc1a6e5e',
+                    'e297da37609e817be1fabb3321b5d13c',
+                    'd4706b409ea647743ec9dffe96f9503f',
+                ] as $streamUid)
                 <div class="group relative rounded-2xl overflow-hidden shadow-lg bg-gray-100 dark:bg-gray-800 aspect-video">
-                    <img src="https://vumbnail.com/{{ $vimeoId }}.jpg" alt="Reseña de cliente" class="w-full h-full object-cover" loading="lazy" />
+                    <img src="https://{{ config('services.cloudflare.stream_customer_subdomain') }}.cloudflarestream.com/{{ $streamUid }}/thumbnails/thumbnail.jpg" alt="Reseña de cliente" class="w-full h-full object-cover" loading="lazy" />
                     <div class="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/10 transition-all">
                         <div class="w-16 h-16 rounded-full bg-white/90 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
                             <i class="fa-solid fa-play text-[#00C4FF] text-2xl ml-1"></i>
                         </div>
                     </div>
-                    <a href="https://vimeo.com/{{ $vimeoId }}" target="_blank" rel="noopener" class="absolute inset-0 z-10"></a>
+                    <button type="button" onclick="openVideoModal('{{ $streamUid }}')" class="absolute inset-0 z-10"></button>
                 </div>
                 @endforeach
             </div>

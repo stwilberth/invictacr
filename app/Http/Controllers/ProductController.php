@@ -393,24 +393,12 @@ class ProductController extends Controller
                 'url' => $galleryImages[$i] ?? $img,
                 'zoomUrl' => $galleryImages[$i] ?? $img,
             ]);
-            if ($i === 0 && $product->video) {
-                if ($product->video_uid) {
-                    $galleryItems->push([
-                        'type' => 'video',
-                        'videoUid' => $product->video_uid,
-                        'vimeoUrl' => null,
-                        'thumbnail' => "https://" . config('services.cloudflare.stream_customer_subdomain') . ".cloudflarestream.com/{$product->video_uid}/thumbnails/thumbnail.jpg",
-                    ]);
-                } else {
-                    preg_match('/(\d+)/', basename($product->video), $vm);
-                    $vid = $vm[1] ?? null;
-                    $galleryItems->push([
-                        'type' => 'video',
-                        'videoUid' => null,
-                        'vimeoUrl' => $product->video,
-                        'thumbnail' => $vid ? "https://vumbnail.com/{$vid}.jpg" : null,
-                    ]);
-                }
+            if ($i === 0 && $product->video_uid) {
+                $galleryItems->push([
+                    'type' => 'video',
+                    'videoUid' => $product->video_uid,
+                    'thumbnail' => "https://" . config('services.cloudflare.stream_customer_subdomain') . ".cloudflarestream.com/{$product->video_uid}/thumbnails/thumbnail.jpg",
+                ]);
             }
         }
 

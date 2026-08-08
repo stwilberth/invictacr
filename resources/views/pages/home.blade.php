@@ -104,10 +104,19 @@
                     <i class="fa-solid fa-chevron-right text-gray-700 dark:text-gray-300 text-base"></i>
                 </button>
                 <div class="overflow-x-auto scrollbar-hide scroll-container flex gap-3 sm:gap-4 pb-2">
-                    @foreach(['1182052076', '1192763867', '1175093984', '1175094082', '1175094337', '1175094102', '1175094166', '1175094314'] as $vimeoId)
+                    @foreach([
+                        'd4706b409ea647743ec9dffe96f9503f',
+                        '4320502d8b65b23e44ca8b8860a6c4d5',
+                        '1b164d924ff877e04eabf3ff350f4863',
+                        '06e9614540af48daa4d1ef5e47d17490',
+                        '63a7acc4e00b2d5de8e8ebdd57dfd107',
+                        '7be4a398961006e5b739b3c5c9347585',
+                        '0e2de703b549ffd0a92446bad6708dff',
+                        '87c4be1598d31afea67f8db764ef4333',
+                    ] as $streamUid)
                     <div class="flex-shrink-0 w-[240px] sm:w-[280px]">
-                        <button type="button" onclick="openVimeoModal('{{ $vimeoId }}')" class="relative group cursor-pointer rounded-xl overflow-hidden shadow-lg bg-gray-100 dark:bg-gray-800 w-full text-left">
-                            <img src="https://vumbnail.com/{{ $vimeoId }}.jpg" alt="Reseña de cliente" class="w-full aspect-video object-cover" loading="lazy" />
+                        <button type="button" onclick="openVideoModal('{{ $streamUid }}')" class="relative group cursor-pointer rounded-xl overflow-hidden shadow-lg bg-gray-100 dark:bg-gray-800 w-full text-left">
+                            <img src="https://{{ config('services.cloudflare.stream_customer_subdomain') }}.cloudflarestream.com/{{ $streamUid }}/thumbnails/thumbnail.jpg" alt="Reseña de cliente" class="w-full aspect-video object-cover" loading="lazy" />
                             <div class="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/10 transition-all">
                                 <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-white/90 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
                                     <i class="fa-solid fa-play text-gray-900 text-xl ml-1"></i>

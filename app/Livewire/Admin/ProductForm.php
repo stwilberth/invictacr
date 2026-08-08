@@ -20,7 +20,6 @@ class ProductForm extends Component
     public $modelo, $title, $slug, $descripcion, $color, $brazalete;
     public $coleccion, $tipo_movimiento, $size, $genero, $caja;
     public $resistencia_agua, $precio_venta, $precio_original;
-    public $video;
     public $video_uid;
     public $descuento = 0,
         $stock = 0,
@@ -65,7 +64,6 @@ class ProductForm extends Component
             $this->descuento = $product->descuento;
             $this->stock = $product->stock;
             $this->imagen = $product->imagen;
-            $this->video = $product->video;
             $this->video_uid = $product->video_uid;
             $this->imagenes_extra = $product->images()->pluck('url')->toArray();
             $this->activo = $product->activo;
@@ -677,7 +675,6 @@ class ProductForm extends Component
             "descuento" => $this->descuento ?: 0,
             "stock" => $this->stock ?: 0,
             "imagen" => $this->imagen,
-            "video" => $this->video,
             "video_uid" => $this->video_uid,
             "activo" => $this->activo,
             "bloqueado" => $this->bloqueado,

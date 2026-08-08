@@ -99,7 +99,7 @@
                     <th class="text-right px-4 py-3 cursor-pointer" data-column="precio" wire:click="sortBy('precio_venta')">Precio</th>
                     <th class="text-center px-4 py-3 cursor-pointer" data-column="imgs" wire:click="sortBy('images_count')">Imgs</th>
                     <th class="text-center px-4 py-3 cursor-pointer" data-column="stock" wire:click="sortBy('stock')">Stock</th>
-                    <th class="text-center px-4 py-3 cursor-pointer" data-column="video" wire:click="sortBy('video')">Video</th>
+                    <th class="text-center px-4 py-3 cursor-pointer" data-column="video" wire:click="sortBy('video_uid')">Video</th>
                     <th class="text-right px-4 py-3" data-column="acciones">Acciones</th>
                 </tr>
             </thead>
@@ -144,7 +144,7 @@
                         </span>
                     </td>
                     <td class="px-4 py-3 text-center" data-column="video">
-                        @if($product->video)
+                        @if($product->video_uid)
                             <i class="fa-solid fa-circle-play text-red-500 text-lg" title="Tiene video"></i>
                         @else
                             <span class="text-gray-300 dark:text-gray-600">—</span>
