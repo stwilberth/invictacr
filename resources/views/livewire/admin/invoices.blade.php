@@ -100,8 +100,9 @@
                     </td>
                     <td class="px-4 py-3">
                         @foreach($invoice->items as $item)
-                            @if($item->product)
-                                <a href="{{ route('products.show', $item->product->slug) }}" class="text-[#00C4FF] hover:underline text-xs font-bold" title="Ver reloj">
+                            @php $product = $item->product ?? ($productByModelo[$item->product_model] ?? null); @endphp
+                            @if($product)
+                                <a href="{{ route('products.show', $product->slug) }}" class="text-[#00C4FF] hover:underline text-xs font-bold" title="Ver reloj">
                                     {{ $item->product_model }}
                                 </a>
                             @else

@@ -72,6 +72,14 @@ class Invoices extends Component
 
         $invoices = $query->with('abonos', 'items.product')->latest()->paginate(20);
 
+        $modelos = $invoices->flatMap(fn ($invoice) => $invoice->items->pluck('product_model'))
+            ->filter()
+            ->unique()
+            ->all();
+        $productByModelo = \App\Models\Product::whereIn('modelo', $modelos)
+            ->get(['id', 'modelo', 'slug'])
+            ->keyBy('modelo');
+
         $totalsQuery = clone $query;
         $totals = (object) [
             'count' => (clone $totalsQuery)->count(),
@@ -90,7 +98,7 @@ class Invoices extends Component
             $totals->saldoPendiente = $totals->totalAmount - $totals->totalAbonado;
         }
 
-        return view('livewire.admin.invoices', compact('invoices', 'totals'))
+        return view('livewire.admin.invoices', compact('invoices', 'totals', 'productByModelo'))
             ->layout('components.admin-layout');
     }
 
