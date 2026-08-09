@@ -77,6 +77,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::get('/products', \App\Livewire\Admin\Products::class)->name('products');
     Route::get('/products/create', \App\Livewire\Admin\ProductForm::class)->name('products.create');
     Route::get('/products/{productId}/edit', \App\Livewire\Admin\ProductForm::class)->name('products.edit');
+    Route::get('/review-videos', \App\Livewire\Admin\ReviewVideos::class)->name('review-videos');
     Route::get('/invoices', \App\Livewire\Admin\Invoices::class)->name('invoices');
     Route::get('/invoices/create', \App\Livewire\Admin\InvoiceCreate::class)->name('invoices.create');
     Route::get('/invoices/{id}', \App\Livewire\Admin\InvoiceDetail::class)->name('invoices.detail');

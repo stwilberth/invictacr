@@ -88,25 +88,16 @@
                     <p class="text-gray-500 dark:text-gray-400 text-sm">Reseñas reales en video</p>
                 </div>
                 <div class="overflow-x-auto scrollbar-hide scroll-container flex gap-3 sm:gap-4 pb-2">
-                    @foreach([
-                        '1b164d924ff877e04eabf3ff350f4863',
-                        '06e9614540af48daa4d1ef5e47d17490',
-                        '63a7acc4e00b2d5de8e8ebdd57dfd107',
-                        '7be4a398961006e5b739b3c5c9347585',
-                        '0e2de703b549ffd0a92446bad6708dff',
-                        '87c4be1598d31afea67f8db764ef4333',
-                        'ac90c6f10848a7b50d7fc9e1100c4c8a',
-                        'c7ca6438b0601a62566602b18d0376be',
-                    ] as $streamUid)
+                    @foreach($reviewVideos as $reviewVideo)
                     <div class="flex-shrink-0 w-[240px] sm:w-[280px]">
                         <div class="relative group cursor-pointer rounded-xl overflow-hidden shadow-lg bg-gray-100 dark:bg-gray-800">
-                            <img src="https://{{ config('services.cloudflare.stream_customer_subdomain') }}.cloudflarestream.com/{{ $streamUid }}/thumbnails/thumbnail.jpg" alt="Reseña de cliente" class="w-full aspect-video object-cover" loading="lazy" />
+                            <img src="https://{{ config('services.cloudflare.stream_customer_subdomain') }}.cloudflarestream.com/{{ $reviewVideo->stream_uid }}/thumbnails/thumbnail.jpg" alt="Reseña de cliente" class="w-full aspect-video object-cover" loading="lazy" />
                             <div class="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/10 transition-all">
                                 <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-white/90 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
                                     <i class="fa-solid fa-play text-gray-900 text-xl ml-1"></i>
                                 </div>
                             </div>
-                            <button type="button" onclick="openVideoModal('{{ $streamUid }}')" class="absolute inset-0 z-10"></button>
+                            <button type="button" onclick="openVideoModal('{{ $reviewVideo->stream_uid }}')" class="absolute inset-0 z-10"></button>
                         </div>
                     </div>
                     @endforeach

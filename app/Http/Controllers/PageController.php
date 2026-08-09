@@ -31,12 +31,23 @@ class PageController extends Controller
 
     public function resenas()
     {
-        return view('pages.resenas');
+        $videos = \App\Models\ReviewVideo::activos()
+            ->orderBy('orden')
+            ->orderBy('id')
+            ->get();
+
+        return view('pages.resenas', compact('videos'));
     }
 
     public function sobreNosotros()
     {
-        return view('pages.sobre-nosotros');
+        $reviewVideos = \App\Models\ReviewVideo::activos()
+            ->orderBy('orden')
+            ->orderBy('id')
+            ->take(8)
+            ->get();
+
+        return view('pages.sobre-nosotros', compact('reviewVideos'));
     }
 
     public function privacidad()
