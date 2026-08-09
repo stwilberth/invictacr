@@ -82,6 +82,7 @@ class SyncProductVideos extends Command
                     ->asJson()
                     ->post("https://api.cloudflare.com/client/v4/accounts/{$accountId}/stream/copy", [
                         'input' => $sourceUrl,
+                        'name' => $modelo,
                         'maxDurationSeconds' => 3600,
                         'requireSignedURLs' => false,
                         'creator' => 'invictacr-sync',

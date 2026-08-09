@@ -244,6 +244,18 @@
                         <a href="https://{{ config('services.cloudflare.stream_customer_subdomain') }}.cloudflarestream.com/{{ $video_uid }}/iframe" target="_blank" rel="noopener" class="inline-flex items-center gap-1 px-2 py-0.5 bg-[#00C4FF]/10 text-[#00C4FF] hover:bg-[#00C4FF]/20 rounded-lg font-bold transition-colors">
                             <i class="fa-solid fa-external-link-alt text-[10px]"></i> Ver
                         </a>
+                        <button wire:click="deleteVideo" wire:confirm="¿Eliminar este video de Cloudflare Stream?" class="inline-flex items-center gap-1 px-2 py-0.5 bg-red-500/10 text-red-500 hover:bg-red-500/20 rounded-lg font-bold transition-colors">
+                            <i class="fa-solid fa-trash-can text-[10px]"></i> Borrar
+                        </button>
+                    </p>
+                    @endif
+                    @if($videoDeleteStatus === 'ok')
+                    <p class="mt-1 text-xs font-bold text-green-600 dark:text-green-400">
+                        <i class="fa-solid fa-circle-check"></i> {{ $videoDeleteMessage }}
+                    </p>
+                    @elseif($videoDeleteStatus === 'error')
+                    <p class="mt-1 text-xs font-bold text-red-600 dark:text-red-400">
+                        <i class="fa-solid fa-circle-exclamation"></i> {{ $videoDeleteMessage }}
                     </p>
                     @endif
                 </div>

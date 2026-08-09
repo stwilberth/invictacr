@@ -39,6 +39,8 @@ class ProductForm extends Component
     public $fetchMessage = "";
     public ?string $optimizeStatus = null;
     public ?string $optimizeMessage = null;
+    public string $videoDeleteStatus = "";
+    public string $videoDeleteMessage = "";
     public $newImageFile;
     public $newExtraImageFile;
 
@@ -637,6 +639,49 @@ class ProductForm extends Component
             $this->fetchStatus = "error";
             $this->fetchMessage = "Error al obtener datos: " . $e->getMessage();
         }
+    }
+
+    public function deleteVideo()
+    {
+        $uid = $this->video_uid;
+
+        if (!$uid) {
+            return;
+        }
+
+        $ok = true;
+        $error = null;
+
+        try {
+            $accountId = config('services.cloudflare.account_id');
+            $apiToken = config('services.cloudflare.api_token');
+
+            if ($accountId && $apiToken) {
+                $response = Http::withHeaders(['Authorization' => 'Bearer ' . $apiToken])
+                    ->timeout(60)
+                    ->withOptions(['curl' => [CURLOPT_IPRESOLVE => CURL_IPRESOLVE_V4]])
+                    ->delete("https://api.cloudflare.com/client/v4/accounts/{$accountId}/stream/{$uid}");
+
+                $ok = $response->successful();
+                if (!$ok) {
+                    $error = $response->json('errors.0.message') ?: ('HTTP ' . $response->status());
+                }
+            }
+        } catch (\Throwable $e) {
+            $ok = false;
+            $error = $e->getMessage();
+        }
+
+        $this->video_uid = null;
+
+        if ($this->productId) {
+            Product::where('id', $this->productId)->update(['video_uid' => null]);
+        }
+
+        $this->videoDeleteStatus = $ok ? 'ok' : 'error';
+        $this->videoDeleteMessage = $ok
+            ? 'Video eliminado de Cloudflare Stream.'
+            : 'Se quitó el video del producto, pero falló el borrado en Stream: ' . $error;
     }
 
     public function save()
