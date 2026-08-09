@@ -51,10 +51,12 @@ class ReviewVideos extends Component
                 "Authorization" => "Bearer " . $apiToken,
             ])
                 ->timeout(120)
+                ->withOptions(["curl" => [CURLOPT_IPRESOLVE => CURL_IPRESOLVE_V4]])
                 ->asJson()
                 ->post("https://api.cloudflare.com/client/v4/accounts/{$accountId}/stream/direct_upload", $watermarkUid ? [
+                    "maxDurationSeconds" => 3600,
                     "watermark" => ["uid" => $watermarkUid],
-                ] : []);
+                ] : ["maxDurationSeconds" => 3600]);
 
             if (!$directUpload->successful()) {
                 $this->uploadStatus = "error";
@@ -71,6 +73,7 @@ class ReviewVideos extends Component
 
             $upload = Http::attach("file", fopen($tempPath, "r"), $originalName)
                 ->timeout(600)
+                ->withOptions(["curl" => [CURLOPT_IPRESOLVE => CURL_IPRESOLVE_V4]])
                 ->post($uploadURL);
 
             if (!$upload->successful()) {
@@ -157,6 +160,7 @@ class ReviewVideos extends Component
                 Http::withHeaders([
                     "Authorization" => "Bearer " . $apiToken,
                 ])
+                    ->withOptions(["curl" => [CURLOPT_IPRESOLVE => CURL_IPRESOLVE_V4]])
                     ->delete("https://api.cloudflare.com/client/v4/accounts/{$accountId}/stream/{$video->stream_uid}");
             }
         } catch (\Exception $e) {
