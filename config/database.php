@@ -64,6 +64,26 @@ return [
             ]) : [],
         ],
 
+        'variedadescr' => [
+            'driver' => 'mysql',
+            'url' => env('VARIEDADESCR_DB_URL'),
+            'host' => env('VARIEDADESCR_DB_HOST', '127.0.0.1'),
+            'port' => env('VARIEDADESCR_DB_PORT', '3306'),
+            'database' => env('VARIEDADESCR_DB_DATABASE', 'variedadescr'),
+            'username' => env('VARIEDADESCR_DB_USERNAME', 'root'),
+            'password' => env('VARIEDADESCR_DB_PASSWORD', ''),
+            'unix_socket' => env('VARIEDADESCR_DB_SOCKET', ''),
+            'charset' => env('DB_CHARSET', 'utf8mb4'),
+            'collation' => env('DB_COLLATION', 'utf8mb4_unicode_ci'),
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'strict' => true,
+            'engine' => null,
+            'options' => extension_loaded('pdo_mysql') ? array_filter([
+                Mysql::ATTR_SSL_CA => env('VARIEDADESCR_MYSQL_ATTR_SSL_CA'),
+            ]) : [],
+        ],
+
         'mariadb' => [
             'driver' => 'mariadb',
             'url' => env('DB_URL'),

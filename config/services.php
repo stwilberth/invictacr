@@ -82,4 +82,8 @@ return [
         'stream_watermark_uid' => env('CLOUDFLARE_STREAM_WATERMARK_UID', ''),
     ],
 
+    'variedadescr' => [
+        'cdn_url' => env('VARIEDADESCR_CDN_URL', 'https://cdn.variedadescr.com'),
+    ],
+
 ];
