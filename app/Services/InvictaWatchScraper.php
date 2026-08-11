@@ -9,8 +9,8 @@ use Illuminate\Support\Facades\Storage;
 class InvictaWatchScraper
 {
     const BASE_URL = "https://www.invictawatch.com";
-    const CDN_URL = "https://cdn.invictawatch.com/www/img/products";
-    
+    const CDN_URL = "https://www.invictawatch.com/storage/products";
+
     private const HEADERS = [
         "User-Agent" => "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
         "Accept" => "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
@@ -20,7 +20,7 @@ class InvictaWatchScraper
     public function scrape(string $modelo): ?array
     {
         $url = self::BASE_URL . "/watches/detail/{$modelo}";
-        
+
         $response = Http::withHeaders(self::HEADERS)
             ->timeout(30)
             ->get($url);
@@ -30,95 +30,179 @@ class InvictaWatchScraper
         }
 
         $html = $response->body();
-        
-        $meta = $this->parseMetaTags($html);
-        if (!$meta) {
-            return null;
+
+        $product = $this->parseProductJson($html, $modelo);
+        if (!$product) {
+            $meta = $this->parseMetaTags($html);
+            if (!$meta) {
+                return null;
+            }
+            $product = [
+                "name" => $meta["name"] ?? "",
+                "description" => $meta["description"] ?? "",
+                "collection_name" => null,
+                "gender" => null,
+                "tile_image" => $meta["image"] ?? "",
+                "images" => [],
+            ];
         }
 
-        $features = $this->parseFeatures($html);
-        $collection = $this->parseCollection($html);
+        $specs = $this->parseSpecs($html, $modelo);
         $msrp = $this->parseMsrp($html);
 
-        $title = $meta["name"] ?? "";
-        $descripcion = $meta["description"] ?? "";
-        $imageUrl = $meta["image"] ?? "";
-        $genero = $this->detectGender($title, $descripcion);
+        $title = $this->cleanTitle($product["name"] ?? "");
+        $descripcion = $product["description"] ?? "";
+        $imageUrl = $product["tile_image"] ?? ($product["images"][0]["urlsBySize"]["l"] ?? "");
 
         $imagePath = $this->downloadImage($modelo, $imageUrl);
 
-        $movimientoRaw = $features["movimiento"] ?? null;
-        $color = $this->detectColor($title, $descripcion, $features["brazalete"] ?? null, $this->parseSpecColors($html));
+        $band = $specs["Band"] ?? [];
+        $case = $specs["Case and Dial"] ?? [];
+        $movement = $specs["Movement"] ?? [];
+        $water = $specs["Water Resistance"] ?? [];
+
+        $size = $this->extractNumber($this->specValue($case, "Case Size"));
+        $caja = $this->specValue($case, "Case Material");
+        $brazalete = $this->specValue($band, "Material");
+        $tone = $this->specValue($band, "Tone");
+        $movimientoRaw = $this->specValue($movement, "Caliber");
+        $resistenciaAgua = $this->extractNumber($this->specValue($water, "Water Resistance"));
+
+        $color = $this->detectColor($title, $descripcion, $brazalete, $tone, $case, $band);
 
         return [
             "title" => $title,
             "descripcion" => $descripcion,
             "imagen_url" => $imageUrl,
             "imagen_local" => $imagePath,
-            "coleccion" => $collection,
-            "genero" => $genero,
+            "coleccion" => $product["collection_name"] ?? null,
+            "genero" => $this->detectGender($title, $descripcion, $product["gender"] ?? null),
             "color" => $color,
             "msrp" => $msrp,
-            "size" => $features["size"] ?? null,
-            "caja" => $features["caja"] ?? null,
-            "brazalete" => $features["brazalete"] ?? null,
+            "size" => $size,
+            "caja" => $caja,
+            "brazalete" => $brazalete,
             "tipo_movimiento" => Product::normalizeMovimiento($movimientoRaw),
             "movimiento_raw" => $movimientoRaw,
-            "resistencia_agua" => $features["resistencia_agua"] ?? null,
+            "resistencia_agua" => $resistenciaAgua,
         ];
     }
 
+    /**
+     * El sitio incrusta el producto como JSON en el atributo Vue :product="..." (HTML-encoded).
+     * Se prefiere el JSON cuyo model_no coincide; si no, el primero con imágenes.
+     */
+    private function parseProductJson(string $html, string $modelo): ?array
+    {
+        $found = null;
+
+        if (preg_match_all('/:product="([^"]+)"/s', $html, $matches, PREG_SET_ORDER)) {
+            foreach ($matches as $m) {
+                $json = html_entity_decode($m[1], ENT_QUOTES | ENT_HTML5, 'UTF-8');
+                $data = json_decode($json, true);
+                if (!is_array($data)) {
+                    continue;
+                }
+
+                $modelNo = (string) ($data["model_no"] ?? "");
+                $hasImages = isset($data["images"]) && is_array($data["images"]) && count($data["images"]) > 0;
+
+                if ($modelNo === $modelo) {
+                    return $data;
+                }
+
+                if ($found === null && $hasImages) {
+                    $found = $data;
+                }
+            }
+        }
+
+        return $found;
+    }
+
+    /**
+     * Fallback: meta tags SEO (og:title / og:description / og:image).
+     */
     private function parseMetaTags(string $html): ?array
     {
         $meta = [];
-        if (preg_match('/<meta[^>]*itemprop="name"[^>]*content="([^"]*)"/i', $html, $m)) {
+        if (preg_match('/<meta[^>]*(?:property="og:title"|name="title")[^>]*content="([^"]*)"/i', $html, $m)) {
             $meta["name"] = trim($m[1]);
         }
-        if (preg_match('/<meta[^>]*itemprop="description"[^>]*content="([^"]*)"/i', $html, $m)) {
+        if (preg_match('/<meta[^>]*(?:property="og:description"|name="description")[^>]*content="([^"]*)"/i', $html, $m)) {
             $meta["description"] = trim($m[1]);
         }
-        if (preg_match('/<meta[^>]*itemprop="image"[^>]*content="([^"]*)"/i', $html, $m)) {
+        if (preg_match('/<meta[^>]*property="og:image"[^>]*content="([^"]*)"/i', $html, $m)) {
             $meta["image"] = trim($m[1]);
         }
         return !empty($meta) ? $meta : null;
     }
 
-    private function parseFeatures(string $html): array
+    /**
+     * Extrae las specs del tab de especificaciones: tabla con <th> sección y <li>Clave: Valor</li>.
+     */
+    private function parseSpecs(string $html, string $modelo): array
     {
-        $features = [];
+        $specs = [];
 
-        if (preg_match('/<div[^>]*class="feature"[^>]*>.*?<div[^>]*class="feature-name"[^>]*>\s*Case\s*<.*?<div[^>]*class="feature-value"[^>]*>(.*?)<\/div>/is', $html, $m)) {
-            $caseText = html_entity_decode(strip_tags($m[1]), ENT_QUOTES | ENT_HTML5, 'UTF-8');
-            $caseText = preg_replace('/[\s\xC2\xA0]+/u', ' ', $caseText);
-            $caseText = trim($caseText);
-            if (preg_match('/([\d.]+)\s*mm/i', $caseText, $sm)) {
-                $features["size"] = trim($sm[1]);
+        if (!preg_match('/data-tab="specs-tab-' . preg_quote($modelo, '/') . '"(.*?)<\/table>/is', $html, $m)) {
+            return $specs;
+        }
+
+        if (!preg_match_all('/<tr>\s*<th>(.*?)<\/th>\s*<td>(.*?)<\/td>\s*<\/tr>/is', $m[1], $rows, PREG_SET_ORDER)) {
+            return $specs;
+        }
+
+        foreach ($rows as $row) {
+            $section = trim(html_entity_decode(strip_tags($row[1]), ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+
+            preg_match_all('/<li>(.*?)<\/li>/is', $row[2], $items);
+
+            $map = [];
+            foreach ($items[1] as $item) {
+                $text = trim(html_entity_decode(strip_tags($item), ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+                $text = preg_replace('/[\s\xC2\xA0]+/u', ' ', $text);
+
+                if ($text !== '' && preg_match('/^([^:]+):\s*(.*)$/', $text, $pm)) {
+                    $key = trim($pm[1]);
+                    $map[$key] = $map[$key] ?? trim($pm[2]);
+                }
             }
-            $caseMaterial = preg_replace('/[\d.]+mm\s*,?\s*/i', '', $caseText);
-            $features["caja"] = trim($caseMaterial);
+
+            if ($section !== '') {
+                $specs[$section] = $map;
+            }
         }
 
-        if (preg_match('/<div[^>]*class="feature"[^>]*>.*?<div[^>]*class="feature-name"[^>]*>\s*Band\s*<.*?<div[^>]*class="feature-value"[^>]*>(.*?)<\/div>/is', $html, $m)) {
-            $features["brazalete"] = trim(html_entity_decode(strip_tags($m[1]), ENT_QUOTES | ENT_HTML5, 'UTF-8'));
-        }
-
-        if (preg_match('/<div[^>]*class="feature"[^>]*>.*?<div[^>]*class="feature-name"[^>]*>\s*Movement\s*<.*?<div[^>]*class="feature-value"[^>]*>(.*?)<\/div>/is', $html, $m)) {
-            $features["movimiento"] = trim(html_entity_decode(strip_tags($m[1]), ENT_QUOTES | ENT_HTML5, 'UTF-8'));
-        }
-
-        if (preg_match('/<div[^>]*class="feature"[^>]*>.*?<div[^>]*class="feature-name"[^>]*>\s*Water resistance\s*<.*?<div[^>]*class="feature-value[^"]*"[^>]*>(.*?)<\/div>/is', $html, $m)) {
-            $features["resistencia_agua"] = trim(html_entity_decode(strip_tags($m[1]), ENT_QUOTES | ENT_HTML5, 'UTF-8'));
-        }
-
-        return $features;
+        return $specs;
     }
 
-    private function parseCollection(string $html): ?string
+    private function specValue(array $map, string $key): ?string
     {
-        if (preg_match('/<div[^>]*class="crumbs[^"]*"[^>]*>.*?<a[^>]*>Home<.*?<a[^>]*>[^<]*<.*?<a[^>]*href="https:\/\/www\.invictawatch\.com\/watches\/[^"]*"[^>]*>([^<]+)<\/a>/is', $html, $m)) {
-            return trim($m[1]);
+        if (isset($map[$key]) && trim($map[$key]) !== '') {
+            return trim($map[$key]);
         }
         return null;
+    }
+
+    private function extractNumber(?string $value): ?string
+    {
+        if (is_null($value) || trim($value) === '') {
+            return null;
+        }
+        $cleaned = preg_replace('/[^0-9.,]/', '', trim($value));
+        $cleaned = str_replace(',', '.', $cleaned);
+        $cleaned = preg_replace('/\.(?=.*\.)/', '', $cleaned);
+        return trim($cleaned) !== '' ? $cleaned : null;
+    }
+
+    private function cleanTitle(string $name): string
+    {
+        $name = trim(preg_replace('/\s+/u', ' ', $name));
+        if (preg_match('/^\d+\s*-\s*(.+)$/', $name, $m)) {
+            $name = trim($m[1]);
+        }
+        return $name ?: "";
     }
 
     private function parseMsrp(string $html): ?int
@@ -130,60 +214,33 @@ class InvictaWatchScraper
         return null;
     }
 
-    private function parseSpecColors(string $html): array
-    {
-        $colors = [];
-        if (preg_match_all('/<div class="spec-row">\s*<div class="spec-name"[^>]*>\s*([^<]+?)\s*<\/div>\s*<div class="spec-values"[^>]*>(.*?)<\/div>\s*<\/div>/is', $html, $rows, PREG_SET_ORDER)) {
-            foreach ($rows as $row) {
-                $section = trim($row[1]);
-                if (!preg_match_all('/<span>\s*([^:<]+?)\s*:\s*([^<]+?)<\/span>/', $row[2], $pairs, PREG_SET_ORDER)) {
-                    continue;
-                }
-                foreach ($pairs as $pair) {
-                    $key = trim($pair[1]);
-                    $value = trim($pair[2]);
-                    if (mb_strtolower($key) === 'tone' && mb_strtolower($section) === 'band') {
-                        $colors[] = ["key" => "Band Tone", "value" => $value];
-                    } elseif (preg_match('/color$/i', $key)) {
-                        $colors[] = ["key" => $key, "value" => $value];
-                    }
-                }
-            }
-        }
-        return $colors;
-    }
-
-    private function detectColor(string $title, string $description, ?string $bandFeature, array $specColors): ?string
+    private function detectColor(string $title, string $description, ?string $bandMaterial, ?string $bandTone, array $caseSpecs, array $bandSpecs): ?string
     {
         // El campo color = color del brazalete: prioriza el "Tone" de la sección Band.
-        foreach ($specColors as $spec) {
-            if ($spec["key"] === "Band Tone") {
-                $match = $this->matchColor($spec["value"]);
+        if ($bandTone !== null && trim($bandTone) !== '') {
+            $match = $this->matchColor($bandTone);
+            if ($match !== null) {
+                return $match;
+            }
+        }
+
+        // Fallback: material del brazalete.
+        if ($bandMaterial !== null && trim($bandMaterial) !== '') {
+            $match = $this->matchColor($bandMaterial);
+            if ($match !== null) {
+                return $match;
+            }
+        }
+
+        // Fallback: colores de specs (Bezel/Dial/Case).
+        $priority = ["Bezel Color", "Case Color", "Dial Color", "Band Color"];
+        $specs = $caseSpecs + $bandSpecs;
+        foreach ($priority as $key) {
+            if (isset($specs[$key])) {
+                $match = $this->matchColor($specs[$key]);
                 if ($match !== null) {
                     return $match;
                 }
-            }
-        }
-
-        // Fallback: material del brazalete (feature "Band").
-        if ($bandFeature !== null && trim($bandFeature) !== '') {
-            $match = $this->matchColor($bandFeature);
-            if ($match !== null) {
-                return $match;
-            }
-        }
-
-        // Fallback: colores de specs (Bezel/Dial).
-        $priority = ["Bezel Color", "Case Color", "Dial Color", "Band Color"];
-        usort($specColors, function ($a, $b) use ($priority) {
-            $pa = array_search($a["key"], $priority);
-            $pb = array_search($b["key"], $priority);
-            return ($pa === false ? 999 : $pa) <=> ($pb === false ? 999 : $pb);
-        });
-        foreach ($specColors as $spec) {
-            $match = $this->matchColor($spec["value"]);
-            if ($match !== null) {
-                return $match;
             }
         }
 
@@ -223,8 +280,18 @@ class InvictaWatchScraper
         return null;
     }
 
-    private function detectGender(string $title, string $description): string
+    private function detectGender(string $title, string $description, ?string $productGender): string
     {
+        if ($productGender) {
+            $g = mb_strtolower($productGender);
+            if (str_contains($g, 'women') || str_contains($g, 'lady')) {
+                return "mujer";
+            }
+            if (str_contains($g, 'men')) {
+                return "hombre";
+            }
+        }
+
         $text = $title . " " . $description;
         if (preg_match('/\bWomen\b/i', $text)) {
             return "mujer";
@@ -239,12 +306,12 @@ class InvictaWatchScraper
     {
         $urlsToTry = [];
 
-        $mainImage = self::CDN_URL . "/{$modelo}/{$modelo}_1.jpg";
-        $urlsToTry[] = $mainImage;
-
-        if (!empty($imageUrl) && $imageUrl !== $mainImage) {
+        if (!empty($imageUrl)) {
             $urlsToTry[] = $imageUrl;
         }
+
+        // Fallback: patrón de storage del sitio.
+        $urlsToTry[] = self::CDN_URL . "/{$modelo}/catalogshot_m.webp";
 
         foreach ($urlsToTry as $url) {
             try {
@@ -256,7 +323,7 @@ class InvictaWatchScraper
                     continue;
                 }
 
-                $ext = "jpg";
+                $ext = $this->detectExtension($response->header("Content-Type"), $url);
                 $filename = "{$modelo}.{$ext}";
                 $path = "relojes/{$filename}";
 
@@ -269,5 +336,26 @@ class InvictaWatchScraper
         }
 
         return null;
+    }
+
+    private function detectExtension(?string $contentType, string $url): string
+    {
+        $ct = strtolower((string) $contentType);
+        if (str_contains($ct, 'webp')) {
+            return 'webp';
+        }
+        if (str_contains($ct, 'png')) {
+            return 'png';
+        }
+        if (str_contains($ct, 'jpeg') || str_contains($ct, 'jpg')) {
+            return 'jpg';
+        }
+
+        $url = preg_replace('/\?.*$/', '', $url);
+        if (preg_match('/\.(webp|png|jpe?g|gif)$/i', $url, $m)) {
+            return $m[1] === 'jpeg' ? 'jpg' : strtolower($m[1]);
+        }
+
+        return 'jpg';
     }
 }

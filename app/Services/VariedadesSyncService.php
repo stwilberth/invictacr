@@ -21,7 +21,7 @@ class VariedadesSyncService
         "Referer" => "https://variedadescr.com/",
         "Origin" => "https://variedadescr.com",
     ];
-    private const CDN_BASE_URL = "https://cdn.invictawatch.com/www/img/products";
+    private const CDN_BASE_URL = "https://www.invictawatch.com/storage/products";
 
     public function execute(): array
     {
@@ -202,7 +202,7 @@ class VariedadesSyncService
                         "bloqueado" => false,
                         "vistas" => 0,
                         "activo" => true,
-                        "imagen" => $iwData['imagen_local'] ?? self::CDN_BASE_URL . "/{$modelKey}/{$modelKey}_1.jpg",
+                        "imagen" => $iwData['imagen_local'] ?? self::CDN_BASE_URL . "/{$modelKey}/catalogshot_m.webp",
                     ]);
                     $createdCount++;
                     $createdModels[] = $modelKey;
