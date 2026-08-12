@@ -109,6 +109,14 @@ class Invoices extends Component
         $this->dateTo = now()->endOfMonth()->format('Y-m-d');
     }
 
+    public function showApartados()
+    {
+        $this->reset(['search', 'filterShipping', 'filterAbonos', 'totalMin', 'totalMax']);
+        $this->filterStatus = 'apartado';
+        $this->dateFrom = '';
+        $this->dateTo = '';
+    }
+
     public function delete($invoiceId)
     {
         $invoice = Invoice::findOrFail($invoiceId);

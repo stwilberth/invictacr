@@ -1,7 +1,13 @@
 <div>
-    <div class="flex justify-between items-center mb-6">
+    <div class="flex flex-wrap gap-3 justify-between items-center mb-6">
         <h2 class="text-xl font-black">Facturas</h2>
-        <a href="{{ route('admin.invoices.create') }}" class="px-4 py-2 text-sm bg-blue-600 text-white rounded-xl hover:bg-blue-700 font-bold">+ Crear Factura</a>
+        <div class="flex flex-wrap gap-2 items-center">
+            <button wire:click="showApartados" type="button"
+                class="px-4 py-2 text-xs bg-[#00C4FF] hover:bg-[#00a3d6] text-[#0a0f1c] rounded-xl font-extrabold uppercase tracking-tight transition-all hover:-translate-y-0.5 active:scale-95 shadow-sm">
+                Apartados
+            </button>
+            <a href="{{ route('admin.invoices.create') }}" class="px-4 py-2 text-xs sm:text-sm bg-blue-600 text-white rounded-xl hover:bg-blue-700 font-extrabold uppercase tracking-tight transition-all hover:-translate-y-0.5 active:scale-95">+ Crear Factura</a>
+        </div>
     </div>
 
     {{-- Totals --}}
@@ -69,7 +75,97 @@
         </div>
     </div>
 
-    <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 overflow-hidden">
+    {{-- Lista de tarjetas para móvil --}}
+    <div class="md:hidden space-y-3 mb-4">
+        @forelse($invoices as $invoice)
+            @php
+                $statusClasses = [
+                    'facturado' => 'bg-green-100 text-green-700',
+                    'apartado' => 'bg-purple-100 text-purple-700',
+                    'pending' => 'bg-amber-100 text-amber-700',
+                    'eliminado' => 'bg-red-100 text-red-700',
+                    'cancelled' => 'bg-gray-100 text-gray-500',
+                ];
+                $statusLabels = [
+                    'facturado' => 'Facturado',
+                    'apartado' => 'Apartado',
+                    'pending' => 'Pendiente',
+                    'eliminado' => 'Eliminado',
+                    'cancelled' => 'Cancelada',
+                ];
+                $shippingClasses = [
+                    'entregado' => 'bg-green-100 text-green-700',
+                    'creando' => 'bg-blue-100 text-blue-700',
+                    'pendiente' => 'bg-amber-100 text-amber-700',
+                    'cancelado' => 'bg-red-100 text-red-700',
+                ];
+                $shippingLabels = [
+                    'entregado' => 'Entregado',
+                    'creando' => 'Creando',
+                    'pendiente' => 'Pendiente',
+                    'cancelado' => 'Cancelado',
+                ];
+                $totalAbonos = $invoice->abonos->sum('amount');
+                $saldo = $invoice->total - $totalAbonos;
+            @endphp
+            <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-4">
+                <div class="flex justify-between items-start gap-2 mb-2">
+                    <a href="{{ route('admin.invoices.detail', $invoice->id) }}" class="text-blue-600 dark:text-blue-400 hover:underline font-bold text-sm">
+                        {{ $invoice->invoice_number }}
+                    </a>
+                    <span class="px-2 py-1 rounded-lg text-xs font-bold {{ $statusClasses[strtolower($invoice->status)] ?? 'bg-gray-100 text-gray-500' }}">
+                        {{ $statusLabels[strtolower($invoice->status)] ?? ucfirst($invoice->status) }}
+                    </span>
+                </div>
+                <div class="text-gray-900 dark:text-white font-bold text-sm">{{ $invoice->client_name }}</div>
+                @if($invoice->client_phone)
+                    <div class="text-xs text-gray-500 mb-2">{{ $invoice->client_phone }}</div>
+                @endif
+                <div class="flex flex-wrap gap-1 mb-2">
+                    @foreach($invoice->items as $item)
+                        @php $product = $item->product ?? ($productByModelo[$item->product_model] ?? null); @endphp
+                        @if($product)
+                            <a href="{{ route('products.show', $product->slug) }}" class="text-[#00C4FF] hover:underline text-xs font-bold">{{ $item->product_model }}</a>
+                        @else
+                            <span class="text-xs text-gray-500">{{ $item->product_model }}</span>
+                        @endif
+                        @if(!$loop->last)<span class="text-gray-400 text-xs">·</span>@endif
+                    @endforeach
+                </div>
+                <div class="grid grid-cols-2 gap-2 text-xs mb-2">
+                    <div>
+                        <span class="text-gray-500 uppercase tracking-wider font-bold block">Total</span>
+                        <span class="font-bold text-gray-900 dark:text-white">₡{{ number_format($invoice->total, 0) }}</span>
+                    </div>
+                    <div>
+                        <span class="text-gray-500 uppercase tracking-wider font-bold block">Utilidad</span>
+                        <span class="font-bold {{ $invoice->estimated_utility > 0 ? 'text-[#00C4FF]' : 'text-gray-400' }}">₡{{ number_format($invoice->estimated_utility ?? 0, 0) }}</span>
+                    </div>
+                    <div>
+                        <span class="text-gray-500 uppercase tracking-wider font-bold block">Envío</span>
+                        <span class="px-2 py-0.5 rounded-lg text-xs font-bold {{ $shippingClasses[$invoice->shipping_status] ?? 'bg-gray-100 text-gray-500' }}">{{ $shippingLabels[$invoice->shipping_status] ?? ucfirst($invoice->shipping_status) }}</span>
+                    </div>
+                    <div>
+                        <span class="text-gray-500 uppercase tracking-wider font-bold block">Fecha</span>
+                        <span class="text-gray-500 dark:text-gray-400">{{ $invoice->created_at->format('d/m/Y') }}</span>
+                    </div>
+                </div>
+                @if($totalAbonos > 0)
+                    <div class="border-t border-gray-100 dark:border-white/5 pt-2 text-xs">
+                        <span class="text-gray-500">Abonos: ₡{{ number_format($totalAbonos, 0) }}</span>
+                        @if($saldo > 0)
+                            <span class="text-red-500 font-bold block">Saldo: ₡{{ number_format($saldo, 0) }}</span>
+                        @endif
+                    </div>
+                @endif
+            </div>
+        @empty
+            <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-8 text-center text-gray-500">No se encontraron facturas</div>
+        @endforelse
+    </div>
+
+    {{-- Tabla para desktop --}}
+    <div class="hidden md:block bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 overflow-x-auto">
         <table class="w-full text-sm">
             <thead>
                 <tr class="border-b border-gray-200 dark:border-white/5 text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider">
