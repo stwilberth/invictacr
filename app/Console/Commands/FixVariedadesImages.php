@@ -63,10 +63,17 @@ class FixVariedadesImages extends Command
                     if (empty($product->coleccion) && !empty($data["coleccion"])) {
                         $updates["coleccion"] = Product::normalizeColeccion($data["coleccion"]);
                     }
-                    foreach (["genero", "color", "size", "caja", "brazalete", "tipo_movimiento", "resistencia_agua"] as $field) {
+                    foreach (["color", "size", "caja", "brazalete", "tipo_movimiento", "resistencia_agua"] as $field) {
                         if (empty($product->{$field}) && !empty($data[$field])) {
                             $updates[$field] = $data[$field];
                         }
+                    }
+
+                    // El género oficial de invictawatch es la fuente de verdad:
+                    // la API de variedadescr a veces lo reporta mal para relojes de hombre.
+                    // Sobrescribimos siempre para corregir clasificaciones erróneas.
+                    if (!empty($data["genero"]) && $product->genero !== $data["genero"]) {
+                        $updates["genero"] = $data["genero"];
                     }
 
                     $product->update($updates);
