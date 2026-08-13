@@ -90,6 +90,17 @@
                         @endforeach
                     </div>
 
+                    <div id="infinite-scroll-loader" class="hidden text-center mt-8 mb-2">
+                        <div class="inline-flex items-center gap-3 text-gray-500 dark:text-gray-400">
+                            <svg class="animate-spin h-6 w-6 text-[#00C4FF]" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                            </svg>
+                            <span class="text-sm font-semibold">Cargando más relojes...</span>
+                        </div>
+                    </div>
+                    <div id="infinite-scroll-sentinel" class="h-px"></div>
+
                     @if($products->lastPage() > 1)
                     <nav id="pagination-nav" class="flex items-center justify-center gap-1 sm:gap-2 mt-10 mb-6 flex-wrap" aria-label="Paginación">
                         @if($products->previousPageUrl())
@@ -164,6 +175,13 @@
             var state = {
                 abortController: null,
                 searchTimer: null,
+                infinite: {
+                    loading: false,
+                    currentPage: 1,
+                    totalPages: 1,
+                    observer: null,
+                    abort: null,
+                },
             };
 
             // ─── DOM refs ───
@@ -177,6 +195,8 @@
                 els.resultsInfo = document.getElementById('catalog-results-info');
                 els.activeFilters = document.getElementById('catalog-active-filters');
                 els.emptyState = document.getElementById('catalog-empty-state');
+                els.sentinel = document.getElementById('infinite-scroll-sentinel');
+                els.loader = document.getElementById('infinite-scroll-loader');
             }
 
             // ─── Read state from URL ───
@@ -193,6 +213,16 @@
             // ─── Build URL from filters ───
             function buildURL(filters, page) {
                 var url = new URL(window.location.origin + '/relojes');
+                Object.keys(filters).forEach(function(key) {
+                    if (filters[key]) url.searchParams.set(key, filters[key]);
+                });
+                if (page && page > 1) url.searchParams.set('page', String(page));
+                return url;
+            }
+
+            // ─── Build /api/live-search URL from filters ───
+            function buildFetchURL(filters, page) {
+                var url = new URL(window.location.origin + '/api/live-search');
                 Object.keys(filters).forEach(function(key) {
                     if (filters[key]) url.searchParams.set(key, filters[key]);
                 });
@@ -225,11 +255,10 @@
                     els.grid.style.pointerEvents = 'none';
                 }
 
-                // Build fetch URL with all params
-                var fetchUrl = new URL(window.location.origin + '/api/live-search');
-                Object.keys(filters).forEach(function(key) {
-                    if (filters[key]) fetchUrl.searchParams.set(key, filters[key]);
-                });
+                // Cancel any in-flight infinite scroll append so it can't mix with the new result set
+                if (state.infinite.abort) state.infinite.abort.abort();
+
+                var fetchUrl = buildFetchURL(filters);
 
                 fetch(fetchUrl.toString(), { signal: state.abortController.signal })
                     .then(function(res) {
@@ -285,6 +314,8 @@
                     els.grid.innerHTML = '<div class="col-span-full text-center py-16 px-4"><div class="max-w-md mx-auto"><i class="fa-solid fa-clock-rotate-left text-5xl text-[#00C4FF]/30 mb-6"></i><h3 class="text-xl font-black text-gray-900 dark:text-white mb-2">No encontramos lo que buscás</h3><p class="text-gray-500 dark:text-gray-400 text-sm mb-6 leading-relaxed">No hay resultados para esa búsqueda. Podés intentar con otro modelo, colección o filtro.</p><div class="flex flex-col sm:flex-row gap-3 justify-center"><a href="/relojes" class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 font-bold rounded-xl text-sm transition-all border border-gray-200 dark:border-gray-700"><i class="fa-solid fa-clock"></i> Ver todo el catálogo</a><a href="https://wa.me/50686711422?text=Hola%2C%20busco%20un%20reloj%20Invicta" target="_blank" class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-green-500 hover:bg-green-600 text-white font-bold rounded-xl text-sm transition-all shadow-lg shadow-green-500/20"><i class="fa-brands fa-whatsapp text-lg"></i> Escribinos por WhatsApp</a></div></div></div>';
                     els.grid.style.opacity = '1';
                     els.grid.style.pointerEvents = '';
+                    els.grid.dataset.currentPage = '1';
+                    els.grid.dataset.totalPages = '1';
                 }
 
                 // Update results info
@@ -295,6 +326,9 @@
 
                 // Rebuild pagination nav to match the new result set
                 renderPagination(data.currentPage, data.totalPages, filters);
+
+                // (Re)attach infinite scroll for the new result set
+                initInfiniteScroll();
 
                 // Close mobile drawer
                 if (window.closeFilters) window.closeFilters();
@@ -389,6 +423,79 @@
                 }
 
                 els.paginationNav.innerHTML = html;
+            }
+
+            // ─── Infinite scroll ───
+            // Appends the next page to the grid via /api/live-search, mirroring the
+            // same interaction as VariedadesCR. It only reads the current URL filters,
+            // so search and filters keep working untouched. On every filter change
+            // renderResults() replaces the grid and re-attaches this observer.
+            function initInfiniteScroll() {
+                if (!els.sentinel) return;
+
+                if (state.infinite.observer) {
+                    state.infinite.observer.disconnect();
+                    state.infinite.observer = null;
+                }
+
+                state.infinite.currentPage = parseInt(els.grid ? els.grid.dataset.currentPage : '1', 10) || 1;
+                state.infinite.totalPages = parseInt(els.grid ? els.grid.dataset.totalPages : '1', 10) || 1;
+                state.infinite.loading = false;
+
+                if (els.loader) els.loader.classList.add('hidden');
+
+                if (state.infinite.totalPages <= 1) return;
+
+                // Infinite scroll takes over paging (pagination stays as no-JS fallback)
+                if (els.paginationNav) els.paginationNav.style.display = 'none';
+
+                state.infinite.observer = new IntersectionObserver(function(entries) {
+                    entries.forEach(function(entry) {
+                        if (entry.isIntersecting) loadNextPage();
+                    });
+                }, { rootMargin: '300px' });
+
+                state.infinite.observer.observe(els.sentinel);
+            }
+
+            function loadNextPage() {
+                if (state.infinite.loading) return;
+                if (state.infinite.currentPage >= state.infinite.totalPages) return;
+
+                var filters = getFiltersFromURL();
+                var nextPage = state.infinite.currentPage + 1;
+                var url = buildFetchURL(filters, nextPage);
+
+                if (state.infinite.abort) state.infinite.abort.abort();
+                state.infinite.abort = new AbortController();
+
+                state.infinite.loading = true;
+                if (els.loader) els.loader.classList.remove('hidden');
+
+                fetch(url.toString(), { signal: state.infinite.abort.signal })
+                    .then(function(res) {
+                        if (!res.ok) throw new Error('Fetch failed');
+                        return res.json();
+                    })
+                    .then(function(data) {
+                        if (data.html && els.grid) {
+                            var temp = document.createElement('div');
+                            temp.innerHTML = data.html;
+                            while (temp.firstChild) {
+                                els.grid.appendChild(temp.firstChild);
+                            }
+                            state.infinite.currentPage = data.currentPage || nextPage;
+                            state.infinite.totalPages = data.totalPages || state.infinite.totalPages;
+                        }
+                    })
+                    .catch(function(e) {
+                        if (e.name === 'AbortError') return;
+                        console.error('Infinite scroll error:', e);
+                    })
+                    .finally(function() {
+                        state.infinite.loading = false;
+                        if (els.loader) els.loader.classList.add('hidden');
+                    });
             }
 
             // ─── Sync filter UI (radios) across desktop and mobile forms ───
@@ -536,6 +643,8 @@
                 @if($searchQuery)
                 renderResultsInfo({{ $products->total() }}, { q: {!! json_encode($searchQuery) !!} });
                 @endif
+
+                initInfiniteScroll();
             });
         })();
     </script>
