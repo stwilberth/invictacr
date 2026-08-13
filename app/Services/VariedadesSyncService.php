@@ -105,6 +105,8 @@ class VariedadesSyncService
                             'descripcion' => $descripcion,
                         ]);
 
+                        Product::forgetAllCache($product->id);
+
                         if (!empty($iwData['imagen_local'])) {
                             $this->optimizeProductImages($product);
                         }
@@ -157,6 +159,7 @@ class VariedadesSyncService
 
                     if ($didChange) {
                         $product->update($updates);
+                        Product::forgetAllCache($product->id);
                     }
                 } else {
                     $iwData = null;
@@ -227,6 +230,7 @@ class VariedadesSyncService
                 $product = Product::where("modelo", $modelKey)->first();
                 if ($product && !$product->bloqueado && (int) $product->precio_venta > 0 && (int) $product->stock !== 0) {
                     $product->update(["stock" => 0, "disponibilidad" => "agotado"]);
+                    Product::forgetAllCache($product->id);
                     $markedAgotadoCount++;
                     $markedAgotadoModels[] = $modelKey;
                     $items[] = ['sync_log_id' => $log->id, 'type' => 'marked_agotado', 'modelo' => $modelKey, 'product_id' => $product->id];

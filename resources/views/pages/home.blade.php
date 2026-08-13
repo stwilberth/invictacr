@@ -232,13 +232,13 @@
                 <button type="submit" class="bg-gray-900 hover:bg-gray-800 text-white font-black px-6 py-3.5 rounded-xl transition-all active:scale-95 uppercase tracking-wider text-sm whitespace-nowrap">
                     Suscribirme
                 </button>
-            </form>
 
-            @if(config('services.turnstile.site_key'))
-            <div class="mt-4 flex justify-center">
-                <div class="cf-turnstile" data-sitekey="{{ config('services.turnstile.site_key') }}" data-theme="auto"></div>
-            </div>
-            @endif
+                @if(config('services.turnstile.site_key'))
+                <div class="mt-4 flex justify-center">
+                    <div class="cf-turnstile" data-sitekey="{{ config('services.turnstile.site_key') }}" data-theme="auto"></div>
+                </div>
+                @endif
+            </form>
 
             <p class="text-xs text-gray-600 dark:text-white/50 mt-4">No spam. Solo las mejores ofertas de relojes Invicta.</p>
         </div>

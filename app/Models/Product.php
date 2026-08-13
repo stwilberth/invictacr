@@ -93,6 +93,22 @@ class Product extends Model
         return $this->hasMany(ProductComment::class);
     }
 
+    /**
+     * Invalida todas las claves de caché relacionadas con producto
+     * (galería, relacionados y filtros del catálogo).
+     */
+    public static function forgetAllCache(?int $productId = null): void
+    {
+        if ($productId) {
+            cache()->forget("product:gallery:{$productId}");
+            cache()->forget("product:related:{$productId}");
+        }
+
+        foreach (['all', 'hombre', 'mujer', 'unisex'] as $g) {
+            cache()->forget("product:filters:{$g}");
+        }
+    }
+
     public function getPriceAfterDiscountAttribute()
     {
         if ($this->descuento > 0) {

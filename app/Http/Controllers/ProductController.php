@@ -302,41 +302,17 @@ class ProductController extends Controller
 
     /**
      * Build the available filter options, optionally scoped by gender.
+     * Se cachea 1 día (los refinamientos de filtros dependen de stock/precio).
      */
     private function buildFilters(?string $gender = null): array
     {
-        $base = Product::where("activo", true)->where("precio_venta", ">", 0)->where("stock", ">", 0);
-        if ($gender) {
-            $base->where("genero", $gender);
-        }
+        $raw = cache()->remember("product:filters:" . ($gender ?? 'all'), now()->addDay(), function () use ($gender) {
+            $base = Product::where("activo", true)->where("precio_venta", ">", 0)->where("stock", ">", 0);
+            if ($gender) {
+                $base->where("genero", $gender);
+            }
 
-        return [
-            "colors" => (clone $base)
-                ->whereNotNull("color")
-                ->distinct()
-                ->pluck("color")
-                ->sortBy(fn($v) => mb_strtolower($v), SORT_NATURAL)
-                ->values(),
-            "brazaletes" => (clone $base)
-                ->whereNotNull("brazalete")
-                ->distinct()
-                ->pluck("brazalete"),
-            "colecciones" => (clone $base)
-                ->whereNotNull("coleccion")
-                ->distinct()
-                ->pluck("coleccion")
-                ->sortBy(fn($v) => mb_strtolower($v), SORT_NATURAL)
-                ->values(),
-            "movimientos" => (clone $base)
-                ->whereNotNull("tipo_movimiento")
-                ->distinct()
-                ->pluck("tipo_movimiento"),
-            "cajas" => (clone $base)
-                ->whereNotNull("caja")
-                ->where("caja", "!=", "")
-                ->distinct()
-                ->pluck("caja"),
-            "resistencias" => (clone $base)
+            $resistencias = (clone $base)
                 ->whereNotNull("resistencia_agua")
                 ->distinct()
                 ->pluck("resistencia_agua")
@@ -344,8 +320,27 @@ class ProductController extends Controller
                 ->filter()
                 ->unique()
                 ->sort(fn($a, $b) => (int)$a - (int)$b)
-                ->values(),
-            "sizes" => collect(["35-39", "40-44", "45-49", "50+"]),
+                ->values();
+
+            return [
+                "colors" => (clone $base)->whereNotNull("color")->distinct()->pluck("color")->sortBy(fn($v) => mb_strtolower($v), SORT_NATURAL)->values()->toArray(),
+                "brazaletes" => (clone $base)->whereNotNull("brazalete")->distinct()->pluck("brazalete")->values()->toArray(),
+                "colecciones" => (clone $base)->whereNotNull("coleccion")->distinct()->pluck("coleccion")->sortBy(fn($v) => mb_strtolower($v), SORT_NATURAL)->values()->toArray(),
+                "movimientos" => (clone $base)->whereNotNull("tipo_movimiento")->distinct()->pluck("tipo_movimiento")->values()->toArray(),
+                "cajas" => (clone $base)->whereNotNull("caja")->where("caja", "!=", "")->distinct()->pluck("caja")->values()->toArray(),
+                "resistencias" => $resistencias->values()->toArray(),
+                "sizes" => ["35-39", "40-44", "45-49", "50+"],
+            ];
+        });
+
+        return [
+            "colors" => collect($raw["colors"]),
+            "brazaletes" => collect($raw["brazaletes"]),
+            "colecciones" => collect($raw["colecciones"]),
+            "movimientos" => collect($raw["movimientos"]),
+            "cajas" => collect($raw["cajas"]),
+            "resistencias" => collect($raw["resistencias"]),
+            "sizes" => collect($raw["sizes"]),
         ];
     }
 
@@ -357,52 +352,60 @@ class ProductController extends Controller
 
         $product->loadMissing('images');
 
-        $cdnBase = 'https://cdn.invictacostarica.com';
-        $r2 = \Illuminate\Support\Facades\Storage::disk('r2');
-        
-        $images = collect([$product->imagen]);
-        foreach ($product->images as $img) {
-            $images->push($img->url);
-        }
-        $images->push(asset('storage/relojes/caja.webp'));
-        $images = $images->filter()->unique()->values();
+        [$images, $galleryImages, $galleryItems] = cache()->remember("product:gallery:{$product->id}", now()->addDay(), function () use ($product) {
+            $cdnBase = 'https://cdn.invictacostarica.com';
+            $r2 = \Illuminate\Support\Facades\Storage::disk('r2');
 
-        $galleryImages = $images->map(function ($img) use ($cdnBase, $r2) {
-            // Si es URL CDN, extraer ruta relativa para verificar
-            $checkImg = $img;
-            if (str_starts_with($img, 'https://cdn.invictacostarica.com')) {
-                $checkImg = str_replace('https://cdn.invictacostarica.com', '', $img);
+            $images = collect([$product->imagen]);
+            foreach ($product->images as $img) {
+                $images->push($img->url);
             }
-            // Normalizar: quitar /storage del inicio si existe
-            $checkImg = preg_replace('#^/storage#', '', $checkImg);
+            $images->push(asset('storage/relojes/caja.webp'));
+            $images = $images->filter()->unique()->values();
 
-            if (str_starts_with($checkImg, '/relojes/') && !str_contains($checkImg, '/large/') && !str_contains($checkImg, '/medium/') && !str_contains($checkImg, '/thumbs/')) {
-                $basename = basename($checkImg);
-                $modelo = pathinfo($basename, PATHINFO_FILENAME);
-                if ($modelo !== 'caja' && $r2->exists("relojes/large/{$modelo}.webp")) {
-                    return "{$cdnBase}/relojes/large/{$modelo}.webp";
+            $galleryImages = $images->map(function ($img) use ($cdnBase, $r2) {
+                // Si es URL CDN, extraer ruta relativa para verificar
+                $checkImg = $img;
+                if (str_starts_with($img, 'https://cdn.invictacostarica.com')) {
+                    $checkImg = str_replace('https://cdn.invictacostarica.com', '', $img);
+                }
+                // Normalizar: quitar /storage del inicio si existe
+                $checkImg = preg_replace('#^/storage#', '', $checkImg);
+
+                if (str_starts_with($checkImg, '/relojes/') && !str_contains($checkImg, '/large/') && !str_contains($checkImg, '/medium/') && !str_contains($checkImg, '/thumbs/')) {
+                    $basename = basename($checkImg);
+                    $modelo = pathinfo($basename, PATHINFO_FILENAME);
+                    if ($modelo !== 'caja' && $r2->exists("relojes/large/{$modelo}.webp")) {
+                        return "{$cdnBase}/relojes/large/{$modelo}.webp";
+                    }
+                }
+                return $img;
+            });
+
+            $galleryItems = collect();
+            foreach ($images as $i => $img) {
+                $galleryItems->push([
+                    'type' => 'image',
+                    'url' => $galleryImages[$i] ?? $img,
+                    'zoomUrl' => $galleryImages[$i] ?? $img,
+                ]);
+                if ($i === 0 && $product->video_uid) {
+                    $galleryItems->push([
+                        'type' => 'video',
+                        'videoUid' => $product->video_uid,
+                        'thumbnail' => "https://" . config('services.cloudflare.stream_customer_subdomain') . ".cloudflarestream.com/{$product->video_uid}/thumbnails/thumbnail.jpg",
+                    ]);
                 }
             }
-            return $img;
+
+            return [$images->values()->toArray(), $galleryImages->values()->toArray(), $galleryItems->values()->toArray()];
         });
 
-        $galleryItems = collect();
-        foreach ($images as $i => $img) {
-            $galleryItems->push([
-                'type' => 'image',
-                'url' => $galleryImages[$i] ?? $img,
-                'zoomUrl' => $galleryImages[$i] ?? $img,
-            ]);
-            if ($i === 0 && $product->video_uid) {
-                $galleryItems->push([
-                    'type' => 'video',
-                    'videoUid' => $product->video_uid,
-                    'thumbnail' => "https://" . config('services.cloudflare.stream_customer_subdomain') . ".cloudflarestream.com/{$product->video_uid}/thumbnails/thumbnail.jpg",
-                ]);
-            }
-        }
+        $images = collect($images);
+        $galleryImages = collect($galleryImages);
+        $galleryItems = collect($galleryItems);
 
-        $relatedIds = cache()->remember("product:related_ids:{$product->id}", now()->addHours(4), function () use ($product) {
+        $relatedIds = cache()->remember("product:related:{$product->id}", now()->addDay(), function () use ($product) {
             return Product::relatedTo($product)
                 ->take(8)
                 ->pluck("id")
@@ -461,7 +464,7 @@ class ProductController extends Controller
             "disponibilidad" => "agotado",
         ]);
 
-        cache()->forget("product:related_ids:{$product->id}");
+        Product::forgetAllCache($product->id);
 
         return redirect()->route("products.show", $product->slug)->with("status", "Producto marcado como agotado.");
     }
