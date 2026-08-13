@@ -38,6 +38,11 @@ class Dashboard extends Component
 
     public bool $syncing = false;
 
+    public array $serverStats = [];
+    public array $serverPeak = [];
+    public array $serverSeries = [];
+    public bool $serverMetricsAvailable = false;
+
     public string $codeServerStatus = 'unknown';
     public string $opencodeWebStatus = 'unknown';
     public string $devToolsMessage = '';
@@ -48,6 +53,20 @@ class Dashboard extends Component
         $this->loadAdminData();
         $this->loadAnalytics();
         $this->loadDevToolsStatus();
+        $this->loadServerStats();
+    }
+
+    protected function loadServerStats(): void
+    {
+        $service = app(\App\Services\ServerMetricsService::class);
+        $this->serverMetricsAvailable = $service->available();
+        if (!$this->serverMetricsAvailable) {
+            return;
+        }
+
+        $this->serverStats = $service->current();
+        $this->serverPeak = $service->peak(604800);
+        $this->serverSeries = $service->series(86400, 48);
     }
 
     public function updatedPeriod(): void

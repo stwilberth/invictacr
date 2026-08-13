@@ -140,6 +140,55 @@
         </div>
     </div>
 
+    <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-6 mb-10">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+            <h2 class="font-black text-gray-900 dark:text-white uppercase tracking-wider text-sm">Servidor</h2>
+            <span class="text-xs font-bold px-2 py-1 rounded {{ $serverMetricsAvailable ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400' }}">{{ $serverMetricsAvailable ? 'netdata activo' : 'netdata no disponible' }}</span>
+        </div>
+
+        @if($serverMetricsAvailable)
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
+            <div class="bg-gray-50 dark:bg-white/5 rounded-xl p-4">
+                <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">CPU ahora</p>
+                <p class="text-xl font-black text-[#00C4FF]">{{ $serverStats['cpu_pct'] ?? 0 }}%</p>
+                <div class="mt-2 h-1.5 bg-gray-200 dark:bg-white/10 rounded-full overflow-hidden">
+                    <div class="h-full bg-[#00C4FF] rounded-full" style="width: {{ min($serverStats['cpu_pct'] ?? 0, 100) }}%"></div>
+                </div>
+            </div>
+            <div class="bg-gray-50 dark:bg-white/5 rounded-xl p-4">
+                <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">RAM ahora</p>
+                <p class="text-xl font-black text-gray-900 dark:text-white">{{ $serverStats['ram_pct'] ?? 0 }}%</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ number_format($serverStats['ram_used_mib'] ?? 0) }} / {{ number_format($serverStats['ram_total_mib'] ?? 0) }} MiB</p>
+                <div class="mt-2 h-1.5 bg-gray-200 dark:bg-white/10 rounded-full overflow-hidden">
+                    <div class="h-full {{ ($serverStats['ram_pct'] ?? 0) > 90 ? 'bg-red-500' : 'bg-emerald-500' }} rounded-full" style="width: {{ min($serverStats['ram_pct'] ?? 0, 100) }}%"></div>
+                </div>
+            </div>
+            <div class="bg-gray-50 dark:bg-white/5 rounded-xl p-4">
+                <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Pico CPU (7d)</p>
+                <p class="text-xl font-black text-amber-500">{{ $serverPeak['cpu_pct'] !== null ? $serverPeak['cpu_pct'] . '%' : '—' }}</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Load: {{ number_format($serverStats['load1'] ?? 0, 2) }} / {{ number_format($serverStats['load5'] ?? 0, 2) }}</p>
+            </div>
+            <div class="bg-gray-50 dark:bg-white/5 rounded-xl p-4">
+                <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Pico RAM (7d)</p>
+                <p class="text-xl font-black text-emerald-500">{{ $serverPeak['ram_used_mib'] !== null ? number_format($serverPeak['ram_used_mib']) . ' MiB' : '—' }}</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ $serverStats['cores'] ?? 0 }} cores · uptime {{ gmdate('d\d H\h', (int) ($serverStats['uptime'] ?? 0)) }}</p>
+            </div>
+        </div>
+
+        <div wire:ignore>
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                <p class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Últimas 24 horas</p>
+                <a href="http://127.0.0.1:19999" target="_blank" rel="noopener noreferrer" class="text-xs font-bold text-[#00C4FF] hover:underline">Panel completo netdata <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i></a>
+            </div>
+            <div style="position:relative;height:200px">
+                <canvas id="serverChart" style="height:100%"></canvas>
+            </div>
+        </div>
+        @else
+        <p class="text-sm text-gray-500">No se puede conectar con netdata. Verificar que el servicio esté instalado y activo en el puerto 19999.</p>
+        @endif
+    </div>
+
     {{-- ==================== MÉTRICAS DE NEGOCIO (ANALYTICS) ==================== --}}
     <div class="flex items-center gap-3 mb-4">
         <h2 class="text-lg font-black text-gray-900 dark:text-white uppercase tracking-tight">Métricas de negocio</h2>
@@ -465,9 +514,92 @@
         }
     }
 
-    document.addEventListener('livewire:init', initCharts);
+    let serverChartInstance = null;
+
+    function initServerChart() {
+        const serverCanvas = document.getElementById('serverChart');
+        if (!serverCanvas) return;
+
+        const series = @json($serverSeries);
+        const labels = series.map(p => new Date(p.time * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+        const cpuData = series.map(p => p.cpu);
+        const ramData = series.map(p => p.ram);
+
+        if (serverChartInstance) serverChartInstance.destroy();
+        serverChartInstance = new Chart(serverCanvas.getContext('2d'), {
+            type: 'line',
+            data: {
+                labels,
+                datasets: [
+                    {
+                        label: 'CPU %',
+                        data: cpuData,
+                        borderColor: '#00C4FF',
+                        backgroundColor: 'rgba(0,196,255,0.08)',
+                        fill: true,
+                        tension: 0.3,
+                        pointRadius: 0,
+                        borderWidth: 2,
+                        yAxisID: 'y',
+                    },
+                    {
+                        label: 'RAM MiB',
+                        data: ramData,
+                        borderColor: '#22c55e',
+                        backgroundColor: 'rgba(34,197,94,0.06)',
+                        fill: true,
+                        tension: 0.3,
+                        pointRadius: 0,
+                        borderWidth: 2,
+                        yAxisID: 'y1',
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: {
+                            padding: 8,
+                            boxWidth: 10,
+                            font: { size: 10 },
+                            color: '#9ca3af',
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: { color: '#9ca3af', maxTicksLimit: 8, font: { size: 10 } },
+                        grid: { display: false }
+                    },
+                    y: {
+                        position: 'left',
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: { color: '#9ca3af', font: { size: 10 }, callback: v => v + '%' },
+                        grid: { color: 'rgba(156,163,175,0.1)' }
+                    },
+                    y1: {
+                        position: 'right',
+                        beginAtZero: true,
+                        ticks: { color: '#9ca3af', font: { size: 10 }, callback: v => v + 'M' },
+                        grid: { drawOnChartArea: false }
+                    }
+                }
+            }
+        });
+    }
+
+    document.addEventListener('livewire:init', () => {
+        initCharts();
+        setTimeout(initServerChart, 50);
+    });
     document.addEventListener('livewire:updated', () => {
         setTimeout(initCharts, 100);
+        setTimeout(initServerChart, 150);
     });
 </script>
 @endpush
