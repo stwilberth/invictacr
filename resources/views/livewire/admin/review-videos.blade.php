@@ -168,9 +168,10 @@
 
             function uploadToCloudflare(uploadURL, file) {
                 return new Promise((resolve, reject) => {
+                    const fd = new FormData();
+                    fd.append('file', file);
                     const xhr = new XMLHttpRequest();
                     xhr.open('POST', uploadURL);
-                    xhr.setRequestHeader('Content-Type', file.type || 'application/octet-stream');
                     xhr.upload.onprogress = (e) => {
                         if (e.lengthComputable) {
                             const pct = Math.round((e.loaded / e.total) * 100);
@@ -193,7 +194,7 @@
                         }
                     };
                     xhr.onerror = () => reject(new Error('Error de conexión al subir el video. Reintenta con mejor señal.'));
-                    xhr.send(file);
+                    xhr.send(fd);
                 });
             }
         });
