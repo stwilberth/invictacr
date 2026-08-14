@@ -22,21 +22,25 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div class="md:col-span-2">
                 <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">Archivo de video</label>
-                <input wire:model="archivo" type="file" accept="video/mp4,video/quicktime,video/webm,video/x-m4v,video/3gpp" class="block w-full text-sm text-gray-700 dark:text-gray-300 file:mr-3 file:rounded-xl file:border-0 file:bg-[#00C4FF] file:px-4 file:py-2 file:text-[#0a0f1c] file:font-bold file:text-xs hover:file:bg-[#00a3d6] cursor-pointer" />
-                @error('archivo') <p class="mt-1 text-xs text-red-500 font-bold">{{ $message }}</p> @enderror
+                <input id="review-video-file" type="file" accept="video/mp4,video/quicktime,video/webm,video/x-m4v,video/3gpp" class="block w-full text-sm text-gray-700 dark:text-gray-300 file:mr-3 file:rounded-xl file:border-0 file:bg-[#00C4FF] file:px-4 file:py-2 file:text-[#0a0f1c] file:font-bold file:text-xs hover:file:bg-[#00a3d6] cursor-pointer" />
+                <p id="review-video-name" class="mt-1 text-xs text-gray-500 dark:text-gray-400 font-bold hidden"></p>
+                <p id="review-video-error" class="mt-1 text-xs text-red-500 font-bold"></p>
             </div>
             <div>
                 <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">Nombre / cliente (opcional)</label>
-                <input wire:model="nombre" type="text" placeholder="Ej: María - Heredia" class="w-full bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm" />
+                <input wire:model="nombre" id="review-video-nombre" type="text" placeholder="Ej: María - Heredia" class="w-full bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm" />
             </div>
         </div>
         <div class="mt-4 flex items-center gap-3">
-            <button wire:click="save" wire:loading.attr="disabled" class="inline-flex items-center gap-2 bg-[#00C4FF] hover:bg-[#00a3d6] text-[#0a0f1c] rounded-xl font-extrabold uppercase tracking-tight text-xs px-5 py-2.5 transition-all hover:-translate-y-0.5 active:scale-95 shadow-sm hover:shadow-md">
+            <button type="button" id="review-video-upload-btn" class="inline-flex items-center gap-2 bg-[#00C4FF] hover:bg-[#00a3d6] text-[#0a0f1c] rounded-xl font-extrabold uppercase tracking-tight text-xs px-5 py-2.5 transition-all hover:-translate-y-0.5 active:scale-95 shadow-sm hover:shadow-md">
                 <i class="fa-solid fa-cloud-arrow-up"></i> Subir a Cloudflare Stream
             </button>
-            <span wire:loading wire:target="save" class="text-xs text-gray-500 dark:text-gray-400 font-bold">
-                <i class="fa-solid fa-spinner fa-spin"></i> Subiendo...
+            <span id="review-video-progress" class="text-xs text-gray-500 dark:text-gray-400 font-bold hidden">
+                <i class="fa-solid fa-spinner fa-spin"></i> Subiendo... <span id="review-video-progress-pct">0%</span>
             </span>
+        </div>
+        <div id="review-video-progress-bar" class="mt-3 h-2 rounded-full bg-gray-200 dark:bg-white/10 overflow-hidden hidden">
+            <div id="review-video-progress-bar-fill" class="h-full bg-[#00C4FF] transition-all duration-300" style="width:0%"></div>
         </div>
         @if($uploadStatus === 'ok')
             <p class="mt-3 text-xs font-bold text-green-600 dark:text-green-400"><i class="fa-solid fa-circle-check"></i> {{ $uploadMessage }}</p>
@@ -96,4 +100,103 @@
         </div>
     </div>
     <div class="mt-4">{{ $videos->links() }}</div>
+
+    @push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const fileInput = document.getElementById('review-video-file');
+            const nombreInput = document.getElementById('review-video-nombre');
+            const nameEl = document.getElementById('review-video-name');
+            const errorEl = document.getElementById('review-video-error');
+            const uploadBtn = document.getElementById('review-video-upload-btn');
+            const progressWrap = document.getElementById('review-video-progress');
+            const progressPct = document.getElementById('review-video-progress-pct');
+            const progressBar = document.getElementById('review-video-progress-bar');
+            const progressFill = document.getElementById('review-video-progress-bar-fill');
+
+            let selectedFile = null;
+
+            fileInput.addEventListener('change', () => {
+                selectedFile = fileInput.files[0] || null;
+                errorEl.textContent = '';
+                if (selectedFile) {
+                    nameEl.textContent = selectedFile.name;
+                    nameEl.classList.remove('hidden');
+                } else {
+                    nameEl.classList.add('hidden');
+                }
+            });
+
+            uploadBtn.addEventListener('click', async () => {
+                errorEl.textContent = '';
+
+                if (!selectedFile) {
+                    errorEl.textContent = 'Selecciona un archivo de video.';
+                    return;
+                }
+                if (selectedFile.size > 200 * 1024 * 1024) {
+                    errorEl.textContent = 'El video no debe superar 200MB.';
+                    return;
+                }
+
+                uploadBtn.disabled = true;
+                progressWrap.classList.remove('hidden');
+                progressBar.classList.remove('hidden');
+                progressFill.style.width = '0%';
+                progressPct.textContent = '0%';
+
+                try {
+                    const res = await @this.call('getUploadUrl');
+                    if (!res || res.error) {
+                        throw new Error((res && res.error) || 'No se pudo generar el enlace de subida.');
+                    }
+                    await uploadToCloudflare(res.uploadURL, selectedFile);
+                    await @this.call('store', res.uid, nombreInput.value || '');
+                    uploadBtn.disabled = false;
+                    progressWrap.classList.add('hidden');
+                    progressBar.classList.add('hidden');
+                    selectedFile = null;
+                    fileInput.value = '';
+                    nameEl.classList.add('hidden');
+                } catch (e) {
+                    errorEl.textContent = e.message || 'Error al subir el video.';
+                    uploadBtn.disabled = false;
+                    progressWrap.classList.add('hidden');
+                    progressBar.classList.add('hidden');
+                }
+            });
+
+            function uploadToCloudflare(uploadURL, file) {
+                return new Promise((resolve, reject) => {
+                    const xhr = new XMLHttpRequest();
+                    xhr.open('POST', uploadURL);
+                    xhr.setRequestHeader('Content-Type', file.type || 'application/octet-stream');
+                    xhr.upload.onprogress = (e) => {
+                        if (e.lengthComputable) {
+                            const pct = Math.round((e.loaded / e.total) * 100);
+                            progressFill.style.width = pct + '%';
+                            progressPct.textContent = pct + '%';
+                        }
+                    };
+                    xhr.onload = () => {
+                        if (xhr.status >= 200 && xhr.status < 300) {
+                            resolve();
+                        } else {
+                            let msg = 'Error al subir el video (HTTP ' + xhr.status + ').';
+                            try {
+                                const data = JSON.parse(xhr.responseText);
+                                if (data && data.errors && data.errors.length && data.errors[0].message) {
+                                    msg = data.errors[0].message;
+                                }
+                            } catch (e) {}
+                            reject(new Error(msg));
+                        }
+                    };
+                    xhr.onerror = () => reject(new Error('Error de conexión al subir el video. Reintenta con mejor señal.'));
+                    xhr.send(file);
+                });
+            }
+        });
+    </script>
+    @endpush
 </div>

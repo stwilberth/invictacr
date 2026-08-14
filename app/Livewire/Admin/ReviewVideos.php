@@ -5,44 +5,25 @@ namespace App\Livewire\Admin;
 use App\Models\ReviewVideo;
 use Illuminate\Support\Facades\Http;
 use Livewire\Component;
-use Livewire\WithFileUploads;
 use Livewire\WithPagination;
 
 class ReviewVideos extends Component
 {
-    use WithFileUploads;
     use WithPagination;
 
     public $nombre = '';
-    public $archivo;
 
     public $uploadStatus = "";
     public $uploadMessage = "";
 
-    public function save()
+    public function getUploadUrl()
     {
-        $this->uploadStatus = "";
-        $this->uploadMessage = "";
-
-        $this->validate([
-            "archivo" => "required|file|mimetypes:video/mp4,video/quicktime,video/webm,video/x-m4v,video/3gpp|max:51200",
-        ], [
-            "archivo.required" => "Selecciona un archivo de video.",
-            "archivo.mimetypes" => "El archivo debe ser un video (MP4, MOV, WEBM, M4V).",
-            "archivo.max" => "El video no debe superar 50MB.",
-        ]);
-
-        $tempPath = $this->archivo->getRealPath();
-        $originalName = $this->archivo->getClientOriginalName();
-
         try {
             $accountId = config("services.cloudflare.account_id");
             $apiToken = config("services.cloudflare.api_token");
 
             if (!$accountId || !$apiToken) {
-                $this->uploadStatus = "error";
-                $this->uploadMessage = "Faltan credenciales de Cloudflare Stream en services.cloudflare.";
-                return;
+                return ["error" => "Faltan credenciales de Cloudflare Stream en services.cloudflare."];
             }
 
             $watermarkUid = config("services.cloudflare.stream_watermark_uid");
@@ -59,53 +40,42 @@ class ReviewVideos extends Component
                 ] : ["maxDurationSeconds" => 3600]);
 
             if (!$directUpload->successful()) {
-                $this->uploadStatus = "error";
-                $this->uploadMessage = "Cloudflare no generó el enlace de subida (HTTP " . $directUpload->status() . "): " . substr($directUpload->body(), 0, 200);
-                return;
+                return ["error" => "Cloudflare no generó el enlace de subida (HTTP " . $directUpload->status() . "): " . substr($directUpload->body(), 0, 200)];
             }
 
             $uploadURL = $directUpload->json("result.uploadURL");
-            if (!$uploadURL) {
-                $this->uploadStatus = "error";
-                $this->uploadMessage = "Cloudflare no devolvió un uploadURL.";
-                return;
+            $uid = $directUpload->json("result.uid");
+
+            if (!$uploadURL || !$uid) {
+                return ["error" => "Cloudflare no devolvió un uploadURL."];
             }
 
-            $upload = Http::attach("file", fopen($tempPath, "r"), $originalName)
-                ->timeout(600)
-                ->withOptions(["curl" => [CURLOPT_IPRESOLVE => CURL_IPRESOLVE_V4]])
-                ->post($uploadURL);
-
-            if (!$upload->successful()) {
-                $this->uploadStatus = "error";
-                $this->uploadMessage = "Error al subir el archivo (HTTP " . $upload->status() . "): " . substr($upload->body(), 0, 200);
-                return;
-            }
-
-            $uid = $upload->json("result.uid");
-            if (!$uid) {
-                $this->uploadStatus = "error";
-                $this->uploadMessage = "Cloudflare no devolvió un uid.";
-                return;
-            }
-
-            $maxOrden = ReviewVideo::max("orden") ?? 0;
-
-            ReviewVideo::create([
-                "stream_uid" => $uid,
-                "nombre" => trim($this->nombre) ?: null,
-                "activo" => true,
-                "orden" => $maxOrden + 1,
-            ]);
-
-            $this->archivo = null;
-            $this->nombre = "";
-            $this->uploadStatus = "ok";
-            $this->uploadMessage = "Video subido a Cloudflare Stream correctamente.";
+            return ["uploadURL" => $uploadURL, "uid" => $uid];
         } catch (\Exception $e) {
-            $this->uploadStatus = "error";
-            $this->uploadMessage = "Error al subir: " . $e->getMessage();
+            return ["error" => "Error al generar el enlace: " . $e->getMessage()];
         }
+    }
+
+    public function store($uid, $nombre = null)
+    {
+        if (!$uid) {
+            $this->uploadStatus = "error";
+            $this->uploadMessage = "No se recibió el identificador del video en Cloudflare.";
+            return;
+        }
+
+        $maxOrden = ReviewVideo::max("orden") ?? 0;
+
+        ReviewVideo::create([
+            "stream_uid" => $uid,
+            "nombre" => trim($nombre ?? "") ?: null,
+            "activo" => true,
+            "orden" => $maxOrden + 1,
+        ]);
+
+        $this->nombre = "";
+        $this->uploadStatus = "ok";
+        $this->uploadMessage = "Video subido a Cloudflare Stream correctamente.";
     }
 
     public function toggle($id)
