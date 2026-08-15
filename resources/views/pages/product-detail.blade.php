@@ -12,6 +12,9 @@
 
     $ogImage = route('og.product', $product->slug);
 
+    $galleryItemsForLcp = $galleryItems ?? [];
+    $lcpImageUrl = !empty($galleryItemsForLcp) ? ($galleryItemsForLcp[0]['url'] ?? '') : $product->imagen;
+
     $priceFmt = '₡' . number_format((float) ($product->price_after_discount ?? $product->precio_venta ?? 0), 0);
     $descParts = array_filter([
         $product->coleccion && strtolower($product->coleccion) !== 'otros' ? $product->coleccion : null,
@@ -56,7 +59,7 @@
 }
 </script>
 @endpush
-<x-app-layout :title="$seoTitle" :description="$seoDescription" :ogImage="$ogImage" ogType="product" :hideWhatsApp="true" :titleSuffix="false" :head="'<link rel=&quot;preload&quot; href=&quot;' . $ogImage . '&quot; as=&quot;image&quot; fetchpriority=&quot;high&quot;>'" >
+<x-app-layout :title="$seoTitle" :description="$seoDescription" :ogImage="$ogImage" ogType="product" :hideWhatsApp="true" :titleSuffix="false" :head="$lcpImageUrl ? '<link rel=&quot;preload&quot; href=&quot;' . $lcpImageUrl . '&quot; as=&quot;image&quot; fetchpriority=&quot;high&quot;>' : ''" >
     @php
         $isAgotado = ($product->stock ?? 0) <= 0 || ($product->disponibilidad ?? 'disponible') === 'agotado';
         $isUpcoming = $product->proximo || $product->precio_venta <= 0;
@@ -139,28 +142,27 @@
                     }'>
                         <div class="relative overflow-hidden" style="min-height: 400px;">
                             <div class="flex" :style="`transform: translateX(-${currentIndex * 100}%); transition: transform 1.5s cubic-bezier(0.4, 0, 0.2, 1);`">
-                                <template x-for="(item, idx) in galleryItems" :key="idx">
-                                    <div class="w-full flex-shrink-0 flex items-center justify-center aspect-square relative">
-                                        <template x-if="item.type === 'image'">
-                                            <div class="absolute inset-0 flex items-center justify-center cursor-zoom-in" @click="openImageModal(item.zoomUrl, '{{ $displayTitle }}')">
-                                                <img :src="item.url" :alt="'{{ $displayTitle }} - ' + (idx + 1)" class="w-full h-full object-contain transition-transform duration-500 hover:scale-[1.02]" :loading="idx === 0 ? 'eager' : 'lazy'" :fetchpriority="idx === 0 ? 'high' : 'auto'" />
-                                            </div>
-                                        </template>
-                                        <template x-if="item.type === 'video'">
-                                            <div class="absolute inset-0 flex items-center justify-center cursor-pointer" @click="openVideoModal(item.videoUid)">
-                                                <img :src="item.thumbnail || galleryItems[0].url" alt="Video del reloj" class="w-full h-full object-cover" loading="lazy" />
-                                                <div class="absolute inset-0 flex flex-col items-center justify-center gap-2">
-                                                    <div class="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center shadow-2xl border-4 border-white/30 hover:border-white/60 transition-all duration-300 hover:scale-110">
-                                                        <i class="fa-solid fa-play text-white text-2xl ml-1"></i>
-                                                    </div>
-                                                    <span class="bg-black/60 backdrop-blur-sm text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-full">
-                                                        <i class="fa-solid fa-play text-[9px] mr-1"></i> Ver video
-                                                    </span>
+                                @foreach($galleryItems as $idx => $item)
+                                <div class="w-full flex-shrink-0 flex items-center justify-center aspect-square relative">
+                                    @if($item['type'] === 'image')
+                                        <div class="absolute inset-0 flex items-center justify-center cursor-zoom-in" @click="openImageModal('{{ $item['zoomUrl'] }}', '{{ $displayTitle }}')">
+                                            <img src="{{ $item['url'] }}" alt="{{ $displayTitle }} - {{ $idx + 1 }}" class="w-full h-full object-contain transition-transform duration-500 hover:scale-[1.02]" @if($idx === 0) fetchpriority="high" @else loading="lazy" @endif />
+                                        </div>
+                                    @else
+                                        <div class="absolute inset-0 flex items-center justify-center cursor-pointer" @click="openVideoModal('{{ $item['videoUid'] }}')">
+                                            <img src="{{ $item['thumbnail'] ?? $galleryItems[0]['url'] }}" alt="Video del reloj" class="w-full h-full object-cover" loading="lazy" />
+                                            <div class="absolute inset-0 flex flex-col items-center justify-center gap-2">
+                                                <div class="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center shadow-2xl border-4 border-white/30 hover:border-white/60 transition-all duration-300 hover:scale-110">
+                                                    <i class="fa-solid fa-play text-white text-2xl ml-1"></i>
                                                 </div>
+                                                <span class="bg-black/60 backdrop-blur-sm text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-full">
+                                                    <i class="fa-solid fa-play text-[9px] mr-1"></i> Ver video
+                                                </span>
                                             </div>
-                                        </template>
-                                    </div>
-                                </template>
+                                        </div>
+                                    @endif
+                                </div>
+                                @endforeach
                             </div>
 
                             {{-- Navigation buttons --}}
@@ -226,28 +228,27 @@
                         }'>
                             <div class="relative overflow-hidden group/image w-full aspect-square">
                                 <div class="absolute inset-0 flex" :style="`transform: translateX(-${currentIndex * 100}%); transition: transform 1.5s cubic-bezier(0.4, 0, 0.2, 1);`">
-                                    <template x-for="(item, idx) in galleryItems" :key="idx">
-                                        <div class="relative w-full h-full flex-shrink-0 flex items-center justify-center">
-                                            <template x-if="item.type === 'image'">
-                                                <div class="absolute inset-0 flex items-center justify-center cursor-zoom-in" @click="openImageModal(item.zoomUrl, '{{ $product->title }}')">
-                                                    <img :src="item.url" :alt="'{{ $product->title }} - ' + (idx + 1)" class="w-full h-full object-contain" :loading="idx === 0 ? 'eager' : 'lazy'" :fetchpriority="idx === 0 ? 'high' : 'auto'" />
-                                                </div>
-                                            </template>
-                                            <template x-if="item.type === 'video'">
-                                                <div class="absolute inset-0 flex items-center justify-center cursor-pointer" @click="openVideoModal(item.videoUid)">
-                                                    <img :src="item.thumbnail || galleryItems[0].url" alt="Video del reloj" class="w-full h-full object-cover" loading="lazy" />
-                                                    <div class="absolute inset-0 flex flex-col items-center justify-center gap-1.5">
-                                                        <div class="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center shadow-2xl border-4 border-white/30 hover:border-white/60 transition-all duration-300 hover:scale-110">
-                                                            <i class="fa-solid fa-play text-white text-lg ml-1"></i>
-                                                        </div>
-                                                        <span class="bg-black/60 backdrop-blur-sm text-white text-[9px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full">
-                                                            <i class="fa-solid fa-play text-[8px] mr-1"></i> Ver video
-                                                        </span>
+                                    @foreach($galleryItems as $idx => $item)
+                                    <div class="relative w-full h-full flex-shrink-0 flex items-center justify-center">
+                                        @if($item['type'] === 'image')
+                                            <div class="absolute inset-0 flex items-center justify-center cursor-zoom-in" @click="openImageModal('{{ $item['zoomUrl'] }}', '{{ $product->title }}')">
+                                                <img src="{{ $item['url'] }}" alt="{{ $product->title }} - {{ $idx + 1 }}" class="w-full h-full object-contain" @if($idx === 0) fetchpriority="high" @else loading="lazy" @endif />
+                                            </div>
+                                        @else
+                                            <div class="absolute inset-0 flex items-center justify-center cursor-pointer" @click="openVideoModal('{{ $item['videoUid'] }}')">
+                                                <img src="{{ $item['thumbnail'] ?? $galleryItems[0]['url'] }}" alt="Video del reloj" class="w-full h-full object-cover" loading="lazy" />
+                                                <div class="absolute inset-0 flex flex-col items-center justify-center gap-1.5">
+                                                    <div class="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center shadow-2xl border-4 border-white/30 hover:border-white/60 transition-all duration-300 hover:scale-110">
+                                                        <i class="fa-solid fa-play text-white text-lg ml-1"></i>
                                                     </div>
+                                                    <span class="bg-black/60 backdrop-blur-sm text-white text-[9px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full">
+                                                        <i class="fa-solid fa-play text-[8px] mr-1"></i> Ver video
+                                                    </span>
                                                 </div>
-                                            </template>
-                                        </div>
-                                    </template>
+                                            </div>
+                                        @endif
+                                    </div>
+                                    @endforeach
                                 </div>
 
                                 {{-- Mobile navigation buttons (smaller) --}}

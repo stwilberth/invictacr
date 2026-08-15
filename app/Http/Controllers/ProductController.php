@@ -393,7 +393,7 @@ class ProductController extends Controller
                     $galleryItems->push([
                         'type' => 'video',
                         'videoUid' => $product->video_uid,
-                        'thumbnail' => "https://" . config('services.cloudflare.stream_customer_subdomain') . ".cloudflarestream.com/{$product->video_uid}/thumbnails/thumbnail.jpg",
+                        'thumbnail' => "https://" . config('services.cloudflare.stream_customer_subdomain') . ".cloudflarestream.com/{$product->video_uid}/thumbnails/thumbnail.jpg?width=480",
                     ]);
                 }
             }
