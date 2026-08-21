@@ -33,3 +33,10 @@ toArray*
 
 # Graphify knowledge-graph outputs
 graphify-out/
+
+# Laravel cache / runtime dirs (opencode)
+/storage/framework/cache
+/storage/framework/sessions
+/storage/framework/views
+/storage/framework/testing
+/bootstrap/cache

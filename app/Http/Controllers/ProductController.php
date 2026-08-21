@@ -360,7 +360,7 @@ class ProductController extends Controller
             foreach ($product->images as $img) {
                 $images->push($img->url);
             }
-            $images->push(asset('storage/relojes/caja.webp'));
+            $images->push("{$cdnBase}/caja.webp");
             $images = $images->filter()->unique()->values();
 
             $galleryImages = $images->map(function ($img) use ($cdnBase, $r2) {
@@ -383,19 +383,21 @@ class ProductController extends Controller
             });
 
             $galleryItems = collect();
+            if ($product->video_uid) {
+                $videoThumb = "https://" . config('services.cloudflare.stream_customer_subdomain') . ".cloudflarestream.com/{$product->video_uid}/thumbnails/thumbnail.jpg?width=480";
+                $galleryItems->push([
+                    'type' => 'video',
+                    'videoUid' => $product->video_uid,
+                    'thumbnail' => $videoThumb,
+                    'url' => $videoThumb,
+                ]);
+            }
             foreach ($images as $i => $img) {
                 $galleryItems->push([
                     'type' => 'image',
                     'url' => $galleryImages[$i] ?? $img,
                     'zoomUrl' => $galleryImages[$i] ?? $img,
                 ]);
-                if ($i === 0 && $product->video_uid) {
-                    $galleryItems->push([
-                        'type' => 'video',
-                        'videoUid' => $product->video_uid,
-                        'thumbnail' => "https://" . config('services.cloudflare.stream_customer_subdomain') . ".cloudflarestream.com/{$product->video_uid}/thumbnails/thumbnail.jpg?width=480",
-                    ]);
-                }
             }
 
             return [$images->values()->toArray(), $galleryImages->values()->toArray(), $galleryItems->values()->toArray()];
@@ -449,9 +451,12 @@ class ProductController extends Controller
             }
         }
 
+        $deviceType = \App\Models\Visitor::parseDeviceType((string) request()->userAgent());
+        $isMobile = $deviceType === 'mobile' || $deviceType === 'tablet';
+
         return view(
             "pages.product-detail",
-            compact("product", "images", "galleryImages", "relatedProducts", "galleryItems", "recentlyViewed"),
+            compact("product", "images", "galleryImages", "relatedProducts", "galleryItems", "recentlyViewed", "isMobile"),
         );
     }
 

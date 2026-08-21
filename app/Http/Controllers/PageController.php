@@ -54,4 +54,9 @@ class PageController extends Controller
     {
         return view('pages.privacidad');
     }
+
+    public function redes()
+    {
+        return view('pages.redes');
+    }
 }

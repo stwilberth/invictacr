@@ -18,7 +18,7 @@
     <meta property="og:url" content="{{ url()->current() }}" />
     <meta property="og:site_name" content="Invicta Costa Rica" />
     <meta property="og:image" content="{{ $ogImage ?? asset('logo.webp') }}" />
-    <meta property="og:locale" content="es_CR" />
+    <meta property="fb:app_id" content="700986479003833" />
 
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="{{ $title ?? '' }}{{ ($titleSuffix ?? true) ? ' | Invicta Costa Rica' : '' }}" />
@@ -158,7 +158,9 @@
     @unless($hideWhatsApp ?? false)
         <x-whatsapp-button />
     @endunless
-    <x-delivery-alert />
+    @unless($hideDeliveryAlert ?? false)
+        <x-delivery-alert />
+    @endunless
     {{-- <x-cookie-banner /> --}}
 
     <!-- Image Modal -->

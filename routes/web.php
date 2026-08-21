@@ -52,6 +52,7 @@ Route::get('/resistencia-agua', [PageController::class, 'resistenciaAgua'])->nam
 Route::get('/resenas', [PageController::class, 'resenas'])->name('resenas');
 Route::get('/sobre-nosotros', [PageController::class, 'sobreNosotros'])->name('sobre-nosotros');
 Route::get('/privacidad', [PageController::class, 'privacidad'])->name('privacidad');
+Route::get('/redes', [PageController::class, 'redes'])->name('redes');
 
 Route::post('/subscribe', [\App\Http\Controllers\SubscriberController::class, 'subscribe'])->name('subscribe');
 
