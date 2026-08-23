@@ -2,7 +2,7 @@
 <html lang="es" class="transition-colors duration-300" style="overflow-x: clip;">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="facebook-domain-verification" content="2rf7uymq80aja4vxcb6l7hmugbyouf" />
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="icon" type="image/png" sizes="32x32" href="/logo.webp" />
@@ -13,6 +13,8 @@
     <meta name="robots" content="noindex, nofollow" />
     @endif
     <link rel="canonical" href="{{ url()->current() }}" />
+    <link rel="alternate" hreflang="es-CR" href="{{ url()->current() }}" />
+    <link rel="alternate" hreflang="x-default" href="{{ url()->current() }}" />
     <link rel="sitemap" href="/sitemap.xml" />
 
     <meta property="og:title" content="{{ $title ?? '' }}{{ ($titleSuffix ?? true) ? ' | Invicta Costa Rica' : '' }}" />
@@ -21,18 +23,16 @@
     <meta property="og:url" content="{{ url()->current() }}" />
     <meta property="og:site_name" content="Invicta Costa Rica" />
     <meta property="og:locale" content="es_CR" />
-    <meta property="og:image" content="{{ $ogImage ?? asset('logo.webp') }}" />
-    @if(!empty($ogImage))
+    <meta property="og:image" content="{{ $ogImage ?? route('og.brand') }}" />
     <meta property="og:image:width" content="1080" />
     <meta property="og:image:height" content="1080" />
     <meta property="og:image:alt" content="{{ $ogImageAlt ?? ($title ?? 'Invicta Costa Rica') }}" />
-    @endif
     <meta property="fb:app_id" content="700986479003833" />
 
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="{{ $title ?? '' }}{{ ($titleSuffix ?? true) ? ' | Invicta Costa Rica' : '' }}" />
     <meta name="twitter:description" content="{{ $description ?? 'Invicta Costa Rica - Relojes de alta calidad con los mejores precios. Pago contra entrega en GAM y envío gratis a todo el país.' }}" />
-    <meta name="twitter:image" content="{{ $ogImage ?? asset('logo.webp') }}" />
+    <meta name="twitter:image" content="{{ $ogImage ?? route('og.brand') }}" />
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" media="print" onload="this.media='all'" />
     <noscript>
@@ -120,11 +120,21 @@
             "name": "Invicta Costa Rica",
             "url": "{{ config('app.url') }}",
             "logo": "{{ asset('logo.webp') }}",
+            "address": {
+                "@type": "PostalAddress",
+                "addressCountry": "CR"
+            },
+            "areaServed": {
+                "@type": "Country",
+                "name": "Costa Rica"
+            },
+            "priceRange": "₡",
             "contactPoint": {
                 "@type": "ContactPoint",
                 "telephone": "+506-8671-1422",
                 "contactType": "customer service",
-                "availableLanguage": "Spanish"
+                "availableLanguage": "Spanish",
+                "areaServed": "CR"
             },
             "sameAs": [
                 "https://www.facebook.com/invictacostarica",

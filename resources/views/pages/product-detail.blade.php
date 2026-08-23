@@ -21,8 +21,9 @@
         $product->size ? $size . ' mm' : null,
         $product->tipo_movimiento ? $product->tipo_movimiento : null,
     ]);
+    $isUpcomingForSeo = ($product->proximo ?? false) || (float) ($product->precio_venta ?? 0) <= 0;
     $seoDescription = $product->descripcion
-        ?: ('Reloj Invicta ' . ($descParts ? implode(' · ', $descParts) . ' ' : '') . '— ' . $priceFmt . '. Envío gratis en GAM. Pago contra entrega. WhatsApp +506 8671-1422.');
+        ?: ('Reloj Invicta ' . ($descParts ? implode(' · ', $descParts) . ' ' : '') . ($isUpcomingForSeo ? '— Próximamente. ' : '— ' . $priceFmt . '. ') . 'Envío gratis en GAM. Pago contra entrega. WhatsApp +506 8671-1422.');
 
     $productName = 'Reloj Invicta ' . ($product->coleccion && strtolower($product->coleccion) !== 'otros' ? $product->coleccion . ' ' : '') . ($product->genero && strtolower($product->genero) !== 'unisex' ? 'para ' . $product->genero . ' ' : '') . '(' . $product->modelo . ')';
     $price = $product->price_after_discount ?? $product->precio_venta ?? 0;

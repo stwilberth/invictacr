@@ -1,4 +1,4 @@
-<x-app-layout title="Información de Envío - Invicta Costa Rica" description="Envío gratis en el GAM y a todo Costa Rica. Mensajería privada 24-48 hrs en la Gran Área Metropolitana y Correos de Costa Rica con seguimiento al resto del país.">
+<x-app-layout title="Información de Envío" description="Envío gratis en el GAM y a todo Costa Rica. Mensajería privada 24-48 hrs en la Gran Área Metropolitana y Correos de Costa Rica con seguimiento al resto del país.">
     <section class="bg-white dark:bg-[#0a0f1c] pt-8 pb-16 md:pt-12 md:pb-24">
         <div class="max-w-7xl mx-auto px-4">
             <x-page-title title="Información de Envío" highlight="Envío" subtitle="Todo lo que necesitas saber sobre nuestros métodos de envío para recibir tu Invicta en tiempo récord." />

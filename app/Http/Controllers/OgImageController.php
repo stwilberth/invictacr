@@ -14,6 +14,73 @@ class OgImageController extends Controller
     private const FONT_BOLD = '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf';
     private const FONT_REGULAR = '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf';
 
+    public function brand(): Response
+    {
+        $png = Cache::remember('og_brand', now()->addDays(30), function () {
+            return $this->renderBrand();
+        });
+
+        return response($png, 200, [
+            'Content-Type' => 'image/png',
+            'Cache-Control' => 'public, max-age=604800, immutable',
+        ]);
+    }
+
+    private function renderBrand(): string
+    {
+        $img = imagecreatetruecolor(self::W, self::H);
+
+        $navy = imagecolorallocate($img, 0x0a, 0x0f, 0x1c);
+        $cyan = imagecolorallocate($img, 0x00, 0xc4, 0xff);
+        $white = imagecolorallocate($img, 0xff, 0xff, 0xff);
+        $muted = imagecolorallocate($img, 0x9c, 0xa3, 0xb0);
+
+        imagefill($img, 0, 0, $navy);
+
+        // Franja cian inferior (acento de marca)
+        imagefilledrectangle($img, 0, self::H - 12, self::W, self::H, $cyan);
+
+        // Trazo de reloj minimalista
+        $this->drawBrandClock($img, $white, $cyan);
+
+        // Texto principal
+        $this->drawCentered($img, 'RELÓJES INVICTA', 64, 540, $white, self::FONT_BOLD);
+        $this->drawCentered($img, 'COSTA RICA', 46, 620, $cyan, self::FONT_BOLD);
+        $this->drawCentered($img, '100% Originales · Envío Gratis · Garantía 6 Meses', 26, 700, $muted, self::FONT_REGULAR);
+
+        ob_start();
+        imagepng($img, null, 8);
+        $data = ob_get_clean();
+        imagedestroy($img);
+
+        return $data;
+    }
+
+    private function drawBrandClock($img, $white, $cyan): void
+    {
+        $cx = self::W / 2;
+        $cy = 280;
+        $r = 130;
+        $w = 6;
+
+        // Círculo exterior
+        imagefilledellipse($img, (int) $cx, $cy, $r * 2, $r * 2, $cyan);
+        imagefilledellipse($img, (int) $cx, $cy, $r * 2 - $w * 2, $r * 2 - $w * 2, imagecolorallocate($img, 0x0a, 0x0f, 0x1c));
+
+        // Manecillas
+        imagefilledrectangle($img, (int) $cx - 4, (int) $cy - 74, (int) $cx + 4, (int) $cy + 2, $white);
+        imagefilledrectangle($img, (int) $cx, (int) $cy - 4, (int) $cx + 62, (int) $cy + 4, $white);
+        imagefilledellipse($img, (int) $cx, (int) $cy, 18, 18, $white);
+
+        // Marcas de hora (12, 3, 6, 9)
+        foreach ([0, 90, 180, 270] as $deg) {
+            $rad = deg2rad($deg);
+            $x = (int) ($cx + cos($rad) * ($r - 16));
+            $y = (int) ($cy + sin($rad) * ($r - 16));
+            imagefilledellipse($img, $x, $y, 10, 10, $cyan);
+        }
+    }
+
     public function product(string $slug): Response
     {
         $cacheKey = 'og_product_' . $slug;

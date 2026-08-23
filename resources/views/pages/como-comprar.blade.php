@@ -1,4 +1,4 @@
-<x-app-layout title="Cómo Comprar - Invicta Costa Rica" description="Comprar un reloj Invicta original en Costa Rica es fácil: elegí tu modelo, escribinos por WhatsApp, coordinamos el envío gratis y pagás al recibir en el GAM.">
+<x-app-layout title="Cómo Comprar" description="Comprar un reloj Invicta original en Costa Rica es fácil: elegí tu modelo, escribinos por WhatsApp, coordinamos el envío gratis y pagás al recibir en el GAM.">
     <section class="bg-white dark:bg-[#0a0f1c] pt-8 pb-16 md:pt-12 md:pb-24">
         <div class="max-w-7xl mx-auto px-4">
             <x-page-title title="Guía de Compra Rápida" highlight="Rápida" subtitle="Tu próximo Invicta original está a solo tres pasos de distancia. Diseñamos un proceso simple, seguro y transparente." />

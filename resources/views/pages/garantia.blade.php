@@ -1,4 +1,4 @@
-<x-app-layout title="Garantía Real - Invicta Costa Rica" description="Todos los relojes Invicta incluyen garantía real de 6 meses que cubre defectos de fabricación y componentes internos. Conocé qué cubre y qué no.">
+<x-app-layout title="Garantía Real" description="Todos los relojes Invicta incluyen garantía real de 6 meses que cubre defectos de fabricación y componentes internos. Conocé qué cubre y qué no.">
     <section class="bg-white dark:bg-[#0a0f1c] pt-8 pb-16 md:pt-12 md:pb-24">
         <div class="max-w-7xl mx-auto px-4">
             <x-page-title title="Garantía Real 6 Meses" highlight="Real" subtitle="Tu inversión está protegida. Ofrecemos un respaldo directo y transparente para que solo te preocupes por lucir tu nuevo Invicta." />

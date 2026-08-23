@@ -1,4 +1,4 @@
-<x-app-layout title="Pedido Confirmado - Invicta Costa Rica" :hideWhatsApp="true" noindex>
+<x-app-layout title="Pedido Confirmado" :hideWhatsApp="true" noindex>
     <section class="bg-white dark:bg-[#0a0f1c] pt-8 pb-16 md:pt-12 md:pb-24">
         <div class="max-w-3xl mx-auto px-4">
             {{-- Header --}}

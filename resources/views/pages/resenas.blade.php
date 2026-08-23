@@ -1,4 +1,4 @@
-<x-app-layout title="Reseñas de Clientes - Invicta Costa Rica" description="Reseñas y videos reales de clientes que ya compraron su reloj Invicta con nosotros. Relojes 100% originales, envío gratis y garantía de 6 meses.">
+<x-app-layout title="Reseñas de Clientes" description="Reseñas y videos reales de clientes que ya compraron su reloj Invicta con nosotros. Relojes 100% originales, envío gratis y garantía de 6 meses.">
     <div class="bg-white dark:bg-[#0a0f1c] py-6 md:py-10">
         <div class="max-w-7xl mx-auto px-4">
             <x-page-title
