@@ -83,9 +83,24 @@ class OgImageController extends Controller
     private function loadProductImage(?Product $product)
     {
         if (!$product) return null;
-        $url = $product->getRawOriginal('imagen');
-        if (!$url) return null;
 
+        $urls = [$product->getRawOriginal('imagen')];
+        foreach ($product->images ?? [] as $img) {
+            $urls[] = $img->url;
+        }
+        // Fallback final: caja del producto (consistente con la página de producto)
+        $urls[] = 'caja.webp';
+
+        foreach ($urls as $url) {
+            if (!$url) continue;
+            $src = $this->loadImageFromUrl($url, $product);
+            if ($src) return $src;
+        }
+        return null;
+    }
+
+    private function loadImageFromUrl(string $url, ?Product $product)
+    {
         if (str_starts_with($url, 'https://cdn.invictacostarica.com')) {
             $url = str_replace('https://cdn.invictacostarica.com', '', $url);
         } elseif (str_starts_with($url, 'http')) {
@@ -94,15 +109,25 @@ class OgImageController extends Controller
                 $src = @imagecreatefromstring($tmp);
                 return $src ?: null;
             }
+            return null;
         }
 
         $r2 = Storage::disk('r2');
-        $modelo = preg_replace('/^invicta-/i', '', $product->modelo ?? '');
-        foreach (["relojes/large/{$modelo}.webp", "relojes/medium/{$modelo}.webp", "relojes/{$modelo}.webp", $url] as $path) {
-            if (!$path) continue;
-            $clean = ltrim($path, '/');
-            if (!$r2->exists($clean)) continue;
+
+        $clean = ltrim($url, '/');
+        if ($r2->exists($clean)) {
             $body = $r2->get($clean);
+            $src = @imagecreatefromstring($body);
+            if ($src) return $src;
+        }
+
+        // Buscar las versiones optimizadas del modelo
+        $modelo = preg_replace('/^invicta-/i', '', $product->modelo ?? '');
+        foreach (["relojes/large/{$modelo}.webp", "relojes/medium/{$modelo}.webp", "relojes/{$modelo}.webp"] as $path) {
+            if (!$path) continue;
+            $p = ltrim($path, '/');
+            if (!$r2->exists($p)) continue;
+            $body = $r2->get($p);
             $src = @imagecreatefromstring($body);
             if ($src) return $src;
         }
