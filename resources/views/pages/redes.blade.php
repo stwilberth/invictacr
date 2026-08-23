@@ -1,4 +1,4 @@
-<x-app-layout title="Redes Sociales - Invicta Costa Rica">
+<x-app-layout title="Redes Sociales - Invicta Costa Rica" description="Seguí a Invicta Costa Rica en Instagram y Facebook para ver nuevos modelos, ofertas y sorteos de relojes Invicta originales.">
     <section class="bg-white dark:bg-[#0a0f1c] pt-8 pb-16 md:pt-12 md:pb-24">
         <div class="max-w-7xl mx-auto px-4">
             <x-page-title title="Redes Sociales" highlight="Redes" subtitle="Seguí a Invicta Costa Rica en nuestras redes para ofertas exclusivas, lanzamientos y contenido diario." />

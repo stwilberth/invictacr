@@ -1,4 +1,4 @@
-<x-app-layout title="Checkout - Invicta Costa Rica">
+<x-app-layout title="Checkout - Invicta Costa Rica" noindex>
     <section class="bg-white dark:bg-[#0a0f1c] pt-8 pb-16 md:pt-12 md:pb-24">
         <div class="max-w-7xl mx-auto px-4">
             <x-page-title title="Finalizar Compra" highlight="Compra" subtitle="Completá tus datos para procesar el pedido." />

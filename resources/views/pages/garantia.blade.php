@@ -1,4 +1,4 @@
-<x-app-layout title="Garantía Real - Invicta Costa Rica">
+<x-app-layout title="Garantía Real - Invicta Costa Rica" description="Todos los relojes Invicta incluyen garantía real de 6 meses que cubre defectos de fabricación y componentes internos. Conocé qué cubre y qué no.">
     <section class="bg-white dark:bg-[#0a0f1c] pt-8 pb-16 md:pt-12 md:pb-24">
         <div class="max-w-7xl mx-auto px-4">
             <x-page-title title="Garantía Real 6 Meses" highlight="Real" subtitle="Tu inversión está protegida. Ofrecemos un respaldo directo y transparente para que solo te preocupes por lucir tu nuevo Invicta." />
@@ -116,6 +116,13 @@
             <div class="text-center opacity-50 text-xs tracking-widest font-bold uppercase transition-opacity hover:opacity-100">
                 Última actualización: 16 de marzo de 2026
             </div>
+
+            <x-faq-section :items="[
+                ['q' => '¿Cuánto dura la garantía de los relojes Invicta?', 'a' => 'Cada reloj tiene una garantía limitada de 6 meses a partir de la fecha de entrega original.'],
+                ['q' => '¿Qué cubre la garantía?', 'a' => 'Cubre defectos de fabricación en materiales y mano de obra, así como los componentes internos: movimiento, manecillas, carátula y marcadores.'],
+                ['q' => '¿Qué no cubre la garantía?', 'a' => 'No cubre cristal, corona, correa, brazalete, batería, ni daños por uso indebido, accidentes, desgaste normal o entrada de agua por negligencia.'],
+                ['q' => '¿Cómo activo mi garantía?', 'a' => 'Debés presentar el comprobante de compra PDF con tu número de factura único. Para evaluar la pieza, el envío se realiza únicamente por Correos de Costa Rica y los gastos de envío los asume el cliente.'],
+            ]"/>
         </div>
     </section>
 </x-app-layout>

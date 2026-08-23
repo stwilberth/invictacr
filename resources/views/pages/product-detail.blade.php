@@ -32,6 +32,32 @@
 <script type="application/ld+json">
 {
     "@@context": "https://schema.org",
+    "@@type": "BreadcrumbList",
+    "itemListElement": [
+        {
+            "@@type": "ListItem",
+            "position": 1,
+            "name": "Inicio",
+            "item": "{{ url('/') }}"
+        },
+        {
+            "@@type": "ListItem",
+            "position": 2,
+            "name": "{{ $product->genero && strtolower($product->genero) !== 'unisex' ? 'Relojes ' . ucfirst($product->genero) : 'Relojes' }}",
+            "item": "{{ url('/relojes') . ($product->genero && strtolower($product->genero) !== 'unisex' ? '?gender=' . $product->genero : '') }}"
+        },
+        {
+            "@@type": "ListItem",
+            "position": 3,
+            "name": "{{ $displayTitle }}",
+            "item": "{{ url()->current() }}"
+        }
+    ]
+}
+</script>
+<script type="application/ld+json">
+{
+    "@@context": "https://schema.org",
     "@@type": "Product",
     "name": {!! json_encode($productName) !!},
     "image": {!! json_encode($ogImage) !!},
@@ -59,7 +85,7 @@
 }
 </script>
 @endpush
-<x-app-layout :title="$seoTitle" :description="$seoDescription" :ogImage="$ogImage" ogType="product" :hideWhatsApp="true" :hideDeliveryAlert="true" :titleSuffix="false" :head="$lcpImageUrl ? '<link rel=&quot;preload&quot; href=&quot;' . $lcpImageUrl . '&quot; as=&quot;image&quot; fetchpriority=&quot;high&quot;>' : ''" >
+<x-app-layout :title="$seoTitle" :description="$seoDescription" :ogImage="$ogImage" :ogImageAlt="$displayTitle" ogType="product" :hideWhatsApp="true" :hideDeliveryAlert="true" :titleSuffix="false" :head="$lcpImageUrl ? '<link rel=&quot;preload&quot; href=&quot;' . $lcpImageUrl . '&quot; as=&quot;image&quot; fetchpriority=&quot;high&quot;>' : ''" >
     @php
         $isAgotado = ($product->stock ?? 0) <= 0 || ($product->disponibilidad ?? 'disponible') === 'agotado';
         $isUpcoming = $product->proximo || $product->precio_venta <= 0;
@@ -102,9 +128,9 @@
         {{-- Mobile Header: Title above media --}}
         <div class="lg:hidden">
             <div class="flex items-center gap-2 mb-2">
-                <h1 class="text-md leading-snug font-black text-gray-800 dark:text-white tracking-tight uppercase">
+                <h2 class="text-md leading-snug font-black text-gray-800 dark:text-white tracking-tight uppercase">
                     {{ $displayTitle }}
-                </h1>
+                </h2>
             </div>
             <div class="flex items-center gap-2 flex-wrap">
                 @if($isUpcoming)
@@ -418,6 +444,14 @@
             <span class="hidden sm:inline">Comprar</span>
         </a>
     </div> --}}
+
+    {{-- FAQ (AEO) --}}
+    <x-faq-section :items="[
+        ['q' => '¿Este reloj Invicta ' . $product->modelo . ' es 100% original?', 'a' => 'Sí. Todos los relojes de Invicta Costa Rica son 100% originales e importados directamente de Estados Unidos.'],
+        ['q' => '¿El envío de este reloj es gratis?', 'a' => 'Sí, el envío es gratis en el Gran Área Metropolitana (GAM) y a todo el país con tu cuenta. En GAM se entrega por mensajería privada en 24-48 horas; al resto del país va por Correos de Costa Rica con seguimiento.'],
+        ['q' => '¿Puedo pagar al recibir el reloj?', 'a' => 'Sí, si vivís en el GAM podés pagar al recibir en efectivo, SINPE Móvil o transferencia. Para envíos al resto del país el pago es previo por SINPE Móvil, transferencia o PayPal.'],
+        ['q' => '¿Cuánto dura la garantía?', 'a' => 'Cada reloj incluye una garantía real de 6 meses que cubre defectos de fabricación y los componentes internos del movimiento.'],
+    ]"/>
 
     {{-- Share Modal --}}
     <div id="shareModal" class="modal-overlay fixed inset-0 z-[100] hidden items-center justify-center bg-black/85 p-4" onclick="if (event.target === this) closeShareModal()">
