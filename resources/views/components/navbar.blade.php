@@ -41,11 +41,6 @@
                     Relojes
                 </a>
 
-                <a href="/resenas"
-                   class="{{ $currentPath === 'resenas' ? 'text-[#00C4FF] bg-white/5' : 'text-white/90' }} hover:text-[#00C4FF] px-3 py-2 rounded-md text-sm lg:text-base font-black uppercase tracking-tighter transition-all duration-200">
-                    Reseñas
-                </a>
-
                 <a href="/garantia"
                    class="{{ $currentPath === 'garantia' ? 'text-[#00C4FF] bg-white/5' : 'text-white/90' }} hover:text-[#00C4FF] px-3 py-2 rounded-md text-sm lg:text-base font-black uppercase tracking-tighter transition-all duration-200 flex items-center gap-1.5">
                     <i class="fa-solid fa-shield-check text-xs {{ $currentPath === 'garantia' ? 'text-[#00C4FF]' : 'text-[#00C4FF]/70' }}"></i>
@@ -251,10 +246,6 @@
             <a href="/relojes"
                class="{{ str_starts_with($currentPath, 'relojes') ? 'text-[#00C4FF] bg-white/5' : 'text-gray-300' }} hover:text-white block px-4 py-4 text-lg font-black uppercase tracking-tight border-b border-white/5">
                 Relojes
-            </a>
-            <a href="/resenas"
-               class="{{ $currentPath === 'resenas' ? 'text-[#00C4FF] bg-white/5' : 'text-gray-300' }} hover:text-white block px-4 py-4 text-lg font-black uppercase tracking-tight border-b border-white/5">
-                Reseñas
             </a>
             <a href="/garantia"
                class="{{ $currentPath === 'garantia' ? 'text-[#00C4FF] bg-white/5' : 'text-gray-300' }} hover:text-white block px-4 py-4 text-lg font-black uppercase tracking-tight border-b border-white/5">
