@@ -92,9 +92,25 @@ class CeoAdvisorService
             ? round((($gaReports->sum('users') - $prevGaReports->sum('users')) / $prevGaReports->sum('users')) * 100, 1)
             : null;
 
+        // Salud de la sincronización: si faltan días de datos, una "caída" puede
+        // ser un problema de sync/tracking y no una caída real de tráfico/gasto.
+        $lastGaDate = GoogleAnalyticsReport::max('report_date');
+        $lastAdsDate = GoogleAdsReport::max('report_date');
+        $lastScDate = SearchConsoleReport::max('report_date');
+        $dataHealth = [
+            'dias_con_datos_ga_ultimos_30' => $gaReports->pluck('report_date')->unique()->count(),
+            'dias_con_datos_ads_ultimos_30' => $adsReportsCountPlaceholder = null, // se completa abajo
+            'ultima_fecha_sincronizada_google_analytics' => $lastGaDate ? (string) $lastGaDate : null,
+            'ultima_fecha_sincronizada_google_ads' => $lastAdsDate ? (string) $lastAdsDate : null,
+            'ultima_fecha_sincronizada_search_console' => $lastScDate ? (string) $lastScDate : null,
+            'dias_desde_ultima_sync_ga' => $lastGaDate ? (int) round($now->diffInDays(\Carbon\Carbon::parse($lastGaDate), true)) : null,
+            'dias_desde_ultima_sync_ads' => $lastAdsDate ? (int) round($now->diffInDays(\Carbon\Carbon::parse($lastAdsDate), true)) : null,
+        ];
+
         // Ads
         $adsReports = GoogleAdsReport::whereBetween('report_date', [$start30, $now])->get();
         $fbAds = FacebookAdReport::whereBetween('report_date', [$start30, $now])->get();
+        $dataHealth['dias_con_datos_ads_ultimos_30'] = $adsReports->pluck('report_date')->unique()->count();
 
         // Search Console: top queries con buen CTR/impresiones pero baja posición (oportunidad SEO)
         $scReports = SearchConsoleReport::whereBetween('report_date', [$start30, $now])->get();
@@ -149,6 +165,7 @@ class CeoAdvisorService
 
         return [
             'periodo_analizado' => '30 días (comparado con 30 días previos)',
+            'salud_de_sincronizacion' => $dataHealth,
             'ingresos' => [
                 'actual' => (float) $currentRevenue,
                 'anterior' => (float) $prevRevenue,
@@ -198,6 +215,12 @@ class CeoAdvisorService
             . "concretas y ejecutables, no consejos genéricos. Devuelves SOLO un JSON válido sin markdown ni texto adicional.";
 
         $userPrompt = "Analiza estos datos del negocio de los últimos 30 días y genera un plan de acción.\n\n"
+            . "IMPORTANTE sobre \"salud_de_sincronizacion\": si dias_con_datos_ga_ultimos_30 o dias_con_datos_ads_ultimos_30 "
+            . "es mucho menor a 30, o dias_desde_ultima_sync_ga/ads es mayor a 2-3 días, significa que la sincronización de "
+            . "datos dejó de funcionar (problema técnico), NO que el tráfico o el gasto realmente cayeron. En ese caso, "
+            . "NO generes una recomendación de \"caída de tráfico\" ni \"reactivar Google Ads\" basada en esos números — "
+            . "en vez de eso, genera una recomendación \"urgente\" que diga explícitamente que hay un problema de "
+            . "sincronización de datos (indicando desde cuándo) y que los números de tráfico/ads de ese período no son confiables.\n\n"
             . "Datos:\n{$dataJson}\n\n"
             . "Devuelve un JSON con la clave \"recommendations\": un array de 3 a 6 objetos, cada uno con:\n"
             . "- \"category\": una de \"urgente\" (requiere acción inmediata, riesgo real), \"oportunidad\" (crecimiento posible ahora), \"estrategia\" (mediano/largo plazo)\n"

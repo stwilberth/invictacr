@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\GoogleAdsReport;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class GoogleAdsService
 {
@@ -57,8 +58,14 @@ class GoogleAdsService
                 ",
             ]);
 
-            if (!$response->successful()) return [];
-
+            if (!$response->successful()) {
+                Log::warning('Google Ads: fetchCampaignPerformance falló', [
+                    'date' => $dateStr,
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                ]);
+                return [];
+            }
 
             return $response->json('results', []);
         } catch (\Exception $e) {

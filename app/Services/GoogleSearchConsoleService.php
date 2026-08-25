@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\SearchConsoleReport;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class GoogleSearchConsoleService
 {
@@ -43,7 +44,14 @@ class GoogleSearchConsoleService
                     'rowLimit' => 100,
                 ]);
 
-            if (!$response->successful()) return [];
+            if (!$response->successful()) {
+                Log::warning('Google Search Console: fetchSearchAnalytics falló', [
+                    'date' => $dateStr,
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                ]);
+                return [];
+            }
 
             return $response->json('rows', []);
         } catch (\Exception $e) {

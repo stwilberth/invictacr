@@ -15,6 +15,22 @@
         </div>
     </div>
 
+    @if(($daysSinceLastGaSync !== null && $daysSinceLastGaSync > 2) || ($daysSinceLastAdsSync !== null && $daysSinceLastAdsSync > 2))
+    <div class="mb-6 p-3 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 flex items-center gap-3 text-sm">
+        <i class="fa-solid fa-triangle-exclamation text-red-500"></i>
+        <p class="text-red-700 dark:text-red-400">
+            <span class="font-black">Datos desactualizados:</span>
+            @if($daysSinceLastGaSync !== null && $daysSinceLastGaSync > 2)
+                Google Analytics no sincroniza hace {{ $daysSinceLastGaSync }} días.
+            @endif
+            @if($daysSinceLastAdsSync !== null && $daysSinceLastAdsSync > 2)
+                Google Ads no sincroniza hace {{ $daysSinceLastAdsSync }} días.
+            @endif
+            Las métricas de tráfico/publicidad de este período pueden no ser confiables — no es necesariamente una caída real.
+        </p>
+    </div>
+    @endif
+
     @if($topCeoRecommendation)
     @php
         $ceoIcon = match($topCeoRecommendation['category']) {

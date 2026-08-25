@@ -50,6 +50,8 @@ class Dashboard extends Component
     public string $devToolsError = '';
 
     public ?array $topCeoRecommendation = null;
+    public ?int $daysSinceLastGaSync = null;
+    public ?int $daysSinceLastAdsSync = null;
 
     public function mount(): void
     {
@@ -58,6 +60,16 @@ class Dashboard extends Component
         $this->loadDevToolsStatus();
         $this->loadServerStats();
         $this->loadTopCeoRecommendation();
+        $this->loadSyncHealth();
+    }
+
+    protected function loadSyncHealth(): void
+    {
+        $lastGa = GoogleAnalyticsReport::max('report_date');
+        $lastAds = GoogleAdsReport::max('report_date');
+
+        $this->daysSinceLastGaSync = $lastGa ? (int) round(now()->diffInDays(\Carbon\Carbon::parse($lastGa), true)) : null;
+        $this->daysSinceLastAdsSync = $lastAds ? (int) round(now()->diffInDays(\Carbon\Carbon::parse($lastAds), true)) : null;
     }
 
     protected function loadTopCeoRecommendation(): void

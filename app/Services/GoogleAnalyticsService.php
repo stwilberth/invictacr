@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\GoogleAnalyticsReport;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class GoogleAnalyticsService
 {
@@ -71,7 +72,14 @@ class GoogleAnalyticsService
                     ],
                 ]);
 
-            if (!$response->successful()) return null;
+            if (!$response->successful()) {
+                Log::warning('Google Analytics: fetchDailyReport falló', [
+                    'date' => $dateStr,
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                ]);
+                return null;
+            }
 
             $data = $response->json('rows.0.metricValues', []);
             if (empty($data)) return null;
@@ -119,7 +127,14 @@ class GoogleAnalyticsService
                     'limit' => 10,
                 ]);
 
-            if (!$response->successful()) return [];
+            if (!$response->successful()) {
+                Log::warning('Google Analytics: fetchTrafficSources falló', [
+                    'date' => $dateStr,
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                ]);
+                return [];
+            }
 
             $rows = $response->json('rows', []);
             $sources = [];
@@ -160,7 +175,14 @@ class GoogleAnalyticsService
                     'orderBys' => [['metric' => ['metricName' => 'activeUsers'], 'desc' => true]],
                 ]);
 
-            if (!$response->successful()) return [];
+            if (!$response->successful()) {
+                Log::warning('Google Analytics: fetchDeviceBreakdown falló', [
+                    'date' => $dateStr,
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                ]);
+                return [];
+            }
 
             $rows = $response->json('rows', []);
             $devices = [];
@@ -198,7 +220,14 @@ class GoogleAnalyticsService
                     'limit' => 10,
                 ]);
 
-            if (!$response->successful()) return [];
+            if (!$response->successful()) {
+                Log::warning('Google Analytics: fetchTopPages falló', [
+                    'date' => $dateStr,
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                ]);
+                return [];
+            }
 
             $rows = $response->json('rows', []);
             $pages = [];
