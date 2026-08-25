@@ -183,25 +183,59 @@ class UnifiedTimeline extends Component
             ];
         }
 
-        // Add synthetic events for periods with revenue but no events
-        $coveredPeriods = [];
+        // Add synthetic events: flag periods with revenue but NO marketing activity
+        $marketingSources = ['facebook', 'facebook_ads', 'google_ads', 'google_analytics', 'search_console'];
+        $periodHasMarketing = [];
+        $periodHasAnyEvent = [];
         foreach ($events as $e) {
-            $coveredPeriods[$this->periodKey($e['date'])] = true;
-        }
-        foreach ($this->dailyRevenue as $date => $rev) {
-            $pk = $this->periodKey($date);
-            if (!isset($coveredPeriods[$pk]) && $rev > 0) {
-                $coveredPeriods[$pk] = true;
-                $events[] = [
-                    'date' => $date,
-                    'source' => 'sistema',
-                    'type' => 'revenue',
-                    'icon' => 'fa-coins',
-                    'color' => 'green',
-                    'title' => 'Sin eventos registrados — solo ventas',
-                    'detail' => 'Período sin datos de marketing, código ni métricas',
-                ];
+            $pk = $this->periodKey($e['date']);
+            $periodHasAnyEvent[$pk] = true;
+            if (in_array($e['source'], $marketingSources, true)) {
+                $periodHasMarketing[$pk] = true;
             }
+        }
+
+        $addedGap = [];
+        foreach ($this->dailyRevenue as $date => $rev) {
+            if ($rev <= 0) {
+                continue;
+            }
+            $pk = $this->periodKey($date);
+            if (isset($addedGap[$pk]) || !empty($periodHasMarketing[$pk])) {
+                continue;
+            }
+            $addedGap[$pk] = true;
+            $events[] = [
+                'date' => $date,
+                'source' => 'marketing_gap',
+                'type' => 'marketing_gap',
+                'icon' => 'fa-bullhorn',
+                'color' => 'red',
+                'title' => 'Ventas sin actividad de marketing',
+                'detail' => 'Se registraron ventas pero ninguna campaña, anuncio o publicación este período — probable causa de la caída.',
+            ];
+        }
+
+        // Periods with revenue but absolutely no events at all
+        $addedEmpty = [];
+        foreach ($this->dailyRevenue as $date => $rev) {
+            if ($rev <= 0) {
+                continue;
+            }
+            $pk = $this->periodKey($date);
+            if (isset($addedEmpty[$pk]) || !empty($periodHasAnyEvent[$pk]) || !empty($periodHasMarketing[$pk])) {
+                continue;
+            }
+            $addedEmpty[$pk] = true;
+            $events[] = [
+                'date' => $date,
+                'source' => 'sistema',
+                'type' => 'revenue',
+                'icon' => 'fa-coins',
+                'color' => 'green',
+                'title' => 'Sin eventos registrados — solo ventas',
+                'detail' => 'Período sin datos de marketing, código ni métricas',
+            ];
         }
 
         // Sort by date descending

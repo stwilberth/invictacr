@@ -150,14 +150,11 @@
         <div class="grid grid-cols-1 lg:grid-cols-12 items-start gap-3 lg:gap-8">
             {{-- Left Column: Media --}}
             <div class="lg:col-span-6">
-                @if(!$isMobile)
                 <div class="hidden lg:block lg:sticky lg:top-0">
                     <x-product-gallery :galleryItems="$galleryItems" :title="$displayTitle" variant="desktop" />
                 </div>
-                @endif
 
                 {{-- Mobile: single column layout --}}
-                @if($isMobile)
                 <div class="lg:hidden">
                     <x-product-gallery :galleryItems="$galleryItems" :title="$product->title" variant="mobile" :extraSlides="2" :extraThumbIcons="['fa-circle-info', 'fa-truck-fast']">
                         {{-- Extra slide: specs del reloj --}}
@@ -206,6 +203,14 @@
                     <div class="text-xl font-black text-amber-500 tracking-tight mt-3">Próximamente</div>
                     @elseif(!$isAgotado)
                     <div class="text-2xl font-black text-red-600 dark:text-red-400 tracking-tight mt-3">₡{{ number_format($priceAfterDiscount, 0) }}</div>
+                    <div class="flex items-center gap-2 mt-1">
+                        <span class="text-[10px] font-medium text-gray-400 dark:text-gray-500 leading-none">IVA incluido</span>
+                        <span class="text-[10px] text-gray-300 dark:text-gray-600">•</span>
+                        <span class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 leading-none">Envío gratis</span>
+                    </div>
+                    <div class="flex items-center gap-1.5 mt-2 text-[10px] font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wide">
+                        <i class="fa-solid fa-circle-check text-emerald-500 text-[11px]"></i> 100% Original — Garantía 6 meses
+                    </div>
                     @if(($product->descuento ?? 0) <= 0 && $apartadoMinimo > 0)
                     <div class="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5">Apartado desde <span class="font-bold text-gray-700 dark:text-gray-200">₡{{ number_format($apartadoMinimo, 0) }}</span></div>
                     @endif
@@ -220,7 +225,6 @@
                     </div>
                     @endif
                 </div>
-                @endif
 
                  {{-- Mobile: Relojes Similares slider (replaces thumbnail strip, since all watches have a single image) --}}
                  @if($relatedProducts->count() > 0)
@@ -276,6 +280,13 @@
                                 <span class="bg-red-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded">-{{ $product->descuento }}%</span>
                             </div>
                             @endif
+                        </div>
+                        <div class="flex items-center gap-2 -mt-1">
+                            <span class="text-[10px] font-medium text-gray-400 dark:text-gray-500 leading-none">IVA incluido</span>
+                            <span class="text-[10px] text-gray-300 dark:text-gray-600">•</span>
+                            <span class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 leading-none">Envío gratis</span>
+                            <span class="text-[10px] text-gray-300 dark:text-gray-600">•</span>
+                            <span class="flex items-center gap-1 text-[10px] font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wide"><i class="fa-solid fa-circle-check text-emerald-500 text-[11px]"></i> 100% Original</span>
                         </div>
                         @if(($product->descuento ?? 0) <= 0 && $apartadoMinimo > 0)
                         <div class="text-xs text-gray-500 dark:text-gray-400">Apartado desde <span class="font-bold text-gray-700 dark:text-gray-200">₡{{ number_format($apartadoMinimo, 0) }}</span></div>
@@ -590,7 +601,7 @@
     @endpush
 
     {{-- Mobile: Floating action bar (fixed bottom) --}}
-    @if($isMobile && (!$isAgotado || $isUpcoming))
+    @if(!$isAgotado || $isUpcoming)
     <div class="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-gray-900/95 backdrop-blur border-t border-gray-200 dark:border-gray-700 px-3 py-2.5 flex gap-2 shadow-[0_-4px_20px_rgba(0,0,0,0.08)]" style="padding-bottom: calc(0.625rem + env(safe-area-inset-bottom));">
         @if(!$isAgotado && !$isUpcoming && ($product->stock ?? 0) > 0)
             @if($inCart)

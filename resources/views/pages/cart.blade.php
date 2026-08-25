@@ -107,7 +107,10 @@
                         <div class="border-t border-gray-100 dark:border-gray-700 pt-4 mb-6">
                             <div class="flex justify-between items-center">
                                 <span class="text-base font-bold text-gray-900 dark:text-white">Total</span>
-                                <span class="text-xl font-black text-red-600 dark:text-red-400">₡{{ number_format($cart->total, 0) }}</span>
+                                <div class="text-right">
+                                    <span class="text-xl font-black text-red-600 dark:text-red-400">₡{{ number_format($cart->total, 0) }}</span>
+                                    <p class="text-[10px] font-medium text-gray-400 dark:text-gray-500 leading-none">IVA incluido • Envío gratis</p>
+                                </div>
                             </div>
                         </div>
                         <a href="{{ route('checkout') }}" class="block w-full text-center py-3.5 bg-[#00C4FF] hover:bg-[#00a3d6] text-white rounded-xl font-bold text-sm uppercase tracking-tight transition-all hover:-translate-y-0.5 shadow-md hover:shadow-lg">

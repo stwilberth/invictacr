@@ -91,7 +91,7 @@ class VariedadesSyncService
                         $product->update([
                             'proximo' => false,
                             'precio_venta' => $this->randomPrice($modelKey, $priceVal),
-                            'precio_original' => $priceVal,
+                            'precio_original' => $this->randomPrice($modelKey, $priceVal),
                             'stock' => max(1, $stockVal),
                             'genero' => $iwData['genero'] ?? $product->genero,
                             'coleccion' => Product::normalizeColeccion($iwData['coleccion'] ?? $product->coleccion),
@@ -139,8 +139,9 @@ class VariedadesSyncService
                     }
 
                     $prevPrecioOriginal = (int) ($product->precio_original ?? 0);
-                    if ($prevPrecioOriginal !== $priceVal) {
-                        $updates["precio_original"] = $priceVal;
+                    $expectedOriginal = $this->randomPrice($modelKey, $priceVal);
+                    if ($prevPrecioOriginal !== $expectedOriginal) {
+                        $updates["precio_original"] = $expectedOriginal;
                         $referenceUpdatedCount++;
                         $referenceUpdatedModels[] = $modelKey;
                         $items[] = ['sync_log_id' => $log->id, 'type' => 'reference_updated', 'modelo' => $modelKey, 'product_id' => $product->id];
@@ -191,7 +192,7 @@ class VariedadesSyncService
                         "slug" => "invicta-" . strtolower($modelKey),
                         "descripcion" => $descripcion,
                         "precio_venta" => $this->randomPrice($modelKey, $priceVal),
-                        "precio_original" => $priceVal,
+                        "precio_original" => $this->randomPrice($modelKey, $priceVal),
                         "descuento" => 0,
                         "genero" => $iwData['genero'] ?? $generoApi,
                         "stock" => $stockVal,
@@ -301,9 +302,8 @@ class VariedadesSyncService
 
     private function randomPrice(string $modelKey, int $base): int
     {
-        $hash = crc32($modelKey);
-        $offset = ($hash % 6001) - 3000;
-        return (int) (round(($base + $offset) / 1000) * 1000);
+        // +13% IVA y redondeo siempre hacia arriba a múltiplos de 1000
+        return (int) (ceil(($base * 1.13) / 1000) * 1000);
     }
 
     private function mapGender(int $code): string

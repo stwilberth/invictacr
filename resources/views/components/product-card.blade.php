@@ -66,6 +66,7 @@
                             <span class="text-[9px] md:text-xs font-bold text-slate-400 dark:text-gray-500 line-through">₡{{ number_format($product->precio_venta, 0) }}</span>
                         @endif
                     </div>
+                    <span class="text-[8px] md:text-[9px] font-medium text-gray-400 dark:text-gray-500 leading-none mt-0.5">IVA incluido • <span class="text-emerald-600 font-bold">Envío gratis</span></span>
                 </div>
             @else
                 <div class="py-1 text-center">

@@ -53,6 +53,7 @@ class GoogleAdsService
                         metrics.average_cpc
                     FROM campaign
                     WHERE segments.date = '{$dateStr}'
+                      AND metrics.impressions > 0
                 ",
             ]);
 

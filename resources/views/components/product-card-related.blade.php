@@ -65,6 +65,7 @@
                         @endif
                         <span class="{{ $compact ? 'text-sm' : 'text-sm md:text-base' }} font-bold text-red-600 dark:text-red-500 tracking-tighter">₡{{ number_format($priceAfterDiscount, 0) }}</span>
                     </div>
+                    <span class="text-[8px] md:text-[9px] font-medium text-gray-400 dark:text-gray-500 leading-none mt-0.5">IVA incluido • <span class="text-emerald-600 font-bold">Envío gratis</span></span>
                 </div>
             @else
                 <div class="py-1 text-center">
