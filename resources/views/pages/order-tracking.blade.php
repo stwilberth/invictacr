@@ -1,4 +1,4 @@
-<x-app-layout title="Mis Pedidos - Invicta Costa Rica">
+<x-app-layout title="Mis Pedidos" noindex>
     <section class="bg-white dark:bg-[#0a0f1c] pt-8 pb-16 md:pt-12 md:pb-24">
         <div class="max-w-7xl mx-auto px-4">
             <x-page-title title="Mis Pedidos" highlight="Pedidos" subtitle="Consultá el estado de tus compras realizadas en Invicta Costa Rica." />

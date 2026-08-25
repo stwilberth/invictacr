@@ -1,4 +1,4 @@
-<x-app-layout title="Formas de Pago - Invicta Costa Rica">
+<x-app-layout title="Formas de Pago" description="Pagá tu reloj Invicta como prefieras: PayPal, SINPE Móvil, transferencia bancaria o efectivo contra entrega en el GAM. Métodos 100% seguros.">
     <section class="bg-white dark:bg-[#0a0f1c] pt-8 pb-16 md:pt-12 md:pb-24">
         <div class="max-w-7xl mx-auto px-4">
             <x-page-title title="Formas de Pago" highlight="Pago" subtitle="Ofrecemos múltiples opciones seguras para que obtengas tu Invicta de la manera más conveniente." />
@@ -124,6 +124,13 @@
                     </div>
                 </div>
             </div>
+
+            <x-faq-section :items="[
+                ['q' => '¿Qué métodos de pago aceptan?', 'a' => 'Aceptamos PayPal, SINPE Móvil, transferencia bancaria y efectivo contra entrega (disponible solo en el GAM).'],
+                ['q' => '¿Puedo pagar al recibir mi reloj?', 'a' => 'Sí, el pago contra entrega está disponible en el Gran Área Metropolitana: recibís tu reloj, lo verificás y pagás en el momento, sin adelantar dinero.'],
+                ['q' => '¿Es seguro pagar con tarjeta?', 'a' => 'Sí. Los pagos con tarjeta se procesan a través de PayPal, que protege tus datos bancarios. No almacenamos información de tarjetas.'],
+                ['q' => '¿Por SINPE Móvil a qué número pago?', 'a' => 'Nuestro número SINPE es 8671-1422, a nombre de Wilberth Stanley Loría Vega. Después de pagar, enviá el comprobante por WhatsApp y confirmamos tu pedido en menos de 1 hora.'],
+            ]"/>
         </div>
     </section>
 </x-app-layout>

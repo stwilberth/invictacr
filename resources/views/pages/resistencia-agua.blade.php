@@ -1,4 +1,4 @@
-<x-app-layout title="Guía de Resistencia al Agua en Relojes Invicta">
+<x-app-layout title="Guía de Resistencia al Agua en Relojes Invicta" description="¿Qué significa 30m, 50m, 100m o 200m en un reloj Invicta? Guía completa de resistencia al agua: qué podés hacer con cada nivel y qué evitar.">
     <section class="bg-white dark:bg-[#0a0f1c] pt-8 pb-16 md:pt-12 md:pb-24">
         <div class="max-w-7xl mx-auto px-4">
             <x-page-title title="Guía de Resistencia al Agua" highlight="Resistencia" subtitle="Aprende qué significan los números en tu reloj Invicta y cómo proteger tu inversión correctamente." />
@@ -107,6 +107,14 @@
                     </ul>
                 </div>
             </div>
+
+            <x-faq-section :items="[
+                ['q' => '¿Qué significa 50m de resistencia al agua en un reloj?', 'a' => 'Un reloj de 50m (5 ATM) soporta impactos de agua: ducharse rápido sin botones y nadar de forma superficial ocasional. No es apto para buceo ni deportes acuáticos.'],
+                ['q' => '¿Puedo nadar con un reloj de 100m?', 'a' => 'Sí, un reloj de 100m (10 ATM) es apto para natación en piscina o mar, snorkel ligero y deportes acuáticos superficiales, pero no para buceo con tanque.'],
+                ['q' => '¿Puedo ducharme con un reloj de 30m?', 'a' => 'Un reloj de 30m (3 ATM) solo resiste salpicaduras y lavarse las manos. No se recomienda sumergirlo ni ducharse con él.'],
+                ['q' => '¿Por qué importa la resistencia al agua?', 'a' => 'Protege el mecanismo interno de la humedad y la presión. Un reloj dañado por agua puede empañar el cristal, dañar el movimiento, corroerse internamente y perder precisión.'],
+                ['q' => '¿Puedo usar los botones del reloj bajo el agua?', 'a' => 'No, a menos que sea un reloj diseñado específicamente para eso. Accionar botones o la corona bajo el agua puede dañar los sellos y la estanqueidad.'],
+            ]"/>
         </div>
     </section>
 </x-app-layout>

@@ -5,6 +5,29 @@
 @else
 
 <x-app-layout :title="'Relojes Invicta ' . ($gender ? ucfirst($gender) : 'Originales')" :description="'Explora nuestra colección de relojes Invicta ' . ($gender ? 'para ' . $gender : 'originales') . '. Envío gratis en GAM.'">
+    @push('json-ld')
+    <script type="application/ld+json">
+    {
+        "@@context": "https://schema.org",
+        "@@type": "CollectionPage",
+        "name": "Relojes Invicta {{ $gender ? ucfirst($gender) : 'Originales' }} en Costa Rica",
+        "url": "{{ url('/relojes') }}",
+        "mainEntity": {
+            "@@type": "ItemList",
+            "itemListElement": [
+                @foreach($products->take(20) as $i => $product)
+                {
+                    "@@type": "ListItem",
+                    "position": {{ $i + 1 }},
+                    "url": "{{ route('products.show', $product->slug) }}",
+                    "name": "Reloj Invicta {{ $product->modelo }}"
+                }{{ !$loop->last ? ',' : '' }}
+                @endforeach
+            ]
+        }
+    }
+    </script>
+    @endpush
     <div class="bg-white dark:bg-[#0a0f1c]">
         <div class="max-w-7xl mx-auto px-4">
             <x-page-title

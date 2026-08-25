@@ -1,4 +1,4 @@
-<x-app-layout title="Política de Privacidad - Invicta Costa Rica" description="Política de privacidad y protección de datos personales de Invicta Costa Rica.">
+<x-app-layout title="Política de Privacidad" description="Política de privacidad y protección de datos personales de Invicta Costa Rica.">
     <section class="bg-white dark:bg-[#0a0f1c] pt-8 pb-16 md:pt-12 md:pb-24">
         <div class="max-w-4xl mx-auto px-4">
             <x-page-title title="Política de Privacidad" highlight="Privacidad" subtitle="Tu confianza es importante. Acá te contamos qué datos recopilamos y cómo los usamos." />

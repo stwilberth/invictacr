@@ -1,4 +1,4 @@
-<x-app-layout title="Buscar Relojes | Invicta Costa Rica">
+<x-app-layout title="Buscar Relojes | Invicta Costa Rica" noindex>
     <div class="bg-white py-4">
         <div class="max-w-4xl mx-auto px-4">
             <div class="bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 p-3 md:p-4 rounded-xl shadow-sm">

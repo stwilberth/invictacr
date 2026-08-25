@@ -41,3 +41,10 @@ graphify-out/
 /database.sqlite
 /download/
 /*.sql
+
+# Laravel cache / runtime dirs (opencode)
+/storage/framework/cache
+/storage/framework/sessions
+/storage/framework/views
+/storage/framework/testing
+/bootstrap/cache

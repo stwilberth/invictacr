@@ -52,6 +52,7 @@ Route::get('/resistencia-agua', [PageController::class, 'resistenciaAgua'])->nam
 Route::get('/resenas', [PageController::class, 'resenas'])->name('resenas');
 Route::get('/sobre-nosotros', [PageController::class, 'sobreNosotros'])->name('sobre-nosotros');
 Route::get('/privacidad', [PageController::class, 'privacidad'])->name('privacidad');
+Route::get('/redes', [PageController::class, 'redes'])->name('redes');
 
 Route::post('/subscribe', [\App\Http\Controllers\SubscriberController::class, 'subscribe'])->name('subscribe');
 
@@ -60,6 +61,7 @@ Route::post('/track/event', [\App\Http\Controllers\Api\VisitorTrackController::c
 Route::post('/track/heartbeat', [\App\Http\Controllers\Api\VisitorTrackController::class, 'heartbeat'])->middleware('throttle:120,1')->name('track.heartbeat');
 Route::get('/sitemap.xml', [\App\Http\Controllers\Api\UtilityApiController::class, 'sitemap']);
 Route::get('/og/product/{slug}.png', [OgImageController::class, 'product'])->name('og.product');
+Route::get('/og/brand.png', [OgImageController::class, 'brand'])->name('og.brand');
 Route::get('/sitemap', function () {
     return redirect('/sitemap.xml', 301);
 });
