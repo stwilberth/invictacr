@@ -68,8 +68,8 @@ return [
             'bucket' => env('AWS_BUCKET'),
             'endpoint' => env('AWS_ENDPOINT'),
             'use_path_style_endpoint' => true,
-            'throw' => true,
-            'report' => true,
+            'throw' => false,
+            'report' => false,
         ],
 
     ],

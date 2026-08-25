@@ -354,7 +354,13 @@ class ProductController extends Controller
 
         [$images, $galleryImages, $galleryItems] = cache()->remember("product:gallery:{$product->id}", now()->addDay(), function () use ($product) {
             $cdnBase = 'https://cdn.invictacostarica.com';
-            $r2 = \Illuminate\Support\Facades\Storage::disk('r2');
+            $r2Available = false;
+            try {
+                $r2 = \Illuminate\Support\Facades\Storage::disk('r2');
+                $r2Available = $r2->exists('relojes') || true; // disk exists if it didn't throw
+            } catch (\Exception $e) {
+                $r2 = null;
+            }
 
             $images = collect([$product->imagen]);
             foreach ($product->images as $img) {
@@ -363,7 +369,7 @@ class ProductController extends Controller
             $images->push(asset('storage/relojes/caja.webp'));
             $images = $images->filter()->unique()->values();
 
-            $galleryImages = $images->map(function ($img) use ($cdnBase, $r2) {
+            $galleryImages = $images->map(function ($img) use ($cdnBase, $r2, $r2Available) {
                 // Si es URL CDN, extraer ruta relativa para verificar
                 $checkImg = $img;
                 if (str_starts_with($img, 'https://cdn.invictacostarica.com')) {
@@ -375,7 +381,7 @@ class ProductController extends Controller
                 if (str_starts_with($checkImg, '/relojes/') && !str_contains($checkImg, '/large/') && !str_contains($checkImg, '/medium/') && !str_contains($checkImg, '/thumbs/')) {
                     $basename = basename($checkImg);
                     $modelo = pathinfo($basename, PATHINFO_FILENAME);
-                    if ($modelo !== 'caja' && $r2->exists("relojes/large/{$modelo}.webp")) {
+                    if ($modelo !== 'caja' && $r2Available && $r2 && $r2->exists("relojes/large/{$modelo}.webp")) {
                         return "{$cdnBase}/relojes/large/{$modelo}.webp";
                     }
                 }

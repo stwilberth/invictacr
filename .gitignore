@@ -33,3 +33,11 @@ toArray*
 
 # Graphify knowledge-graph outputs
 graphify-out/
+
+# Local-only runtime / tooling artifacts
+/composer
+/composer-setup.php
+/composer.phar
+/database.sqlite
+/download/
+/*.sql
