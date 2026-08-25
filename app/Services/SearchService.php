@@ -534,7 +534,13 @@ Ejemplos:
                 'model' => $model,
                 'max_tokens' => 300,
                 'temperature' => 0,
-                'system' => $systemPrompt,
+                'system' => [
+                    [
+                        'type' => 'text',
+                        'text' => $systemPrompt,
+                        'cache_control' => ['type' => 'ephemeral'],
+                    ],
+                ],
                 'messages' => [
                     [
                         'role' => 'user',

@@ -97,6 +97,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::get('/visitors',         \App\Livewire\Admin\Visitors::class)->name('visitors');
     Route::get('/visitors/{id}',    \App\Livewire\Admin\VisitorDetail::class)->name('visitors.detail');
     Route::get('/timeline',         \App\Livewire\Admin\UnifiedTimeline::class)->name('timeline');
+    Route::get('/ceo-advisor',      \App\Livewire\Admin\CeoAdvisor::class)->name('ceo-advisor');
     Route::get('/github', \App\Livewire\Admin\GitHubReport::class)->name('github');
 });
 

@@ -130,7 +130,13 @@ Responde SOLO con el JSON.";
                 'model' => $model,
                 'max_tokens' => 1000,
                 'temperature' => 0.2,
-                'system' => $systemPrompt,
+                'system' => [
+                    [
+                        'type' => 'text',
+                        'text' => $systemPrompt,
+                        'cache_control' => ['type' => 'ephemeral'],
+                    ],
+                ],
                 'messages' => [
                     ['role' => 'user', 'content' => $userPrompt],
                 ],

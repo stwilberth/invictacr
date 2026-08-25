@@ -15,6 +15,27 @@
         </div>
     </div>
 
+    @if($topCeoRecommendation)
+    @php
+        $ceoIcon = match($topCeoRecommendation['category']) {
+            'urgente' => '🔴',
+            'oportunidad' => '🟡',
+            default => '🔵',
+        };
+    @endphp
+    <a href="{{ route('admin.ceo-advisor') }}" class="block mb-6 p-4 rounded-2xl border border-[#00C4FF]/20 bg-gradient-to-br from-[#0a0f1c] to-[#0f172a] hover:-translate-y-0.5 transition-transform">
+        <div class="flex items-center gap-3">
+            <span class="text-xl">🎯</span>
+            <div class="flex-1 min-w-0">
+                <p class="text-[10px] font-black text-[#00C4FF] uppercase tracking-wider">El CEO IA dice</p>
+                <p class="text-sm text-white font-bold truncate">{{ $ceoIcon }} {{ $topCeoRecommendation['title'] }}</p>
+                <p class="text-xs text-white/50 truncate">{{ $topCeoRecommendation['action'] }}</p>
+            </div>
+            <i class="fa-solid fa-arrow-right text-[#00C4FF] shrink-0"></i>
+        </div>
+    </a>
+    @endif
+
     {{-- ==================== GESTIÓN INTERNA (ADMIN) ==================== --}}
     <div class="flex items-center gap-3 mb-4">
         <h2 class="text-lg font-black text-gray-900 dark:text-white uppercase tracking-tight">Gestión interna</h2>

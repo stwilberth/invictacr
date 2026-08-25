@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Admin;
 
+use App\Models\AiCeoRecommendation;
 use App\Models\ExternalFactor;
 use App\Models\FacebookAdReport;
 use App\Models\GoogleAdsReport;
@@ -48,12 +49,37 @@ class Dashboard extends Component
     public string $devToolsMessage = '';
     public string $devToolsError = '';
 
+    public ?array $topCeoRecommendation = null;
+
     public function mount(): void
     {
         $this->loadAdminData();
         $this->loadAnalytics();
         $this->loadDevToolsStatus();
         $this->loadServerStats();
+        $this->loadTopCeoRecommendation();
+    }
+
+    protected function loadTopCeoRecommendation(): void
+    {
+        $latestKey = AiCeoRecommendation::max('batch_key');
+        if (!$latestKey) {
+            return;
+        }
+
+        $top = AiCeoRecommendation::where('batch_key', $latestKey)
+            ->where('status', 'pendiente')
+            ->orderByRaw("FIELD(category, 'urgente', 'oportunidad', 'estrategia')")
+            ->orderByRaw("FIELD(priority, 'alta', 'media', 'baja')")
+            ->first();
+
+        if ($top) {
+            $this->topCeoRecommendation = [
+                'category' => $top->category,
+                'title' => $top->title,
+                'action' => $top->action,
+            ];
+        }
     }
 
     protected function loadServerStats(): void
