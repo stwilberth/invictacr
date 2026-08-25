@@ -359,7 +359,7 @@ class Dashboard extends Component
 
     protected function runSystemctl(string $action, string $unit): ?string
     {
-        $allowed = ['start', 'stop', 'is-active', 'status'];
+        $allowed = ['start', 'stop', 'restart', 'is-active', 'status'];
         $allowedUnits = ['code-server@bitnami', 'opencode-web'];
         if (!in_array($action, $allowed, true) || !in_array($unit, $allowedUnits, true)) {
             return null;
@@ -396,6 +396,28 @@ class Dashboard extends Component
             $this->devToolsMessage = sprintf('%s %s correctamente (estado: %s).', $label, $action === 'stop' ? 'detenido' : 'iniciado', $newStatus);
         } else {
             $this->devToolsError = sprintf('No se pudo %s %s. Salida: %s', $action, $label, $out);
+        }
+
+        $this->loadDevToolsStatus();
+    }
+
+    public function restartDevTool(string $unit): void
+    {
+        $allowedUnits = ['code-server@bitnami', 'opencode-web'];
+        if (!in_array($unit, $allowedUnits, true)) {
+            return;
+        }
+
+        $out = $this->runSystemctl('restart', $unit);
+        sleep(2);
+        $newStatus = $this->runSystemctl('is-active', $unit);
+
+        $label = $unit === 'code-server@bitnami' ? 'code-server' : 'opencode web';
+
+        if ($newStatus === 'active') {
+            $this->devToolsMessage = sprintf('%s reiniciado correctamente (estado: %s).', $label, $newStatus);
+        } else {
+            $this->devToolsError = sprintf('No se pudo reiniciar %s. Salida: %s', $label, $out);
         }
 
         $this->loadDevToolsStatus();

@@ -123,6 +123,10 @@
                     <span wire:loading.remove wire:target="toggleDevTool('{{ $codeServerStatus === 'active' ? 'stop' : 'start' }}')">{{ $codeServerStatus === 'active' ? 'Detener' : 'Iniciar' }}</span>
                     <span wire:loading wire:target="toggleDevTool('code-server@bitnami')">...</span>
                 </button>
+                <button wire:click="restartDevTool('code-server@bitnami')" wire:loading.attr="disabled" class="w-full sm:w-auto px-4 py-2 rounded-xl text-xs font-bold text-center transition-colors bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-white/5 dark:text-gray-300 disabled:opacity-50">
+                    <span wire:loading.remove wire:target="restartDevTool('code-server@bitnami')">Reiniciar</span>
+                    <span wire:loading wire:target="restartDevTool('code-server@bitnami')">...</span>
+                </button>
             </div>
             <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 rounded-xl border border-gray-100 dark:border-white/5">
                 <div>
@@ -135,6 +139,10 @@
                 <button wire:click="toggleDevTool('opencode-web')" wire:loading.attr="disabled" class="w-full sm:w-auto px-4 py-2 rounded-xl text-xs font-bold text-center transition-colors {{ $opencodeWebStatus === 'active' ? 'bg-red-100 text-red-600 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400' : 'bg-emerald-100 text-emerald-600 hover:bg-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400' }} disabled:opacity-50">
                     <span wire:loading.remove wire:target="toggleDevTool('opencode-web')">{{ $opencodeWebStatus === 'active' ? 'Detener' : 'Iniciar' }}</span>
                     <span wire:loading wire:target="toggleDevTool('opencode-web')">...</span>
+                </button>
+                <button wire:click="restartDevTool('opencode-web')" wire:loading.attr="disabled" class="w-full sm:w-auto px-4 py-2 rounded-xl text-xs font-bold text-center transition-colors bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-white/5 dark:text-gray-300 disabled:opacity-50">
+                    <span wire:loading.remove wire:target="restartDevTool('opencode-web')">Reiniciar</span>
+                    <span wire:loading wire:target="restartDevTool('opencode-web')">...</span>
                 </button>
             </div>
         </div>
