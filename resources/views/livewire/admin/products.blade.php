@@ -1,6 +1,48 @@
+@php
+    $activeFilterCount = collect([
+        $filterGender, $filterColeccion, $filterColor, $filterCaja, $filterBrazalete,
+        $filterResistencia, $filterTamano,
+    ])->filter(fn ($v) => !empty($v))->count()
+        + ($filterStock !== 'all' ? 1 : 0)
+        + ($filterActivo !== 'all' ? 1 : 0)
+        + ($filterBloqueado !== 'all' ? 1 : 0)
+        + ($filterProximo !== 'all' ? 1 : 0);
+@endphp
 <div x-data="columnManager()" x-init="init()">
-    <div class="grid grid-cols-2 sm:flex sm:flex-wrap gap-2 sm:gap-1.5 items-center sm:justify-center mb-6">
-        <input wire:model.live="search" type="text" placeholder="Buscar..." class="col-span-2 sm:col-auto w-full sm:w-36 bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-lg px-3 py-1.5 text-xs" />
+    <div class="flex flex-wrap gap-2 items-center justify-center sm:justify-center mb-3">
+        <input wire:model.live="search" type="text" placeholder="Buscar..." class="flex-1 min-w-[140px] sm:flex-none sm:w-36 bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-lg px-3 py-1.5 text-xs" />
+
+        <button @click="filtersOpen = !filtersOpen" class="bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-lg px-3 py-1.5 text-xs font-bold text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-all flex items-center gap-1.5">
+            <i class="fa-solid fa-filter"></i>
+            Filtros
+            @if($activeFilterCount > 0)
+                <span class="bg-[#00C4FF] text-[#0a0f1c] rounded-full text-[10px] font-black w-4 h-4 flex items-center justify-center">{{ $activeFilterCount }}</span>
+            @endif
+            <i class="fa-solid fa-chevron-down text-[8px]" :class="{'rotate-180': filtersOpen}"></i>
+        </button>
+
+        <div class="relative" @click.outside="open = false">
+            <button @click="open = !open" class="bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-lg px-3 py-1.5 text-xs font-bold text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-all flex items-center gap-1.5">
+                <i class="fa-solid fa-table-cells"></i>
+                Columnas
+                <i class="fa-solid fa-chevron-down text-[8px]" :class="{'rotate-180': open}"></i>
+            </button>
+            <div x-show="open" x-transition class="absolute right-0 top-full mt-1 z-50 bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-white/10 rounded-xl shadow-xl py-2 min-w-[180px]">
+                <template x-for="col in columns" :key="col.key">
+                    <label class="flex items-center gap-2 px-4 py-1.5 text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 cursor-pointer whitespace-nowrap">
+                        <input type="checkbox" :checked="col.visible" @change="toggle(col.key)" class="rounded border-gray-300 dark:border-gray-600 text-[#00C4FF] focus:ring-[#00C4FF]" />
+                        <span x-text="col.label"></span>
+                    </label>
+                </template>
+            </div>
+        </div>
+
+        <a href="{{ route('admin.products.create') }}" class="bg-[#00C4FF] hover:bg-[#00b0e6] text-[#0a0f1c] font-black px-3 py-1.5 rounded-lg text-xs transition-all uppercase tracking-wider">
+            + Nuevo
+        </a>
+    </div>
+
+    <div x-show="filtersOpen" x-transition x-cloak class="grid grid-cols-2 sm:flex sm:flex-wrap gap-2 sm:gap-1.5 items-center sm:justify-center mb-3 p-3 sm:p-0 rounded-xl bg-gray-50 dark:bg-white/5 sm:bg-transparent dark:sm:bg-transparent">
         <select wire:model.live="filterGender" class="w-full sm:w-auto bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-lg px-2 py-1.5 text-xs">
             <option value="">Género</option>
             <option value="hombre">Hombre</option>
@@ -63,24 +105,6 @@
             <option value="yes">Sí</option>
             <option value="no">No</option>
         </select>
-        <div class="relative w-full sm:w-auto" @click.outside="open = false">
-            <button @click="open = !open" class="w-full sm:w-auto justify-center bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-lg px-3 py-1.5 text-xs font-bold text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-all flex items-center gap-1.5">
-                <i class="fa-solid fa-table-cells"></i>
-                Columnas
-                <i class="fa-solid fa-chevron-down text-[8px]" :class="{'rotate-180': open}"></i>
-            </button>
-            <div x-show="open" x-transition class="absolute right-0 top-full mt-1 z-50 bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-white/10 rounded-xl shadow-xl py-2 min-w-[180px]">
-                <template x-for="col in columns" :key="col.key">
-                    <label class="flex items-center gap-2 px-4 py-1.5 text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 cursor-pointer whitespace-nowrap">
-                        <input type="checkbox" :checked="col.visible" @change="toggle(col.key)" class="rounded border-gray-300 dark:border-gray-600 text-[#00C4FF] focus:ring-[#00C4FF]" />
-                        <span x-text="col.label"></span>
-                    </label>
-                </template>
-            </div>
-        </div>
-        <a href="{{ route('admin.products.create') }}" class="w-full sm:w-auto text-center bg-[#00C4FF] hover:bg-[#00b0e6] text-[#0a0f1c] font-black px-3 py-1.5 rounded-lg text-xs transition-all uppercase tracking-wider">
-            + Nuevo
-        </a>
     </div>
 
     <p class="sm:hidden text-center text-[11px] text-gray-400 mb-2">
@@ -188,8 +212,13 @@
 document.addEventListener('alpine:init', () => {
     Alpine.data('columnManager', () => ({
         open: false,
+        filtersOpen: false,
         columns: [],
         init() {
+            // En desktop los filtros inician abiertos (como antes); en movil
+            // inician cerrados para no saturar la pantalla con inputs.
+            this.filtersOpen = window.matchMedia('(min-width: 640px)').matches;
+
             const saved = localStorage.getItem('admin_products_columns');
             const defaults = [
                 { key: 'imagen', label: 'Imagen', visible: true },
