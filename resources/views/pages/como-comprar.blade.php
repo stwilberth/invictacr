@@ -110,13 +110,6 @@
                     <i class="fa-solid fa-arrow-right"></i>
                 </a>
             </div>
-
-            <x-faq-section :items="[
-                ['q' => '¿Cómo compro un reloj Invicta en Costa Rica?', 'a' => 'Elegí el reloj que te guste en el catálogo, hacé clic en "Comprar por WhatsApp" y coordinamos tu pedido. Solo necesitamos tu nombre completo y tu dirección de entrega.'],
-                ['q' => '¿Puedo pagar al recibir el reloj?', 'a' => 'Sí. Si estás en el Gran Área Metropolitana (GAM), podés recibir tu reloj y pagar en el momento en efectivo, SINPE Móvil o transferencia, sin adelantar dinero.'],
-                ['q' => '¿El envío tiene costo?', 'a' => 'No. El envío es gratis en el GAM y a todo el país con tu cuenta. En GAM se entrega por mensajería privada y al resto del país por Correos de Costa Rica.'],
-                ['q' => '¿Los relojes son originales?', 'a' => 'Sí, todos nuestros relojes son 100% originales e importados de Estados Unidos, y cada compra incluye garantía real de 6 meses.'],
-            ]"/>
         </div>
     </section>
 </x-app-layout>

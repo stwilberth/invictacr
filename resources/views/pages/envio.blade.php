@@ -168,11 +168,4 @@
         </div>
     </section>
 
-    <x-faq-section :items="[
-        ['q' => '¿Cuánto tarda el envío en el GAM?', 'a' => 'En el Gran Área Metropolitana entregamos por mensajería privada en 24 a 48 horas, y en varias zonas de San José y Alajuela podemos hacerlo el mismo día.'],
-        ['q' => '¿Cuánto tarda el envío al resto del país?', 'a' => 'Para el resto de Costa Rica usamos Correos de Costa Rica con seguimiento incluido. El paquete llega en 1 a 3 días hábiles después de confirmado el pago.'],
-        ['q' => '¿El envío es gratis?', 'a' => 'Sí, el envío es gratis en el GAM y a todo el país con tu cuenta en Invicta Costa Rica.'],
-        ['q' => '¿Puedo pagar al recibir el envío?', 'a' => 'Sí, en las entregas por mensajería del GAM podés pagar al recibir en efectivo, SINPE Móvil o transferencia. Para envíos por Correos de Costa Rica el pago es previo.'],
-        ['q' => '¿Hacen envíos fuera de Costa Rica?', 'a' => 'No. Actualmente solo enviamos dentro del territorio nacional costarricense.'],
-    ]"/>
 </x-app-layout>

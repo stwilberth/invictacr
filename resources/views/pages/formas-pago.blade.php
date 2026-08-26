@@ -124,13 +124,6 @@
                     </div>
                 </div>
             </div>
-
-            <x-faq-section :items="[
-                ['q' => '¿Qué métodos de pago aceptan?', 'a' => 'Aceptamos PayPal, SINPE Móvil, transferencia bancaria y efectivo contra entrega (disponible solo en el GAM).'],
-                ['q' => '¿Puedo pagar al recibir mi reloj?', 'a' => 'Sí, el pago contra entrega está disponible en el Gran Área Metropolitana: recibís tu reloj, lo verificás y pagás en el momento, sin adelantar dinero.'],
-                ['q' => '¿Es seguro pagar con tarjeta?', 'a' => 'Sí. Los pagos con tarjeta se procesan a través de PayPal, que protege tus datos bancarios. No almacenamos información de tarjetas.'],
-                ['q' => '¿Por SINPE Móvil a qué número pago?', 'a' => 'Nuestro número SINPE es 8671-1422, a nombre de Wilberth Stanley Loría Vega. Después de pagar, enviá el comprobante por WhatsApp y confirmamos tu pedido en menos de 1 hora.'],
-            ]"/>
         </div>
     </section>
 </x-app-layout>

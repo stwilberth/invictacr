@@ -457,14 +457,6 @@
         </a>
     </div> --}}
 
-    {{-- FAQ (AEO) --}}
-    <x-faq-section :items="[
-        ['q' => '¿Este reloj Invicta ' . $product->modelo . ' es 100% original?', 'a' => 'Sí. Todos los relojes de Invicta Costa Rica son 100% originales e importados directamente de Estados Unidos.'],
-        ['q' => '¿El envío de este reloj es gratis?', 'a' => 'Sí, el envío es gratis en el Gran Área Metropolitana (GAM) y a todo el país con tu cuenta. En GAM se entrega por mensajería privada en 24-48 horas; al resto del país va por Correos de Costa Rica con seguimiento.'],
-        ['q' => '¿Puedo pagar al recibir el reloj?', 'a' => 'Sí, si vivís en el GAM podés pagar al recibir en efectivo, SINPE Móvil o transferencia. Para envíos al resto del país el pago es previo por SINPE Móvil, transferencia o PayPal.'],
-        ['q' => '¿Cuánto dura la garantía?', 'a' => 'Cada reloj incluye una garantía real de 6 meses que cubre defectos de fabricación y los componentes internos del movimiento.'],
-    ]"/>
-
     {{-- Share Modal --}}
     <div id="shareModal" class="modal-overlay fixed inset-0 z-[100] hidden items-center justify-center bg-black/85 p-4" onclick="if (event.target === this) closeShareModal()">
         <div class="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-800 rounded-2xl shadow-2xl">
