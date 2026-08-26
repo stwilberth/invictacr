@@ -97,5 +97,40 @@ Patrón a replicar para cualquier popup/banner fijo nuevo:
 - Ejecutar como `sudo -u daemon` para que tenga permisos de escritura en cache.
 - Solo modifica `precio_venta`, no toca nombre, descripción, imágenes ni stock.
 
+## Google Analytics MCP (Model Context Protocol)
+
+Configurado en `.opencode/opencode.json` como `analytics-mcp`. Permite consultar datos de GA4 directamente desde opencode.
+
+### Credenciales
+- Service account JSON: `storage/app/google-service-account.json`
+- Cuenta: `analitycs-reader@invicta-costarica.iam.gserviceaccount.com`
+- Proyecto GCP: `invicta-costarica`
+- Property ID GA4: `482259644`
+
+### Uso (desde opencode)
+Ejemplos de prompts:
+- "¿Cuáles son los eventos más populares en GA4 en los últimos 30 días?"
+- "Dame un reporte de tráfico de la última semana"
+- "¿Cuántos usuarios únicos hubo el mes pasado?"
+- "¿Qué páginas son las más visitadas?"
+
+### Herramientas disponibles
+| Tool | Descripción |
+|---|---|
+| `get_account_summaries` | Lista cuentas y propiedades de GA |
+| `get_property_details` | Detalles de una propiedad |
+| `run_report` | Reporte personalizado (Data API) |
+| `run_realtime_report` | Datos en tiempo real |
+| `run_funnel_report` | Reporte de embudo/funnel |
+| `get_custom_dimensions_and_metrics` | Dimensiones y métricas custom |
+| `list_google_ads_links` | Enlaces con Google Ads |
+
+### Documentación
+- Repo: https://github.com/googleanalytics/google-analytics-mcp
+- Setup video: https://youtu.be/nS8HLdwmVlY
+- Discord: https://discord.com/channels/971845904002871346/1398002598665257060
+- Data API docs: https://developers.google.com/analytics/devguides/reporting/data/v1
+- Admin API docs: https://developers.google.com/analytics/devguides/config/admin/v1
+
 ## Al terminar cada tarea
 - **SIEMPRE limpiar cache de Laravel**: `php artisan view:clear && php artisan cache:clear && php artisan config:clear && php artisan route:clear`

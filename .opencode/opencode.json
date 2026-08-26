@@ -2,5 +2,16 @@
   "$schema": "https://opencode.ai/config.json",
   "plugin": [
     ".opencode/plugins/graphify.js"
-  ]
+  ],
+  "mcp": {
+    "analytics-mcp": {
+      "type": "local",
+      "command": ["pipx", "run", "analytics-mcp"],
+      "enabled": true,
+      "environment": {
+        "GOOGLE_APPLICATION_CREDENTIALS": "/var/www/invictacostarica/storage/app/google-service-account.json",
+        "GOOGLE_PROJECT_ID": "invicta-costarica"
+      }
+    }
+  }
 }
