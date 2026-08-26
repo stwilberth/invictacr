@@ -61,6 +61,13 @@
                 </div>
             </div>
 
+            <div class="max-w-2xl mx-auto mb-4 flex justify-center">
+                <label class="inline-flex items-center gap-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-2 cursor-pointer select-none shadow-sm">
+                    <input type="checkbox" data-filter="proximo" {{ request('proximo', '1') !== '0' ? 'checked' : '' }} onchange="window.CatalogManager && window.CatalogManager.setFilter('proximo', this.checked ? '' : '0')" class="rounded border-gray-300 dark:border-gray-600 text-[#00C4FF] focus:ring-[#00C4FF]">
+                    <span class="text-xs font-bold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Mostrar próximos</span>
+                </label>
+            </div>
+
             <div class="flex flex-col md:flex-row gap-8 pb-12" x-data="{ filterOpen: false }">
 
                 {{-- Mobile filter trigger --}}
