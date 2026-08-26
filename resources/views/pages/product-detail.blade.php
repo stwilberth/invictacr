@@ -203,6 +203,12 @@
                     <div class="text-xl font-black text-amber-500 tracking-tight mt-3">Próximamente</div>
                     @elseif(!$isAgotado)
                     <div class="text-2xl font-black text-red-600 dark:text-red-400 tracking-tight mt-3">₡{{ number_format($priceAfterDiscount, 0) }}</div>
+                    @if(($product->descuento ?? 0) > 0)
+                    <div class="flex items-center gap-2 mt-1">
+                        <span class="text-sm text-gray-400 line-through font-medium">₡{{ number_format($product->precio_venta, 0) }}</span>
+                        <span class="bg-red-500 text-white text-[11px] font-black px-2.5 py-1 rounded-lg shadow-sm shadow-red-500/30">-{{ $product->descuento }}% OFF</span>
+                    </div>
+                    @endif
                     <div class="flex items-center gap-2 mt-1">
                         <span class="text-[10px] font-medium text-gray-400 dark:text-gray-500 leading-none">IVA incluido</span>
                         <span class="text-[10px] text-gray-300 dark:text-gray-600">•</span>
@@ -288,7 +294,7 @@
                             @if(($product->descuento ?? 0) > 0)
                             <div class="flex items-center gap-2">
                                 <span class="text-xs text-gray-400 line-through font-medium">₡{{ number_format($product->precio_venta, 0) }}</span>
-                                <span class="bg-red-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded">-{{ $product->descuento }}%</span>
+                                <span class="bg-red-500 text-white text-[10px] font-black px-2 py-1 rounded-lg shadow-sm shadow-red-500/30">-{{ $product->descuento }}% OFF</span>
                             </div>
                             @endif
                         </div>
