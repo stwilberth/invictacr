@@ -1,70 +1,70 @@
 <div x-data="columnManager()" x-init="init()">
-    <div class="flex flex-wrap gap-1.5 items-center justify-center mb-6">
-        <input wire:model.live="search" type="text" placeholder="Buscar..." class="bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-lg px-3 py-1.5 text-xs w-36" />
-        <select wire:model.live="filterGender" class="bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-lg px-2 py-1.5 text-xs">
+    <div class="grid grid-cols-2 sm:flex sm:flex-wrap gap-2 sm:gap-1.5 items-center sm:justify-center mb-6">
+        <input wire:model.live="search" type="text" placeholder="Buscar..." class="col-span-2 sm:col-auto w-full sm:w-36 bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-lg px-3 py-1.5 text-xs" />
+        <select wire:model.live="filterGender" class="w-full sm:w-auto bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-lg px-2 py-1.5 text-xs">
             <option value="">Género</option>
             <option value="hombre">Hombre</option>
             <option value="mujer">Mujer</option>
             <option value="unisex">Unisex</option>
         </select>
-        <select wire:model.live="filterColeccion" class="bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-lg px-2 py-1.5 text-xs">
+        <select wire:model.live="filterColeccion" class="w-full sm:w-auto bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-lg px-2 py-1.5 text-xs">
             <option value="">Colección</option>
             @foreach($colecciones as $col)
                 <option value="{{ $col }}">{{ $col }}</option>
             @endforeach
         </select>
-        <select wire:model.live="filterColor" class="bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-lg px-2 py-1.5 text-xs">
+        <select wire:model.live="filterColor" class="w-full sm:w-auto bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-lg px-2 py-1.5 text-xs">
             <option value="">Color</option>
             @foreach($colores as $color)
                 <option value="{{ $color }}">{{ $color }}</option>
             @endforeach
         </select>
-        <select wire:model.live="filterCaja" class="bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-lg px-2 py-1.5 text-xs">
+        <select wire:model.live="filterCaja" class="w-full sm:w-auto bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-lg px-2 py-1.5 text-xs">
             <option value="">Caja</option>
             @foreach($brazaletes as $caja)
                 <option value="{{ $caja }}">{{ $caja }}</option>
             @endforeach
         </select>
-        <select wire:model.live="filterBrazalete" class="bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-lg px-2 py-1.5 text-xs">
+        <select wire:model.live="filterBrazalete" class="w-full sm:w-auto bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-lg px-2 py-1.5 text-xs">
             <option value="">Brazalete</option>
             @foreach($brazaletes as $braz)
                 <option value="{{ $braz }}">{{ $braz }}</option>
             @endforeach
         </select>
-        <select wire:model.live="filterResistencia" class="bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-lg px-2 py-1.5 text-xs">
+        <select wire:model.live="filterResistencia" class="w-full sm:w-auto bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-lg px-2 py-1.5 text-xs">
             <option value="">Resistencia</option>
             @foreach($resistencias as $res)
                 <option value="{{ $res }}">{{ $res }}</option>
             @endforeach
         </select>
-        <select wire:model.live="filterTamano" class="bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-lg px-2 py-1.5 text-xs">
+        <select wire:model.live="filterTamano" class="w-full sm:w-auto bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-lg px-2 py-1.5 text-xs">
             <option value="">Tamaño</option>
             @foreach($tamanios as $tam)
                 <option value="{{ $tam }}">{{ $tam }}mm</option>
             @endforeach
         </select>
-        <select wire:model.live="filterStock" class="bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-lg px-2 py-1.5 text-xs">
+        <select wire:model.live="filterStock" class="w-full sm:w-auto bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-lg px-2 py-1.5 text-xs">
             <option value="all">Stock</option>
             <option value="in">Con stock</option>
             <option value="out">Sin stock</option>
         </select>
-        <select wire:model.live="filterActivo" class="bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-lg px-2 py-1.5 text-xs">
+        <select wire:model.live="filterActivo" class="w-full sm:w-auto bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-lg px-2 py-1.5 text-xs">
             <option value="all">Activos</option>
             <option value="yes">Sí</option>
             <option value="no">No</option>
         </select>
-        <select wire:model.live="filterBloqueado" class="bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-lg px-2 py-1.5 text-xs">
+        <select wire:model.live="filterBloqueado" class="w-full sm:w-auto bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-lg px-2 py-1.5 text-xs">
             <option value="all">Bloqueados</option>
             <option value="yes">Sí</option>
             <option value="no">No</option>
         </select>
-        <select wire:model.live="filterProximo" class="bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-lg px-2 py-1.5 text-xs">
+        <select wire:model.live="filterProximo" class="w-full sm:w-auto bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-lg px-2 py-1.5 text-xs">
             <option value="all">Próximos</option>
             <option value="yes">Sí</option>
             <option value="no">No</option>
         </select>
-        <div class="relative" @click.outside="open = false">
-            <button @click="open = !open" class="bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-lg px-3 py-1.5 text-xs font-bold text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-all flex items-center gap-1.5">
+        <div class="relative w-full sm:w-auto" @click.outside="open = false">
+            <button @click="open = !open" class="w-full sm:w-auto justify-center bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-lg px-3 py-1.5 text-xs font-bold text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-all flex items-center gap-1.5">
                 <i class="fa-solid fa-table-cells"></i>
                 Columnas
                 <i class="fa-solid fa-chevron-down text-[8px]" :class="{'rotate-180': open}"></i>
@@ -78,12 +78,18 @@
                 </template>
             </div>
         </div>
-        <a href="{{ route('admin.products.create') }}" class="bg-[#00C4FF] hover:bg-[#00b0e6] text-[#0a0f1c] font-black px-3 py-1.5 rounded-lg text-xs transition-all uppercase tracking-wider">
+        <a href="{{ route('admin.products.create') }}" class="w-full sm:w-auto text-center bg-[#00C4FF] hover:bg-[#00b0e6] text-[#0a0f1c] font-black px-3 py-1.5 rounded-lg text-xs transition-all uppercase tracking-wider">
             + Nuevo
         </a>
     </div>
 
-    <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 overflow-x-auto">
+    <p class="sm:hidden text-center text-[11px] text-gray-400 mb-2">
+        <i class="fa-solid fa-arrows-left-right"></i> Desliza la tabla hacia los lados para ver más columnas
+    </p>
+
+    <div class="relative bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5">
+    <div class="pointer-events-none absolute right-0 top-0 bottom-0 w-8 rounded-r-2xl bg-gradient-to-l from-white dark:from-[#0f172a] to-transparent sm:hidden z-10"></div>
+    <div class="overflow-x-auto">
         <table class="w-full text-sm" style="min-width: 1200px;">
             <thead>
                 <tr class="border-b border-gray-200 dark:border-white/5 text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider">
@@ -173,6 +179,7 @@
                 @endforeach
             </tbody>
         </table>
+    </div>
     </div>
     <div class="mt-4">{{ $products->links() }}</div>
 </div>
