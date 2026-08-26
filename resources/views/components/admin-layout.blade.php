@@ -104,7 +104,7 @@
                         <i x-show="!dark" class="fa-solid fa-moon"></i>
                         <i x-show="dark" class="fa-solid fa-sun"></i>
                     </button>
-                    <span class="text-sm text-gray-500 dark:text-gray-400">{{ auth()->user()->email }}</span>
+                    <span class="hidden sm:inline text-sm text-gray-500 dark:text-gray-400">{{ auth()->user()->email }}</span>
                     <form method="POST" action="{{ route('logout') }}" class="inline">
                         @csrf
                         <button class="text-sm text-red-500 hover:text-red-400 font-bold">
