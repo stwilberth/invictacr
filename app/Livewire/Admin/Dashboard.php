@@ -31,6 +31,7 @@ class Dashboard extends Component
     public array $searchConsoleSummary = [];
     public array $searchConsoleByDevice = [];
     public array $searchConsoleByCountry = [];
+    public array $socialPropertyStats = [];
     public array $adsPerformance = [];
     public array $fbAdsPerformance = [];
     public array $growth = [];
@@ -251,6 +252,29 @@ class Dashboard extends Component
             ->sortByDesc('clicks')
             ->take(10)
             ->toArray();
+
+        // Social media properties (Search Console)
+        $socialProps = config('services.google.search_console_social_properties', []);
+        $this->socialPropertyStats = [];
+        foreach ($socialProps as $platform => $url) {
+            $propReports = $scReports->where('property_url', $url);
+            $this->socialPropertyStats[$platform] = [
+                'url' => $url,
+                'clicks' => $propReports->sum('clicks'),
+                'impressions' => $propReports->sum('impressions'),
+                'avg_ctr' => $propReports->avg('ctr'),
+                'avg_position' => $propReports->avg('position'),
+                'top_queries' => $propReports->groupBy('query')
+                    ->map(fn($group) => [
+                        'clicks' => $group->sum('clicks'),
+                        'impressions' => $group->sum('impressions'),
+                        'avg_position' => $group->avg('position'),
+                    ])
+                    ->sortByDesc('clicks')
+                    ->take(5)
+                    ->toArray(),
+            ];
+        }
 
         // Ingresos y utilidad
         $invoices = Invoice::whereBetween('created_at', [$start, $end])

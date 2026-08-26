@@ -10,11 +10,13 @@ class GoogleSearchConsoleService
 {
     protected GoogleServiceAccount $serviceAccount;
     protected string $siteUrl;
+    protected array $socialProperties;
 
     public function __construct()
     {
         $this->serviceAccount = app(GoogleServiceAccount::class);
         $this->siteUrl = config('services.google.search_console_site_url');
+        $this->socialProperties = config('services.google.search_console_social_properties', []);
     }
 
     public function isConfigured(): bool
@@ -54,15 +56,16 @@ class GoogleSearchConsoleService
         return $this->serviceAccount->getAccessToken('https://www.googleapis.com/auth/webmasters.readonly');
     }
 
-    public function fetchSearchAnalytics(\DateTime $date): array
+    public function fetchSearchAnalytics(\DateTime $date, ?string $propertyUrl = null): array
     {
         $token = $this->getToken();
         if (!$token) return [];
 
         $dateStr = $date->format('Y-m-d');
+        $siteUrl = $propertyUrl ?? $this->siteUrl;
 
         try {
-            $encodedSite = urlencode($this->siteUrl);
+            $encodedSite = urlencode($siteUrl);
             $response = Http::withToken($token)
                 ->post("https://www.googleapis.com/webmasters/v3/sites/{$encodedSite}/searchAnalytics/query", [
                     'startDate' => $dateStr,
@@ -74,6 +77,7 @@ class GoogleSearchConsoleService
             if (!$response->successful()) {
                 Log::warning('Google Search Console: fetchSearchAnalytics falló', [
                     'date' => $dateStr,
+                    'property' => $siteUrl,
                     'status' => $response->status(),
                     'body' => $response->body(),
                 ]);
@@ -88,9 +92,9 @@ class GoogleSearchConsoleService
         return [];
     }
 
-    public function syncDaily(\DateTime $date): int
+    public function syncDaily(\DateTime $date, ?string $propertyUrl = null): int
     {
-        $rows = $this->fetchSearchAnalytics($date);
+        $rows = $this->fetchSearchAnalytics($date, $propertyUrl);
         $count = 0;
 
         foreach ($rows as $row) {
@@ -98,6 +102,7 @@ class GoogleSearchConsoleService
 
             SearchConsoleReport::create([
                 'report_date' => $date->format('Y-m-d'),
+                'property_url' => $propertyUrl,
                 'query' => $dimensions[0] ?? null,
                 'page' => $dimensions[1] ?? null,
                 'country' => $dimensions[2] ?? null,
@@ -113,5 +118,19 @@ class GoogleSearchConsoleService
         }
 
         return $count;
+    }
+
+    public function syncSocialProperties(\DateTime $date): int
+    {
+        $total = 0;
+        foreach ($this->socialProperties as $platform => $url) {
+            $total += $this->syncDaily($date, $url);
+        }
+        return $total;
+    }
+
+    public function getSocialProperties(): array
+    {
+        return $this->socialProperties;
     }
 }

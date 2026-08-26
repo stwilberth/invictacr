@@ -8,6 +8,7 @@ class SearchConsoleReport extends Model
 {
     protected $fillable = [
         'report_date',
+        'property_url',
         'query',
         'page',
         'country',

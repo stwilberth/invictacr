@@ -49,6 +49,11 @@ return [
         'ads_customer_id' => env('GOOGLE_ADS_CUSTOMER_ID'),
         'ads_developer_token' => env('GOOGLE_ADS_DEVELOPER_TOKEN'),
         'search_console_site_url' => env('GOOGLE_SEARCH_CONSOLE_SITE_URL'),
+        'search_console_social_properties' => [
+            'instagram' => 'https://www.instagram.com/invictacr_/',
+            'tiktok' => 'https://www.tiktok.com/@invictacr',
+            'youtube' => 'https://www.youtube.com/@invicta_cr',
+        ],
     ],
 
     'facebook' => [

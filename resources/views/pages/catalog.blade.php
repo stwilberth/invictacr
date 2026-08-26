@@ -63,23 +63,19 @@
 
             <div class="flex flex-col md:flex-row gap-8 pb-12" x-data="{ filterOpen: false, showProximo: {{ request('proximo', '1') !== '0' ? 'true' : 'false' }} }">
 
-                {{-- Mobile: Filtros + Proximos row --}}
-                <div class="flex gap-2 md:hidden">
-                    <button @click="filterOpen = true" class="flex-1 flex items-center justify-center gap-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-sm px-4 py-3 font-black text-sm uppercase tracking-wider text-gray-700 dark:text-gray-200 active:scale-95 transition-all">
-                        <i class="fa-solid fa-sliders text-[#00C4FF]"></i>
+                {{-- Mobile: Filtros + toggle próximos --}}
+                <div class="flex items-center gap-2.5 md:hidden">
+                    <button @click="filterOpen = true" class="flex-1 flex items-center justify-center gap-1.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm px-3 py-2.5 font-bold text-xs uppercase tracking-wider text-gray-700 dark:text-gray-200 active:scale-95 transition-all">
+                        <i class="fa-solid fa-sliders text-[#00C4FF] text-[11px]"></i>
                         Filtros
                     </button>
-                    <button @click="showProximo = !showProximo; window.CatalogManager && window.CatalogManager.setFilter('proximo', showProximo ? '' : '0')" class="flex-1 flex items-center justify-center gap-2 bg-white dark:bg-gray-800 border rounded-2xl shadow-sm px-4 py-3 font-black text-sm uppercase tracking-wider transition-all active:scale-95" :class="showProximo ? 'border-[#00C4FF]/40 text-[#00C4FF]' : 'border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200'">
-                        <i class="fa-solid fa-eye" :class="showProximo ? '' : 'text-gray-400'"></i>
-                        <span x-text="showProximo ? 'Ocultar próximos' : 'Mostrar próximos'"></span>
+                    <button @click="showProximo = !showProximo; window.CatalogManager && window.CatalogManager.setFilter('proximo', showProximo ? '' : '0')" class="inline-flex items-center gap-2 shrink-0 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full pl-3 pr-1 py-1 shadow-sm transition-all">
+                        <span class="text-[10px] font-bold uppercase tracking-wider transition-colors" :class="showProximo ? 'text-gray-700 dark:text-gray-200' : 'text-gray-400 dark:text-gray-500'">Próximos</span>
+                        <span class="relative inline-flex h-5 w-8 items-center rounded-full p-0.5 transition-colors duration-200" :class="showProximo ? 'bg-[#00C4FF]' : 'bg-gray-300 dark:bg-gray-600'">
+                            <span class="inline-block h-4 w-4 rounded-full bg-white shadow-sm transition-transform duration-200" :class="showProximo ? 'translate-x-3' : 'translate-x-0'"></span>
+                        </span>
                     </button>
                 </div>
-
-                {{-- Mobile filter trigger --}}
-                <button @click="filterOpen = true" class="md:hidden flex items-center justify-center gap-2 w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-sm px-4 py-3 font-black text-sm uppercase tracking-wider text-gray-700 dark:text-gray-200 active:scale-95 transition-all">
-                    <i class="fa-solid fa-sliders text-[#00C4FF]"></i>
-                    Filtros
-                </button>
 
                 {{-- Mobile drawer overlay --}}
                 <div x-show="filterOpen" @click="filterOpen = false" class="md:hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-40" style="display:none;"></div>
@@ -111,10 +107,12 @@
                     <div id="catalog-results-info"></div>
 
                     {{-- Desktop: toggle proximos --}}
-                    <div class="hidden md:flex items-center justify-end mb-3">
-                        <button @click="showProximo = !showProximo; window.CatalogManager && window.CatalogManager.setFilter('proximo', showProximo ? '' : '0')" class="inline-flex items-center gap-2 border rounded-xl px-3 py-1.5 font-bold text-xs uppercase tracking-wider transition-all" :class="showProximo ? 'border-[#00C4FF]/40 text-[#00C4FF] bg-[#00C4FF]/5' : 'border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800'">
-                            <i class="fa-solid" :class="showProximo ? 'fa-eye' : 'fa-eye-slash text-gray-400'"></i>
-                            <span x-text="showProximo ? 'Ocultar próximos' : 'Mostrar próximos'"></span>
+                    <div class="hidden md:flex items-center justify-end mb-2">
+                        <button @click="showProximo = !showProximo; window.CatalogManager && window.CatalogManager.setFilter('proximo', showProximo ? '' : '0')" class="inline-flex items-center gap-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full pl-3 pr-1 py-1 shadow-sm transition-all">
+                            <span class="text-[10px] font-bold uppercase tracking-wider transition-colors" :class="showProximo ? 'text-gray-700 dark:text-gray-200' : 'text-gray-400'">Próximos</span>
+                            <span class="relative inline-flex h-5 w-8 items-center rounded-full p-0.5 transition-colors duration-200" :class="showProximo ? 'bg-[#00C4FF]' : 'bg-gray-300 dark:bg-gray-600'">
+                                <span class="inline-block h-4 w-4 rounded-full bg-white shadow-sm transition-transform duration-200" :class="showProximo ? 'translate-x-3' : 'translate-x-0'"></span>
+                            </span>
                         </button>
                     </div>
 

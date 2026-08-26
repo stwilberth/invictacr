@@ -8,7 +8,7 @@ use Illuminate\Console\Command;
 class SyncSearchConsole extends Command
 {
     protected $signature = 'sync:search-console {--days=7 : Number of days to sync}';
-    protected $description = 'Sync Google Search Console data for the last N days';
+    protected $description = 'Sync Google Search Console data for the last N days (website + social properties)';
 
     public function handle(GoogleSearchConsoleService $service): int
     {
@@ -22,12 +22,19 @@ class SyncSearchConsole extends Command
 
         for ($i = 0; $i < $days; $i++) {
             $date = now()->subDays($i);
+
+            // Sync main website
             $count = $service->syncDaily($date);
             $total += $count;
-            $this->line("Synced {$count} search queries for {$date->format('Y-m-d')}");
+            $this->line("Synced {$count} search queries for {$date->format('Y-m-d')} (website)");
+
+            // Sync social media properties
+            $socialCount = $service->syncSocialProperties($date);
+            $total += $socialCount;
+            $this->line("Synced {$socialCount} search queries for {$date->format('Y-m-d')} (social properties)");
         }
 
-        $this->info("Synced {$total} search console entries.");
+        $this->info("Synced {$total} search console entries total.");
         return Command::SUCCESS;
     }
 }
