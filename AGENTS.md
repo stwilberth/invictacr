@@ -132,5 +132,9 @@ Ejemplos de prompts:
 - Data API (reportes): https://developers.google.com/analytics/devguides/reporting/data/v1
 - Discord GA: https://discord.com/channels/971845904002871346/1398002598665257060
 
+## Datos disponibles para análisis
+
+Tienes disponible la información y métricas de rendimiento de Google Search Console para el dominio invictacostarica.com, así como para las propiedades asociadas de Instagram (@invictacr_), TikTok (@invictacr) y YouTube (@invicta_cr).
+
 ## Al terminar cada tarea
 - **SIEMPRE limpiar cache de Laravel**: `php artisan view:clear && php artisan cache:clear && php artisan config:clear && php artisan route:clear`
