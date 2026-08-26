@@ -151,12 +151,25 @@
             {{-- Left Column: Media --}}
             <div class="lg:col-span-6">
                 <div class="hidden lg:block lg:sticky lg:top-0">
-                    <x-product-gallery :galleryItems="$galleryItems" :title="$displayTitle" variant="desktop" />
+                    <div class="relative">
+                        @if(($product->descuento ?? 0) > 0)
+                        <div class="absolute top-3 right-3 z-30">
+                            <span class="bg-red-500 text-white text-[11px] font-black px-2.5 py-1 rounded-lg shadow-sm">-{{ $product->descuento }}%</span>
+                        </div>
+                        @endif
+                        <x-product-gallery :galleryItems="$galleryItems" :title="$displayTitle" variant="desktop" />
+                    </div>
                 </div>
 
                 {{-- Mobile: single column layout --}}
                 <div class="lg:hidden">
-                    <x-product-gallery :galleryItems="$galleryItems" :title="$product->title" variant="mobile" :extraSlides="2" :extraThumbIcons="['fa-circle-info', 'fa-truck-fast']">
+                    <div class="relative">
+                        @if(($product->descuento ?? 0) > 0)
+                        <div class="absolute top-3 right-3 z-30">
+                            <span class="bg-red-500 text-white text-[11px] font-black px-2.5 py-1 rounded-lg shadow-sm">-{{ $product->descuento }}%</span>
+                        </div>
+                        @endif
+                        <x-product-gallery :galleryItems="$galleryItems" :title="$product->title" variant="mobile" :extraSlides="2" :extraThumbIcons="['fa-circle-info', 'fa-truck-fast']">
                         {{-- Extra slide: specs del reloj --}}
                         <div class="relative w-full h-full flex-shrink-0 flex flex-col justify-center gap-2 px-6 bg-gray-50 dark:bg-gray-900">
                             <div class="flex justify-between items-center py-2 border-b border-gray-200 dark:border-gray-700">
@@ -210,7 +223,7 @@
                     </div>
                     @endif
                     <div class="flex items-center gap-2 mt-1">
-                        <span class="text-[10px] font-medium text-gray-400 dark:text-gray-500 leading-none">IVA incluido</span>
+                        <span class="text-[10px] font-medium text-gray-800 dark:text-gray-500 leading-none">IVA incluido</span>
                         <span class="text-[10px] text-gray-300 dark:text-gray-600">•</span>
                         <span class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 leading-none">Envío gratis</span>
                     </div>

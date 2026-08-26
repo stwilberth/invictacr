@@ -731,6 +731,10 @@ class ProductForm extends Component
             $product = Product::findOrFail($this->productId);
             $product->update($data);
             Product::forgetAllCache($product->id);
+            try {
+                $baseUrl = config('app.url', 'https://invictacostarica.com');
+                app(\App\Services\CloudflareCacheService::class)->purgeUrls(["{$baseUrl}/relojes/{$product->slug}"]);
+            } catch (\Exception $e) {}
             session()->flash("message", "Producto <strong>" . e($product->modelo) . "</strong> actualizado. <a href=\"" . route('products.show', $product->slug) . "\" class=\"underline text-green-800 dark:text-green-300\">Ver reloj</a>");
         } else {
             $product = Product::create($data);

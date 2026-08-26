@@ -488,6 +488,15 @@ class ProductController extends Controller
 
         Product::forgetAllCache($product->id);
 
+        try {
+            $baseUrl = config('app.url', 'https://invictacostarica.com');
+            app(\App\Services\CloudflareCacheService::class)->purgeUrls([
+                "{$baseUrl}/relojes/" . $product->slug,
+            ]);
+        } catch (\Exception $e) {
+            //
+        }
+
         return redirect()->route("products.show", $product->slug)->with("status", "Producto marcado como agotado.");
     }
 

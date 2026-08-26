@@ -37,6 +37,11 @@
 - Agotado: `disponibilidad = 'agotado'` o `stock <= 0`
 - Próximo: `proximo = true` o `precio_venta <= 0`
 - En vistas: `$isAgotado` y `$isUpcoming` (definidos en product-detail.blade.php)
+- **`bloqueado = true`**: producto propio de invictacostarica, NO se sincroniza de variedadescr. El sync de stock lo ignora intentionally.
+- **Cloudflare cache**: al cambiar stock/disponibilidad se purga automáticamente la página del producto en Cloudflare (API purge). Token y Zone ID en `.env`.
+
+## Cron
+- `stock:sync` corre cada 6h via crontab, **debe** apuntar a `/var/www/invictacostarica` (BD `invictacr`), NO a `/var/www/relojes` (BD vieja `relojes`).
 
 ## Identidad visual / Diseño
 

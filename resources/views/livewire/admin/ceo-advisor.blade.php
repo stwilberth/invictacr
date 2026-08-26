@@ -45,6 +45,20 @@
             ];
             $cs = $categoryStyles[$rec['category']] ?? $categoryStyles['estrategia'];
 
+            $areaStyles = [
+                'marketing' => ['label' => 'Marketing', 'badge' => 'bg-pink-100 text-pink-600 dark:bg-pink-900/30 dark:text-pink-400', 'icon' => '📢'],
+                'programacion' => ['label' => 'Programación', 'badge' => 'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400', 'icon' => '💻'],
+                'inventario' => ['label' => 'Inventario', 'badge' => 'bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400', 'icon' => '📦'],
+                'finanzas' => ['label' => 'Finanzas', 'badge' => 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400', 'icon' => '💰'],
+                'seo' => ['label' => 'SEO', 'badge' => 'bg-violet-100 text-violet-600 dark:bg-violet-900/30 dark:text-violet-400', 'icon' => '🔍'],
+                'ventas' => ['label' => 'Ventas', 'badge' => 'bg-orange-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400', 'icon' => '🛒'],
+                'soporte' => ['label' => 'Soporte', 'badge' => 'bg-cyan-100 text-cyan-600 dark:bg-cyan-900/30 dark:text-cyan-400', 'icon' => '🎧'],
+                'operaciones' => ['label' => 'Operaciones', 'badge' => 'bg-slate-100 text-slate-600 dark:bg-slate-900/30 dark:text-slate-400', 'icon' => '⚙️'],
+                'legal' => ['label' => 'Legal', 'badge' => 'bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400', 'icon' => '⚖️'],
+                'rrhh' => ['label' => 'RRHH', 'badge' => 'bg-teal-100 text-teal-600 dark:bg-teal-900/30 dark:text-teal-400', 'icon' => '👥'],
+            ];
+            $as = $areaStyles[$rec['area']] ?? ['label' => ucfirst($rec['area'] ?? 'General'), 'badge' => 'bg-gray-100 text-gray-600 dark:bg-white/10 dark:text-gray-300', 'icon' => '📌'];
+
             $priorityBadge = match($rec['priority']) {
                 'alta' => 'bg-red-500 text-white',
                 'media' => 'bg-gray-400 text-white dark:bg-white/20',
@@ -61,6 +75,9 @@
             <div class="flex items-center gap-2 mb-3 flex-wrap">
                 <span class="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider px-2 py-1 rounded-lg {{ $cs['badge'] }}">
                     {{ $cs['icon'] }} {{ $cs['label'] }}
+                </span>
+                <span class="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider px-2 py-1 rounded-lg {{ $as['badge'] }}">
+                    {{ $as['icon'] }} {{ $as['label'] }}
                 </span>
                 <span class="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded {{ $priorityBadge }}">
                     Prioridad {{ $rec['priority'] }}

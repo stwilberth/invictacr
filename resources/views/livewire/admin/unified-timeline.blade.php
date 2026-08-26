@@ -133,6 +133,7 @@
             <span><span class="inline-block w-2 h-2 rounded-full bg-blue-500"></span> Orgánico</span>
             <span><span class="inline-block w-2 h-2 rounded-full bg-red-500"></span> Publicidad</span>
             <span><span class="inline-block w-2 h-2 rounded-full bg-gray-500"></span> Código</span>
+            <span><span class="inline-block w-2 h-2 rounded-full bg-cyan-500"></span> Asesor CEO</span>
         </div>
     </div>
     @endif

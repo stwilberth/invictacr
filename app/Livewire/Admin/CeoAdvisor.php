@@ -26,6 +26,7 @@ class CeoAdvisor extends Component
 
         if ($latestKey) {
             $current = AiCeoRecommendation::where('batch_key', $latestKey)
+                ->where('status', '!=', 'hecho')
                 ->orderByRaw("FIELD(priority, 'alta', 'media', 'baja')")
                 ->orderByRaw("FIELD(category, 'urgente', 'oportunidad', 'estrategia')")
                 ->get();
@@ -33,6 +34,7 @@ class CeoAdvisor extends Component
             $this->recommendations = $current->map(fn($r) => [
                 'id' => $r->id,
                 'category' => $r->category,
+                'area' => $r->area ?? 'general',
                 'priority' => $r->priority,
                 'title' => $r->title,
                 'rationale' => $r->rationale,

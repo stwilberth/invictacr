@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Admin;
 
+use App\Models\AiCeoRecommendation;
 use App\Models\AiTimelineInsight;
 use App\Models\ExternalFactor;
 use App\Models\FacebookAdReport;
@@ -180,6 +181,27 @@ class UnifiedTimeline extends Component
                 'color' => $f->impact_level === 'high' ? 'red' : ($f->impact_level === 'positive' ? 'green' : 'amber'),
                 'title' => $f->title,
                 'detail' => $f->description . ' (' . strtoupper($f->impact_level) . ')',
+            ];
+        }
+
+        // CEO Advisor recommendations
+        $ceoAreaIcons = [
+            'marketing' => 'fa-bullhorn', 'programacion' => 'fa-code', 'inventario' => 'fa-boxes-stacked',
+            'finanzas' => 'fa-chart-pie', 'seo' => 'fa-magnifying-glass', 'ventas' => 'fa-cart-shopping',
+            'soporte' => 'fa-headset', 'operaciones' => 'fa-gears', 'legal' => 'fa-scale-balanced', 'rrhh' => 'fa-users',
+        ];
+        foreach (AiCeoRecommendation::whereBetween('generated_at', [$start, $end])
+            ->where('status', '!=', 'descartado')
+            ->orderByDesc('generated_at')
+            ->get() as $rec) {
+            $events[] = [
+                'date' => $rec->generated_at->format('Y-m-d'),
+                'source' => 'ceo_advisor',
+                'type' => 'recommendation',
+                'icon' => $ceoAreaIcons[$rec->area] ?? 'fa-bullseye',
+                'color' => $rec->status === 'hecho' ? 'green' : ($rec->category === 'urgente' ? 'red' : 'cyan'),
+                'title' => ($rec->status === 'hecho' ? '✅ ' : '') . $rec->title,
+                'detail' => ucfirst($rec->area ?? 'general') . ' · ' . ucfirst($rec->category) . ' · ' . ucfirst($rec->priority),
             ];
         }
 

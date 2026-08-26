@@ -38,11 +38,16 @@ class CeoAdvisorService
                 continue;
             }
 
+            $validAreas = ['marketing', 'programacion', 'inventario', 'finanzas', 'seo', 'ventas', 'soporte', 'operaciones', 'legal', 'rrhh'];
+
             AiCeoRecommendation::create([
                 'batch_key' => $batchKey,
                 'category' => in_array($rec['category'] ?? '', ['urgente', 'oportunidad', 'estrategia'], true)
                     ? $rec['category']
                     : 'estrategia',
+                'area' => in_array($rec['area'] ?? '', $validAreas, true)
+                    ? $rec['area']
+                    : 'general',
                 'priority' => in_array($rec['priority'] ?? '', ['alta', 'media', 'baja'], true)
                     ? $rec['priority']
                     : 'media',
@@ -224,6 +229,7 @@ class CeoAdvisorService
             . "Datos:\n{$dataJson}\n\n"
             . "Devuelve un JSON con la clave \"recommendations\": un array de 3 a 6 objetos, cada uno con:\n"
             . "- \"category\": una de \"urgente\" (requiere acción inmediata, riesgo real), \"oportunidad\" (crecimiento posible ahora), \"estrategia\" (mediano/largo plazo)\n"
+            . "- \"area\": el área de trabajo responsable, una de \"marketing\", \"programacion\", \"inventario\", \"finanzas\", \"seo\", \"ventas\", \"soporte\", \"operaciones\", \"legal\", \"rrhh\"\n"
             . "- \"priority\": \"alta\", \"media\" o \"baja\"\n"
             . "- \"title\": título corto y directo (máx 12 palabras)\n"
             . "- \"rationale\": por qué importa, citando datos concretos del snapshot (máx 3 oraciones)\n"

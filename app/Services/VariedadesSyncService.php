@@ -268,6 +268,25 @@ class VariedadesSyncService
 
             $log->update(["status" => "completed", "message" => $msg, "details" => $details]);
 
+            $affectedModels = array_unique(array_merge(
+                $stockChangedModels,
+                $markedAgotadoModels,
+                $activatedModels,
+                $createdModels,
+            ));
+            if (!empty($affectedModels)) {
+                try {
+                    $baseUrl = config('app.url', 'https://invictacostarica.com');
+                    $urls = array_merge(
+                        [$baseUrl . '/', $baseUrl . '/relojes'],
+                        array_map(fn($m) => "{$baseUrl}/relojes/" . strtolower($m), $affectedModels)
+                    );
+                    app(CloudflareCacheService::class)->purgeUrls($urls);
+                } catch (\Exception $e) {
+                    // no bloquear el sync
+                }
+            }
+
             return [
                 "success" => true,
                 "created" => $createdCount,

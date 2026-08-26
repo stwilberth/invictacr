@@ -9,6 +9,7 @@ class AiCeoRecommendation extends Model
     protected $fillable = [
         'batch_key',
         'category',
+        'area',
         'priority',
         'title',
         'rationale',
