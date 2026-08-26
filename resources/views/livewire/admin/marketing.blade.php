@@ -1,5 +1,5 @@
 <div>
-    <div class="flex gap-2 mb-6">
+    <div class="flex flex-wrap gap-2 mb-6">
         <button wire:click="$set('activeTab', 'dashboard')" class="px-4 py-2 rounded-xl text-sm font-bold transition-all {{ $activeTab === 'dashboard' ? 'bg-[#00C4FF] text-[#0a0f1c]' : 'bg-white dark:bg-[#0f172a] text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-white/5' }}">Dashboard</button>
         <button wire:click="$set('activeTab', 'tasks')" class="px-4 py-2 rounded-xl text-sm font-bold transition-all {{ $activeTab === 'tasks' ? 'bg-[#00C4FF] text-[#0a0f1c]' : 'bg-white dark:bg-[#0f172a] text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-white/5' }}">Tareas</button>
         <button wire:click="$set('activeTab', 'content')" class="px-4 py-2 rounded-xl text-sm font-bold transition-all {{ $activeTab === 'content' ? 'bg-[#00C4FF] text-[#0a0f1c]' : 'bg-white dark:bg-[#0f172a] text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-white/5' }}">Contenido AI</button>

@@ -131,14 +131,14 @@
                 <div class="md:col-span-2">
                     <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Imagen principal</label>
                     <div class="space-y-2">
-                        <div class="flex gap-2">
-                            <input wire:model="imagen" type="text" placeholder="https://cdn.invictawatch.com/..." class="flex-1 bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm" />
-                            <button type="button" wire:click="downloadImage" wire:loading.attr="disabled" wire:target="downloadImage" class="flex items-center gap-1.5 bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-white font-bold text-xs uppercase tracking-wider px-4 py-2.5 rounded-xl transition-all whitespace-nowrap">
+                        <div class="flex flex-wrap gap-2">
+                            <input wire:model="imagen" type="text" placeholder="https://cdn.invictawatch.com/..." class="flex-1 min-w-[140px] bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm" />
+                            <button type="button" wire:click="downloadImage" wire:loading.attr="disabled" wire:target="downloadImage" class="flex-1 sm:flex-none flex items-center justify-center gap-1.5 bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-white font-bold text-xs uppercase tracking-wider px-4 py-2.5 rounded-xl transition-all">
                                 <i class="fa-solid fa-download" wire:loading.remove wire:target="downloadImage"></i>
                                 <i class="fa-solid fa-spinner fa-spin" wire:loading wire:target="downloadImage"></i>
                                 Descargar
                             </button>
-                            <button type="button" wire:click="$set('imagen', '/storage/relojes/' + {{ json_encode($modelo) }} + '.jpg')" class="flex items-center gap-1.5 bg-green-500 hover:bg-green-600 text-white font-bold text-xs uppercase tracking-wider px-4 py-2.5 rounded-xl transition-all whitespace-nowrap">
+                            <button type="button" wire:click="$set('imagen', '/storage/relojes/' + {{ json_encode($modelo) }} + '.jpg')" class="flex-1 sm:flex-none flex items-center justify-center gap-1.5 bg-green-500 hover:bg-green-600 text-white font-bold text-xs uppercase tracking-wider px-4 py-2.5 rounded-xl transition-all">
                                 <i class="fa-solid fa-folder-open"></i>
                                 Local
                             </button>
@@ -299,11 +299,11 @@
                     <p class="mt-1 text-xs text-gray-400">Si tiene stock pero marca "Agotado", no se mostrará como disponible en el sitio.</p>
                 </div>
             </div>
-            <div class="flex gap-3">
-                <button type="submit" class="bg-[#00C4FF] hover:bg-[#00b0e6] text-[#0a0f1c] font-black px-8 py-3 rounded-xl transition-all uppercase tracking-wider text-sm">
+            <div class="flex flex-wrap gap-3">
+                <button type="submit" class="flex-1 sm:flex-none text-center bg-[#00C4FF] hover:bg-[#00b0e6] text-[#0a0f1c] font-black px-8 py-3 rounded-xl transition-all uppercase tracking-wider text-sm">
                     {{ $productId ? 'Actualizar' : 'Crear' }} Producto
                 </button>
-                <a href="{{ route('admin.products') }}" class="bg-gray-200 dark:bg-white/10 text-gray-700 dark:text-gray-300 font-bold px-8 py-3 rounded-xl text-sm">Cancelar</a>
+                <a href="{{ route('admin.products') }}" class="flex-1 sm:flex-none text-center bg-gray-200 dark:bg-white/10 text-gray-700 dark:text-gray-300 font-bold px-8 py-3 rounded-xl text-sm">Cancelar</a>
             </div>
         </form>
     </div>

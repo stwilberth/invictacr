@@ -1,12 +1,12 @@
 <div>
-    <div class="flex justify-between items-center mb-6">
+    <div class="flex flex-wrap justify-between items-center gap-3 mb-6">
         <div>
             <a href="{{ route('admin.invoices') }}" class="text-sm text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">&larr; Volver a facturas</a>
             <h2 class="text-xl font-black mt-1">Crear Factura</h2>
         </div>
-        <div class="flex gap-2">
-            <a href="{{ route('admin.invoices') }}" class="px-4 py-2 text-sm border border-gray-200 dark:border-white/10 rounded-xl hover:bg-gray-50 dark:hover:bg-white/5">Cancelar</a>
-            <button wire:click="save" class="px-4 py-2 text-sm bg-blue-600 text-white rounded-xl hover:bg-blue-700 font-bold">Guardar Factura</button>
+        <div class="flex flex-wrap gap-2 w-full sm:w-auto">
+            <a href="{{ route('admin.invoices') }}" class="flex-1 sm:flex-none text-center px-4 py-2 text-sm border border-gray-200 dark:border-white/10 rounded-xl hover:bg-gray-50 dark:hover:bg-white/5">Cancelar</a>
+            <button wire:click="save" class="flex-1 sm:flex-none px-4 py-2 text-sm bg-blue-600 text-white rounded-xl hover:bg-blue-700 font-bold">Guardar Factura</button>
         </div>
     </div>
 

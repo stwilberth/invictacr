@@ -42,36 +42,42 @@
 
     <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-4 mb-6 space-y-3">
         <div class="flex gap-2 flex-wrap">
-            <div class="flex gap-2 flex-wrap items-center">
-                <input wire:model.live.debounce.300ms="search" type="text" placeholder="Buscar factura, cliente, teléfono o modelo..." class="bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2 text-sm min-w-[250px] flex-1" />
+            <div class="flex gap-2 flex-wrap items-center w-full sm:w-auto">
+                <input wire:model.live.debounce.300ms="search" type="text" placeholder="Buscar factura, cliente, teléfono o modelo..." class="w-full sm:w-auto flex-1 min-w-[140px] bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2 text-sm" />
                 <button wire:click="resetFilters" class="text-xs text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 px-3 py-2 border border-gray-200 dark:border-white/10 rounded-xl">Limpiar filtros</button>
             </div>
-            <select wire:model.live="filterStatus" class="bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2 text-xs">
-                <option value="">Todos los estados</option>
-                <option value="facturado">Facturado</option>
-                <option value="apartado">Apartado</option>
-                <option value="eliminado">Eliminado</option>
-                <option value="pending">Pendiente</option>
-                <option value="cancelled">Cancelada</option>
-            </select>
-            <select wire:model.live="filterShipping" class="bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2 text-xs">
-                <option value="">Todos los envíos</option>
-                <option value="entregado">Entregado</option>
-                <option value="creando">Creando</option>
-                <option value="pendiente">Pendiente</option>
-                <option value="cancelado">Cancelado</option>
-            </select>
-            <select wire:model.live="filterAbonos" class="bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2 text-xs">
-                <option value="">Todos (abonos)</option>
-                <option value="con_abonos">Con abonos</option>
-                <option value="sin_abonos">Sin abonos</option>
-            </select>
-            <input wire:model.live="dateFrom" type="date" class="bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2 text-xs" />
-            <span class="text-xs text-gray-400 self-center">a</span>
-            <input wire:model.live="dateTo" type="date" class="bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2 text-xs" />
-            <input wire:model.live.debounce.500ms="totalMin" type="number" placeholder="Total min" class="bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2 text-xs w-24" />
-            <span class="text-xs text-gray-400 self-center">a</span>
-            <input wire:model.live.debounce.500ms="totalMax" type="number" placeholder="Total max" class="bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2 text-xs w-24" />
+            <div class="grid grid-cols-2 sm:flex sm:flex-wrap gap-2 w-full sm:w-auto">
+                <select wire:model.live="filterStatus" class="w-full sm:w-auto bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2 text-xs">
+                    <option value="">Todos los estados</option>
+                    <option value="facturado">Facturado</option>
+                    <option value="apartado">Apartado</option>
+                    <option value="eliminado">Eliminado</option>
+                    <option value="pending">Pendiente</option>
+                    <option value="cancelled">Cancelada</option>
+                </select>
+                <select wire:model.live="filterShipping" class="w-full sm:w-auto bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2 text-xs">
+                    <option value="">Todos los envíos</option>
+                    <option value="entregado">Entregado</option>
+                    <option value="creando">Creando</option>
+                    <option value="pendiente">Pendiente</option>
+                    <option value="cancelado">Cancelado</option>
+                </select>
+                <select wire:model.live="filterAbonos" class="w-full sm:w-auto bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2 text-xs">
+                    <option value="">Todos (abonos)</option>
+                    <option value="con_abonos">Con abonos</option>
+                    <option value="sin_abonos">Sin abonos</option>
+                </select>
+                <div class="flex items-center gap-2 w-full sm:w-auto">
+                    <input wire:model.live="dateFrom" type="date" class="flex-1 min-w-0 bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2 text-xs" />
+                    <span class="text-xs text-gray-400">a</span>
+                    <input wire:model.live="dateTo" type="date" class="flex-1 min-w-0 bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2 text-xs" />
+                </div>
+                <div class="flex items-center gap-2 w-full sm:w-auto">
+                    <input wire:model.live.debounce.500ms="totalMin" type="number" placeholder="Total min" class="flex-1 min-w-0 bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2 text-xs" />
+                    <span class="text-xs text-gray-400">a</span>
+                    <input wire:model.live.debounce.500ms="totalMax" type="number" placeholder="Total max" class="flex-1 min-w-0 bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2 text-xs" />
+                </div>
+            </div>
         </div>
     </div>
 

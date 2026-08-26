@@ -1,13 +1,13 @@
 <div>
-    <div class="flex justify-between items-center mb-6">
+    <div class="flex flex-wrap justify-between items-center gap-3 mb-6">
         <div>
             <a href="{{ route('admin.invoices') }}" class="text-sm text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">&larr; Volver a facturas</a>
             <h2 class="text-xl font-black mt-1">Factura {{ $invoice->invoice_number }}</h2>
         </div>
-        <div class="flex gap-2">
-            <a href="{{ route('admin.invoices') }}" class="px-4 py-2 text-sm border border-gray-200 dark:border-white/10 rounded-xl hover:bg-gray-50 dark:hover:bg-white/5">Volver</a>
-            <a href="{{ route('invoice.pdf', $invoice->id) }}" target="_blank" class="px-4 py-2 text-sm bg-green-600 text-white rounded-xl hover:bg-green-700 font-bold">Descargar PDF</a>
-            <button onclick="confirmDelete()" class="px-4 py-2 text-sm bg-red-600 text-white rounded-xl hover:bg-red-700 font-bold">Eliminar</button>
+        <div class="flex flex-wrap gap-2 w-full sm:w-auto">
+            <a href="{{ route('admin.invoices') }}" class="flex-1 sm:flex-none text-center px-4 py-2 text-sm border border-gray-200 dark:border-white/10 rounded-xl hover:bg-gray-50 dark:hover:bg-white/5">Volver</a>
+            <a href="{{ route('invoice.pdf', $invoice->id) }}" target="_blank" class="flex-1 sm:flex-none text-center px-4 py-2 text-sm bg-green-600 text-white rounded-xl hover:bg-green-700 font-bold">Descargar PDF</a>
+            <button onclick="confirmDelete()" class="flex-1 sm:flex-none px-4 py-2 text-sm bg-red-600 text-white rounded-xl hover:bg-red-700 font-bold">Eliminar</button>
             <script>
                 function confirmDelete() {
                     Swal.fire({
@@ -27,10 +27,10 @@
                 }
             </script>
             @if($editing)
-                <button wire:click="$set('editing', false)" class="px-4 py-2 text-sm border border-gray-200 dark:border-white/10 rounded-xl hover:bg-gray-50 dark:hover:bg-white/5">Cancelar</button>
-                <button wire:click="save" class="px-4 py-2 text-sm bg-blue-600 text-white rounded-xl hover:bg-blue-700 font-bold">Guardar cambios</button>
+                <button wire:click="$set('editing', false)" class="flex-1 sm:flex-none px-4 py-2 text-sm border border-gray-200 dark:border-white/10 rounded-xl hover:bg-gray-50 dark:hover:bg-white/5">Cancelar</button>
+                <button wire:click="save" class="flex-1 sm:flex-none px-4 py-2 text-sm bg-blue-600 text-white rounded-xl hover:bg-blue-700 font-bold">Guardar cambios</button>
             @else
-                <button wire:click="$set('editing', true)" class="px-4 py-2 text-sm bg-blue-600 text-white rounded-xl hover:bg-blue-700 font-bold">Editar</button>
+                <button wire:click="$set('editing', true)" class="flex-1 sm:flex-none px-4 py-2 text-sm bg-blue-600 text-white rounded-xl hover:bg-blue-700 font-bold">Editar</button>
             @endif
         </div>
     </div>
@@ -76,7 +76,7 @@
             </div>
 
             {{-- Productos --}}
-            <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-5">
+            <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-5 overflow-x-auto">
                 <h3 class="text-sm font-bold uppercase tracking-wider text-gray-500 mb-4">Productos</h3>
                 <table class="w-full text-sm">
                     <thead>
@@ -107,7 +107,7 @@
 
             {{-- Abonos --}}
             @if(strtolower($invoice->status) === 'apartado' || $invoice->abonos->count() > 0)
-            <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-5">
+            <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-5 overflow-x-auto">
                 <h3 class="text-sm font-bold uppercase tracking-wider text-gray-500 mb-4">Abonos</h3>
                 @if($invoice->abonos->count() > 0)
                 <table class="w-full text-sm">
@@ -389,7 +389,7 @@
             </div>
 
             {{-- Productos / Items --}}
-            <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-5 space-y-4">
+            <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-5 space-y-4 overflow-x-auto">
                 <h3 class="text-sm font-bold uppercase tracking-wider text-gray-500">Productos</h3>
                 <table class="w-full text-sm">
                     <thead>
@@ -420,7 +420,7 @@
 
             {{-- Abonos --}}
             @if(strtolower($invoice->status) === 'apartado' || $invoice->abonos->count() > 0)
-            <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-5 space-y-4">
+            <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-5 space-y-4 overflow-x-auto">
                 <h3 class="text-sm font-bold uppercase tracking-wider text-gray-500">Abonos</h3>
 
                 @if($invoice->abonos->count() > 0)

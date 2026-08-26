@@ -1,18 +1,20 @@
 <div>
-    <div class="flex justify-between items-center mb-6">
-        <input wire:model.live="search" type="text" placeholder="Buscar clientes..." class="bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2 text-sm w-80" />
-        <div class="flex gap-2">
-            <button wire:click="extractFromInvoices" wire:loading.attr="disabled" class="bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-white font-bold px-4 py-2.5 rounded-xl text-sm transition-all flex items-center gap-2">
+    <div class="flex flex-wrap gap-2 items-center justify-between mb-6">
+        <input wire:model.live="search" type="text" placeholder="Buscar clientes..." class="flex-1 min-w-[140px] bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2 text-sm w-full sm:w-80" />
+        <div class="flex flex-wrap gap-2 w-full sm:w-auto">
+            <button wire:click="extractFromInvoices" wire:loading.attr="disabled" class="flex-1 sm:flex-none bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-white font-bold px-4 py-2.5 rounded-xl text-sm transition-all flex items-center justify-center gap-2">
                 <i wire:loading.remove wire:target="extractFromInvoices" class="fa-solid fa-file-import"></i>
                 <i wire:loading wire:target="extractFromInvoices" class="fa-solid fa-spinner fa-spin"></i>
-                Extraer de facturas
+                <span class="hidden sm:inline">Extraer de facturas</span>
+                <span class="sm:hidden">Extraer</span>
             </button>
-            <button wire:click="exportVcf" wire:loading.attr="disabled" title="Descarga un archivo .vcf para importar en Contactos de Android" class="bg-gray-700 hover:bg-gray-800 dark:bg-white/10 dark:hover:bg-white/20 disabled:opacity-50 text-white font-bold px-4 py-2.5 rounded-xl text-sm transition-all flex items-center gap-2">
+            <button wire:click="exportVcf" wire:loading.attr="disabled" title="Descarga un archivo .vcf para importar en Contactos de Android" class="flex-1 sm:flex-none bg-gray-700 hover:bg-gray-800 dark:bg-white/10 dark:hover:bg-white/20 disabled:opacity-50 text-white font-bold px-4 py-2.5 rounded-xl text-sm transition-all flex items-center justify-center gap-2">
                 <i wire:loading.remove wire:target="exportVcf" class="fa-solid fa-file-export"></i>
                 <i wire:loading wire:target="exportVcf" class="fa-solid fa-spinner fa-spin"></i>
-                Exportar contactos
+                <span class="hidden sm:inline">Exportar contactos</span>
+                <span class="sm:hidden">Exportar</span>
             </button>
-            <button wire:click="create" class="bg-[#00C4FF] hover:bg-[#00b0e6] text-[#0a0f1c] font-black px-5 py-2.5 rounded-xl text-sm transition-all uppercase tracking-wider">+ Nuevo Cliente</button>
+            <button wire:click="create" class="bg-[#00C4FF] hover:bg-[#00b0e6] text-[#0a0f1c] font-black px-5 py-2.5 rounded-xl text-sm transition-all uppercase tracking-wider">+ Nuevo</button>
         </div>
     </div>
 
@@ -62,7 +64,7 @@
     </div>
     @endif
 
-    <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 overflow-hidden">
+    <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 overflow-x-auto">
         <table class="w-full text-sm">
             <thead>
                 <tr class="border-b border-gray-200 dark:border-white/5 text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider">

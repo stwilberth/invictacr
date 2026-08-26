@@ -1,6 +1,6 @@
 <div>
-    <div class="flex justify-between items-center mb-6">
-        <div class="flex gap-2">
+    <div class="flex flex-wrap justify-between items-center gap-3 mb-6">
+        <div class="flex flex-wrap gap-2">
             <button wire:click="$set('period', '7d')" class="px-4 py-2 rounded-xl text-sm font-bold transition-colors {{ $period === '7d' ? 'bg-[#00C4FF] text-white' : 'bg-white dark:bg-[#0f172a] text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-white/10' }}">7 días</button>
             <button wire:click="$set('period', '30d')" class="px-4 py-2 rounded-xl text-sm font-bold transition-colors {{ $period === '30d' ? 'bg-[#00C4FF] text-white' : 'bg-white dark:bg-[#0f172a] text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-white/10' }}">30 días</button>
             <button wire:click="$set('period', '90d')" class="px-4 py-2 rounded-xl text-sm font-bold transition-colors {{ $period === '90d' ? 'bg-[#00C4FF] text-white' : 'bg-white dark:bg-[#0f172a] text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-white/10' }}">90 días</button>

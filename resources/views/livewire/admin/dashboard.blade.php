@@ -416,7 +416,7 @@
 
         <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-6">
             <h2 class="font-black text-gray-900 dark:text-white mb-4 uppercase tracking-wider text-sm">Search Console</h2>
-            <div class="grid grid-cols-3 gap-3 mb-4">
+            <div class="grid grid-cols-3 gap-2 sm:gap-3 mb-4">
                 <div class="bg-gray-50 dark:bg-white/5 rounded-xl p-3">
                     <p class="text-xs text-gray-500">Clics</p>
                     <p class="text-base sm:text-xl font-black text-gray-900 dark:text-white">{{ number_format($searchConsoleSummary['total_clicks'] ?? 0) }}</p>
