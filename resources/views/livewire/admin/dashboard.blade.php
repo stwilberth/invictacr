@@ -151,7 +151,7 @@
             <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 rounded-xl border border-gray-100 dark:border-white/5">
                 <div>
                     <p class="font-bold text-gray-900 dark:text-white text-sm">Code Server <span class="text-xs font-normal text-gray-500">(IDE en navegador)</span></p>
-                    <a href="https://code.invictacostarica.com" target="_blank" rel="noopener noreferrer" class="text-xs text-[#00C4FF] hover:underline">code.invictacostarica.com <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i></a>
+                    <a href="https://code.wilberth.com" target="_blank" rel="noopener noreferrer" class="text-xs text-[#00C4FF] hover:underline">code.wilberth.com <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i></a>
                     <p class="text-xs mt-1">
                         Estado: <span class="font-bold {{ $codeServerStatus === 'active' ? 'text-emerald-600' : 'text-red-500' }}">{{ $codeServerStatus }}</span>
                     </p>
@@ -168,7 +168,7 @@
             <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 rounded-xl border border-gray-100 dark:border-white/5">
                 <div>
                     <p class="font-bold text-gray-900 dark:text-white text-sm">OpenCode Web <span class="text-xs font-normal text-gray-500">(agente IA en navegador)</span></p>
-                    <a href="https://ide.invictacostarica.com" target="_blank" rel="noopener noreferrer" class="text-xs text-[#00C4FF] hover:underline">ide.invictacostarica.com <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i></a>
+                    <a href="https://opencode.wilberth.com" target="_blank" rel="noopener noreferrer" class="text-xs text-[#00C4FF] hover:underline">opencode.wilberth.com <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i></a>
                     <p class="text-xs mt-1">
                         Estado: <span class="font-bold {{ $opencodeWebStatus === 'active' ? 'text-emerald-600' : 'text-red-500' }}">{{ $opencodeWebStatus }}</span>
                     </p>
