@@ -146,17 +146,18 @@ class ProductController extends Controller
         $isSearch = $request->filled("q");
 
         if (!$isSearch) {
-            if ($request->input('proximo')) {
+            $hideProximo = $request->input('proximo') === '0';
+            if ($hideProximo) {
+                $query->where("precio_venta", ">", 0)
+                      ->where("stock", ">", 0)
+                      ->where("proximo", false);
+            } else {
                 $query->where(function ($q) {
                     $q->where(function ($q2) {
                         $q2->where("precio_venta", ">", 0)
                            ->where("stock", ">", 0);
                     })->orWhere("proximo", true);
                 });
-            } else {
-                $query->where("precio_venta", ">", 0)
-                      ->where("stock", ">", 0)
-                      ->where("proximo", false);
             }
         }
 

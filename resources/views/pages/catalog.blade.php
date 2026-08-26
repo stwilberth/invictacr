@@ -391,6 +391,7 @@
                 if (filters.precio_min) chips.push({ key: 'precio_min', label: 'Desde: ₡' + Number(filters.precio_min).toLocaleString('es-CR') });
                 if (filters.precio_max) chips.push({ key: 'precio_max', label: 'Hasta: ₡' + Number(filters.precio_max).toLocaleString('es-CR') });
                 if (filters.sort && filters.sort !== 'newest') chips.push({ key: 'sort', label: 'Orden: ' + (sortLabels[filters.sort] || filters.sort) });
+                if (filters.proximo === '0') chips.push({ key: 'proximo', label: 'Sin próximos' });
 
                 if (chips.length === 0) {
                     els.activeFilters.innerHTML = '';
@@ -531,6 +532,14 @@
                         radio.checked = (radio.value === (value || ''));
                     });
                 });
+
+                // Sync checkbox for proximo filter (checked = show, unchecked = hidden via value '0')
+                if (key === 'proximo') {
+                    var checkboxes = document.querySelectorAll('input[data-filter="proximo"]');
+                    checkboxes.forEach(function(cb) {
+                        cb.checked = value !== '0';
+                    });
+                }
 
                 // Sync price inputs
                 if (key === 'precio_min' || key === 'precio_max') {

@@ -69,46 +69,37 @@
                 <h2 class="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider">Próximos</h2>
                 <input wire:model.live="search" type="text" placeholder="Buscar..." class="flex-1 bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2 text-sm" />
             </div>
-            <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 overflow-x-auto">
-                <table class="w-full text-sm">
-                    <thead>
-                        <tr class="border-b border-gray-200 dark:border-white/5 text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider">
-                            <th class="text-left px-4 py-3">Modelo</th>
-                            <th class="text-left px-4 py-3">Producto</th>
-                            <th class="text-left px-4 py-3">Colección</th>
-                            <th class="text-left px-4 py-3">Imagen</th>
-                            <th class="text-center px-4 py-3">Acción</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($products as $product)
-                        <tr class="border-b border-gray-100 dark:border-white/5">
-                            <td class="px-4 py-3">
-                                <a href="{{ route('products.show', ['slug' => $product->slug]) }}" target="_blank" class="font-bold text-[#00C4FF] hover:text-[#00B0E6] hover:underline">
-                                    {{ $product->modelo }}
-                                    <i class="fa-solid fa-up-right-from-square text-[10px] ml-0.5"></i>
-                                </a>
-                            </td>
-                            <td class="px-4 py-3 text-gray-600 dark:text-gray-400 max-w-[180px] truncate">{{ $product->title ?? 'Sin título' }}</td>
-                            <td class="px-4 py-3 text-gray-600 dark:text-gray-400">{{ $product->coleccion ?? '-' }}</td>
-                            <td class="px-4 py-3">
-                                @if($product->imagen)
-                                <span class="text-green-500 text-xs"><i class="fa-solid fa-check-circle"></i></span>
-                                @else
-                                <span class="text-red-400 text-xs"><i class="fa-solid fa-times-circle"></i></span>
-                                @endif
-                            </td>
-                            <td class="px-4 py-3 text-center">
-                                <button wire:click="activate({{ $product->id }})" class="bg-green-500 hover:bg-green-600 text-white font-bold px-4 py-2 rounded-xl text-xs transition-all">Activar</button>
-                            </td>
-                        </tr>
-                        @empty
-                        <tr>
-                            <td colspan="5" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">No hay productos próximos.</td>
-                        </tr>
-                        @endforelse
-                    </tbody>
-                </table>
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                @forelse($products as $product)
+                <div class="bg-gray-50 dark:bg-white/5 rounded-xl border border-gray-200 dark:border-white/5 overflow-hidden flex flex-col">
+                    <a href="{{ route('products.show', ['slug' => $product->slug]) }}" target="_blank" class="block relative aspect-square bg-white dark:bg-gray-800">
+                        @if($product->imagen)
+                            <img src="{{ $product->imagen }}" alt="{{ $product->title }}" class="w-full h-full object-contain p-2" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+                            <div class="hidden w-full h-full items-center justify-center text-gray-300 dark:text-gray-600">
+                                <i class="fa-solid fa-image text-2xl"></i>
+                            </div>
+                        @else
+                            <div class="w-full h-full flex items-center justify-center text-gray-300 dark:text-gray-600">
+                                <i class="fa-solid fa-image text-2xl"></i>
+                            </div>
+                        @endif
+                    </a>
+                    <div class="p-2 flex-1 flex flex-col">
+                        <a href="{{ route('products.show', ['slug' => $product->slug]) }}" target="_blank" class="font-bold text-xs text-[#00C4FF] hover:text-[#00B0E6] hover:underline truncate">
+                            {{ $product->modelo }}
+                        </a>
+                        <p class="text-[10px] text-gray-500 dark:text-gray-400 truncate">{{ $product->title ?? 'Sin título' }}</p>
+                        <p class="text-[10px] text-gray-400 dark:text-gray-500 mt-auto">{{ $product->coleccion ?? '-' }}</p>
+                    </div>
+                    <div class="px-2 pb-2">
+                        <button wire:click="activate({{ $product->id }})" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-1.5 rounded-lg text-[10px] transition-all">Activar</button>
+                    </div>
+                </div>
+                @empty
+                <div class="col-span-full text-center py-8 text-gray-500 dark:text-gray-400 text-sm">
+                    No hay productos próximos.
+                </div>
+                @endforelse
             </div>
             <div class="mt-4">{{ $products->links() }}</div>
         </div>
