@@ -350,10 +350,21 @@
         <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-6">
             <div class="flex items-center justify-between mb-4">
                 <h2 class="font-black text-gray-900 dark:text-white uppercase tracking-wider text-sm">Google Analytics</h2>
-                @if($realtimeUsers !== null)
-                <span class="text-xs font-bold px-2 py-1 rounded bg-green-100 text-green-600">{{ $realtimeUsers }} ahora</span>
-                @endif
+                <div class="flex items-center gap-2">
+                    @if($realtimeUsers !== null)
+                    <span class="text-xs font-bold px-2 py-1 rounded bg-green-100 text-green-600">{{ $realtimeUsers }} ahora</span>
+                    @endif
+                    <button wire:click="testGaConnection" wire:loading.attr="disabled" class="text-[10px] font-bold px-2 py-1 rounded-lg border border-gray-200 dark:border-white/10 text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors disabled:opacity-50">
+                        <span wire:loading.remove wire:target="testGaConnection">Probar conexion</span>
+                        <span wire:loading wire:target="testGaConnection">...</span>
+                    </button>
+                </div>
             </div>
+            @if($gaConnectionTest)
+            <div class="mb-3 px-3 py-2 rounded-lg text-xs font-bold {{ $gaConnectionTest['ok'] ? 'bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400' : 'bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400' }}">
+                {{ $gaConnectionTest['message'] }}
+            </div>
+            @endif
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
                 <div class="bg-gray-50 dark:bg-white/5 rounded-xl p-3">
                     <p class="text-xs text-gray-500">Sesiones</p>
@@ -415,7 +426,18 @@
         </div>
 
         <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-6">
-            <h2 class="font-black text-gray-900 dark:text-white mb-4 uppercase tracking-wider text-sm">Search Console</h2>
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="font-black text-gray-900 dark:text-white uppercase tracking-wider text-sm">Search Console</h2>
+                <button wire:click="testScConnection" wire:loading.attr="disabled" class="text-[10px] font-bold px-2 py-1 rounded-lg border border-gray-200 dark:border-white/10 text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors disabled:opacity-50">
+                    <span wire:loading.remove wire:target="testScConnection">Probar conexion</span>
+                    <span wire:loading wire:target="testScConnection">...</span>
+                </button>
+            </div>
+            @if($scConnectionTest)
+            <div class="mb-3 px-3 py-2 rounded-lg text-xs font-bold {{ $scConnectionTest['ok'] ? 'bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400' : 'bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400' }}">
+                {{ $scConnectionTest['message'] }}
+            </div>
+            @endif
             <div class="grid grid-cols-3 gap-2 sm:gap-3 mb-4">
                 <div class="bg-gray-50 dark:bg-white/5 rounded-xl p-3">
                     <p class="text-xs text-gray-500">Clics</p>
@@ -471,7 +493,18 @@
     {{-- Campañas --}}
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-6">
-            <h2 class="font-black text-gray-900 dark:text-white mb-4 uppercase tracking-wider text-sm">Google Ads</h2>
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="font-black text-gray-900 dark:text-white uppercase tracking-wider text-sm">Google Ads</h2>
+                <button wire:click="testAdsConnection" wire:loading.attr="disabled" class="text-[10px] font-bold px-2 py-1 rounded-lg border border-gray-200 dark:border-white/10 text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors disabled:opacity-50">
+                    <span wire:loading.remove wire:target="testAdsConnection">Probar conexion</span>
+                    <span wire:loading wire:target="testAdsConnection">...</span>
+                </button>
+            </div>
+            @if($adsConnectionTest)
+            <div class="mb-3 px-3 py-2 rounded-lg text-xs font-bold {{ $adsConnectionTest['ok'] ? 'bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400' : 'bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400' }}">
+                {{ $adsConnectionTest['message'] }}
+            </div>
+            @endif
             @if(count($adsPerformance['by_campaign'] ?? []) > 0)
             <div class="space-y-3">
                 @foreach($adsPerformance['by_campaign'] as $name => $campaign)
@@ -492,7 +525,18 @@
         </div>
 
         <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-6">
-            <h2 class="font-black text-gray-900 dark:text-white mb-4 uppercase tracking-wider text-sm">Meta Ads</h2>
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="font-black text-gray-900 dark:text-white uppercase tracking-wider text-sm">Meta Ads</h2>
+                <button wire:click="testFbConnection" wire:loading.attr="disabled" class="text-[10px] font-bold px-2 py-1 rounded-lg border border-gray-200 dark:border-white/10 text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors disabled:opacity-50">
+                    <span wire:loading.remove wire:target="testFbConnection">Probar conexion</span>
+                    <span wire:loading wire:target="testFbConnection">...</span>
+                </button>
+            </div>
+            @if($fbConnectionTest)
+            <div class="mb-3 px-3 py-2 rounded-lg text-xs font-bold {{ $fbConnectionTest['ok'] ? 'bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400' : 'bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400' }}">
+                {{ $fbConnectionTest['message'] }}
+            </div>
+            @endif
             @if(count($fbAdsPerformance['by_campaign'] ?? []) > 0)
             <div class="space-y-3">
                 @foreach($fbAdsPerformance['by_campaign'] as $name => $campaign)

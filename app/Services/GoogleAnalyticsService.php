@@ -22,6 +22,35 @@ class GoogleAnalyticsService
         return $this->serviceAccount->isConfigured() && !empty($this->propertyId);
     }
 
+    public function testConnection(): array
+    {
+        if (!$this->isConfigured()) {
+            return ['ok' => false, 'message' => 'No configurado: falta service account o property ID'];
+        }
+
+        $token = $this->getToken();
+        if (!$token) {
+            return ['ok' => false, 'message' => 'No se pudo obtener token de acceso'];
+        }
+
+        try {
+            $response = Http::withToken($token)
+                ->post("https://analyticsdata.googleapis.com/v1beta/properties/{$this->propertyId}:runReport", [
+                    'dateRanges' => [['startDate' => 'today', 'endDate' => 'today']],
+                    'metrics' => [['name' => 'activeUsers']],
+                ]);
+
+            if ($response->successful()) {
+                return ['ok' => true, 'message' => 'Conectado a GA4 (property ' . $this->propertyId . ')'];
+            }
+
+            $error = $response->json('error.message', 'Error desconocido');
+            return ['ok' => false, 'message' => $error];
+        } catch (\Exception $e) {
+            return ['ok' => false, 'message' => $e->getMessage()];
+        }
+    }
+
     protected function getToken(): ?string
     {
         return $this->serviceAccount->getAccessToken('https://www.googleapis.com/auth/analytics.readonly');

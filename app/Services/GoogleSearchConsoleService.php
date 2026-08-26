@@ -22,6 +22,33 @@ class GoogleSearchConsoleService
         return $this->serviceAccount->isConfigured() && !empty($this->siteUrl);
     }
 
+    public function testConnection(): array
+    {
+        if (!$this->isConfigured()) {
+            return ['ok' => false, 'message' => 'No configurado: falta service account o site URL'];
+        }
+
+        $token = $this->getToken();
+        if (!$token) {
+            return ['ok' => false, 'message' => 'No se pudo obtener token de acceso'];
+        }
+
+        try {
+            $encodedSite = urlencode($this->siteUrl);
+            $response = Http::withToken($token)
+                ->get("https://www.googleapis.com/webmasters/v3/sites/{$encodedSite}");
+
+            if ($response->successful()) {
+                return ['ok' => true, 'message' => "Conectado a Search Console: {$this->siteUrl}"];
+            }
+
+            $error = $response->json('error.message', 'Error desconocido');
+            return ['ok' => false, 'message' => $error];
+        } catch (\Exception $e) {
+            return ['ok' => false, 'message' => $e->getMessage()];
+        }
+    }
+
     protected function getToken(): ?string
     {
         return $this->serviceAccount->getAccessToken('https://www.googleapis.com/auth/webmasters.readonly');

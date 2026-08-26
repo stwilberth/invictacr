@@ -23,6 +23,30 @@ class FacebookAdsService
         return !empty($this->accessToken) && !empty($this->adAccountId);
     }
 
+    public function testConnection(): array
+    {
+        if (!$this->isConfigured()) {
+            return ['ok' => false, 'message' => 'No configurado: falta access token o ad account ID'];
+        }
+
+        try {
+            $response = Http::get("https://graph.facebook.com/{$this->apiVersion}/me", [
+                'access_token' => $this->accessToken,
+                'fields' => 'name,id',
+            ]);
+
+            if ($response->successful()) {
+                $name = $response->json('name', 'desconocido');
+                return ['ok' => true, 'message' => "Conectado a Meta Ads: {$name}"];
+            }
+
+            $error = $response->json('error.message', 'Error desconocido');
+            return ['ok' => false, 'message' => $error];
+        } catch (\Exception $e) {
+            return ['ok' => false, 'message' => $e->getMessage()];
+        }
+    }
+
     public function fetchCampaignPerformance(\DateTime $date): array
     {
         $since = $date->format('Y-m-d');

@@ -53,6 +53,11 @@ class Dashboard extends Component
     public ?int $daysSinceLastGaSync = null;
     public ?int $daysSinceLastAdsSync = null;
 
+    public ?array $gaConnectionTest = null;
+    public ?array $adsConnectionTest = null;
+    public ?array $scConnectionTest = null;
+    public ?array $fbConnectionTest = null;
+
     public function mount(): void
     {
         $this->loadAdminData();
@@ -459,6 +464,26 @@ class Dashboard extends Component
         }
 
         $this->loadDevToolsStatus();
+    }
+
+    public function testGaConnection(): void
+    {
+        $this->gaConnectionTest = app(\App\Services\GoogleAnalyticsService::class)->testConnection();
+    }
+
+    public function testAdsConnection(): void
+    {
+        $this->adsConnectionTest = app(\App\Services\GoogleAdsService::class)->testConnection();
+    }
+
+    public function testScConnection(): void
+    {
+        $this->scConnectionTest = app(\App\Services\GoogleSearchConsoleService::class)->testConnection();
+    }
+
+    public function testFbConnection(): void
+    {
+        $this->fbConnectionTest = app(\App\Services\FacebookAdsService::class)->testConnection();
     }
 
     public function render()

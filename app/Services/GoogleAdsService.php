@@ -24,6 +24,37 @@ class GoogleAdsService
         return $this->serviceAccount->isConfigured() && !empty($this->customerId) && !empty($this->developerToken);
     }
 
+    public function testConnection(): array
+    {
+        if (!$this->isConfigured()) {
+            return ['ok' => false, 'message' => 'No configurado: falta service account, customer ID o developer token'];
+        }
+
+        $token = $this->getToken();
+        if (!$token) {
+            return ['ok' => false, 'message' => 'No se pudo obtener token de acceso'];
+        }
+
+        try {
+            $response = Http::withHeaders([
+                'Authorization' => "Bearer {$token}",
+                'developer-token' => $this->developerToken,
+            ])->post("https://googleads.googleapis.com/v24/customers/{$this->customerId}/googleAds:search", [
+                'query' => "SELECT customer.id, customer.descriptive_name FROM customer LIMIT 1",
+            ]);
+
+            if ($response->successful()) {
+                $name = $response->json('results.0.customer.descriptiveName', 'desconocido');
+                return ['ok' => true, 'message' => "Conectado a Google Ads: {$name} ({$this->customerId})"];
+            }
+
+            $error = $response->json('error.message', 'Error desconocido');
+            return ['ok' => false, 'message' => $error];
+        } catch (\Exception $e) {
+            return ['ok' => false, 'message' => $e->getMessage()];
+        }
+    }
+
     protected function getToken(): ?string
     {
         return $this->serviceAccount->getAccessToken('https://www.googleapis.com/auth/adwords');
