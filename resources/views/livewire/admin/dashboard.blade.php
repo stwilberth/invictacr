@@ -556,6 +556,70 @@
             @endif
         </div>
     </div>
+
+    {{-- ==================== REDES SOCIALES ==================== --}}
+    <div class="flex items-center gap-3 mb-4 mt-8">
+        <h2 class="text-lg font-black text-gray-900 dark:text-white uppercase tracking-tight">Redes Sociales</h2>
+        <span class="text-xs font-bold px-2 py-1 rounded bg-pink-100 text-pink-600 dark:bg-pink-900/30 dark:text-pink-400 uppercase tracking-wider">Digital</span>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        {{-- Instagram --}}
+        <a href="https://instagram.com/invictacr_" target="_blank" rel="noopener noreferrer" class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-5 hover:-translate-y-0.5 transition-transform group">
+            <div class="flex items-center gap-3 mb-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 via-pink-500 to-orange-400 flex items-center justify-center text-white group-hover:scale-110 transition-transform">
+                    <i class="fa-brands fa-instagram text-lg"></i>
+                </div>
+                <div>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Instagram</p>
+                    <p class="text-sm font-bold text-gray-900 dark:text-white">@invictacr_</p>
+                </div>
+            </div>
+            <p class="text-[10px] text-gray-400 dark:text-gray-500">Propiedad vinculada al dominio</p>
+        </a>
+
+        {{-- TikTok --}}
+        <a href="https://tiktok.com/@invictacr" target="_blank" rel="noopener noreferrer" class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-5 hover:-translate-y-0.5 transition-transform group">
+            <div class="flex items-center gap-3 mb-3">
+                <div class="w-10 h-10 rounded-xl bg-gray-900 flex items-center justify-center text-white group-hover:scale-110 transition-transform">
+                    <i class="fa-brands fa-tiktok text-lg"></i>
+                </div>
+                <div>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">TikTok</p>
+                    <p class="text-sm font-bold text-gray-900 dark:text-white">@invictacr</p>
+                </div>
+            </div>
+            <p class="text-[10px] text-gray-400 dark:text-gray-500">Propiedad vinculada al dominio</p>
+        </a>
+
+        {{-- YouTube --}}
+        <a href="https://youtube.com/@invicta_cr" target="_blank" rel="noopener noreferrer" class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-5 hover:-translate-y-0.5 transition-transform group">
+            <div class="flex items-center gap-3 mb-3">
+                <div class="w-10 h-10 rounded-xl bg-red-600 flex items-center justify-center text-white group-hover:scale-110 transition-transform">
+                    <i class="fa-brands fa-youtube text-lg"></i>
+                </div>
+                <div>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">YouTube</p>
+                    <p class="text-sm font-bold text-gray-900 dark:text-white">@invicta_cr</p>
+                </div>
+            </div>
+            <p class="text-[10px] text-gray-400 dark:text-gray-500">Propiedad vinculada al dominio</p>
+        </a>
+
+        {{-- Search Console --}}
+        <a href="https://search.google.com/search-console" target="_blank" rel="noopener noreferrer" class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-5 hover:-translate-y-0.5 transition-transform group">
+            <div class="flex items-center gap-3 mb-3">
+                <div class="w-10 h-10 rounded-xl bg-[#00C4FF] flex items-center justify-center text-white group-hover:scale-110 transition-transform">
+                    <i class="fa-solid fa-magnifying-glass-chart text-lg"></i>
+                </div>
+                <div>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Search Console</p>
+                    <p class="text-sm font-bold text-gray-900 dark:text-white">invictacostarica.com</p>
+                </div>
+            </div>
+            <p class="text-[10px] text-gray-400 dark:text-gray-500">Métricas de rendimiento SEO</p>
+        </a>
+    </div>
 </div>
 
 @push('scripts')
