@@ -557,68 +557,156 @@
         </div>
     </div>
 
-    {{-- ==================== REDES SOCIALES ==================== --}}
+    {{-- ==================== REDES SOCIALES + SEARCH CONSOLE ==================== --}}
     <div class="flex items-center gap-3 mb-4 mt-8">
         <h2 class="text-lg font-black text-gray-900 dark:text-white uppercase tracking-tight">Redes Sociales</h2>
-        <span class="text-xs font-bold px-2 py-1 rounded bg-pink-100 text-pink-600 dark:bg-pink-900/30 dark:text-pink-400 uppercase tracking-wider">Digital</span>
+        <span class="text-xs font-bold px-2 py-1 rounded bg-pink-100 text-pink-600 dark:bg-pink-900/30 dark:text-pink-400 uppercase tracking-wider">Search Console</span>
     </div>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
         {{-- Instagram --}}
-        <a href="https://instagram.com/invictacr_" target="_blank" rel="noopener noreferrer" class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-5 hover:-translate-y-0.5 transition-transform group">
-            <div class="flex items-center gap-3 mb-3">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 via-pink-500 to-orange-400 flex items-center justify-center text-white group-hover:scale-110 transition-transform">
-                    <i class="fa-brands fa-instagram text-lg"></i>
-                </div>
-                <div>
-                    <p class="text-xs text-gray-500 dark:text-gray-400">Instagram</p>
-                    <p class="text-sm font-bold text-gray-900 dark:text-white">@invictacr_</p>
+        <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-6">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 via-pink-500 to-orange-400 flex items-center justify-center text-white">
+                        <i class="fa-brands fa-instagram text-lg"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-black text-gray-900 dark:text-white uppercase tracking-wider text-sm">Instagram</h3>
+                        <a href="https://instagram.com/invictacr_" target="_blank" rel="noopener noreferrer" class="text-[10px] text-[#00C4FF] hover:underline">@invictacr_ <i class="fa-solid fa-arrow-up-right-from-square text-[8px]"></i></a>
+                    </div>
                 </div>
             </div>
-            <p class="text-[10px] text-gray-400 dark:text-gray-500">Propiedad vinculada al dominio</p>
-        </a>
+            @if(isset($socialPropertyStats['instagram']) && ($socialPropertyStats['instagram']['clicks'] > 0 || $socialPropertyStats['instagram']['impressions'] > 0))
+            <div class="grid grid-cols-2 gap-2 mb-3">
+                <div class="bg-gray-50 dark:bg-white/5 rounded-xl p-3">
+                    <p class="text-xs text-gray-500">Clics</p>
+                    <p class="text-lg font-black text-gray-900 dark:text-white">{{ number_format($socialPropertyStats['instagram']['clicks']) }}</p>
+                </div>
+                <div class="bg-gray-50 dark:bg-white/5 rounded-xl p-3">
+                    <p class="text-xs text-gray-500">Impresiones</p>
+                    <p class="text-lg font-black text-gray-900 dark:text-white">{{ number_format($socialPropertyStats['instagram']['impressions']) }}</p>
+                </div>
+                <div class="bg-gray-50 dark:bg-white/5 rounded-xl p-3">
+                    <p class="text-xs text-gray-500">CTR</p>
+                    <p class="text-lg font-black text-[#00C4FF]">{{ number_format($socialPropertyStats['instagram']['avg_ctr'] ?? 0, 1) }}%</p>
+                </div>
+                <div class="bg-gray-50 dark:bg-white/5 rounded-xl p-3">
+                    <p class="text-xs text-gray-500">Posición</p>
+                    <p class="text-lg font-black text-gray-900 dark:text-white">{{ number_format($socialPropertyStats['instagram']['avg_position'] ?? 0, 1) }}</p>
+                </div>
+            </div>
+            @if(count($socialPropertyStats['instagram']['top_queries'] ?? []) > 0)
+            <h4 class="font-bold text-[10px] text-gray-500 uppercase tracking-wider mb-1.5">Top consultas</h4>
+            <div class="space-y-1">
+                @foreach($socialPropertyStats['instagram']['top_queries'] as $query => $data)
+                <div class="flex justify-between text-[11px]">
+                    <span class="text-gray-700 dark:text-gray-300 truncate max-w-[160px]">{{ $query }}</span>
+                    <span class="text-gray-500">{{ $data['clicks'] }} clics</span>
+                </div>
+                @endforeach
+            </div>
+            @endif
+            @else
+            <p class="text-xs text-gray-400 dark:text-gray-500 text-center py-4">Sin datos de Search Console sincronizados aún.</p>
+            @endif
+        </div>
 
         {{-- TikTok --}}
-        <a href="https://tiktok.com/@invictacr" target="_blank" rel="noopener noreferrer" class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-5 hover:-translate-y-0.5 transition-transform group">
-            <div class="flex items-center gap-3 mb-3">
-                <div class="w-10 h-10 rounded-xl bg-gray-900 flex items-center justify-center text-white group-hover:scale-110 transition-transform">
-                    <i class="fa-brands fa-tiktok text-lg"></i>
-                </div>
-                <div>
-                    <p class="text-xs text-gray-500 dark:text-gray-400">TikTok</p>
-                    <p class="text-sm font-bold text-gray-900 dark:text-white">@invictacr</p>
+        <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-6">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-gray-900 flex items-center justify-center text-white">
+                        <i class="fa-brands fa-tiktok text-lg"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-black text-gray-900 dark:text-white uppercase tracking-wider text-sm">TikTok</h3>
+                        <a href="https://tiktok.com/@invictacr" target="_blank" rel="noopener noreferrer" class="text-[10px] text-[#00C4FF] hover:underline">@invictacr <i class="fa-solid fa-arrow-up-right-from-square text-[8px]"></i></a>
+                    </div>
                 </div>
             </div>
-            <p class="text-[10px] text-gray-400 dark:text-gray-500">Propiedad vinculada al dominio</p>
-        </a>
+            @if(isset($socialPropertyStats['tiktok']) && ($socialPropertyStats['tiktok']['clicks'] > 0 || $socialPropertyStats['tiktok']['impressions'] > 0))
+            <div class="grid grid-cols-2 gap-2 mb-3">
+                <div class="bg-gray-50 dark:bg-white/5 rounded-xl p-3">
+                    <p class="text-xs text-gray-500">Clics</p>
+                    <p class="text-lg font-black text-gray-900 dark:text-white">{{ number_format($socialPropertyStats['tiktok']['clicks']) }}</p>
+                </div>
+                <div class="bg-gray-50 dark:bg-white/5 rounded-xl p-3">
+                    <p class="text-xs text-gray-500">Impresiones</p>
+                    <p class="text-lg font-black text-gray-900 dark:text-white">{{ number_format($socialPropertyStats['tiktok']['impressions']) }}</p>
+                </div>
+                <div class="bg-gray-50 dark:bg-white/5 rounded-xl p-3">
+                    <p class="text-xs text-gray-500">CTR</p>
+                    <p class="text-lg font-black text-[#00C4FF]">{{ number_format($socialPropertyStats['tiktok']['avg_ctr'] ?? 0, 1) }}%</p>
+                </div>
+                <div class="bg-gray-50 dark:bg-white/5 rounded-xl p-3">
+                    <p class="text-xs text-gray-500">Posición</p>
+                    <p class="text-lg font-black text-gray-900 dark:text-white">{{ number_format($socialPropertyStats['tiktok']['avg_position'] ?? 0, 1) }}</p>
+                </div>
+            </div>
+            @if(count($socialPropertyStats['tiktok']['top_queries'] ?? []) > 0)
+            <h4 class="font-bold text-[10px] text-gray-500 uppercase tracking-wider mb-1.5">Top consultas</h4>
+            <div class="space-y-1">
+                @foreach($socialPropertyStats['tiktok']['top_queries'] as $query => $data)
+                <div class="flex justify-between text-[11px]">
+                    <span class="text-gray-700 dark:text-gray-300 truncate max-w-[160px]">{{ $query }}</span>
+                    <span class="text-gray-500">{{ $data['clicks'] }} clics</span>
+                </div>
+                @endforeach
+            </div>
+            @endif
+            @else
+            <p class="text-xs text-gray-400 dark:text-gray-500 text-center py-4">Sin datos de Search Console sincronizados aún.</p>
+            @endif
+        </div>
 
         {{-- YouTube --}}
-        <a href="https://youtube.com/@invicta_cr" target="_blank" rel="noopener noreferrer" class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-5 hover:-translate-y-0.5 transition-transform group">
-            <div class="flex items-center gap-3 mb-3">
-                <div class="w-10 h-10 rounded-xl bg-red-600 flex items-center justify-center text-white group-hover:scale-110 transition-transform">
-                    <i class="fa-brands fa-youtube text-lg"></i>
-                </div>
-                <div>
-                    <p class="text-xs text-gray-500 dark:text-gray-400">YouTube</p>
-                    <p class="text-sm font-bold text-gray-900 dark:text-white">@invicta_cr</p>
-                </div>
-            </div>
-            <p class="text-[10px] text-gray-400 dark:text-gray-500">Propiedad vinculada al dominio</p>
-        </a>
-
-        {{-- Search Console --}}
-        <a href="https://search.google.com/search-console" target="_blank" rel="noopener noreferrer" class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-5 hover:-translate-y-0.5 transition-transform group">
-            <div class="flex items-center gap-3 mb-3">
-                <div class="w-10 h-10 rounded-xl bg-[#00C4FF] flex items-center justify-center text-white group-hover:scale-110 transition-transform">
-                    <i class="fa-solid fa-magnifying-glass-chart text-lg"></i>
-                </div>
-                <div>
-                    <p class="text-xs text-gray-500 dark:text-gray-400">Search Console</p>
-                    <p class="text-sm font-bold text-gray-900 dark:text-white">invictacostarica.com</p>
+        <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-6">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-red-600 flex items-center justify-center text-white">
+                        <i class="fa-brands fa-youtube text-lg"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-black text-gray-900 dark:text-white uppercase tracking-wider text-sm">YouTube</h3>
+                        <a href="https://youtube.com/@invicta_cr" target="_blank" rel="noopener noreferrer" class="text-[10px] text-[#00C4FF] hover:underline">@invicta_cr <i class="fa-solid fa-arrow-up-right-from-square text-[8px]"></i></a>
+                    </div>
                 </div>
             </div>
-            <p class="text-[10px] text-gray-400 dark:text-gray-500">Métricas de rendimiento SEO</p>
-        </a>
+            @if(isset($socialPropertyStats['youtube']) && ($socialPropertyStats['youtube']['clicks'] > 0 || $socialPropertyStats['youtube']['impressions'] > 0))
+            <div class="grid grid-cols-2 gap-2 mb-3">
+                <div class="bg-gray-50 dark:bg-white/5 rounded-xl p-3">
+                    <p class="text-xs text-gray-500">Clics</p>
+                    <p class="text-lg font-black text-gray-900 dark:text-white">{{ number_format($socialPropertyStats['youtube']['clicks']) }}</p>
+                </div>
+                <div class="bg-gray-50 dark:bg-white/5 rounded-xl p-3">
+                    <p class="text-xs text-gray-500">Impresiones</p>
+                    <p class="text-lg font-black text-gray-900 dark:text-white">{{ number_format($socialPropertyStats['youtube']['impressions']) }}</p>
+                </div>
+                <div class="bg-gray-50 dark:bg-white/5 rounded-xl p-3">
+                    <p class="text-xs text-gray-500">CTR</p>
+                    <p class="text-lg font-black text-[#00C4FF]">{{ number_format($socialPropertyStats['youtube']['avg_ctr'] ?? 0, 1) }}%</p>
+                </div>
+                <div class="bg-gray-50 dark:bg-white/5 rounded-xl p-3">
+                    <p class="text-xs text-gray-500">Posición</p>
+                    <p class="text-lg font-black text-gray-900 dark:text-white">{{ number_format($socialPropertyStats['youtube']['avg_position'] ?? 0, 1) }}</p>
+                </div>
+            </div>
+            @if(count($socialPropertyStats['youtube']['top_queries'] ?? []) > 0)
+            <h4 class="font-bold text-[10px] text-gray-500 uppercase tracking-wider mb-1.5">Top consultas</h4>
+            <div class="space-y-1">
+                @foreach($socialPropertyStats['youtube']['top_queries'] as $query => $data)
+                <div class="flex justify-between text-[11px]">
+                    <span class="text-gray-700 dark:text-gray-300 truncate max-w-[160px]">{{ $query }}</span>
+                    <span class="text-gray-500">{{ $data['clicks'] }} clics</span>
+                </div>
+                @endforeach
+            </div>
+            @endif
+            @else
+            <p class="text-xs text-gray-400 dark:text-gray-500 text-center py-4">Sin datos de Search Console sincronizados aún.</p>
+            @endif
+        </div>
     </div>
 </div>
 
