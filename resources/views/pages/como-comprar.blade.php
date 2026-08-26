@@ -61,6 +61,37 @@
                         <p class="text-gray-600 dark:text-gray-400 leading-relaxed mb-6">
                             Tu tranquilidad es lo más importante. Ofrecemos métodos de pago flexibles y seguros respaldados por nuestra garantía real de 6 meses.
                         </p>
+                        {{-- Métodos de pago aceptados --}}
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+                            <div class="flex items-center gap-2.5 bg-gray-50 dark:bg-white/5 p-3 rounded-xl border border-gray-200 dark:border-white/10">
+                                <i class="fa-solid fa-money-bill-wave text-purple-400 text-lg"></i>
+                                <div>
+                                    <p class="text-xs font-bold text-gray-900 dark:text-white">Efectivo</p>
+                                    <p class="text-[10px] text-gray-500 dark:text-gray-500">Contra entrega GAM</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2.5 bg-gray-50 dark:bg-white/5 p-3 rounded-xl border border-gray-200 dark:border-white/10">
+                                <i class="fa-solid fa-credit-card text-purple-400 text-lg"></i>
+                                <div>
+                                    <p class="text-xs font-bold text-gray-900 dark:text-white">Tarjeta</p>
+                                    <p class="text-[10px] text-gray-500 dark:text-gray-500">Crédito y débito</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2.5 bg-gray-50 dark:bg-white/5 p-3 rounded-xl border border-gray-200 dark:border-white/10">
+                                <i class="fa-solid fa-mobile-screen-button text-purple-400 text-lg"></i>
+                                <div>
+                                    <p class="text-xs font-bold text-gray-900 dark:text-white">SINPE Móvil</p>
+                                    <p class="text-[10px] text-gray-500 dark:text-gray-500">Acreditación inmediata</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2.5 bg-gray-50 dark:bg-white/5 p-3 rounded-xl border border-gray-200 dark:border-white/10">
+                                <i class="fa-solid fa-building-columns text-purple-400 text-lg"></i>
+                                <div>
+                                    <p class="text-xs font-bold text-gray-900 dark:text-white">Transferencia</p>
+                                    <p class="text-[10px] text-gray-500 dark:text-gray-500">Bancaria directa</p>
+                                </div>
+                            </div>
+                        </div>
                         <div class="space-y-4">
                             <div class="flex items-start gap-3 bg-purple-500/10 dark:bg-purple-500/5 p-4 rounded-xl border border-purple-500/20 dark:border-purple-500/10">
                                 <i class="fa-solid fa-handshake text-purple-400 mt-1"></i>

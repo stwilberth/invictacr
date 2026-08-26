@@ -160,6 +160,14 @@
     </div>
     @endif
 
+    {{-- Próximamente --}}
+    <div class="mb-2">
+        <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer py-2">
+            <input type="checkbox" {{ request('proximo') ? 'checked' : '' }} onchange="window.CatalogManager && window.CatalogManager.setFilter('proximo', this.checked ? '1' : '')" class="rounded border-gray-300 dark:border-gray-600 text-[#00C4FF] focus:ring-[#00C4FF]">
+            <span class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Mostrar próximos</span>
+        </label>
+    </div>
+
     {{-- Precio --}}
     <div class="mb-2">
         <button type="button" @click="openSection = openSection === 'precio' ? null : 'precio'" class="w-full flex items-center justify-between text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider py-2">
