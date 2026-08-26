@@ -10,7 +10,16 @@ class LiveSearchController extends Controller
 {
     public function __invoke(Request $request)
     {
-        $query = Product::where("activo", true)->where("precio_venta", ">", 0)->where("stock", ">", 0);
+        $hideProximo = $request->input('proximo') === '0';
+        if ($hideProximo) {
+            $query = Product::where("activo", true)->where("precio_venta", ">", 0)->where("stock", ">", 0)->where("proximo", false);
+        } else {
+            $query = Product::where("activo", true)->where(function ($q) {
+                $q->where(function ($q2) {
+                    $q2->where("precio_venta", ">", 0)->where("stock", ">", 0);
+                })->orWhere("proximo", true);
+            });
+        }
 
         if ($request->filled("q")) {
             Product::applyTextSearch($query, $request->q);
