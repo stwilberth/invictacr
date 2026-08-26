@@ -358,6 +358,10 @@
                         <span wire:loading.remove wire:target="testGaConnection">Probar conexion</span>
                         <span wire:loading wire:target="testGaConnection">...</span>
                     </button>
+                    <button wire:click="syncGoogleAnalytics" wire:loading.attr="disabled" class="text-[10px] font-bold px-2 py-1 rounded-lg bg-[#00C4FF]/10 text-[#00C4FF] hover:bg-[#00C4FF]/20 transition-colors disabled:opacity-50">
+                        <span wire:loading.remove wire:target="syncGoogleAnalytics">Actualizar datos</span>
+                        <span wire:loading wire:target="syncGoogleAnalytics">...</span>
+                    </button>
                 </div>
             </div>
             @if($gaConnectionTest)
@@ -428,10 +432,16 @@
         <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-6">
             <div class="flex items-center justify-between mb-4">
                 <h2 class="font-black text-gray-900 dark:text-white uppercase tracking-wider text-sm">Search Console</h2>
-                <button wire:click="testScConnection" wire:loading.attr="disabled" class="text-[10px] font-bold px-2 py-1 rounded-lg border border-gray-200 dark:border-white/10 text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors disabled:opacity-50">
-                    <span wire:loading.remove wire:target="testScConnection">Probar conexion</span>
-                    <span wire:loading wire:target="testScConnection">...</span>
-                </button>
+                <div class="flex items-center gap-2">
+                    <button wire:click="testScConnection" wire:loading.attr="disabled" class="text-[10px] font-bold px-2 py-1 rounded-lg border border-gray-200 dark:border-white/10 text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors disabled:opacity-50">
+                        <span wire:loading.remove wire:target="testScConnection">Probar conexion</span>
+                        <span wire:loading wire:target="testScConnection">...</span>
+                    </button>
+                    <button wire:click="syncSearchConsole" wire:loading.attr="disabled" class="text-[10px] font-bold px-2 py-1 rounded-lg bg-[#00C4FF]/10 text-[#00C4FF] hover:bg-[#00C4FF]/20 transition-colors disabled:opacity-50">
+                        <span wire:loading.remove wire:target="syncSearchConsole">Actualizar datos</span>
+                        <span wire:loading wire:target="syncSearchConsole">...</span>
+                    </button>
+                </div>
             </div>
             @if($scConnectionTest)
             <div class="mb-3 px-3 py-2 rounded-lg text-xs font-bold {{ $scConnectionTest['ok'] ? 'bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400' : 'bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400' }}">
@@ -495,10 +505,16 @@
         <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-6">
             <div class="flex items-center justify-between mb-4">
                 <h2 class="font-black text-gray-900 dark:text-white uppercase tracking-wider text-sm">Google Ads</h2>
-                <button wire:click="testAdsConnection" wire:loading.attr="disabled" class="text-[10px] font-bold px-2 py-1 rounded-lg border border-gray-200 dark:border-white/10 text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors disabled:opacity-50">
-                    <span wire:loading.remove wire:target="testAdsConnection">Probar conexion</span>
-                    <span wire:loading wire:target="testAdsConnection">...</span>
-                </button>
+                <div class="flex items-center gap-2">
+                    <button wire:click="testAdsConnection" wire:loading.attr="disabled" class="text-[10px] font-bold px-2 py-1 rounded-lg border border-gray-200 dark:border-white/10 text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors disabled:opacity-50">
+                        <span wire:loading.remove wire:target="testAdsConnection">Probar conexion</span>
+                        <span wire:loading wire:target="testAdsConnection">...</span>
+                    </button>
+                    <button wire:click="syncGoogleAds" wire:loading.attr="disabled" class="text-[10px] font-bold px-2 py-1 rounded-lg bg-[#00C4FF]/10 text-[#00C4FF] hover:bg-[#00C4FF]/20 transition-colors disabled:opacity-50">
+                        <span wire:loading.remove wire:target="syncGoogleAds">Actualizar datos</span>
+                        <span wire:loading wire:target="syncGoogleAds">...</span>
+                    </button>
+                </div>
             </div>
             @if($adsConnectionTest)
             <div class="mb-3 px-3 py-2 rounded-lg text-xs font-bold {{ $adsConnectionTest['ok'] ? 'bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400' : 'bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400' }}">
@@ -527,10 +543,16 @@
         <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-6">
             <div class="flex items-center justify-between mb-4">
                 <h2 class="font-black text-gray-900 dark:text-white uppercase tracking-wider text-sm">Meta Ads</h2>
-                <button wire:click="testFbConnection" wire:loading.attr="disabled" class="text-[10px] font-bold px-2 py-1 rounded-lg border border-gray-200 dark:border-white/10 text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors disabled:opacity-50">
-                    <span wire:loading.remove wire:target="testFbConnection">Probar conexion</span>
-                    <span wire:loading wire:target="testFbConnection">...</span>
-                </button>
+                <div class="flex items-center gap-2">
+                    <button wire:click="testFbConnection" wire:loading.attr="disabled" class="text-[10px] font-bold px-2 py-1 rounded-lg border border-gray-200 dark:border-white/10 text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors disabled:opacity-50">
+                        <span wire:loading.remove wire:target="testFbConnection">Probar conexion</span>
+                        <span wire:loading wire:target="testFbConnection">...</span>
+                    </button>
+                    <button wire:click="syncMetaAds" wire:loading.attr="disabled" class="text-[10px] font-bold px-2 py-1 rounded-lg bg-[#00C4FF]/10 text-[#00C4FF] hover:bg-[#00C4FF]/20 transition-colors disabled:opacity-50">
+                        <span wire:loading.remove wire:target="syncMetaAds">Actualizar datos</span>
+                        <span wire:loading wire:target="syncMetaAds">...</span>
+                    </button>
+                </div>
             </div>
             @if($fbConnectionTest)
             <div class="mb-3 px-3 py-2 rounded-lg text-xs font-bold {{ $fbConnectionTest['ok'] ? 'bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400' : 'bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400' }}">

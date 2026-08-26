@@ -510,6 +510,58 @@ class Dashboard extends Component
         $this->fbConnectionTest = app(\App\Services\FacebookAdsService::class)->testConnection();
     }
 
+    public function syncGoogleAds(): void
+    {
+        $days = match ($this->period) {
+            '7d' => 7,
+            '90d' => 90,
+            '365d' => 365,
+            default => 30,
+        };
+        \Illuminate\Support\Facades\Artisan::call('sync:google-ads', ['--days' => $days]);
+        $this->loadAnalytics();
+        session()->flash('message', 'Google Ads sincronizado.');
+    }
+
+    public function syncMetaAds(): void
+    {
+        $days = match ($this->period) {
+            '7d' => 7,
+            '90d' => 90,
+            '365d' => 365,
+            default => 30,
+        };
+        \Illuminate\Support\Facades\Artisan::call('sync:facebook-ads', ['--days' => $days]);
+        $this->loadAnalytics();
+        session()->flash('message', 'Meta Ads sincronizado.');
+    }
+
+    public function syncGoogleAnalytics(): void
+    {
+        $days = match ($this->period) {
+            '7d' => 7,
+            '90d' => 90,
+            '365d' => 365,
+            default => 30,
+        };
+        \Illuminate\Support\Facades\Artisan::call('sync:google-analytics', ['--days' => $days]);
+        $this->loadAnalytics();
+        session()->flash('message', 'Google Analytics sincronizado.');
+    }
+
+    public function syncSearchConsole(): void
+    {
+        $days = match ($this->period) {
+            '7d' => 7,
+            '90d' => 90,
+            '365d' => 365,
+            default => 30,
+        };
+        \Illuminate\Support\Facades\Artisan::call('sync:search-console', ['--days' => $days]);
+        $this->loadAnalytics();
+        session()->flash('message', 'Search Console sincronizado.');
+    }
+
     public function render()
     {
         return view('livewire.admin.dashboard')
