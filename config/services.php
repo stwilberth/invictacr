@@ -54,6 +54,10 @@ return [
             'tiktok' => 'https://www.tiktok.com/@invictacr',
             'youtube' => 'https://www.youtube.com/@invicta_cr',
         ],
+        'ads_client_id' => env('GOOGLE_ADS_CLIENT_ID'),
+        'ads_client_secret' => env('GOOGLE_ADS_CLIENT_SECRET'),
+        'ads_refresh_token' => env('GOOGLE_ADS_REFRESH_TOKEN'),
+        'ads_mcc_id' => env('GOOGLE_ADS_MCC_ID'),
     ],
 
     'facebook' => [

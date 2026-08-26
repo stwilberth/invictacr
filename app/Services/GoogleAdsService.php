@@ -8,26 +8,32 @@ use Illuminate\Support\Facades\Log;
 
 class GoogleAdsService
 {
-    protected GoogleServiceAccount $serviceAccount;
+    protected string $clientId;
+    protected string $clientSecret;
+    protected string $refreshToken;
     protected string $customerId;
+    protected string $mccId;
     protected string $developerToken;
 
     public function __construct()
     {
-        $this->serviceAccount = app(GoogleServiceAccount::class);
+        $this->clientId = config('services.google.ads_client_id');
+        $this->clientSecret = config('services.google.ads_client_secret');
+        $this->refreshToken = config('services.google.ads_refresh_token');
         $this->customerId = str_replace('-', '', config('services.google.ads_customer_id'));
+        $this->mccId = str_replace('-', '', config('services.google.ads_mcc_id'));
         $this->developerToken = config('services.google.ads_developer_token');
     }
 
     public function isConfigured(): bool
     {
-        return $this->serviceAccount->isConfigured() && !empty($this->customerId) && !empty($this->developerToken);
+        return !empty($this->clientId) && !empty($this->clientSecret) && !empty($this->refreshToken) && !empty($this->customerId) && !empty($this->developerToken);
     }
 
     public function testConnection(): array
     {
         if (!$this->isConfigured()) {
-            return ['ok' => false, 'message' => 'No configurado: falta service account, customer ID o developer token'];
+            return ['ok' => false, 'message' => 'No configurado: faltan credenciales OAuth o developer token'];
         }
 
         $token = $this->getToken();
@@ -36,12 +42,18 @@ class GoogleAdsService
         }
 
         try {
-            $response = Http::withHeaders([
+            $headers = [
                 'Authorization' => "Bearer {$token}",
                 'developer-token' => $this->developerToken,
-            ])->post("https://googleads.googleapis.com/v24/customers/{$this->customerId}/googleAds:search", [
-                'query' => "SELECT customer.id, customer.descriptive_name FROM customer LIMIT 1",
-            ]);
+            ];
+            if (!empty($this->mccId)) {
+                $headers['login-customer-id'] = $this->mccId;
+            }
+
+            $response = Http::withHeaders($headers)
+                ->post("https://googleads.googleapis.com/v25/customers/{$this->customerId}/googleAds:search", [
+                    'query' => "SELECT customer.id, customer.descriptive_name FROM customer LIMIT 1",
+                ]);
 
             if ($response->successful()) {
                 $name = $response->json('results.0.customer.descriptiveName', 'desconocido');
@@ -57,7 +69,24 @@ class GoogleAdsService
 
     protected function getToken(): ?string
     {
-        return $this->serviceAccount->getAccessToken('https://www.googleapis.com/auth/adwords');
+        try {
+            $response = Http::asForm()->post('https://oauth2.googleapis.com/token', [
+                'client_id' => $this->clientId,
+                'client_secret' => $this->clientSecret,
+                'refresh_token' => $this->refreshToken,
+                'grant_type' => 'refresh_token',
+            ]);
+
+            if ($response->successful()) {
+                return $response->json('access_token');
+            }
+
+            Log::warning('Google Ads: getToken falló', ['body' => $response->body()]);
+            return null;
+        } catch (\Exception $e) {
+            report($e);
+            return null;
+        }
     }
 
     public function fetchCampaignPerformance(\DateTime $date): array
@@ -68,10 +97,15 @@ class GoogleAdsService
         $dateStr = $date->format('Y-m-d');
 
         try {
-            $response = Http::withHeaders([
+            $headers = [
                 'Authorization' => "Bearer {$token}",
                 'developer-token' => $this->developerToken,
-            ])->post("https://googleads.googleapis.com/v24/customers/{$this->customerId}/googleAds:search", [
+            ];
+            if (!empty($this->mccId)) {
+                $headers['login-customer-id'] = $this->mccId;
+            }
+
+            $response = Http::withHeaders($headers)->post("https://googleads.googleapis.com/v25/customers/{$this->customerId}/googleAds:search", [
                 'query' => "
                     SELECT
                         campaign.id,
