@@ -102,9 +102,9 @@ Patrón a replicar para cualquier popup/banner fijo nuevo:
 Configurado en `.opencode/opencode.json` como `analytics-mcp`. Permite consultar datos de GA4 directamente desde opencode.
 
 ### Credenciales
-- Service account JSON: `storage/app/google-service-account.json`
-- Cuenta: `analitycs-reader@invicta-costarica.iam.gserviceaccount.com`
-- Proyecto GCP: `invicta-costarica`
+- Service account JSON: `storage/app/google-service-account-opencode.json`
+- Cuenta: `opencode-wilberth@invictacr.iam.gserviceaccount.com`
+- Proyecto GCP: `invictacr`
 - Property ID GA4: `482259644`
 
 ### Uso (desde opencode)
@@ -126,11 +126,11 @@ Ejemplos de prompts:
 | `list_google_ads_links` | Enlaces con Google Ads |
 
 ### Documentación
-- Repo: https://github.com/googleanalytics/google-analytics-mcp
+- Repo MCP: https://github.com/googleanalytics/google-analytics-mcp
 - Setup video: https://youtu.be/nS8HLdwmVlY
-- Discord: https://discord.com/channels/971845904002871346/1398002598665257060
-- Data API docs: https://developers.google.com/analytics/devguides/reporting/data/v1
-- Admin API docs: https://developers.google.com/analytics/devguides/config/admin/v1
+- Admin API (REST): https://developers.google.com/analytics/devguides/config/admin/v1?hl=es-419
+- Data API (reportes): https://developers.google.com/analytics/devguides/reporting/data/v1
+- Discord GA: https://discord.com/channels/971845904002871346/1398002598665257060
 
 ## Al terminar cada tarea
 - **SIEMPRE limpiar cache de Laravel**: `php artisan view:clear && php artisan cache:clear && php artisan config:clear && php artisan route:clear`
