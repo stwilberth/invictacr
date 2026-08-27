@@ -21,7 +21,7 @@
             <i class="fa-solid fa-chevron-down text-[8px]" :class="{'rotate-180': filtersOpen}"></i>
         </button>
 
-        <div class="relative" @click.outside="open = false">
+        <div class="relative hidden sm:block" @click.outside="open = false">
             <button @click="open = !open" class="bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-lg px-3 py-1.5 text-xs font-bold text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-all flex items-center gap-1.5">
                 <i class="fa-solid fa-table-cells"></i>
                 Columnas
@@ -107,12 +107,51 @@
         </select>
     </div>
 
-    <p class="sm:hidden text-center text-[11px] text-gray-400 mb-2">
-        <i class="fa-solid fa-arrows-left-right"></i> Desliza la tabla hacia los lados para ver más columnas
-    </p>
+    {{-- Mobile: cards compactas — solo imagen, modelo, precio, stock, video --}}
+    <div class="grid grid-cols-2 gap-2 sm:hidden">
+        @forelse($products as $product)
+            <div class="bg-white dark:bg-[#0f172a] rounded-xl border border-gray-200 dark:border-white/5 overflow-hidden flex flex-col">
+                <a href="{{ route('admin.products.edit', $product->id) }}" class="block relative">
+                    <div class="aspect-square bg-gray-50 dark:bg-[#0a0f1c] flex items-center justify-center overflow-hidden">
+                        @if($product->imagen)
+                            <img src="{{ $product->imagen }}" alt="{{ $product->modelo }}" class="w-full h-full object-contain p-1" loading="lazy" />
+                        @else
+                            <i class="fa-solid fa-image text-xl text-gray-300 dark:text-gray-600"></i>
+                        @endif
+                    </div>
+                    {{-- Stock badge --}}
+                    <span class="absolute top-1.5 right-1.5 px-1.5 py-0.5 rounded-full text-[8px] font-black leading-none
+                        @if($product->stock > 10) bg-green-500 text-white
+                        @elseif($product->stock > 0) bg-amber-500 text-white
+                        @else bg-red-500 text-white @endif">
+                        {{ $product->stock > 0 ? $product->stock.'u' : '0' }}
+                    </span>
+                    {{-- Video indicator --}}
+                    @if($product->video_uid)
+                        <span class="absolute top-1.5 left-1.5 bg-black/75 backdrop-blur-sm text-white rounded-full w-6 h-6 flex items-center justify-center">
+                            <i class="fa-solid fa-play text-[9px] ml-px"></i>
+                        </span>
+                    @endif
+                </a>
+                <div class="px-2 pt-1.5 pb-2 flex flex-col gap-0.5 flex-1">
+                    <p class="font-black text-[11px] leading-tight truncate text-gray-900 dark:text-white">{{ $product->modelo }}</p>
+                    @if($product->coleccion)
+                        <p class="text-[9px] leading-none text-gray-400 dark:text-gray-500 truncate">{{ $product->coleccion }}</p>
+                    @endif
+                    <p class="font-bold text-[11px] text-red-500 dark:text-red-400 leading-none mt-0.5">₡{{ number_format($product->precio_venta, 0) }}</p>
+                    <div class="flex items-center justify-between mt-1.5 gap-1">
+                        <a href="{{ route('admin.products.edit', $product->id) }}" class="flex-1 bg-[#0a0f1c] dark:bg-white text-white dark:text-[#0a0f1c] rounded-full text-[10px] font-bold py-1 text-center leading-none">Editar</a>
+                        <a href="{{ route('products.show', ['slug' => $product->slug]) }}" target="_blank" class="w-7 h-7 rounded-full bg-gray-100 dark:bg-white/10 flex items-center justify-center text-gray-600 dark:text-gray-300 shrink-0" title="Ver sitio"><i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i></a>
+                    </div>
+                </div>
+            </div>
+        @empty
+            <div class="col-span-2 py-10 text-center text-sm text-gray-400">Sin productos</div>
+        @endforelse
+    </div>
 
-    <div class="relative bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5">
-    <div class="pointer-events-none absolute right-0 top-0 bottom-0 w-8 rounded-r-2xl bg-gradient-to-l from-white dark:from-[#0f172a] to-transparent sm:hidden z-10"></div>
+    {{-- Desktop: tabla completa --}}
+    <div class="hidden sm:block relative bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5">
     <div class="overflow-x-auto">
         <table class="w-full text-sm" style="min-width: 1200px;">
             <thead>
