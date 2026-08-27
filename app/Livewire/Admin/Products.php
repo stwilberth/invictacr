@@ -28,6 +28,13 @@ class Products extends Component
 
     public ?int $optimizingProductId = null;
 
+    public function updating($property, $value)
+    {
+        if (in_array($property, ['search', 'filterGender', 'filterColeccion', 'filterColor', 'filterCaja', 'filterBrazalete', 'filterResistencia', 'filterTamano', 'filterStock', 'filterActivo', 'filterBloqueado', 'filterProximo'])) {
+            $this->resetPage();
+        }
+    }
+
     public function sortBy($field)
     {
         if ($this->sortField === $field) {
@@ -37,6 +44,7 @@ class Products extends Component
             $this->sortField = $field;
             $this->sortDirection = "asc";
         }
+        $this->resetPage();
     }
 
     public function toggleActive($productId)
