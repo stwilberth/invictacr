@@ -271,6 +271,7 @@
                 @endif
 
             </div>
+            </div>
 
             {{-- Right Column: Buy Box --}}
             <div class="lg:col-span-6 flex flex-col">
