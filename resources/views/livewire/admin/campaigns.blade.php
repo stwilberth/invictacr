@@ -1,273 +1,249 @@
 <div>
-    <div class="flex gap-2 mb-6 flex-wrap">
+    <div class="flex gap-2 mb-4 sm:mb-6 overflow-x-auto scrollbar-none pb-1 -mx-6 px-6 sm:mx-0 sm:px-0 sm:flex-wrap snap-x snap-mandatory">
         <button wire:click="$set('activeTab', 'create')"
-            class="px-5 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center gap-2
+            class="px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 whitespace-nowrap shrink-0 snap-start
             {{ $activeTab === 'create' ? 'bg-[#00C4FF] text-[#0a0f1c]' : 'bg-white dark:bg-[#0f172a] text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-white/5 hover:border-[#00C4FF]/50' }}">
             <i class="fa-solid fa-wand-magic-sparkles"></i> Crear
         </button>
         <button wire:click="$set('activeTab', 'utm')"
-            class="px-5 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center gap-2
+            class="px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 whitespace-nowrap shrink-0 snap-start
             {{ $activeTab === 'utm' ? 'bg-[#00C4FF] text-[#0a0f1c]' : 'bg-white dark:bg-[#0f172a] text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-white/5 hover:border-[#00C4FF]/50' }}">
             <i class="fa-solid fa-link"></i> UTM
         </button>
         <button wire:click="$set('activeTab', 'saved')"
-            class="px-5 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center gap-2
+            class="px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 whitespace-nowrap shrink-0 snap-start
             {{ $activeTab === 'saved' ? 'bg-[#00C4FF] text-[#0a0f1c]' : 'bg-white dark:bg-[#0f172a] text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-white/5 hover:border-[#00C4FF]/50' }}">
             <i class="fa-solid fa-bookmark"></i> Guardados
         </button>
     </div>
 
-    {{-- TAB: CREAR (3 columnas: producto | controles | preview) --}}
+    {{-- TAB: CREAR --}}
     @if ($activeTab === 'create')
-        <div class="space-y-3">
-            <div wire:key="image-canvas-block" x-data x-init="$nextTick(() => window.initInvictaImageCanvas())">
-                {{-- Columna 1: Selector de producto (vertical) --}}
-                <div class="grid grid-cols-2 gap-3">
-
-                    {{-- Columna 2: Controles del formulario de imagen --}}
-                    <div class="flex flex-col">
-                        <div
-                            class="col-span-2 bg-white dark:bg-[#0f172a] rounded-xl border border-gray-200 dark:border-white/5 p-2 flex flex-col">
-                            <div class="flex items-center gap-1 mb-2 px-1">
-                                <i class="fa-solid fa-search text-gray-400 text-[10px]"></i>
-                                <input wire:model.live="productSearch" placeholder="Buscar..."
-                                    class="flex-1 bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-md px-2 py-1 text-[10px] focus:border-[#00C4FF] focus:ring-1 focus:ring-[#00C4FF] outline-none" />
-                                <button wire:click="setProductFilter('all')"
-                                    class="px-1.5 py-0.5 rounded text-[9px] font-bold {{ $productFilter === 'all' ? 'bg-[#00C4FF] text-[#0a0f1c]' : 'bg-gray-100 dark:bg-white/5 text-gray-500' }}">Todos</button>
-                                <button wire:click="setProductFilter('pending')"
-                                    class="px-1.5 py-0.5 rounded text-[9px] font-bold {{ $productFilter === 'pending' ? 'bg-[#00C4FF] text-[#0a0f1c]' : 'bg-gray-100 dark:bg-white/5 text-gray-500' }}">Pendientes</button>
-                                <button wire:click="exportFiltered"
-                                    class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400 hover:bg-green-200 dark:hover:bg-green-900/30 transition-all">
-                                    <i class="fa-solid fa-table"></i> Exportar
-                                </button>
-                            </div>
-                            <div class="flex flex-wrap gap-1 mb-2 px-1">
-                                <select wire:model.live="sortField" class="flex-1 bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-md px-2 py-1 text-[10px] focus:border-[#00C4FF] outline-none">
-                                    <option value="modelo">Modelo</option>
-                                    <option value="precio_venta">Precio</option>
-                                    <option value="created_at">Fecha</option>
-                                    <option value="size">Tamaño</option>
-                                </select>
-                                <button wire:click="sortBy(sortField)"
-                                    class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-gray-100 dark:bg-white/5 text-gray-500 hover:text-[#00C4FF]">
-                                    <i class="fa-solid {{ $sortDirection === 'asc' ? 'fa-arrow-up-wide-short' : 'fa-arrow-down-wide-short' }}"></i>
-                                </button>
-                                <select wire:model.live="filterColeccion" class="flex-1 bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-md px-2 py-1 text-[10px] focus:border-[#00C4FF] outline-none">
-                                    <option value="">Todas las colecciones</option>
-                                    @foreach($colecciones as $col)
-                                        <option value="{{ $col }}">{{ $col }}</option>
-                                    @endforeach
-                                </select>
-                                <select wire:model.live="filterColor" class="flex-1 bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-md px-2 py-1 text-[10px] focus:border-[#00C4FF] outline-none">
-                                    <option value="">Todos los colores</option>
-                                    @foreach($colores as $color)
-                                        <option value="{{ $color }}">{{ $color }}</option>
-                                    @endforeach
-                                </select>
-                                <select wire:model.live="filterBrazalete" class="flex-1 bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-md px-2 py-1 text-[10px] focus:border-[#00C4FF] outline-none">
-                                    <option value="">Todos los brazaletes</option>
-                                    @foreach($brazaletes as $b)
-                                        <option value="{{ $b }}">{{ $b }}</option>
-                                    @endforeach
-                                </select>
-                                <select wire:model.live="filterGenero" class="flex-1 bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-md px-2 py-1 text-[10px] focus:border-[#00C4FF] outline-none">
-                                    <option value="">Todos los géneros</option>
-                                    <option value="hombre">Hombre</option>
-                                    <option value="mujer">Mujer</option>
-                                    <option value="unisex">Unisex</option>
-                                </select>
-                            </div>
-                            <div class="flex gap-2 overflow-x-auto pb-1">
-                                @forelse($products as $p)
-                                    <button wire:click="$set('selectedProductId', {{ $p->id }})"
-                                        class="flex-shrink-0 p-1 rounded-lg border-2 transition-all {{ $selectedProductId == $p->id ? 'border-[#00C4FF]' : 'border-transparent hover:border-gray-200 dark:hover:border-white/20' }}"
-                                        style="width:90px">
-                                        @if ($p->imagen)
-                                            <img src="{{ $p->imagen }}"
-                                                class="w-full aspect-square object-contain rounded" loading="lazy" />
-                                        @endif
-                                        <p
-                                            class="text-[8px] font-medium text-gray-700 dark:text-gray-300 truncate mt-0.5">
-                                            {{ $p->modelo }}</p>
-                                    </button>
-                                @empty
-                                    <p class="text-[12px] text-gray-400 py-2">Sin resultados</p>
-                                @endforelse
-                            </div>
-                            <div class="mt-2">{{ $products->links() }}</div>
+        <div class="space-y-3 sm:space-y-4">
+            <div wire:key="image-canvas-block" x-data x-init="$nextTick(() => window.initInvictaImageCanvas())" class="space-y-3 sm:space-y-4">
+                {{-- Selector de producto: full width, mobile-first --}}
+                <div class="bg-white dark:bg-[#0f172a] rounded-xl border border-gray-200 dark:border-white/5 p-2.5 sm:p-3 flex flex-col gap-2.5">
+                    {{-- Fila búsqueda + filtros rápidos --}}
+                    <div class="flex flex-col sm:flex-row sm:items-center gap-2">
+                        <div class="flex items-center gap-2 flex-1 min-w-0">
+                            <i class="fa-solid fa-search text-gray-400 text-xs shrink-0"></i>
+                            <input wire:model.live="productSearch" placeholder="Buscar modelo o título..."
+                                class="flex-1 min-w-0 bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-lg px-2.5 py-2 sm:py-1.5 text-xs sm:text-[11px] focus:border-[#00C4FF] focus:ring-1 focus:ring-[#00C4FF] outline-none" />
                         </div>
-                        <div class="grid grid-cols-2 gap-2">
-                            <div class="col">
-                                {{-- Texto del anuncio (solo textarea, se autogenera al elegir producto) --}}
-                                @if ($generatedContent)
-                                    <div
-                                        class="bg-white dark:bg-[#0f172a] rounded-xl border border-gray-200 dark:border-white/5 p-3">
-                                        <textarea id="ad-textarea" readonly rows="12" onclick="var t=this;t.select();t.setSelectionRange(0,99999);document.execCommand?document.execCommand('copy'):navigator.clipboard?.writeText(t.value);t.style.outline='2px solid #00C4FF';setTimeout(()=>t.style.outline='',1000)"
-                                            class="w-full bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-gray-700 dark:text-gray-300 font-mono resize-none whitespace-pre-wrap">{{ $generatedContent['headline'] }}
-                                            {{ $generatedContent['body'] }}
-                                            {{ $generatedContent['cta'] ? $generatedContent['cta'] : '' }}
-                                        </textarea>
-                                    </div>
+                        <div class="flex items-center gap-1.5 shrink-0 overflow-x-auto scrollbar-none pb-0.5 sm:pb-0 -mx-1 px-1 sm:mx-0 sm:px-0 snap-x">
+                            <button wire:click="setProductFilter('all')"
+                                class="px-3 py-1.5 sm:py-1 rounded-full sm:rounded-md text-[11px] sm:text-[10px] font-bold whitespace-nowrap snap-start transition-colors {{ $productFilter === 'all' ? 'bg-[#00C4FF] text-[#0a0f1c]' : 'bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-400 border border-transparent' }}">Todos</button>
+                            <button wire:click="setProductFilter('pending')"
+                                class="px-3 py-1.5 sm:py-1 rounded-full sm:rounded-md text-[11px] sm:text-[10px] font-bold whitespace-nowrap snap-start transition-colors {{ $productFilter === 'pending' ? 'bg-[#00C4FF] text-[#0a0f1c]' : 'bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-400 border border-transparent' }}">Pendientes</button>
+                            <button wire:click="exportFiltered"
+                                class="px-3 py-1.5 sm:py-1 rounded-full sm:rounded-md text-[11px] sm:text-[10px] font-bold whitespace-nowrap snap-start bg-green-600 sm:bg-green-100 dark:bg-green-900/30 text-white sm:text-green-700 dark:text-green-400 hover:bg-green-700 sm:hover:bg-green-200 dark:hover:bg-green-900/40 transition-colors flex items-center gap-1">
+                                <i class="fa-solid fa-table text-[10px]"></i> Exportar ZIP
+                            </button>
+                        </div>
+                    </div>
+                    {{-- Fila filtros: grid 2 cols en móvil, flex en desktop --}}
+                    <div class="grid grid-cols-2 sm:flex sm:flex-wrap gap-2 sm:gap-1.5">
+                        <div class="flex items-center gap-1 col-span-2 sm:col-span-1 sm:flex-none">
+                            <select wire:model.live="sortField" class="flex-1 sm:w-auto bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-lg px-2.5 py-2 sm:py-1.5 text-xs sm:text-[10px] focus:border-[#00C4FF] outline-none min-h-[36px] sm:min-h-0">
+                                <option value="modelo">Modelo</option>
+                                <option value="precio_venta">Precio</option>
+                                <option value="created_at">Fecha</option>
+                                <option value="size">Tamaño</option>
+                            </select>
+                            <button wire:click="sortBy(sortField)"
+                                class="shrink-0 w-9 h-9 sm:w-auto sm:h-auto sm:px-2 sm:py-1 rounded-lg bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-400 hover:text-[#00C4FF] flex items-center justify-center">
+                                <i class="fa-solid {{ $sortDirection === 'asc' ? 'fa-arrow-up-wide-short' : 'fa-arrow-down-wide-short' }} text-xs"></i>
+                            </button>
+                        </div>
+                        <select wire:model.live="filterColeccion" class="bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-lg px-2.5 py-2 sm:py-1.5 text-xs sm:text-[10px] focus:border-[#00C4FF] outline-none min-h-[36px] sm:min-h-0">
+                            <option value="">Todas las colecciones</option>
+                            @foreach($colecciones as $col)
+                                <option value="{{ $col }}">{{ $col }}</option>
+                            @endforeach
+                        </select>
+                        <select wire:model.live="filterColor" class="bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-lg px-2.5 py-2 sm:py-1.5 text-xs sm:text-[10px] focus:border-[#00C4FF] outline-none min-h-[36px] sm:min-h-0">
+                            <option value="">Todos los colores</option>
+                            @foreach($colores as $color)
+                                <option value="{{ $color }}">{{ $color }}</option>
+                            @endforeach
+                        </select>
+                        <select wire:model.live="filterBrazalete" class="bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-lg px-2.5 py-2 sm:py-1.5 text-xs sm:text-[10px] focus:border-[#00C4FF] outline-none min-h-[36px] sm:min-h-0">
+                            <option value="">Todos los brazaletes</option>
+                            @foreach($brazaletes as $b)
+                                <option value="{{ $b }}">{{ $b }}</option>
+                            @endforeach
+                        </select>
+                        <select wire:model.live="filterGenero" class="bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-lg px-2.5 py-2 sm:py-1.5 text-xs sm:text-[10px] focus:border-[#00C4FF] outline-none min-h-[36px] sm:min-h-0">
+                            <option value="">Todos los géneros</option>
+                            <option value="hombre">Hombre</option>
+                            <option value="mujer">Mujer</option>
+                            <option value="unisex">Unisex</option>
+                        </select>
+                    </div>
+                    {{-- Carrusel productos: scroll horizontal con snap --}}
+                    <div class="flex gap-2 overflow-x-auto scrollbar-none pb-1 snap-x snap-mandatory -mx-2.5 px-2.5 sm:mx-0 sm:px-0">
+                        @forelse($products as $p)
+                            <button wire:click="$set('selectedProductId', {{ $p->id }})"
+                                class="flex-shrink-0 p-1 sm:p-1 rounded-xl border-2 transition-all snap-start {{ $selectedProductId == $p->id ? 'border-[#00C4FF] bg-[#00C4FF]/5' : 'border-transparent hover:border-gray-200 dark:hover:border-white/15 bg-gray-50 dark:bg-white/[0.03]' }}"
+                                style="width:76px">
+                                @if ($p->imagen)
+                                    <img src="{{ $p->imagen }}"
+                                        class="w-full aspect-square object-contain rounded-lg bg-white dark:bg-white/5" loading="lazy" />
+                                @else
+                                    <div class="w-full aspect-square rounded-lg bg-gray-100 dark:bg-white/5 flex items-center justify-center"><i class="fa-solid fa-image text-gray-300"></i></div>
                                 @endif
+                                <p class="text-[9px] sm:text-[8px] font-bold text-gray-700 dark:text-gray-300 truncate mt-1 px-0.5">{{ $p->modelo }}</p>
+                            </button>
+                        @empty
+                            <p class="text-xs text-gray-400 py-4 px-1">Sin resultados</p>
+                        @endforelse
+                    </div>
+                    <div class="pt-1 border-t border-gray-100 dark:border-white/5 -mx-2.5 sm:mx-0 px-1">{{ $products->links() }}</div>
+                </div>
+
+                {{-- Grid principal: preview + controles --}}
+                <div class="grid grid-cols-1 xl:grid-cols-2 gap-3 sm:gap-4">
+                    {{-- Canvas preview: primero en móvil para feedback inmediato --}}
+                    <div class="flex flex-col items-center justify-start p-2 sm:p-3 bg-[#050505] rounded-xl border border-white/10 order-1 xl:order-2 xl:sticky xl:top-4 self-start">
+                        <p class="w-full text-[10px] font-bold uppercase tracking-widest text-white/40 mb-2 flex items-center gap-1.5"><i class="fa-solid fa-eye text-[#00C4FF]"></i> Vista previa · 1080×1350</p>
+                        <canvas id="adCanvas" width="1080" height="1350"
+                            class="w-full h-auto rounded-[4px]"
+                            style="max-width:100%;max-height:min(68vh,520px);width:auto;box-shadow:0 10px 40px rgba(0,0,0,.6);"></canvas>
+                        <p class="text-[10px] text-white/30 mt-2 text-center">Pellizcá para hacer zoom en móvil · desliza para ver</p>
+                    </div>
+
+                    {{-- Columna controles --}}
+                    <div class="flex flex-col gap-3 sm:gap-3 order-2 xl:order-1 min-w-0">
+                        {{-- Texto del anuncio --}}
+                        @if ($generatedContent)
+                            <div class="bg-white dark:bg-[#0f172a] rounded-xl border border-gray-200 dark:border-white/5 p-3 sm:p-3">
+                                <div class="flex items-center justify-between mb-2">
+                                    <h3 class="font-bold text-[10px] sm:text-[11px] uppercase tracking-wider text-gray-900 dark:text-white flex items-center gap-1.5"><i class="fa-solid fa-quote-left text-[#00C4FF]"></i> Texto del anuncio</h3>
+                                    <span class="text-[9px] text-gray-400 hidden sm:inline">Tocá para copiar</span>
+                                </div>
+                                <textarea id="ad-textarea" readonly rows="7" onclick="var t=this;t.select();t.setSelectionRange(0,99999);document.execCommand?document.execCommand('copy'):navigator.clipboard?.writeText(t.value);t.style.outline='2px solid #00C4FF';setTimeout(()=>t.style.outline='',1000)"
+                                    class="w-full bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2.5 text-xs sm:text-xs text-gray-700 dark:text-gray-300 font-mono resize-none leading-relaxed min-h-[140px] sm:min-h-0">{{ $generatedContent['headline'] }}
+{{ $generatedContent['body'] }}
+{{ $generatedContent['cta'] ? $generatedContent['cta'] : '' }}
+                                </textarea>
+                                <button onclick="var t=document.getElementById('ad-textarea');t.select();t.setSelectionRange(0,99999);document.execCommand?document.execCommand('copy'):navigator.clipboard?.writeText(t.value);this.innerHTML='<i class=&quot;fa-solid fa-check&quot;></i> ¡Copiado!';setTimeout(()=>this.innerHTML='<i class=&quot;fa-solid fa-copy&quot;></i> Copiar texto',1500)" class="mt-2 w-full sm:hidden bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-xl py-2.5 text-xs font-bold flex items-center justify-center gap-1.5"><i class="fa-solid fa-copy"></i> Copiar texto</button>
                             </div>
-                            <div class="col">
-                                <div
-                                    class="bg-white dark:bg-[#1c1c1e] rounded-xl border border-gray-200 dark:border-white/5 p-3 space-y-2 max-h-[calc(100vh-280px)] overflow-y-auto text-gray-800 dark:text-gray-200">
-                                    <h2
-                                        class="font-bold text-[10px] uppercase tracking-wider flex items-center gap-1.5">
-                                        <span
-                                            class="w-3.5 h-3.5 rounded-full bg-[#d4af37] text-[7px] flex items-center justify-center font-black text-white">1</span>
-                                        Imagen del anuncio
-                                    </h2>
-                                    <p class="text-[9px] text-gray-400 -mt-1">Los datos se cargan automáticamente del
-                                        producto
-                                    </p>
+                        @endif
+                        {{-- Controles imagen --}}
+                        <div class="bg-white dark:bg-[#1c1c1e] rounded-xl border border-gray-200 dark:border-white/5 p-3 sm:p-3 space-y-3 xl:max-h-[calc(100vh-200px)] xl:overflow-y-auto text-gray-800 dark:text-gray-200">
+                            <h2 class="font-bold text-[11px] sm:text-[10px] uppercase tracking-wider flex items-center gap-1.5">
+                                <span class="w-5 h-5 sm:w-3.5 sm:h-3.5 rounded-full bg-[#d4af37] text-[9px] sm:text-[7px] flex items-center justify-center font-black text-white shrink-0">1</span>
+                                Imagen del anuncio
+                            </h2>
+                            <p class="text-xs sm:text-[9px] text-gray-500 dark:text-gray-400 -mt-2">Los datos se cargan automáticamente del producto</p>
 
-                                    {{-- Inputs ocultos para que el JS del canvas los lea --}}
-                                    <input type="hidden" id="imgTitle"
-                                        value="{{ $this->imageTemplateData['title'] }}" />
-                                    <input type="hidden" id="imgModelCode"
-                                        value="{{ $this->imageTemplateData['modelCode'] }}" />
-                                    <input type="hidden" id="imgPrice"
-                                        value="{{ $this->imageTemplateData['price'] }}" />
-                                    <input type="hidden" id="imgShipping" value="ENVÍO GRATIS" />
-                                    <textarea id="imgSpecs" class="sr-only">{{ $this->imageTemplateData['specs'] }}</textarea>
-                                    <input type="hidden" id="imgWhatsapp" value="8671-1422" />
-                                    <input type="hidden" id="imgWebsite" value="INVICTACR.COM" />
+                            {{-- Inputs ocultos para que el JS del canvas los lea --}}
+                            <input type="hidden" id="imgTitle" value="{{ $this->imageTemplateData['title'] }}" />
+                            <input type="hidden" id="imgModelCode" value="{{ $this->imageTemplateData['modelCode'] }}" />
+                            <input type="hidden" id="imgPrice" value="{{ $this->imageTemplateData['price'] }}" />
+                            <input type="hidden" id="imgShipping" value="ENVÍO GRATIS" />
+                            <textarea id="imgSpecs" class="sr-only">{{ $this->imageTemplateData['specs'] }}</textarea>
+                            <input type="hidden" id="imgWhatsapp" value="8671-1422" />
+                            <input type="hidden" id="imgWebsite" value="INVICTACR.COM" />
 
-                                    <div x-data="{
-                                        currentTheme: 'gold',
-                                        themes: {
-                                            gold: { name: 'Gold', dark: '#8a5a00', light: '#e6b800', cream: '#fdf6e3' },
-                                            blue: { name: 'Blue', dark: '#0b2447', light: '#1a5fb4', cream: '#eaf2fb' },
-                                            dark: { name: 'Dark', dark: '#141414', light: '#3a3a3a', cream: '#eceff1' },
-                                            green: { name: 'Green', dark: '#0e3d24', light: '#1f7a4d', cream: '#eef7f0' },
-                                            red: { name: 'Red', dark: '#5a0a0a', light: '#c0212b', cream: '#fbeef0' },
-                                            purple: { name: 'Purple', dark: '#2e1065', light: '#6d28d9', cream: '#f3eefb' },
-                                            teal: { name: 'Teal', dark: '#0c4a4a', light: '#0d9488', cream: '#eef9f8' },
-                                        }
-                                    }">
-                                        <label
-                                            class="block text-[9px] uppercase tracking-wide text-gray-500 dark:text-gray-400">Color</label>
-                                        <div class="flex flex-wrap gap-1 mt-1">
-                                            <template x-for="entry in Object.entries(themes)" :key="entry[0]">
-                                                <button type="button"
-                                                    @click="window.dispatchEvent(new CustomEvent('set-theme', { detail: entry[0] })); currentTheme = entry[0]"
-                                                    :class="currentTheme === entry[0] ?
-                                                        'ring-2 ring-white ring-offset-1 ring-offset-[#1c1c1e]' : ''"
-                                                    class="w-7 h-7 rounded-full border-2 border-transparent transition-all"
-                                                    :style="`background:linear-gradient(135deg, ${entry[1].dark}, ${entry[1].light})`"
-                                                    :title="entry[1].name"></button>
-                                            </template>
-                                        </div>
-                                    </div>
-
-                                    <div><label
-                                            class="block text-[9px] uppercase text-gray-500 dark:text-gray-400">Foto</label>
-                                        <input type="file" id="imgUpload" accept="image/*"
-                                            data-product-image="{{ $this->imageTemplateData['image'] }}"
-                                            class="w-full text-[9px] text-gray-500 file:mr-1 file:px-1.5 file:py-0.5 file:rounded file:border-0 file:bg-gray-200 dark:file:bg-white/10 file:text-gray-700 dark:file:text-gray-300 file:text-[10px]" />
-                                    </div>
-                                    <div class="grid grid-cols-2 gap-1.5">
-                                        <!-- escala default: value="1"; cambiá ese número para el zoom inicial de la foto -->
-                                        <div><label
-                                                class="block text-[9px] uppercase text-gray-500 dark:text-gray-400">Escala</label><input
-                                                type="range" id="imgScale" min="0.5" max="2"
-                                                step="0.01" value="0.8" class="w-full accent-[#00C4FF] h-4" />
-                                        </div>
-                                        <div><label
-                                                class="block text-[9px] uppercase text-gray-500 dark:text-gray-400">Vertical</label><input
-                                                type="range" id="imgOffsetY" min="-200" max="200"
-                                                step="1" value="0" class="w-full accent-[#00C4FF] h-4" />
-                                        </div>
-                                    </div>
-                                    <button type="button" id="imgDownloadBtn"
-                                        wire:click="saveDownload"
-                                        class="w-full px-2 py-1.5 rounded-lg bg-[#d4af37] hover:brightness-110 text-[#1c1c1e] font-bold text-[11px] transition-all flex items-center justify-center gap-1">
-                                        <i class="fa-solid fa-download"></i> Descargar PNG
-                                    </button>
+                            <div x-data="{
+                                currentTheme: 'gold',
+                                themes: {
+                                    gold: { name: 'Gold', dark: '#8a5a00', light: '#e6b800', cream: '#fdf6e3' },
+                                    blue: { name: 'Blue', dark: '#0b2447', light: '#1a5fb4', cream: '#eaf2fb' },
+                                    dark: { name: 'Dark', dark: '#141414', light: '#3a3a3a', cream: '#eceff1' },
+                                    green: { name: 'Green', dark: '#0e3d24', light: '#1f7a4d', cream: '#eef7f0' },
+                                    red: { name: 'Red', dark: '#5a0a0a', light: '#c0212b', cream: '#fbeef0' },
+                                    purple: { name: 'Purple', dark: '#2e1065', light: '#6d28d9', cream: '#f3eefb' },
+                                    teal: { name: 'Teal', dark: '#0c4a4a', light: '#0d9488', cream: '#eef9f8' },
+                                }
+                            }">
+                                <label class="block text-xs sm:text-[9px] uppercase tracking-wide font-bold text-gray-600 dark:text-gray-400">Color de fondo</label>
+                                <div class="flex flex-wrap gap-2 sm:gap-1 mt-2">
+                                    <template x-for="entry in Object.entries(themes)" :key="entry[0]">
+                                        <button type="button"
+                                            @click="window.dispatchEvent(new CustomEvent('set-theme', { detail: entry[0] })); currentTheme = entry[0]"
+                                            :class="currentTheme === entry[0] ? 'ring-2 ring-[#00C4FF] ring-offset-2 ring-offset-white dark:ring-offset-[#1c1c1e] scale-110' : 'ring-1 ring-black/5 dark:ring-white/10'"
+                                            class="w-9 h-9 sm:w-7 sm:h-7 rounded-full border-2 border-white dark:border-transparent transition-all shadow-sm"
+                                            :style="`background:linear-gradient(135deg, ${entry[1].dark}, ${entry[1].light})`"
+                                            :title="entry[1].name"></button>
+                                    </template>
                                 </div>
                             </div>
+
+                            <div>
+                                <label class="block text-xs sm:text-[9px] uppercase font-bold tracking-wide text-gray-600 dark:text-gray-400 mb-1.5">Foto del reloj</label>
+                                <input type="file" id="imgUpload" accept="image/*"
+                                    data-product-image="{{ $this->imageTemplateData['image'] }}"
+                                    class="w-full text-xs sm:text-[10px] text-gray-600 dark:text-gray-400 file:mr-2 file:px-3 file:py-2 sm:file:px-2 sm:file:py-1 file:rounded-xl sm:file:rounded-lg file:border-0 file:bg-gray-900 dark:file:bg-white file:text-white dark:file:text-gray-900 file:text-xs sm:file:text-[10px] file:font-bold" />
+                            </div>
+                            <div class="grid grid-cols-2 gap-3 sm:gap-1.5">
+                                <div><label class="block text-xs sm:text-[9px] uppercase font-bold text-gray-500 dark:text-gray-400 mb-1">Escala</label><input type="range" id="imgScale" min="0.5" max="2" step="0.01" value="0.8" class="w-full accent-[#00C4FF] h-6 sm:h-4" /></div>
+                                <div><label class="block text-xs sm:text-[9px] uppercase font-bold text-gray-500 dark:text-gray-400 mb-1">Vertical</label><input type="range" id="imgOffsetY" min="-200" max="200" step="1" value="0" class="w-full accent-[#00C4FF] h-6 sm:h-4" /></div>
+                            </div>
+                            <button type="button" id="imgDownloadBtn" wire:click="saveDownload"
+                                class="w-full px-4 py-3 sm:py-2.5 rounded-xl bg-[#d4af37] hover:brightness-110 active:scale-[0.98] text-[#1c1c1e] font-black uppercase tracking-tight text-xs sm:text-[11px] transition-all flex items-center justify-center gap-2 shadow-sm">
+                                <i class="fa-solid fa-download"></i> Descargar PNG
+                            </button>
                         </div>
-                        {{-- 4. IA: variantes de copy --}}
-                        <div x-data="{ open: true }"
-                            class="bg-white dark:bg-[#0f172a] rounded-xl border border-gray-200 dark:border-white/5 p-3">
+
+                        {{-- IA: variantes de copy --}}
+                        <div x-data="{ open: true }" class="bg-white dark:bg-[#0f172a] rounded-xl border border-gray-200 dark:border-white/5 p-3 sm:p-3">
                             <button @click="open = !open" class="flex items-center gap-2 w-full text-left">
-                                <span
-                                    class="w-5 h-5 rounded-full bg-gradient-to-r from-[#00C4FF] to-purple-500 text-[9px] flex items-center justify-center font-black text-white">AI</span>
-                                <span
-                                    class="font-bold text-[11px] uppercase tracking-wider text-gray-900 dark:text-white flex-1">IA
-                                    · Variantes de texto</span>
-                                <i class="fa-solid text-[10px] text-gray-400"
-                                    :class="open ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+                                <span class="w-6 h-6 sm:w-5 sm:h-5 rounded-full bg-gradient-to-r from-[#00C4FF] to-purple-500 text-[10px] sm:text-[9px] flex items-center justify-center font-black text-white shrink-0">AI</span>
+                                <span class="font-bold text-xs sm:text-[11px] uppercase tracking-wider text-gray-900 dark:text-white flex-1">IA · Variantes de texto</span>
+                                <i class="fa-solid text-xs sm:text-[10px] text-gray-400" :class="open ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
                             </button>
                             <div x-show="open" x-collapse class="mt-3 space-y-3">
                                 <div class="flex items-center gap-1.5 flex-wrap">
                                     @foreach ($this->aiToneOptions as $key => $info)
                                         <button wire:click="$set('aiTone', '{{ $key }}')"
-                                            class="px-2 py-1 rounded-md text-[10px] font-bold transition-all border {{ $aiTone === $key ? 'border-[#00C4FF] bg-[#00C4FF]/10 text-[#00C4FF]' : 'border-gray-200 dark:border-white/5 text-gray-500 hover:border-gray-300 dark:hover:border-white/20' }}">
+                                            class="px-3 py-1.5 sm:px-2 sm:py-1 rounded-full sm:rounded-md text-xs sm:text-[10px] font-bold transition-all border {{ $aiTone === $key ? 'border-[#00C4FF] bg-[#00C4FF]/10 text-[#00C4FF]' : 'border-gray-200 dark:border-white/5 text-gray-600 dark:text-gray-400 hover:border-gray-300 dark:hover:border-white/15' }}">
                                             <i class="fa-regular {{ $info[0] }}"></i> {{ $info[1] }}
                                         </button>
                                     @endforeach
                                     <button wire:click="generateWithAI" wire:loading.attr="disabled"
-                                        class="bg-gradient-to-r from-[#00C4FF] to-purple-500 hover:from-[#00b0e6] hover:to-purple-600 text-white font-bold px-2.5 py-1 rounded-md text-[10px] transition-all flex items-center gap-1 disabled:opacity-50">
-                                        <span wire:loading.remove wire:target="generateWithAI"><i
-                                                class="fa-solid fa-wand-magic-sparkles"></i> Generar</span>
-                                        <span wire:loading wire:target="generateWithAI"><i
-                                                class="fa-solid fa-spinner fa-spin"></i></span>
+                                        class="bg-gradient-to-r from-[#00C4FF] to-purple-500 hover:from-[#00b0e6] hover:to-purple-600 text-white font-bold px-4 py-1.5 sm:px-2.5 sm:py-1 rounded-full sm:rounded-md text-xs sm:text-[10px] transition-all flex items-center gap-1.5 disabled:opacity-50 shadow-sm">
+                                        <span wire:loading.remove wire:target="generateWithAI"><i class="fa-solid fa-wand-magic-sparkles"></i> Generar</span>
+                                        <span wire:loading wire:target="generateWithAI"><i class="fa-solid fa-spinner fa-spin"></i></span>
                                     </button>
                                 </div>
 
                                 @if ($aiLoading)
-                                    <div class="flex items-center justify-center py-6">
+                                    <div class="flex items-center justify-center py-8">
                                         <i class="fa-solid fa-spinner fa-spin text-[#00C4FF] mr-2"></i>
                                         <span class="text-xs text-gray-500">Generando variantes...</span>
                                     </div>
                                 @elseif($aiGenerated)
-                                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-2">
                                         @foreach ($aiGenerated['variants'] as $index => $variant)
-                                            @php
-                                                $parts = preg_split('/\n(?=Cuerpo:|Hashtags:)/', $variant);
-                                            @endphp
-                                            <div
-                                                class="p-2 rounded-lg bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/5 flex flex-col">
-                                                <div class="flex-1 space-y-1">
-                                                    <span
-                                                        class="w-4 h-4 rounded-full bg-[#00C4FF] inline-flex items-center justify-center text-[8px] font-black text-[#0a0f1c]">#{{ $index + 1 }}</span>
+                                            @php $parts = preg_split('/\n(?=Cuerpo:|Hashtags:)/', $variant); @endphp
+                                            <div class="p-3 sm:p-2 rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/5 flex flex-col">
+                                                <div class="flex-1 space-y-1.5">
+                                                    <span class="w-5 h-5 sm:w-4 sm:h-4 rounded-full bg-[#00C4FF] inline-flex items-center justify-center text-[10px] sm:text-[8px] font-black text-[#0a0f1c]">#{{ $index + 1 }}</span>
                                                     @foreach ($parts as $part)
                                                         @php $colon = mb_strpos($part, ':' ); @endphp
                                                         @if ($colon !== false)
-                                                            <p
-                                                                class="text-[10px] text-gray-700 dark:text-gray-300 leading-relaxed">
-                                                                <span
-                                                                    class="font-bold text-[#00C4FF]">{{ mb_substr($part, 0, $colon) }}:</span>{{ mb_substr($part, $colon + 1) }}
+                                                            <p class="text-xs sm:text-[10px] text-gray-700 dark:text-gray-300 leading-relaxed">
+                                                                <span class="font-bold text-[#00C4FF]">{{ mb_substr($part, 0, $colon) }}:</span>{{ mb_substr($part, $colon + 1) }}
                                                             </p>
                                                         @else
-                                                            <p
-                                                                class="text-[10px] text-gray-700 dark:text-gray-300 leading-relaxed">
-                                                                {{ $part }}</p>
+                                                            <p class="text-xs sm:text-[10px] text-gray-700 dark:text-gray-300 leading-relaxed">{{ $part }}</p>
                                                         @endif
                                                     @endforeach
                                                 </div>
                                                 <button wire:click="useAiVariant({{ $index }})"
-                                                    class="mt-1.5 w-full bg-[#00C4FF]/10 hover:bg-[#00C4FF]/20 text-[#00C4FF] font-bold px-2 py-1 rounded-lg text-[9px] transition-all flex items-center justify-center gap-1">
-                                                    <i class="fa-solid fa-arrow-right"></i> Usar
+                                                    class="mt-3 sm:mt-1.5 w-full bg-[#00C4FF] sm:bg-[#00C4FF]/10 hover:bg-[#00b0e6] sm:hover:bg-[#00C4FF]/20 text-white sm:text-[#00C4FF] font-bold px-3 py-2 sm:py-1 rounded-xl sm:rounded-lg text-xs sm:text-[9px] transition-all flex items-center justify-center gap-1.5">
+                                                    <i class="fa-solid fa-arrow-right"></i> Usar esta variante
                                                 </button>
                                             </div>
                                         @endforeach
                                     </div>
                                 @else
-                                    <p class="text-[10px] text-gray-400">Seleccioná producto y tono, luego generá</p>
+                                    <p class="text-xs sm:text-[10px] text-gray-400">Seleccioná producto y tono, luego generá</p>
                                 @endif
                             </div>
                         </div>
-                    </div>
-
-                    {{-- Columna 3: Canvas preview --}}
-                    <div
-                        class="flex items-start justify-center p-2 bg-[#050505] rounded-xl border border-gray-200 dark:border-white/5">
-                        <canvas id="adCanvas" width="1080" height="1350"
-                            style="max-width:100%;max-height:500px;width:auto;box-shadow:0 10px 40px rgba(0,0,0,.6);border-radius:4px;"></canvas>
                     </div>
                 </div>
             </div>
@@ -275,18 +251,18 @@
 
     {{-- Downloads table --}}
     @if ($downloads && $downloads->count() > 0)
-    <div class="bg-white dark:bg-[#0f172a] rounded-xl border border-gray-200 dark:border-white/5 p-3 mt-3">
-        <div class="flex items-center justify-between mb-2">
-            <h2 class="font-bold text-[11px] uppercase tracking-wider text-gray-900 dark:text-white flex items-center gap-1.5">
-                <i class="fa-solid fa-clock-rotate-left text-[#00C4FF] text-[10px]"></i> Descargados
+    <div class="bg-white dark:bg-[#0f172a] rounded-xl border border-gray-200 dark:border-white/5 p-3 sm:p-3 mt-3 sm:mt-4">
+        <div class="flex items-center justify-between mb-2 sm:mb-2">
+            <h2 class="font-bold text-xs sm:text-[11px] uppercase tracking-wider text-gray-900 dark:text-white flex items-center gap-1.5">
+                <i class="fa-solid fa-clock-rotate-left text-[#00C4FF] text-xs sm:text-[10px]"></i> Descargados
             </h2>
             <button wire:click="resetDownloads" wire:confirm="¿Limpiar todo el historial?"
-                class="px-2 py-0.5 rounded text-[9px] font-bold bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-900/30 transition-all">
+                class="px-3 py-1.5 sm:px-2 sm:py-0.5 rounded-full sm:rounded text-xs sm:text-[9px] font-bold bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-900/30 transition-colors">
                 <i class="fa-solid fa-trash-can"></i> Reset
             </button>
         </div>
-        <div class="overflow-x-auto">
-            <table class="w-full text-[10px] text-left">
+        <div class="overflow-x-auto -mx-3 px-3 sm:mx-0 sm:px-0 scrollbar-none">
+            <table class="w-full text-xs sm:text-[10px] text-left min-w-[420px]">
                 <thead>
                     <tr class="text-gray-400 dark:text-gray-500 border-b border-gray-200 dark:border-white/10">
                         <th class="py-1 pr-2 font-medium">Modelo</th>
@@ -309,14 +285,14 @@
                         </tr>
                         @foreach ($items as $d)
                         <tr class="text-gray-600 dark:text-gray-400">
-                            <td class="py-1 pr-2 font-bold text-gray-800 dark:text-gray-200">{{ $d->model_code }}</td>
-                            <td class="py-1 px-2">
+                            <td class="py-2 sm:py-1 pr-2 font-bold text-gray-800 dark:text-gray-200 whitespace-nowrap">{{ $d->model_code }}</td>
+                            <td class="py-2 sm:py-1 px-2">
                                 @if ($d->product_image)
-                                <img src="{{ $d->product_image }}" class="w-8 h-8 object-contain rounded" />
+                                <img src="{{ $d->product_image }}" class="w-9 h-9 sm:w-8 sm:h-8 object-contain rounded bg-gray-50 dark:bg-white/5" />
                                 @endif
                             </td>
-                            <td class="py-1 px-2 max-w-[200px] truncate" title="{{ $d->text_content }}">{{ $d->text_content }}</td>
-                            <td class="py-1 pl-2 whitespace-nowrap">{{ $d->created_at->format('H:i') }}</td>
+                            <td class="py-2 sm:py-1 px-2 max-w-[120px] sm:max-w-[200px] truncate text-[11px] sm:text-[10px]" title="{{ $d->text_content }}">{{ $d->text_content }}</td>
+                            <td class="py-2 sm:py-1 pl-2 whitespace-nowrap">{{ $d->created_at->format('H:i') }}</td>
                         </tr>
                         @endforeach
                     @endforeach
@@ -328,15 +304,15 @@
 
     {{-- TAB: UTM --}}
     @elseif($activeTab === 'utm')
-        <div class="grid grid-cols-1 lg:grid-cols-5 gap-4">
+        <div class="grid grid-cols-1 lg:grid-cols-5 gap-3 sm:gap-4">
             <div class="lg:col-span-2 space-y-3">
-                <div class="bg-white dark:bg-[#0f172a] rounded-xl border border-gray-200 dark:border-white/5 p-3">
+                <div class="bg-white dark:bg-[#0f172a] rounded-xl border border-gray-200 dark:border-white/5 p-3 sm:p-4">
                     <div class="space-y-3">
                         <input type="url" wire:model="utmUrl" placeholder="https://invictacr.com/producto/..."
-                            class="w-full bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-lg px-3 py-2 text-xs focus:border-[#00C4FF] focus:ring-1 focus:ring-[#00C4FF] outline-none" />
-                        <div class="grid grid-cols-2 gap-2">
+                            class="w-full bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-3 sm:py-2 text-sm sm:text-xs focus:border-[#00C4FF] focus:ring-1 focus:ring-[#00C4FF] outline-none min-h-[44px] sm:min-h-0" />
+                        <div class="grid grid-cols-2 gap-2 sm:gap-2">
                             <select wire:model="utmSource"
-                                class="bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-lg px-2.5 py-1.5 text-xs">
+                                class="bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-3 sm:px-2.5 sm:py-1.5 text-sm sm:text-xs min-h-[44px] sm:min-h-0">
                                 <option value="instagram">Instagram</option>
                                 <option value="facebook">Facebook</option>
                                 <option value="whatsapp">WhatsApp</option>
@@ -345,7 +321,7 @@
                                 <option value="tiktok">TikTok</option>
                             </select>
                             <select wire:model="utmMedium"
-                                class="bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-lg px-2.5 py-1.5 text-xs">
+                                class="bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-3 sm:px-2.5 sm:py-1.5 text-sm sm:text-xs min-h-[44px] sm:min-h-0">
                                 <option value="post">Post</option>
                                 <option value="story">Historia</option>
                                 <option value="ad">Anuncio</option>
@@ -353,14 +329,14 @@
                                 <option value="newsletter">Newsletter</option>
                             </select>
                             <input type="text" wire:model="utmCampaign" placeholder="Campaña"
-                                class="bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-lg px-2.5 py-1.5 text-xs focus:border-[#00C4FF] focus:ring-1 focus:ring-[#00C4FF] outline-none" />
+                                class="bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-3 sm:px-2.5 sm:py-1.5 text-sm sm:text-xs focus:border-[#00C4FF] focus:ring-1 focus:ring-[#00C4FF] outline-none min-h-[44px] sm:min-h-0" />
                             <input type="text" wire:model="utmTerm" placeholder="Término"
-                                class="bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-lg px-2.5 py-1.5 text-xs focus:border-[#00C4FF] focus:ring-1 focus:ring-[#00C4FF] outline-none" />
+                                class="bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-3 sm:px-2.5 sm:py-1.5 text-sm sm:text-xs focus:border-[#00C4FF] focus:ring-1 focus:ring-[#00C4FF] outline-none min-h-[44px] sm:min-h-0" />
                         </div>
                         <input type="text" wire:model="utmContent" placeholder="Contenido (opcional)"
-                            class="w-full bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-lg px-2.5 py-1.5 text-xs focus:border-[#00C4FF] focus:ring-1 focus:ring-[#00C4FF] outline-none" />
+                            class="w-full bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-3 sm:px-2.5 sm:py-1.5 text-sm sm:text-xs focus:border-[#00C4FF] focus:ring-1 focus:ring-[#00C4FF] outline-none min-h-[44px] sm:min-h-0" />
                         <button wire:click="generateUtm"
-                            class="w-full bg-[#00C4FF] hover:bg-[#00b0e6] text-[#0a0f1c] font-bold px-3 py-2 rounded-lg text-xs transition-all flex items-center justify-center gap-1">
+                            class="w-full bg-[#00C4FF] hover:bg-[#00b0e6] active:scale-[0.98] text-[#0a0f1c] font-black uppercase tracking-tight px-4 py-3.5 sm:py-2.5 rounded-xl text-sm sm:text-xs transition-all flex items-center justify-center gap-1.5 shadow-sm">
                             <i class="fa-solid fa-link"></i> Generar UTM
                         </button>
                     </div>

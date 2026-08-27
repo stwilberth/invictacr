@@ -2,7 +2,7 @@
 <html lang="es" x-data="{ dark: localStorage.getItem('dark') === 'true' || (!localStorage.getItem('dark') && window.matchMedia('(prefers-color-scheme: dark)').matches) }" x-init="() => { $el.classList.toggle('dark', dark); $watch('dark', val => { $el.classList.toggle('dark', val); localStorage.setItem('dark', val); }); }">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{{ $title ?? 'Admin' }} | Invicta Costa Rica</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -113,7 +113,7 @@
                     </form>
                 </div>
             </header>
-            <div class="p-6">
+            <div class="p-4 sm:p-6">
                 @if(session('message'))
                     <div class="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-4 py-3 rounded-xl mb-6 text-sm font-bold">
                         {!! session('message') !!}
