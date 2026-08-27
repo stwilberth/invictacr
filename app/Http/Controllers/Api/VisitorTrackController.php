@@ -10,7 +10,7 @@ use Illuminate\Support\Str;
 
 class VisitorTrackController extends Controller
 {
-    private const ALLOWED_TYPES = ['page_view', 'product_view', 'search', 'whatsapp_click', 'add_to_cart'];
+    private const ALLOWED_TYPES = ['page_view', 'product_view', 'search', 'whatsapp_click', 'add_to_cart', 'cta_click'];
 
     public function event(Request $request)
     {
@@ -34,6 +34,7 @@ class VisitorTrackController extends Controller
             'title' => ['nullable', 'string', 'max:255'],
             'product_id' => ['nullable', 'integer', 'exists:products,id'],
             'query' => ['nullable', 'string', 'max:255'],
+            'cta' => ['nullable', 'string', 'max:50'],
         ]);
 
         if (!in_array($validated['type'], self::ALLOWED_TYPES, true)) {
@@ -43,6 +44,9 @@ class VisitorTrackController extends Controller
         $meta = null;
         if ($validated['type'] === 'search' && !empty($validated['query'])) {
             $meta = ['query' => $validated['query']];
+        }
+        if ($validated['type'] === 'cta_click' && !empty($validated['cta'])) {
+            $meta = ['cta' => $validated['cta']];
         }
 
         $event = VisitorEvent::create([

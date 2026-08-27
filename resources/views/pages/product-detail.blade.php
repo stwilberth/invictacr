@@ -299,6 +299,9 @@
                 @if($isAgotado && !$isUpcoming)
                 <div class="hidden lg:block bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/50 rounded-2xl p-3 mt-2 text-center">
                     <h3 class="text-lg font-bold text-red-700 dark:text-red-400 mb-1 leading-tight">Agotado</h3>
+                    <a href="{{ $whatsappBuy }}" data-cta="ver-disponibilidad" data-product-id="{{ $product->id }}" target="_blank" rel="noopener noreferrer" class="mt-2 inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[#00C4FF] hover:bg-[#00a3d6] text-white rounded-xl font-extrabold uppercase tracking-tight text-xs transition-all hover:-translate-y-0.5 active:scale-95 no-underline shadow-sm hover:shadow-md">
+                        <i class="fa-solid fa-circle-info"></i> Ver disponibilidad
+                    </a>
                 </div>
                 @elseif(!$isUpcoming)
                     {{-- Desktop Price & Action Buttons --}}
@@ -354,22 +357,25 @@
                                     <i class="fa-solid fa-cart-shopping text-base"></i> Ver Carrito
                                 </a>
                                 @else
-                                <button type="button" onclick="addToCart({{ $product->id }}, this)" class="flex-1 flex items-center justify-center gap-1 py-2 bg-[#00C4FF] hover:bg-[#00a3d6] text-white rounded-xl font-extrabold uppercase tracking-tight text-xs transition-all hover:-translate-y-0.5 active:scale-95 shadow-sm hover:shadow-md">
-                                    <i class="fa-solid fa-cart-plus text-base"></i> Agregar
+                                <button type="button" data-cta="comprar-ahora" data-product-id="{{ $product->id }}" onclick="addToCart({{ $product->id }}, this)" class="flex-1 flex items-center justify-center gap-1 py-2 bg-[#00C4FF] hover:bg-[#00a3d6] text-white rounded-xl font-extrabold uppercase tracking-tight text-xs transition-all hover:-translate-y-0.5 active:scale-95 shadow-sm hover:shadow-md">
+                                    <i class="fa-solid fa-bag-shopping text-base"></i> Comprar ahora
                                 </button>
                                 @endif
                             @endif
-                            <a href="{{ $whatsappBuy }}" target="_blank" rel="noopener noreferrer" class="flex-1 flex items-center justify-center gap-1 py-2 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-xl font-extrabold uppercase tracking-tight text-xs transition-all hover:-translate-y-0.5 active:scale-95 no-underline shadow-sm hover:shadow-md">
-                                <i class="fa-brands fa-whatsapp text-base"></i> Contactar
+                            <a href="{{ $whatsappBuy }}" data-cta="comprar-whatsapp" data-product-id="{{ $product->id }}" target="_blank" rel="noopener noreferrer" class="flex-1 flex items-center justify-center gap-1 py-2 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-xl font-extrabold uppercase tracking-tight text-xs transition-all hover:-translate-y-0.5 active:scale-95 no-underline shadow-sm hover:shadow-md">
+                                <i class="fa-brands fa-whatsapp text-base"></i> Comprar por WhatsApp
                             </a>
                         </div>
                     </div>
                 @else
-                    {{-- Desktop Action buttons (no price for upcoming) --}}
+                    {{-- Desktop Action buttons (no price for upcoming / agotado) --}}
                     <div class="hidden lg:flex flex-col items-center gap-2.5 mb-3.5">
-                        <div class="flex gap-2.5 w-full">
-                            <a href="{{ $whatsappBuy }}" target="_blank" rel="noopener noreferrer" class="flex-1 flex items-center justify-center gap-1 py-2 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-xl font-extrabold uppercase tracking-tight text-xs transition-all hover:-translate-y-0.5 active:scale-95 no-underline shadow-sm hover:shadow-md">
-                                <i class="fa-brands fa-whatsapp text-base"></i> Contactar
+                        <div class="flex flex-col gap-2 w-full">
+                            <a href="{{ $whatsappBuy }}" data-cta="ver-disponibilidad" data-product-id="{{ $product->id }}" target="_blank" rel="noopener noreferrer" class="flex-1 flex items-center justify-center gap-1 py-2 bg-[#00C4FF] hover:bg-[#00a3d6] text-white rounded-xl font-extrabold uppercase tracking-tight text-xs transition-all hover:-translate-y-0.5 active:scale-95 no-underline shadow-sm hover:shadow-md">
+                                <i class="fa-solid fa-circle-info text-base"></i> Ver disponibilidad
+                            </a>
+                            <a href="{{ $whatsappBuy }}" data-cta="comprar-whatsapp" data-product-id="{{ $product->id }}" target="_blank" rel="noopener noreferrer" class="flex-1 flex items-center justify-center gap-1 py-2 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-xl font-extrabold uppercase tracking-tight text-xs transition-all hover:-translate-y-0.5 active:scale-95 no-underline shadow-sm hover:shadow-md">
+                                <i class="fa-brands fa-whatsapp text-base"></i> Comprar por WhatsApp
                             </a>
                         </div>
                     </div>
@@ -647,7 +653,6 @@
     @endpush
 
     {{-- Mobile: Floating action bar (fixed bottom) --}}
-    @if(!$isAgotado || $isUpcoming)
     <div class="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-gray-900/95 backdrop-blur border-t border-gray-200 dark:border-gray-700 px-3 py-2.5 flex gap-2 shadow-[0_-4px_20px_rgba(0,0,0,0.08)]" style="padding-bottom: calc(0.625rem + env(safe-area-inset-bottom));">
         @if(!$isAgotado && !$isUpcoming && ($product->stock ?? 0) > 0)
             @if($inCart)
@@ -655,14 +660,17 @@
                 <i class="fa-solid fa-cart-shopping"></i> Ver Carrito
             </a>
             @else
-            <button type="button" onclick="addToCart({{ $product->id }}, this)" class="flex-1 flex items-center justify-center gap-2 py-3 bg-[#00C4FF] hover:bg-[#00a3d6] text-white rounded-xl font-extrabold uppercase tracking-wide text-sm transition-all active:scale-95">
-                <i class="fa-solid fa-cart-plus"></i> Agregar
+            <button type="button" data-cta="comprar-ahora" data-product-id="{{ $product->id }}" onclick="addToCart({{ $product->id }}, this)" class="flex-1 flex items-center justify-center gap-2 py-3 bg-[#00C4FF] hover:bg-[#00a3d6] text-white rounded-xl font-extrabold uppercase tracking-wide text-sm transition-all active:scale-95">
+                <i class="fa-solid fa-bag-shopping"></i> Comprar ahora
             </button>
             @endif
-        @endif
-        <a href="{{ $whatsappBuy }}" data-conversion="whatsapp-comprar" target="_blank" rel="noopener noreferrer" class="flex-1 flex items-center justify-center gap-2 py-3 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-xl font-extrabold uppercase tracking-wide text-sm transition-all active:scale-95 no-underline">
-            <i class="fa-brands fa-whatsapp text-lg"></i> Contactar
+            @else
+            <a href="{{ $whatsappBuy }}" data-cta="comprar-whatsapp" data-product-id="{{ $product->id }}" data-conversion="whatsapp-comprar" target="_blank" rel="noopener noreferrer" class="flex-1 flex items-center justify-center gap-2 py-3 bg-[#00C4FF] hover:bg-[#00a3d6] text-white rounded-xl font-extrabold uppercase tracking-wide text-sm transition-all active:scale-95 no-underline">
+                <i class="fa-solid fa-circle-info"></i> Ver disponibilidad
+            </a>
+            @endif
+        <a href="{{ $whatsappBuy }}" data-cta="comprar-whatsapp" data-product-id="{{ $product->id }}" data-conversion="whatsapp-comprar" target="_blank" rel="noopener noreferrer" class="flex-1 flex items-center justify-center gap-2 py-3 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-xl font-extrabold uppercase tracking-wide text-sm transition-all active:scale-95 no-underline">
+            <i class="fa-brands fa-whatsapp text-lg"></i> Comprar por WhatsApp
         </a>
     </div>
-    @endif
 </x-app-layout>

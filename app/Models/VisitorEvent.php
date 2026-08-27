@@ -71,6 +71,7 @@ class VisitorEvent extends Model
             'search' => 'Búsqueda',
             'whatsapp_click' => 'Click WhatsApp',
             'add_to_cart' => 'Agregó al carrito',
+            'cta_click' => 'Click CTA',
             default => $this->type,
         };
     }
@@ -83,6 +84,7 @@ class VisitorEvent extends Model
             'search' => 'fa-magnifying-glass text-amber-500',
             'whatsapp_click' => 'fa-brands fa-whatsapp text-green-500',
             'add_to_cart' => 'fa-cart-shopping text-purple-500',
+            'cta_click' => 'fa-bullseye text-[#00C4FF]',
             default => 'fa-circle text-gray-400',
         };
     }

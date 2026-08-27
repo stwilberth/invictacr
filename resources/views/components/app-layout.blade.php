@@ -521,6 +521,21 @@
                     product_id: productId
                 });
             });
+
+            document.addEventListener('click', function (e) {
+                var el = e.target.closest('[data-cta]');
+                if (!el) return;
+                var pid = el.getAttribute('data-product-id') || productId || null;
+                var cta = el.getAttribute('data-cta');
+                if (!cta) return;
+                post('/track/event', {
+                    type: 'cta_click',
+                    url: window.location.href,
+                    title: document.title,
+                    product_id: pid,
+                    cta: cta
+                });
+            });
         }
 
         window.invictaTrack = function (type, data) {

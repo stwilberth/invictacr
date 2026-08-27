@@ -73,5 +73,23 @@
                 </div>
             @endif
         </div>
+
+        <div class="mt-1.5">
+            @php
+                $cardAgotado = ($product->stock ?? 0) <= 0 || ($product->disponibilidad ?? 'disponible') === 'agotado';
+                $cardUpcoming = ($product->proximo ?? false) || (float) ($product->precio_venta ?? 0) <= 0;
+            @endphp
+            @if(!$cardAgotado && !$cardUpcoming)
+                <button type="button" data-cta="comprar-ahora" data-product-id="{{ $product->id }}" onclick="addToCart({{ $product->id }}, this)"
+                    class="w-full inline-flex items-center justify-center gap-1 py-1 bg-[#00C4FF] hover:bg-[#00a3d6] text-white rounded-lg font-extrabold uppercase tracking-tight text-[8px] md:text-[9px] transition-all hover:-translate-y-0.5 active:scale-95 shadow-sm hover:shadow-md">
+                    <i class="fa-solid fa-cart-plus text-[8px] md:text-[9px]"></i> Comprar
+                </button>
+            @else
+                <a href="{{ $productUrl }}" data-cta="ver-disponibilidad" data-product-id="{{ $product->id }}"
+                    class="w-full inline-flex items-center justify-center gap-1 py-1 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg font-extrabold uppercase tracking-tight text-[8px] md:text-[9px] transition-all hover:-translate-y-0.5 active:scale-95 border border-gray-200 dark:border-gray-600 no-underline">
+                    <i class="fa-solid fa-circle-info text-[8px] md:text-[9px]"></i> Disponibilidad
+                </a>
+            @endif
+        </div>
     </div>
 </div>
