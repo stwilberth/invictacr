@@ -66,6 +66,9 @@
                 <a href="{{ route('admin.search-logs') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors {{ request()->routeIs('admin.search-logs') ? 'bg-[#00C4FF]/10 text-[#00C4FF]' : 'text-white/70 hover:text-white hover:bg-white/5' }}">
                     <i class="fa-solid fa-magnifying-glass w-5"></i> Búsquedas
                 </a>
+                <a href="{{ route('admin.conversion') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors {{ request()->routeIs('admin.conversion') ? 'bg-[#00C4FF]/10 text-[#00C4FF]' : 'text-white/70 hover:text-white hover:bg-white/5' }}">
+                    <i class="fa-solid fa-chart-line w-5"></i> Conversión
+                </a>
                 <a href="{{ route('admin.github') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors {{ request()->routeIs('admin.github') ? 'bg-[#00C4FF]/10 text-[#00C4FF]' : 'text-white/70 hover:text-white hover:bg-white/5' }}">
                     <i class="fa-brands fa-github w-5"></i> Reporte GitHub
                 </a>
@@ -190,6 +193,9 @@
                     </a>
                     <a href="{{ route('admin.search-logs') }}" @click="sidebarOpen = false" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors {{ request()->routeIs('admin.search-logs') ? 'bg-[#00C4FF]/10 text-[#00C4FF]' : 'text-white/70 hover:text-white hover:bg-white/5' }}">
                         <i class="fa-solid fa-magnifying-glass w-5"></i> Búsquedas
+                    </a>
+                    <a href="{{ route('admin.conversion') }}" @click="sidebarOpen = false" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors {{ request()->routeIs('admin.conversion') ? 'bg-[#00C4FF]/10 text-[#00C4FF]' : 'text-white/70 hover:text-white hover:bg-white/5' }}">
+                        <i class="fa-solid fa-chart-line w-5"></i> Conversión
                     </a>
                     <a href="{{ route('admin.github') }}" @click="sidebarOpen = false" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors {{ request()->routeIs('admin.github') ? 'bg-[#00C4FF]/10 text-[#00C4FF]' : 'text-white/70 hover:text-white hover:bg-white/5' }}">
                         <i class="fa-brands fa-github w-5"></i> Reporte GitHub

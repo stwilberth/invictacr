@@ -92,6 +92,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::get('/upcoming', \App\Livewire\Admin\Upcoming::class)->name('upcoming');
     Route::get('/sync', \App\Livewire\Admin\SyncManager::class)->name('sync');
     Route::get('/search-logs', \App\Livewire\Admin\SearchLogs::class)->name('search-logs');
+    Route::get('/conversion', \App\Livewire\Admin\ConversionReport::class)->name('conversion');
     Route::get('/optimize-images',  \App\Livewire\Admin\OptimizeImages::class)->name('optimize-images');
     Route::get('/db-backups',       \App\Livewire\Admin\DbBackups::class)->name('db-backups');
     Route::get('/visitors',         \App\Livewire\Admin\Visitors::class)->name('visitors');
