@@ -38,6 +38,14 @@
         </div>
         @endif
 
+        @if($product->video_uid)
+        <div class="absolute {{ $compact ? 'bottom-1 left-1' : 'bottom-1 left-1 md:bottom-2 md:left-2' }} z-10">
+            <span class="inline-flex items-center justify-center rounded-full bg-red-600 shadow-lg border border-white/20 {{ $compact ? 'w-5 h-5' : 'w-6 h-6 md:w-8 md:h-8' }}">
+                <i class="fa-solid fa-play text-white {{ $compact ? 'text-[7px]' : 'text-[8px] md:text-[11px]' }} ml-0.5"></i>
+            </span>
+        </div>
+        @endif
+
 
     </a>
 
@@ -67,14 +75,6 @@
                 <div class="py-1 text-center">
                     <span class="text-[9px] md:text-xs font-bold px-1.5 md:px-2 py-0.5 bg-red-100 text-red-600 rounded-md">AGOTADO</span>
                 </div>
-            @endif
-        </div>
-
-        <div class="mt-1 flex items-center justify-center gap-1">
-            @if($product->video_uid)
-            <button type="button" onclick="openVideoModal('{{ $product->video_uid }}')" title="Ver video" class="inline-flex items-center gap-0.5 md:gap-1 {{ $compact ? 'px-1 py-0.5 text-[7px]' : 'px-1 py-0.5 md:px-2 md:py-1 text-[7px] md:text-[9px]' }} uppercase tracking-wide text-red-600 border border-red-600 hover:bg-red-600 hover:text-white rounded-md transition-colors">
-                <i class="fa-solid fa-play"></i> Ver Video
-            </button>
             @endif
         </div>
 
