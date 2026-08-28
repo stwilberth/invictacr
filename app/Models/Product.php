@@ -95,7 +95,7 @@ class Product extends Model
 
     /**
      * Invalida todas las claves de caché relacionadas con producto
-     * (galería, relacionados y filtros del catálogo).
+     * (galería, relacionados, filtros del catálogo y lista del catálogo en Redis).
      */
     public static function forgetAllCache(?int $productId = null): void
     {
@@ -107,6 +107,9 @@ class Product extends Model
         foreach (['all', 'hombre', 'mujer', 'unisex'] as $g) {
             cache()->forget("product:filters:{$g}");
         }
+
+        // Cambia la versión del catálogo: invalida la lista base y todos los grids cacheados
+        cache()->increment('product:catalog:version');
     }
 
     public function getPriceAfterDiscountAttribute()

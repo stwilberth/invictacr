@@ -4,9 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use App\Models\SearchLog;
+use App\Services\CatalogService;
 use App\Services\SearchService;
 use Illuminate\Http\Request;
-use Illuminate\Pagination\LengthAwarePaginator;
 
 class ProductController extends Controller
 {
@@ -43,7 +43,7 @@ class ProductController extends Controller
 
             $products = $this->runSearchQuery($request);
 
-            if ($products->total() === 0 && $originalQuery) {
+            if ($products->isEmpty() && $originalQuery) {
                 $aiFilters = $search->parseWithClaude($originalQuery);
 
                 $usedAi = $search->usedAi;
@@ -67,7 +67,7 @@ class ProductController extends Controller
                     $products = $this->runSearchQuery($request);
                 }
 
-                if ($products->total() === 0) {
+                if ($products->isEmpty()) {
                     $request->merge(["q" => $originalQuery]);
                     foreach (["gender", "color", "coleccion", "brazalete", "tipo_movimiento", "caja", "resistencia_agua"] as $f) {
                         $request->merge([$f => ""]);
@@ -77,7 +77,7 @@ class ProductController extends Controller
             }
 
             // Generar sugerencias cuando sigue sin haber resultados
-            if ($products->total() === 0) {
+            if ($products->isEmpty()) {
                 $suggestions = $this->buildSuggestions($originalQuery);
             }
         } else {
@@ -104,7 +104,7 @@ class ProductController extends Controller
                 "real_ip" => $request->header('CF-Connecting-IP') ?: $request->ip(),
                 "user_agent" => $ua,
                 "device_type" => $deviceType,
-                "results_count" => $products->total(),
+                "results_count" => $products->count(),
                 "suggestions" => $suggestions->isNotEmpty() ? $suggestions->toArray() : null,
             ]);
         }
@@ -139,74 +139,9 @@ class ProductController extends Controller
         }
     }
 
-    private function runSearchQuery(Request $request)
+    private function runSearchQuery(Request $request): \Illuminate\Support\Collection
     {
-        $query = Product::where("activo", true);
-
-        $isSearch = $request->filled("q");
-
-        if (!$isSearch) {
-            $hideProximo = $request->input('proximo') === '0';
-            if ($hideProximo) {
-                $query->where("precio_venta", ">", 0)
-                      ->where("stock", ">", 0)
-                      ->where("proximo", false);
-            } else {
-                $query->where(function ($q) {
-                    $q->where(function ($q2) {
-                        $q2->where("precio_venta", ">", 0)
-                           ->where("stock", ">", 0);
-                    })->orWhere("proximo", true);
-                });
-            }
-        }
-
-        if ($isSearch) {
-            Product::applyTextSearch($query, $request->q);
-        }
-
-        if ($request->filled("gender")) {
-            $query->whereRaw("LOWER(genero) = ?", [mb_strtolower($request->gender)]);
-        }
-        if ($request->filled("color")) {
-            $query->whereRaw("LOWER(color) = ?", [mb_strtolower($request->color)]);
-        }
-        if ($request->filled("brazalete")) {
-            $query->whereRaw("LOWER(brazalete) = ?", [mb_strtolower($request->brazalete)]);
-        }
-        if ($request->filled("coleccion")) {
-            $query->whereRaw("LOWER(coleccion) = ?", [mb_strtolower($request->coleccion)]);
-        }
-        if ($request->filled("tipo_movimiento")) {
-            $query->whereRaw("LOWER(tipo_movimiento) = ?", [mb_strtolower($request->tipo_movimiento)]);
-        }
-        if ($request->filled("caja")) {
-            $query->whereRaw("LOWER(caja) = ?", [mb_strtolower($request->caja)]);
-        }
-        if ($request->filled("resistencia_agua")) {
-            $query->whereRaw("CAST(resistencia_agua AS UNSIGNED) = ?", [(int) $request->resistencia_agua]);
-        }
-        if ($request->filled("size")) {
-            $query->where("size", $request->size);
-        }
-        if ($request->filled("precio_min")) {
-            $query->where("precio_venta", ">=", $request->precio_min);
-        }
-        if ($request->filled("precio_max")) {
-            $query->where("precio_venta", "<=", $request->precio_max);
-        }
-
-        $sortField = match ($request->sort) {
-            "price_asc" => ["precio_venta", "asc"],
-            "price_desc" => ["precio_venta", "desc"],
-            "name_asc" => ["title", "asc"],
-            "name_desc" => ["title", "desc"],
-            "newest" => ["created_at", "desc"],
-            default => ["created_at", "desc"],
-        };
-        $query->orderBy($sortField[0], $sortField[1]);
-
-        return $query->paginate(48)->withQueryString();
+        return app(CatalogService::class)->filteredFromRequest($request);
     }
 
     /**
