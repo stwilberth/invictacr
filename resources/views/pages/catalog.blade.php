@@ -106,9 +106,28 @@
                     {{-- Results info bar --}}
                     <div id="catalog-results-info"></div>
 
-                    {{-- Desktop: toggle proximos --}}
-                    <div class="hidden md:flex items-center justify-end mb-2">
-                        <button @click="showProximo = !showProximo; window.CatalogManager && window.CatalogManager.setFilter('proximo', showProximo ? '' : '0')" class="inline-flex items-center gap-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full pl-3 pr-1 py-1 shadow-sm transition-all">
+                    {{-- Ordenar + toggle próximos --}}
+                    <div class="flex items-center justify-between gap-3 mb-2">
+                        <div class="flex items-center gap-2">
+                            <span class="hidden sm:inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                                <i class="fa-solid fa-arrow-down-wide-short text-[#00C4FF]"></i>
+                                Ordenar
+                            </span>
+                            <select
+                                id="catalog-sort"
+                                onchange="window.CatalogManager && window.CatalogManager.setFilter('sort', this.value)"
+                                class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-2.5 py-1.5 text-xs font-bold text-gray-700 dark:text-gray-200 focus:outline-none focus:border-[#00C4FF]/50 focus:ring-2 focus:ring-[#00C4FF]/20 transition-all shadow-sm"
+                            >
+                                <option value="" {{ !request('sort') ? 'selected' : '' }}>Más vistos</option>
+                                <option value="price_asc" {{ request('sort') === 'price_asc' ? 'selected' : '' }}>Precio: menor a mayor</option>
+                                <option value="price_desc" {{ request('sort') === 'price_desc' ? 'selected' : '' }}>Precio: mayor a menor</option>
+                                <option value="name_asc" {{ request('sort') === 'name_asc' ? 'selected' : '' }}>Nombre A–Z</option>
+                                <option value="name_desc" {{ request('sort') === 'name_desc' ? 'selected' : '' }}>Nombre Z–A</option>
+                                <option value="newest" {{ request('sort') === 'newest' ? 'selected' : '' }}>Más nuevos</option>
+                            </select>
+                        </div>
+
+                        <button @click="showProximo = !showProximo; window.CatalogManager && window.CatalogManager.setFilter('proximo', showProximo ? '' : '0')" class="hidden md:inline-flex items-center gap-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full pl-3 pr-1 py-1 shadow-sm transition-all">
                             <span class="text-[10px] font-bold uppercase tracking-wider transition-colors" :class="showProximo ? 'text-gray-700 dark:text-gray-200' : 'text-gray-400'">Próximos</span>
                             <span class="relative inline-flex h-5 w-8 items-center rounded-full p-0.5 transition-colors duration-200" :class="showProximo ? 'bg-[#00C4FF]' : 'bg-gray-300 dark:bg-gray-600'">
                                 <span class="inline-block h-4 w-4 rounded-full bg-white shadow-sm transition-transform duration-200" :class="showProximo ? 'translate-x-3' : 'translate-x-0'"></span>
@@ -396,6 +415,12 @@
                         var input = document.getElementById(key + '_' + formId);
                         if (input) input.value = value || '';
                     });
+                }
+
+                // Sync sort select
+                if (key === 'sort') {
+                    var sortSelect = document.getElementById('catalog-sort');
+                    if (sortSelect) sortSelect.value = value || '';
                 }
             }
 
