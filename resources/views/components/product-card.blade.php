@@ -57,7 +57,7 @@
         </a>
 
         <div class="text-center">
-            @if($product->proximo)
+            @if($product->proximo || $product->precio_venta <= 0)
                 <div class="py-1">
                     <span class="text-[9px] md:text-xs font-bold px-1.5 md:px-2 py-0.5 bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 rounded-md">Próximamente</span>
                 </div>
