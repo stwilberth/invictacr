@@ -38,6 +38,14 @@
         </div>
         @endif
 
+        @if($product->video_uid)
+        <div class="absolute {{ $compact ? 'bottom-1.5 left-1.5' : 'bottom-2 left-2' }} z-10">
+            <span class="inline-flex items-center justify-center rounded-full bg-red-600 shadow-lg border border-white/20 {{ $compact ? 'w-5 h-5' : 'w-6 h-6 md:w-8 md:h-8' }}">
+                <i class="fa-solid fa-play text-white {{ $compact ? 'text-[7px]' : 'text-[8px] md:text-[11px]' }} ml-0.5"></i>
+            </span>
+        </div>
+        @endif
+
     </a>
 
     <div class="{{ $compact ? 'p-1' : 'p-1 md:p-2' }} flex flex-col flex-grow">
