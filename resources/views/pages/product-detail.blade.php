@@ -656,19 +656,19 @@
     <div class="h-[72px] lg:hidden" aria-hidden="true"></div>
 
     {{-- Mobile: Floating action bar (fixed bottom) --}}
-    <div class="lg:hidden fixed bottom-0 left-0 right-0 z-[100] bg-white dark:bg-[#0a0f1c] border-t border-gray-200 dark:border-white/10 px-3 py-2.5 flex gap-2.5" style="padding-bottom: calc(0.625rem + env(safe-area-inset-bottom));">
+    <div class="lg:hidden fixed bottom-0 left-0 right-0 z-100 bg-white dark:bg-[#0a0f1c] border-t border-gray-200 dark:border-white/10 px-3 py-2.5 flex gap-2.5" style="padding-bottom: calc(0.625rem + env(safe-area-inset-bottom));">
         @if(!$isAgotado && !$isUpcoming && ($product->stock ?? 0) > 0)
             @if($inCart)
             <a href="{{ route('cart.show') }}" class="flex-1 flex items-center justify-center gap-1.5 py-3 bg-gray-900 dark:bg-gray-800 hover:bg-gray-800 dark:hover:bg-gray-700 text-white rounded-xl font-extrabold uppercase tracking-tight text-[12px] leading-none transition-all hover:-translate-y-0.5 active:scale-95 no-underline shadow-sm">
                 <i class="fa-solid fa-cart-shopping text-base"></i> Ver Carrito
             </a>
             @else
-            <button type="button" data-cta="comprar-ahora" data-product-id="{{ $product->id }}" onclick="addToCart({{ $product->id }}, this)" class="flex-[1.2] flex items-center justify-center gap-1.5 py-3 bg-[#00C4FF] hover:bg-[#00b0e6] text-[#0a0f1c] rounded-xl font-extrabold uppercase tracking-tight text-[12px] leading-none transition-all hover:-translate-y-0.5 active:scale-95 shadow-sm">
+            <button type="button" data-cta="comprar-ahora" data-product-id="{{ $product->id }}" onclick="addToCart({{ $product->id }}, this)" class="flex-1 flex items-center justify-center gap-1.5 py-3 bg-[#00C4FF] hover:bg-[#00b0e6] text-[#0a0f1c] rounded-xl font-extrabold uppercase tracking-tight text-[12px] leading-none transition-all hover:-translate-y-0.5 active:scale-95 shadow-sm">
                 <i class="fa-solid fa-bag-shopping text-base"></i> Comprar
             </button>
             @endif
         @else
-            <a href="{{ $whatsappBuy }}" data-cta="ver-disponibilidad" data-product-id="{{ $product->id }}" target="_blank" rel="noopener noreferrer" class="flex-[1.1] flex items-center justify-center gap-1.5 py-3 bg-[#00C4FF] hover:bg-[#00b0e6] text-[#0a0f1c] rounded-xl font-extrabold uppercase tracking-tight text-[12px] leading-none transition-all hover:-translate-y-0.5 active:scale-95 no-underline shadow-sm">
+            <a href="{{ $whatsappBuy }}" data-cta="ver-disponibilidad" data-product-id="{{ $product->id }}" target="_blank" rel="noopener noreferrer" class="flex-1 flex items-center justify-center gap-1.5 py-3 bg-[#00C4FF] hover:bg-[#00b0e6] text-[#0a0f1c] rounded-xl font-extrabold uppercase tracking-tight text-[12px] leading-none transition-all hover:-translate-y-0.5 active:scale-95 no-underline shadow-sm">
                 <i class="fa-solid fa-circle-info text-base"></i> Disponible
             </a>
         @endif
