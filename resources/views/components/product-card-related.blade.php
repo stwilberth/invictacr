@@ -7,6 +7,13 @@
 
     $thumbUrl = $product->imagen ? "{$cdnBase}/relojes/thumbs/{$model}.webp" : null;
     $imageUrl = $thumbUrl ?? $product->imagen;
+
+    // Título: Invicta [coleccion] para [genero] - [modelo] (omitir coleccion si es 'otros')
+    $coleccion = trim($product->coleccion ?? '');
+    $showColeccion = $coleccion !== '' && strtolower($coleccion) !== 'otros';
+    $generoRaw = trim($product->genero ?? '');
+    $genero = $generoRaw !== '' && strtolower($generoRaw) !== 'unisex' ? strtolower($generoRaw) : '';
+    $relatedTitle = 'Invicta' . ($showColeccion ? ' ' . $coleccion : '') . ($genero ? ' para ' . $genero : '') . ' - ' . $model;
 @endphp
 
 <div class="group relative flex flex-col h-full transition-all duration-300 overflow-hidden">
@@ -50,7 +57,7 @@
     <div class="{{ $compact ? 'p-1' : 'p-1 md:p-2' }} flex flex-col flex-grow">
         <a href="{{ $productUrl }}" class="block hover:text-blue-600 transition-colors">
             <h3 class="{{ $compact ? 'text-[10px]' : 'text-[10px] md:text-xs' }} font-bold text-gray-500 dark:text-white leading-tight uppercase tracking-tight group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors text-center">
-                {{ trim(($product->coleccion ?? '') . ' ' . $model) }}
+                {{ $relatedTitle }}
             </h3>
         </a>
 
