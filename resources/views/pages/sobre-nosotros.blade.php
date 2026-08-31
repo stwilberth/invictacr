@@ -81,33 +81,7 @@
                 </div>
             </div>
 
-            <!-- Reseñas de Clientes -->
-            <div class="mt-12 bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-8">
-                <div class="text-center mb-6">
-                    <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-2">Lo Que Dicen Nuestros Clientes</h2>
-                    <p class="text-gray-500 dark:text-gray-400 text-sm">Reseñas reales en video</p>
-                </div>
-                <div class="overflow-x-auto scrollbar-hide scroll-container flex gap-3 sm:gap-4 pb-2">
-                    @foreach($reviewVideos as $reviewVideo)
-                    <div class="flex-shrink-0 w-[240px] sm:w-[280px]">
-                        <div class="relative group cursor-pointer rounded-xl overflow-hidden shadow-lg bg-gray-100 dark:bg-gray-800">
-                            <img src="https://{{ config('services.cloudflare.stream_customer_subdomain') }}.cloudflarestream.com/{{ $reviewVideo->stream_uid }}/thumbnails/thumbnail.jpg" alt="Reseña de cliente" class="w-full aspect-video object-cover" loading="lazy" />
-                            <div class="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/10 transition-all">
-                                <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-white/90 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                                    <i class="fa-solid fa-play text-gray-900 text-xl ml-1"></i>
-                                </div>
-                            </div>
-                            <button type="button" onclick="openVideoModal('{{ $reviewVideo->stream_uid }}')" class="absolute inset-0 z-10"></button>
-                        </div>
-                    </div>
-                    @endforeach
-                </div>
-                <div class="text-center mt-6">
-                    <a href="/resenas" class="inline-flex items-center gap-2 text-[#00C4FF] font-semibold hover:underline">
-                        Ver todas las reseñas <i class="fa-solid fa-arrow-right text-sm"></i>
-                    </a>
-                </div>
-            </div>
+
         </div>
     </section>
 </x-app-layout>

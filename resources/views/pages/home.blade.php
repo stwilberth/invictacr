@@ -89,44 +89,6 @@
         </section>
     </section>
 
-    <!-- Reseñas de Clientes -->
-    <section class="py-8 md:py-16 bg-white dark:bg-gray-950">
-        <div class="max-w-7xl mx-auto px-4">
-            <div class="text-center mb-6 md:mb-10">
-                <h2 class="text-lg md:text-3xl font-bold text-gray-900 dark:text-white uppercase tracking-wider mb-1 md:mb-2">Lo Que Dicen Nuestros Clientes</h2>
-                <p class="text-xs md:text-base text-gray-500 dark:text-gray-400">Reseñas reales en video</p>
-            </div>
-            <div class="relative group">
-                <button onclick="event.stopPropagation();this.parentElement.querySelector('.scroll-container').scrollBy({left: -600, behavior: 'smooth'});" class="absolute left-0 top-1/2 -translate-y-1/2 z-50 w-12 h-12 bg-white dark:bg-gray-800 rounded-full shadow-xl flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-700 transition-all opacity-0 group-hover:opacity-100 -ml-5 border border-gray-200 dark:border-gray-700 cursor-pointer" aria-label="Anterior">
-                    <i class="fa-solid fa-chevron-left text-gray-700 dark:text-gray-300 text-base"></i>
-                </button>
-                <button onclick="event.stopPropagation();this.parentElement.querySelector('.scroll-container').scrollBy({left: 600, behavior: 'smooth'});" class="absolute right-0 top-1/2 -translate-y-1/2 z-50 w-12 h-12 bg-white dark:bg-gray-800 rounded-full shadow-xl flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-700 transition-all opacity-0 group-hover:opacity-100 -mr-5 border border-gray-200 dark:border-gray-700 cursor-pointer" aria-label="Siguiente">
-                    <i class="fa-solid fa-chevron-right text-gray-700 dark:text-gray-300 text-base"></i>
-                </button>
-                <div class="overflow-x-auto scrollbar-hide scroll-container flex gap-3 sm:gap-4 pb-2">
-                    @foreach($reviewVideos as $reviewVideo)
-                    <div class="flex-shrink-0 w-[240px] sm:w-[280px]">
-                        <button type="button" onclick="openVideoModal('{{ $reviewVideo->stream_uid }}')" class="relative group cursor-pointer rounded-xl overflow-hidden shadow-lg bg-gray-100 dark:bg-gray-800 w-full text-left">
-                            <img src="https://{{ config('services.cloudflare.stream_customer_subdomain') }}.cloudflarestream.com/{{ $reviewVideo->stream_uid }}/thumbnails/thumbnail.jpg" alt="Reseña de cliente" class="w-full aspect-video object-cover" loading="lazy" />
-                            <div class="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/10 transition-all">
-                                <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-white/90 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                                    <i class="fa-solid fa-play text-gray-900 text-xl ml-1"></i>
-                                </div>
-                            </div>
-                        </button>
-                    </div>
-                    @endforeach
-                </div>
-            </div>
-            <div class="text-center mt-6 md:mt-8">
-                <a href="/resenas" class="inline-flex items-center gap-2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-bold px-8 py-3.5 rounded-full hover:opacity-90 transition-all duration-300 shadow-lg">
-                    Ver todas las reseñas
-                    <i class="fa-solid fa-arrow-right text-sm"></i>
-                </a>
-            </div>
-        </div>
-    </section>
-
     <!-- Productos Destacados -->
     @if($featuredProducts->count() > 0)
     <section class="py-12 md:py-16 bg-gray-50 dark:bg-gray-900">

@@ -24,7 +24,6 @@ class UtilityApiController extends Controller
             '/informacion-de-envio' => ['changefreq' => 'monthly', 'priority' => '0.7'],
             '/garantia' => ['changefreq' => 'monthly', 'priority' => '0.7'],
             '/resistencia-agua' => ['changefreq' => 'monthly', 'priority' => '0.7'],
-            '/resenas' => ['changefreq' => 'monthly', 'priority' => '0.7'],
             '/sobre-nosotros' => ['changefreq' => 'monthly', 'priority' => '0.6'],
         ];
 

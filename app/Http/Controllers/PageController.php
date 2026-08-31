@@ -29,25 +29,9 @@ class PageController extends Controller
         return view('pages.resistencia-agua');
     }
 
-    public function resenas()
-    {
-        $videos = \App\Models\ReviewVideo::activos()
-            ->orderBy('orden')
-            ->orderBy('id')
-            ->get();
-
-        return view('pages.resenas', compact('videos'));
-    }
-
     public function sobreNosotros()
     {
-        $reviewVideos = \App\Models\ReviewVideo::activos()
-            ->orderBy('orden')
-            ->orderBy('id')
-            ->take(8)
-            ->get();
-
-        return view('pages.sobre-nosotros', compact('reviewVideos'));
+        return view('pages.sobre-nosotros');
     }
 
     public function privacidad()

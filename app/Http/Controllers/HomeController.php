@@ -81,12 +81,6 @@ class HomeController extends Controller
                 return str_contains($p->modelo, "50413");
             }) ?? $activeProducts->first();
 
-        $reviewVideos = \App\Models\ReviewVideo::activos()
-            ->orderBy("orden")
-            ->orderBy("id")
-            ->take(8)
-            ->get();
-
         return view(
             "pages.home",
             compact(
@@ -96,7 +90,6 @@ class HomeController extends Controller
                 "heroProduct",
                 "activeProducts",
                 "topSearches",
-                "reviewVideos",
             ),
         );
     }

@@ -55,9 +55,7 @@
                 <a href="{{ route('admin.subscribers') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors {{ request()->routeIs('admin.subscribers') ? 'bg-[#00C4FF]/10 text-[#00C4FF]' : 'text-white/70 hover:text-white hover:bg-white/5' }}">
                     <i class="fa-solid fa-envelope w-5"></i> Suscriptores
                 </a>
-                <a href="{{ route('admin.review-videos') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors {{ request()->routeIs('admin.review-videos') ? 'bg-[#00C4FF]/10 text-[#00C4FF]' : 'text-white/70 hover:text-white hover:bg-white/5' }}">
-                    <i class="fa-solid fa-star w-5"></i> Videos Reseñas
-                </a>
+
 
                 <p class="px-4 pt-4 pb-2 text-xs text-white/40 uppercase tracking-wider font-black">Métricas</p>
                 <a href="{{ route('admin.visitors') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors {{ request()->routeIs('admin.visitors*') ? 'bg-[#00C4FF]/10 text-[#00C4FF]' : 'text-white/70 hover:text-white hover:bg-white/5' }}">
@@ -183,9 +181,7 @@
                     <a href="{{ route('admin.subscribers') }}" @click="sidebarOpen = false" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors {{ request()->routeIs('admin.subscribers') ? 'bg-[#00C4FF]/10 text-[#00C4FF]' : 'text-white/70 hover:text-white hover:bg-white/5' }}">
                         <i class="fa-solid fa-envelope w-5"></i> Suscriptores
                     </a>
-                    <a href="{{ route('admin.review-videos') }}" @click="sidebarOpen = false" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors {{ request()->routeIs('admin.review-videos') ? 'bg-[#00C4FF]/10 text-[#00C4FF]' : 'text-white/70 hover:text-white hover:bg-white/5' }}">
-                        <i class="fa-solid fa-star w-5"></i> Videos Reseñas
-                    </a>
+
 
                     <p class="px-4 pt-4 pb-2 text-xs text-white/40 uppercase tracking-wider font-black">Métricas</p>
                     <a href="{{ route('admin.visitors') }}" @click="sidebarOpen = false" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors {{ request()->routeIs('admin.visitors*') ? 'bg-[#00C4FF]/10 text-[#00C4FF]' : 'text-white/70 hover:text-white hover:bg-white/5' }}">

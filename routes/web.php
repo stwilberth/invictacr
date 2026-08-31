@@ -49,7 +49,6 @@ Route::get('/informacion-de-envio', [PageController::class, 'envio'])->name('env
 Route::get('/metodos-envio', fn() => redirect('/informacion-de-envio', 301));
 Route::get('/garantia', [PageController::class, 'garantia'])->name('garantia');
 Route::get('/resistencia-agua', [PageController::class, 'resistenciaAgua'])->name('resistencia-agua');
-Route::get('/resenas', [PageController::class, 'resenas'])->name('resenas');
 Route::get('/sobre-nosotros', [PageController::class, 'sobreNosotros'])->name('sobre-nosotros');
 Route::get('/privacidad', [PageController::class, 'privacidad'])->name('privacidad');
 Route::get('/redes', [PageController::class, 'redes'])->name('redes');
@@ -79,7 +78,6 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::get('/products', \App\Livewire\Admin\Products::class)->name('products');
     Route::get('/products/create', \App\Livewire\Admin\ProductForm::class)->name('products.create');
     Route::get('/products/{productId}/edit', \App\Livewire\Admin\ProductForm::class)->name('products.edit');
-    Route::get('/review-videos', \App\Livewire\Admin\ReviewVideos::class)->name('review-videos');
     Route::get('/invoices', \App\Livewire\Admin\Invoices::class)->name('invoices');
     Route::get('/invoices/create', \App\Livewire\Admin\InvoiceCreate::class)->name('invoices.create');
     Route::get('/invoices/{id}', \App\Livewire\Admin\InvoiceDetail::class)->name('invoices.detail');
