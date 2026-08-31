@@ -14,6 +14,8 @@
 
     $galleryItemsForLcp = $galleryItems ?? [];
     $lcpImageUrl = !empty($galleryItemsForLcp) ? ($galleryItemsForLcp[0]['url'] ?? '') : $product->imagen;
+    // Para JSON-LD Product schema Google prefiere la foto real del producto (no video thumb ni OG wrapper)
+    $schemaImage = collect($galleryItemsForLcp)->firstWhere('type', 'image')['url'] ?? $lcpImageUrl ?: $ogImage;
 
     $priceFmt = '₡' . number_format((float) ($product->price_after_discount ?? $product->precio_venta ?? 0), 0);
     $descParts = array_filter([
@@ -61,7 +63,7 @@
     "@@context": "https://schema.org",
     "@@type": "Product",
     "name": {!! json_encode($productName) !!},
-    "image": {!! json_encode($ogImage) !!},
+    "image": {!! json_encode($schemaImage) !!},
     "description": {!! json_encode($seoDescription) !!},
     "sku": {!! json_encode($product->modelo) !!},
     "brand": {"@type": "Brand", "name": "Invicta"},
