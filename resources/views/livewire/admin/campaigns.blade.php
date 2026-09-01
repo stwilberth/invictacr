@@ -677,10 +677,19 @@
 
     document.addEventListener('trigger-png-download', () => {
         const modelCode = (document.getElementById('imgModelCode').value || 'invicta').replace(/[^a-zA-Z0-9_-]/g, '');
-        const link = document.createElement('a');
-        link.download = modelCode + '.png';
-        link.href = canvas.toDataURL('image/png');
-        link.click();
+        canvas.toBlob((blob) => {
+            if (!blob) return;
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = modelCode + '.png';
+            link.rel = 'noopener';
+            link.style.display = 'none';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
+        }, 'image/png');
     });
 
             // Vuelve a dibujar si Livewire re-renderiza el componente
