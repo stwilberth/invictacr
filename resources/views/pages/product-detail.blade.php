@@ -559,6 +559,16 @@
         var pixelTitle = "{{ $product->title }}";
         var pixelPrice = {{ $product->precio_venta }};
         window.invictaProductId = {{ $product->id }};
+
+        if (typeof fbq !== "undefined") {
+            fbq("track", "ViewContent", {
+                content_ids: [pixelModel],
+                content_name: pixelTitle,
+                content_type: "product",
+                value: pixelPrice,
+                currency: "CRC"
+            });
+        }
     </script>
 
     @push('scripts')

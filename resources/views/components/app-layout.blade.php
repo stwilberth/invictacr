@@ -111,6 +111,14 @@
                     currency: "CRC",
                     event_url: window.location.href,
                 });
+                fbq("track", "Lead", {
+                    content_ids: productModel ? [productModel] : [],
+                    content_name: productTitle || document.title,
+                    content_type: "product",
+                    value: productPrice,
+                    currency: "CRC",
+                    event_url: window.location.href,
+                });
             }
         });
     </script>
