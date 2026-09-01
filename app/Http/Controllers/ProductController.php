@@ -335,6 +335,13 @@ class ProductController extends Controller
             });
 
             $galleryItems = collect();
+            foreach ($images as $i => $img) {
+                $galleryItems->push([
+                    'type' => 'image',
+                    'url' => $galleryImages[$i] ?? $img,
+                    'zoomUrl' => $galleryImages[$i] ?? $img,
+                ]);
+            }
             if ($product->video_uid) {
                 $videoThumb = "https://" . config('services.cloudflare.stream_customer_subdomain') . ".cloudflarestream.com/{$product->video_uid}/thumbnails/thumbnail.jpg?width=480";
                 $galleryItems->push([
@@ -342,13 +349,6 @@ class ProductController extends Controller
                     'videoUid' => $product->video_uid,
                     'thumbnail' => $videoThumb,
                     'url' => $videoThumb,
-                ]);
-            }
-            foreach ($images as $i => $img) {
-                $galleryItems->push([
-                    'type' => 'image',
-                    'url' => $galleryImages[$i] ?? $img,
-                    'zoomUrl' => $galleryImages[$i] ?? $img,
                 ]);
             }
 
