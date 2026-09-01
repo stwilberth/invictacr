@@ -59,6 +59,7 @@
             n.push = n; n.loaded = !0; n.version = "2.0"; n.queue = [];
         })(window, document, "script");
         fbq("init", "1666700714574473");
+        fbq("init", "1052127637662654");
         fbq("track", "PageView");
 
         (function () {
@@ -91,6 +92,7 @@
     <noscript>
         <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MFKHNJ9V" height="0" width="0" style="display:none;visibility:hidden"></iframe>
         <img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=1666700714574473&ev=PageView&noscript=1" />
+        <img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=1052127637662654&ev=PageView&noscript=1" />
     </noscript>
 
     <script>
