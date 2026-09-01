@@ -30,7 +30,7 @@ class Campaigns extends Component
     public $generatedUtm = '';
 
     public $savedAds;
-    public $productFilter = 'all';
+    public $productFilter = 'pending';
     public $filterColeccion = '';
     public $filterColor = '';
     public $filterBrazalete = '';
@@ -135,11 +135,10 @@ class Campaigns extends Component
 
     public function mount()
     {
-        $first = Product::where('activo', true)->where('precio_venta', '>', 0)->orderBy('modelo')->first();
+        $first = $this->filteredProducts()->first();
+
         if ($first) {
-            $this->selectedProductId = $first->id;
-            $this->product = $first;
-            $this->loadProductData($first);
+            $this->selectProduct((int) $first->id);
         }
     }
 
