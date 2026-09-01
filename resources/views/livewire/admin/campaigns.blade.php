@@ -114,21 +114,6 @@
 
                     {{-- Columna controles --}}
                     <div class="flex flex-col gap-3 sm:gap-3 order-2 xl:order-1 min-w-0">
-                        {{-- Texto del anuncio --}}
-                        @if ($generatedContent)
-                            <div class="bg-white dark:bg-[#0f172a] rounded-xl border border-gray-200 dark:border-white/5 p-3 sm:p-3">
-                                <div class="flex items-center justify-between mb-2">
-                                    <h3 class="font-bold text-[10px] sm:text-[11px] uppercase tracking-wider text-gray-900 dark:text-white flex items-center gap-1.5"><i class="fa-solid fa-quote-left text-[#00C4FF]"></i> Texto del anuncio</h3>
-                                    <span class="text-[9px] text-gray-400 hidden sm:inline">Tocá para copiar</span>
-                                </div>
-                                <textarea id="ad-textarea" readonly rows="7" onclick="var t=this;t.select();t.setSelectionRange(0,99999);document.execCommand?document.execCommand('copy'):navigator.clipboard?.writeText(t.value);t.style.outline='2px solid #00C4FF';setTimeout(()=>t.style.outline='',1000)"
-                                    class="w-full bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2.5 text-xs sm:text-xs text-gray-700 dark:text-gray-300 font-mono resize-none leading-relaxed min-h-[140px] sm:min-h-0">{{ $generatedContent['headline'] }}
-{{ $generatedContent['body'] }}
-{{ $generatedContent['cta'] ? $generatedContent['cta'] : '' }}
-                                </textarea>
-                                <button onclick="var t=document.getElementById('ad-textarea');t.select();t.setSelectionRange(0,99999);document.execCommand?document.execCommand('copy'):navigator.clipboard?.writeText(t.value);this.innerHTML='<i class=&quot;fa-solid fa-check&quot;></i> ¡Copiado!';setTimeout(()=>this.innerHTML='<i class=&quot;fa-solid fa-copy&quot;></i> Copiar texto',1500)" class="mt-2 w-full sm:hidden bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-xl py-2.5 text-xs font-bold flex items-center justify-center gap-1.5"><i class="fa-solid fa-copy"></i> Copiar texto</button>
-                            </div>
-                        @endif
                         {{-- Controles imagen --}}
                         <div class="bg-white dark:bg-[#1c1c1e] rounded-xl border border-gray-200 dark:border-white/5 p-3 sm:p-3 space-y-3 xl:max-h-[calc(100vh-200px)] xl:overflow-y-auto text-gray-800 dark:text-gray-200">
                             <h2 class="font-bold text-[11px] sm:text-[10px] uppercase tracking-wider flex items-center gap-1.5">
@@ -161,6 +146,22 @@
                                 <i class="fa-solid fa-download"></i> Descargar PNG
                             </button>
                         </div>
+
+                        {{-- Texto del anuncio --}}
+                        @if ($generatedContent)
+                            <div class="bg-white dark:bg-[#0f172a] rounded-xl border border-gray-200 dark:border-white/5 p-3 sm:p-3">
+                                <div class="flex items-center justify-between mb-2">
+                                    <h3 class="font-bold text-[10px] sm:text-[11px] uppercase tracking-wider text-gray-900 dark:text-white flex items-center gap-1.5"><i class="fa-solid fa-quote-left text-[#00C4FF]"></i> Texto del anuncio</h3>
+                                    <span class="text-[9px] text-gray-400 hidden sm:inline">Tocá para copiar</span>
+                                </div>
+                                <textarea id="ad-textarea" readonly rows="7" onclick="var t=this;t.select();t.setSelectionRange(0,99999);document.execCommand?document.execCommand('copy'):navigator.clipboard?.writeText(t.value);t.style.outline='2px solid #00C4FF';setTimeout(()=>t.style.outline='',1000)"
+                                    class="w-full bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2.5 text-xs sm:text-xs text-gray-700 dark:text-gray-300 font-mono resize-none leading-relaxed min-h-[140px] sm:min-h-0">{{ $generatedContent['headline'] }}
+{{ $generatedContent['body'] }}
+{{ $generatedContent['cta'] ? $generatedContent['cta'] : '' }}
+                                </textarea>
+                                <button onclick="var t=document.getElementById('ad-textarea');t.select();t.setSelectionRange(0,99999);document.execCommand?document.execCommand('copy'):navigator.clipboard?.writeText(t.value);this.innerHTML='<i class=&quot;fa-solid fa-check&quot;></i> ¡Copiado!';setTimeout(()=>this.innerHTML='<i class=&quot;fa-solid fa-copy&quot;></i> Copiar texto',1500)" class="mt-2 w-full sm:hidden bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-xl py-2.5 text-xs font-bold flex items-center justify-center gap-1.5"><i class="fa-solid fa-copy"></i> Copiar texto</button>
+                            </div>
+                        @endif
 
                     </div>
                 </div>
