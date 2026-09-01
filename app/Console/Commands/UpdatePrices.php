@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\Product;
+use App\Services\CloudflareCacheService;
 use Illuminate\Console\Command;
 
 class UpdatePrices extends Command
@@ -67,10 +68,30 @@ class UpdatePrices extends Command
 
         if (! $dry) {
             $this->call('cache:clear');
+            $this->purgeCloudflareCache($products);
             $this->newLine();
             $this->info(count($found) . ' precio(s) actualizado(s). Caché limpiada.');
         }
 
         return empty($missing) ? 0 : 1;
+    }
+
+    private function purgeCloudflareCache($products): void
+    {
+        if ($products->isEmpty()) {
+            return;
+        }
+
+        try {
+            $baseUrl = config('app.url', 'https://invictacostarica.com');
+            $urls = array_merge(
+                ["{$baseUrl}/", "{$baseUrl}/relojes"],
+                $products->map(fn($p) => "{$baseUrl}/relojes/{$p->slug}")->toArray()
+            );
+
+            app(CloudflareCacheService::class)->purgeUrls(array_values(array_unique($urls)));
+        } catch (\Exception $e) {
+            $this->warn('No se pudo purgar la caché de Cloudflare: ' . $e->getMessage());
+        }
     }
 }
