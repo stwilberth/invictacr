@@ -42,6 +42,8 @@ class Campaigns extends Component
     {
         if (!$this->product) return;
 
+        $nextId = $this->nextProductId();
+
         $text = $this->generatedContent
             ? ($this->generatedContent['headline'] ?? '') . "\n\n" . ($this->generatedContent['body'] ?? '')
             : '';
@@ -57,6 +59,56 @@ class Campaigns extends Component
         }
 
         session()->flash('message', 'Descarga registrada.');
+
+        if ($nextId) {
+            $this->selectProduct($nextId);
+        }
+    }
+
+    private function nextProductId(): ?int
+    {
+        $products = $this->filteredProducts();
+
+        if ($products->isEmpty()) {
+            return null;
+        }
+
+        $index = $products->search(fn (Product $p) => $p->id === (int) $this->product->id);
+
+        if ($index === false) {
+            return null;
+        }
+
+        $nextIndex = $index + 1;
+        $next = $products->get($nextIndex);
+
+        if (!$next) {
+            return null;
+        }
+
+        $perPage = 30;
+        $nextPage = intdiv($nextIndex, $perPage) + 1;
+        $currentPage = (int) $this->getPage('page');
+
+        if ($nextPage !== $currentPage) {
+            $this->setPage($nextPage, 'page');
+        }
+
+        return (int) $next->id;
+    }
+
+    private function selectProduct(int $productId): void
+    {
+        $product = Product::find($productId);
+
+        if (!$product) {
+            return;
+        }
+
+        $this->selectedProductId = $product->id;
+        $this->product = $product;
+        $this->generatedContent = null;
+        $this->loadProductData($product);
     }
 
     public function setProductFilter($filter)
