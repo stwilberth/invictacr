@@ -5,9 +5,11 @@ namespace App\Livewire\Admin;
 use App\Models\Product;
 use App\Models\MarketingTask;
 use App\Models\DownloadHistory;
+use App\Services\CatalogService;
 use Livewire\Component;
 use Livewire\WithPagination;
-use Illuminate\Support\Facades\Http;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 
 class Campaigns extends Component
 {
@@ -19,10 +21,6 @@ class Campaigns extends Component
     public $templateType = 'instagram';
     public $generatedContent = null;
 
-    public $aiTone = 'casual';
-    public $aiGenerated = null;
-    public $aiLoading = false;
-
     public $utmUrl = '';
     public $utmSource = 'instagram';
     public $utmMedium = 'post';
@@ -33,7 +31,6 @@ class Campaigns extends Component
 
     public $savedAds;
     public $productFilter = 'all';
-    public $downloads;
     public $filterColeccion = '';
     public $filterColor = '';
     public $filterBrazalete = '';
@@ -57,18 +54,10 @@ class Campaigns extends Component
                 'product_image' => $this->product->imagen,
                 'text_content' => $text,
             ]);
-            $this->loadDownloads();
         }
 
         $this->dispatch('trigger-png-download');
         session()->flash('message', 'Descarga registrada.');
-    }
-
-    public function resetDownloads()
-    {
-        DownloadHistory::truncate();
-        $this->loadDownloads();
-        session()->flash('message', 'Historial de descargas limpiado.');
     }
 
     public function setProductFilter($filter)
@@ -86,23 +75,6 @@ class Campaigns extends Component
         }
     }
 
-    private function loadDownloads()
-    {
-        $this->downloads = DownloadHistory::with('product')
-            ->latest()
-            ->get();
-    }
-
-    public function getAiToneOptionsProperty(): array
-    {
-        return [
-            'casual' => ['fa-face-smile', 'Casual'],
-            'profesional' => ['fa-briefcase', 'Pro'],
-            'urgente' => ['fa-bolt', 'Urgente'],
-            'lujoso' => ['fa-crown', 'Lujo'],
-        ];
-    }
-
     public function updating($property, $value)
     {
         if (in_array($property, ['productSearch', 'filterColeccion', 'filterColor', 'filterBrazalete', 'filterGenero', 'productFilter', 'sortField', 'sortDirection'])) {
@@ -112,7 +84,6 @@ class Campaigns extends Component
 
     public function mount()
     {
-        $this->loadDownloads();
         $first = Product::where('activo', true)->where('precio_venta', '>', 0)->orderBy('modelo')->first();
         if ($first) {
             $this->selectedProductId = $first->id;
@@ -222,71 +193,6 @@ class Campaigns extends Component
         }
     }
 
-    public function generateWithAI()
-    {
-        $this->aiLoading = true;
-        $this->aiGenerated = null;
-
-        $product = Product::find($this->selectedProductId);
-        if (!$product) {
-            session()->flash('error', 'Selecciona un producto.');
-            $this->aiLoading = false;
-            return;
-        }
-
-        $toneLabels = [
-            'profesional' => 'profesional y elegante, tono aspiracional',
-            'casual' => 'casual y amigable, como un mensaje a un amigo',
-            'urgente' => 'urgente con llamado a la acción, edición limitada',
-            'lujoso' => 'lujoso y exclusivo, para conocedores',
-        ];
-
-        $prompt = "Genera 3 variantes de anuncio en español para un reloj Invicta.
-Modelo: {$product->modelo}
-Colección: {$product->coleccion}
-Características: {$product->size}mm, movimiento {$product->tipo_movimiento}, resistencia al agua {$product->resistencia_agua}, color {$product->color}
-Precio: ₡" . number_format($product->price_after_discount, 0) . "
-Tono: {$toneLabels[$this->aiTone]}
-
-IMPORTANTE: NO uses markdown ni asteriscos. Usá formato simple.
-Para cada variante escribí:
-Título: (máx 10 palabras)
-Cuerpo: (máx 40 palabras)  
-Hashtags: (3 hashtags separados por espacio)
-
-Separá cada variante exactamente con: ---";
-
-        try {
-            $response = Http::withHeaders([
-                'Authorization' => 'Bearer ' . config('services.deepseek.key'),
-                'Content-Type' => 'application/json',
-            ])->timeout(30)->post('https://api.deepseek.com/v1/chat/completions', [
-                'model' => 'deepseek-chat',
-                'messages' => [['role' => 'user', 'content' => $prompt]],
-                'max_tokens' => 600,
-                'temperature' => 0.8,
-            ]);
-
-            $text = $response->json('choices.0.message.content');
-
-            $variants = collect(explode('---', $text))
-                ->map(fn($v) => trim(preg_replace('/\*\*(.*?)\*\*/', '$1', $v)))
-                ->filter(fn($v) => !preg_match('/^(claro|aquí\s+tienes|por\s+supuesto|te\s+presento)/i', $v))
-                ->values()
-                ->toArray();
-
-            $this->aiGenerated = [
-                'variants' => $variants,
-                'model' => $product->modelo,
-                'image' => $product->imagen,
-            ];
-        } catch (\Exception $e) {
-            session()->flash('error', 'Error al generar con IA: ' . $e->getMessage());
-        }
-
-        $this->aiLoading = false;
-    }
-
     public function generateUtm()
     {
         $baseUrl = $this->utmUrl ?: url('/');
@@ -302,30 +208,6 @@ Separá cada variante exactamente con: ---";
 
         $separator = parse_url($baseUrl, PHP_URL_QUERY) ? '&' : '?';
         $this->generatedUtm = $baseUrl . $separator . $params;
-    }
-
-    public function useAiVariant($index)
-    {
-        if (!$this->aiGenerated || !isset($this->aiGenerated['variants'][$index])) return;
-
-        $text = $this->aiGenerated['variants'][$index];
-        // Limpia etiquetas como "Título:", "Cuerpo:", "Hashtags:" del texto plano
-        $clean = preg_replace('/^(Título|Cuerpo|Hashtags):\s*/im', '', $text);
-        $lines = array_filter(explode("\n", $clean));
-
-        $this->generatedContent = [
-            'template' => 'ai',
-            'headline' => $lines[0] ?? 'Anuncio IA',
-            'body' => implode("\n", array_slice($lines, 1)),
-            'cta' => '¡Contáctanos!',
-            'model' => $this->aiGenerated['model'],
-            'image' => $this->aiGenerated['image'],
-            'price' => null,
-            'formatted_price' => '',
-        ];
-
-        $this->activeTab = 'create';
-        session()->flash('message', 'Variante de IA aplicada.');
     }
 
     public function saveAd()
@@ -349,36 +231,17 @@ Separá cada variante exactamente con: ---";
 
     public function render()
     {
-        $query = $this->buildFilteredQuery();
+        $base = (new CatalogService())->baseProducts();
 
-        $products = $query->orderBy($this->sortField, $this->sortDirection)->paginate(30);
-        
-        $colecciones = Product::where('activo', true)
-            ->where('precio_venta', '>', 0)
-            ->whereNotNull('coleccion')
-            ->distinct()
-            ->pluck('coleccion')
-            ->sort()
-            ->values();
-            
-        $colores = Product::where('activo', true)
-            ->where('precio_venta', '>', 0)
-            ->whereNotNull('color')
-            ->distinct()
-            ->pluck('color')
-            ->sort()
-            ->values();
-        
-        $brazaletes = Product::where('activo', true)
-            ->where('precio_venta', '>', 0)
-            ->whereNotNull('brazalete')
-            ->distinct()
-            ->pluck('brazalete')
-            ->sort()
-            ->values();
+        $available = $base->filter(fn (Product $p) => (float) $p->precio_venta > 0);
+
+        $colecciones = $available->pluck('coleccion')->filter()->unique()->sort()->values();
+        $colores = $available->pluck('color')->filter()->unique()->sort()->values();
+        $brazaletes = $available->pluck('brazalete')->filter()->unique()->sort()->values();
+
+        $products = $this->paginateProducts($this->filteredProducts());
 
         $this->savedAds = MarketingTask::where('type', 'like', 'ad_%')->latest()->take(10)->get();
-        $this->loadDownloads();
 
         return view('livewire.admin.campaigns', compact('products', 'colecciones', 'colores', 'brazaletes'))
             ->layout('components.admin-layout', ['title' => 'Campañas']);
@@ -386,9 +249,7 @@ Separá cada variante exactamente con: ---";
 
     public function exportFiltered()
     {
-        $products = $this->buildFilteredQuery()
-            ->orderBy($this->sortField, $this->sortDirection)
-            ->get();
+        $products = $this->filteredProducts();
 
         if ($products->isEmpty()) {
             session()->flash('error', 'No hay productos para exportar.');
@@ -425,25 +286,65 @@ Separá cada variante exactamente con: ---";
         return response()->download($zipPath, 'productos-filtrados.zip')->deleteFileAfterSend(true);
     }
 
-    private function buildFilteredQuery()
+    /**
+     * Aplica búsqueda, filtros, filtro de pendientes y orden sobre la lista base
+     * de productos (cacheada en Redis vía CatalogService). Trabaja en memoria.
+     */
+    private function filteredProducts(): Collection
     {
-        $query = Product::where('activo', true)
-            ->where('precio_venta', '>', 0)
-            ->where('stock', '>', 0)
-            ->when($this->productSearch, fn($q) => $q->where(function($q) {
-                $q->where('modelo', 'like', '%'.$this->productSearch.'%')
-                  ->orWhere('title', 'like', '%'.$this->productSearch.'%');
-            }))
-            ->when($this->filterColeccion, fn($q) => $q->where('coleccion', $this->filterColeccion))
-            ->when($this->filterColor, fn($q) => $q->where('color', $this->filterColor))
-            ->when($this->filterBrazalete, fn($q) => $q->where('brazalete', $this->filterBrazalete))
-            ->when($this->filterGenero, fn($q) => $q->where('genero', $this->filterGenero));
+        $products = (new CatalogService())->baseProducts()
+            ->filter(fn (Product $p) => (float) $p->precio_venta > 0 && (int) $p->stock > 0)
+            ->values();
 
-        if ($this->productFilter === 'pending') {
-            $downloadedIds = DownloadHistory::pluck('product_id');
-            $query->whereNotIn('id', $downloadedIds);
+        if ($this->productSearch !== '') {
+            $q = mb_strtolower(trim($this->productSearch), 'UTF-8');
+            $products = $products->filter(function (Product $p) use ($q) {
+                return str_contains(mb_strtolower((string) $p->modelo, 'UTF-8'), $q)
+                    || str_contains(mb_strtolower((string) $p->title, 'UTF-8'), $q);
+            })->values();
         }
 
-        return $query;
+        if ($this->filterColeccion !== '') {
+            $products = $products->filter(fn (Product $p) => $p->coleccion === $this->filterColeccion)->values();
+        }
+        if ($this->filterColor !== '') {
+            $products = $products->filter(fn (Product $p) => $p->color === $this->filterColor)->values();
+        }
+        if ($this->filterBrazalete !== '') {
+            $products = $products->filter(fn (Product $p) => $p->brazalete === $this->filterBrazalete)->values();
+        }
+        if ($this->filterGenero !== '') {
+            $products = $products->filter(fn (Product $p) => $p->genero === $this->filterGenero)->values();
+        }
+
+        if ($this->productFilter === 'pending') {
+            $downloadedIds = DownloadHistory::pluck('product_id')->flip();
+            $products = $products->filter(fn (Product $p) => ! $downloadedIds->has($p->id))->values();
+        }
+
+        $field = $this->sortField;
+        $dir = $this->sortDirection;
+
+        return $products->sortBy(function (Product $p) use ($field) {
+            return match ($field) {
+                'precio_venta' => (float) $p->precio_venta,
+                'size' => (float) preg_replace('/[^0-9.]+/', '', (string) $p->size),
+                'created_at' => (string) $p->created_at,
+                default => mb_strtolower((string) $p->modelo, 'UTF-8'),
+            };
+        }, SORT_REGULAR, $dir === 'desc')->values();
+    }
+
+    private function paginateProducts(Collection $products): LengthAwarePaginator
+    {
+        $perPage = 30;
+        $page = LengthAwarePaginator::resolveCurrentPage('page');
+
+        return new LengthAwarePaginator(
+            $products->forPage($page, $perPage)->values(),
+            $products->count(),
+            $perPage,
+            $page
+        );
     }
 }

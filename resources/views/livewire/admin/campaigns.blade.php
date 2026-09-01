@@ -146,31 +146,6 @@
                             <input type="hidden" id="imgWhatsapp" value="8671-1422" />
                             <input type="hidden" id="imgWebsite" value="INVICTACR.COM" />
 
-                            <div x-data="{
-                                currentTheme: 'gold',
-                                themes: {
-                                    gold: { name: 'Gold', dark: '#8a5a00', light: '#e6b800', cream: '#fdf6e3' },
-                                    blue: { name: 'Blue', dark: '#0b2447', light: '#1a5fb4', cream: '#eaf2fb' },
-                                    dark: { name: 'Dark', dark: '#141414', light: '#3a3a3a', cream: '#eceff1' },
-                                    green: { name: 'Green', dark: '#0e3d24', light: '#1f7a4d', cream: '#eef7f0' },
-                                    red: { name: 'Red', dark: '#5a0a0a', light: '#c0212b', cream: '#fbeef0' },
-                                    purple: { name: 'Purple', dark: '#2e1065', light: '#6d28d9', cream: '#f3eefb' },
-                                    teal: { name: 'Teal', dark: '#0c4a4a', light: '#0d9488', cream: '#eef9f8' },
-                                }
-                            }">
-                                <label class="block text-xs sm:text-[9px] uppercase tracking-wide font-bold text-gray-600 dark:text-gray-400">Color de fondo</label>
-                                <div class="flex flex-wrap gap-2 sm:gap-1 mt-2">
-                                    <template x-for="entry in Object.entries(themes)" :key="entry[0]">
-                                        <button type="button"
-                                            @click="window.dispatchEvent(new CustomEvent('set-theme', { detail: entry[0] })); currentTheme = entry[0]"
-                                            :class="currentTheme === entry[0] ? 'ring-2 ring-[#00C4FF] ring-offset-2 ring-offset-white dark:ring-offset-[#1c1c1e] scale-110' : 'ring-1 ring-black/5 dark:ring-white/10'"
-                                            class="w-9 h-9 sm:w-7 sm:h-7 rounded-full border-2 border-white dark:border-transparent transition-all shadow-sm"
-                                            :style="`background:linear-gradient(135deg, ${entry[1].dark}, ${entry[1].light})`"
-                                            :title="entry[1].name"></button>
-                                    </template>
-                                </div>
-                            </div>
-
                             <div>
                                 <label class="block text-xs sm:text-[9px] uppercase font-bold tracking-wide text-gray-600 dark:text-gray-400 mb-1.5">Foto del reloj</label>
                                 <input type="file" id="imgUpload" accept="image/*"
@@ -187,120 +162,10 @@
                             </button>
                         </div>
 
-                        {{-- IA: variantes de copy --}}
-                        <div x-data="{ open: true }" class="bg-white dark:bg-[#0f172a] rounded-xl border border-gray-200 dark:border-white/5 p-3 sm:p-3">
-                            <button @click="open = !open" class="flex items-center gap-2 w-full text-left">
-                                <span class="w-6 h-6 sm:w-5 sm:h-5 rounded-full bg-gradient-to-r from-[#00C4FF] to-purple-500 text-[10px] sm:text-[9px] flex items-center justify-center font-black text-white shrink-0">AI</span>
-                                <span class="font-bold text-xs sm:text-[11px] uppercase tracking-wider text-gray-900 dark:text-white flex-1">IA · Variantes de texto</span>
-                                <i class="fa-solid text-xs sm:text-[10px] text-gray-400" :class="open ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
-                            </button>
-                            <div x-show="open" x-collapse class="mt-3 space-y-3">
-                                <div class="flex items-center gap-1.5 flex-wrap">
-                                    @foreach ($this->aiToneOptions as $key => $info)
-                                        <button wire:click="$set('aiTone', '{{ $key }}')"
-                                            class="px-3 py-1.5 sm:px-2 sm:py-1 rounded-full sm:rounded-md text-xs sm:text-[10px] font-bold transition-all border {{ $aiTone === $key ? 'border-[#00C4FF] bg-[#00C4FF]/10 text-[#00C4FF]' : 'border-gray-200 dark:border-white/5 text-gray-600 dark:text-gray-400 hover:border-gray-300 dark:hover:border-white/15' }}">
-                                            <i class="fa-regular {{ $info[0] }}"></i> {{ $info[1] }}
-                                        </button>
-                                    @endforeach
-                                    <button wire:click="generateWithAI" wire:loading.attr="disabled"
-                                        class="bg-gradient-to-r from-[#00C4FF] to-purple-500 hover:from-[#00b0e6] hover:to-purple-600 text-white font-bold px-4 py-1.5 sm:px-2.5 sm:py-1 rounded-full sm:rounded-md text-xs sm:text-[10px] transition-all flex items-center gap-1.5 disabled:opacity-50 shadow-sm">
-                                        <span wire:loading.remove wire:target="generateWithAI"><i class="fa-solid fa-wand-magic-sparkles"></i> Generar</span>
-                                        <span wire:loading wire:target="generateWithAI"><i class="fa-solid fa-spinner fa-spin"></i></span>
-                                    </button>
-                                </div>
-
-                                @if ($aiLoading)
-                                    <div class="flex items-center justify-center py-8">
-                                        <i class="fa-solid fa-spinner fa-spin text-[#00C4FF] mr-2"></i>
-                                        <span class="text-xs text-gray-500">Generando variantes...</span>
-                                    </div>
-                                @elseif($aiGenerated)
-                                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-2">
-                                        @foreach ($aiGenerated['variants'] as $index => $variant)
-                                            @php $parts = preg_split('/\n(?=Cuerpo:|Hashtags:)/', $variant); @endphp
-                                            <div class="p-3 sm:p-2 rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/5 flex flex-col">
-                                                <div class="flex-1 space-y-1.5">
-                                                    <span class="w-5 h-5 sm:w-4 sm:h-4 rounded-full bg-[#00C4FF] inline-flex items-center justify-center text-[10px] sm:text-[8px] font-black text-[#0a0f1c]">#{{ $index + 1 }}</span>
-                                                    @foreach ($parts as $part)
-                                                        @php $colon = mb_strpos($part, ':' ); @endphp
-                                                        @if ($colon !== false)
-                                                            <p class="text-xs sm:text-[10px] text-gray-700 dark:text-gray-300 leading-relaxed">
-                                                                <span class="font-bold text-[#00C4FF]">{{ mb_substr($part, 0, $colon) }}:</span>{{ mb_substr($part, $colon + 1) }}
-                                                            </p>
-                                                        @else
-                                                            <p class="text-xs sm:text-[10px] text-gray-700 dark:text-gray-300 leading-relaxed">{{ $part }}</p>
-                                                        @endif
-                                                    @endforeach
-                                                </div>
-                                                <button wire:click="useAiVariant({{ $index }})"
-                                                    class="mt-3 sm:mt-1.5 w-full bg-[#00C4FF] sm:bg-[#00C4FF]/10 hover:bg-[#00b0e6] sm:hover:bg-[#00C4FF]/20 text-white sm:text-[#00C4FF] font-bold px-3 py-2 sm:py-1 rounded-xl sm:rounded-lg text-xs sm:text-[9px] transition-all flex items-center justify-center gap-1.5">
-                                                    <i class="fa-solid fa-arrow-right"></i> Usar esta variante
-                                                </button>
-                                            </div>
-                                        @endforeach
-                                    </div>
-                                @else
-                                    <p class="text-xs sm:text-[10px] text-gray-400">Seleccioná producto y tono, luego generá</p>
-                                @endif
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
     </div>
-
-    {{-- Downloads table --}}
-    @if ($downloads && $downloads->count() > 0)
-    <div class="bg-white dark:bg-[#0f172a] rounded-xl border border-gray-200 dark:border-white/5 p-3 sm:p-3 mt-3 sm:mt-4">
-        <div class="flex items-center justify-between mb-2 sm:mb-2">
-            <h2 class="font-bold text-xs sm:text-[11px] uppercase tracking-wider text-gray-900 dark:text-white flex items-center gap-1.5">
-                <i class="fa-solid fa-clock-rotate-left text-[#00C4FF] text-xs sm:text-[10px]"></i> Descargados
-            </h2>
-            <button wire:click="resetDownloads" wire:confirm="¿Limpiar todo el historial?"
-                class="px-3 py-1.5 sm:px-2 sm:py-0.5 rounded-full sm:rounded text-xs sm:text-[9px] font-bold bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-900/30 transition-colors">
-                <i class="fa-solid fa-trash-can"></i> Reset
-            </button>
-        </div>
-        <div class="overflow-x-auto -mx-3 px-3 sm:mx-0 sm:px-0 scrollbar-none">
-            <table class="w-full text-xs sm:text-[10px] text-left min-w-[420px]">
-                <thead>
-                    <tr class="text-gray-400 dark:text-gray-500 border-b border-gray-200 dark:border-white/10">
-                        <th class="py-1 pr-2 font-medium">Modelo</th>
-                        <th class="py-1 px-2 font-medium">Foto</th>
-                        <th class="py-1 px-2 font-medium">Texto</th>
-                        <th class="py-1 pl-2 font-medium">Descargado</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-100 dark:divide-white/5">
-                    @php
-                        $grouped = $downloads->groupBy(fn($d) => $d->created_at->format('Y-m-d'));
-                    @endphp
-                    @foreach ($grouped as $date => $items)
-                        <tr class="bg-gray-50 dark:bg-white/5">
-                            <td colspan="4" class="py-1.5 px-2 font-bold text-[10px] uppercase tracking-wider text-[#00C4FF]">
-                                <i class="fa-regular fa-calendar"></i>
-                                {{ \Carbon\Carbon::parse($date)->translatedFormat('l d/m/Y') }}
-                                <span class="text-gray-400 dark:text-gray-500 font-normal normal-case">({{ $items->count() }})</span>
-                            </td>
-                        </tr>
-                        @foreach ($items as $d)
-                        <tr class="text-gray-600 dark:text-gray-400">
-                            <td class="py-2 sm:py-1 pr-2 font-bold text-gray-800 dark:text-gray-200 whitespace-nowrap">{{ $d->model_code }}</td>
-                            <td class="py-2 sm:py-1 px-2">
-                                @if ($d->product_image)
-                                <img src="{{ $d->product_image }}" class="w-9 h-9 sm:w-8 sm:h-8 object-contain rounded bg-gray-50 dark:bg-white/5" />
-                                @endif
-                            </td>
-                            <td class="py-2 sm:py-1 px-2 max-w-[120px] sm:max-w-[200px] truncate text-[11px] sm:text-[10px]" title="{{ $d->text_content }}">{{ $d->text_content }}</td>
-                            <td class="py-2 sm:py-1 pl-2 whitespace-nowrap">{{ $d->created_at->format('H:i') }}</td>
-                        </tr>
-                        @endforeach
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
-    </div>
-    @endif
 
     {{-- TAB: UTM --}}
     @elseif($activeTab === 'utm')
@@ -501,7 +366,7 @@
                     text: '#2b2b2b'
                 },
             };
-            let currentTheme = 'gold';
+            let currentTheme = 'blue';
             let watchImg = null;
             let waIcon = new Image();
             waIcon.src = '/images/whatsapp.svg';
