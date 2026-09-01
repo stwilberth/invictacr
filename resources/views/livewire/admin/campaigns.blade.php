@@ -156,7 +156,7 @@
                                 <div><label class="block text-xs sm:text-[9px] uppercase font-bold text-gray-500 dark:text-gray-400 mb-1">Escala</label><input type="range" id="imgScale" min="0.5" max="2" step="0.01" value="0.8" class="w-full accent-[#00C4FF] h-6 sm:h-4" /></div>
                                 <div><label class="block text-xs sm:text-[9px] uppercase font-bold text-gray-500 dark:text-gray-400 mb-1">Vertical</label><input type="range" id="imgOffsetY" min="-200" max="200" step="1" value="0" class="w-full accent-[#00C4FF] h-6 sm:h-4" /></div>
                             </div>
-                            <button type="button" id="imgDownloadBtn" wire:click="saveDownload"
+                            <button type="button" id="imgDownloadBtn" wire:click="saveDownload" onclick="window.downloadCampaignPng()"
                                 class="w-full px-4 py-3 sm:py-2.5 rounded-xl bg-[#d4af37] hover:brightness-110 active:scale-[0.98] text-[#1c1c1e] font-black uppercase tracking-tight text-xs sm:text-[11px] transition-all flex items-center justify-center gap-2 shadow-sm">
                                 <i class="fa-solid fa-download"></i> Descargar PNG
                             </button>
@@ -300,6 +300,27 @@
 
 @push('scripts')
     <script>
+        window.downloadCampaignPng = function() {
+            const canvas = document.getElementById('adCanvas');
+            const modelInput = document.getElementById('imgModelCode');
+            if (!canvas) return;
+            const modelCode = (modelInput ? modelInput.value : '') || 'invicta';
+            const filename = modelCode.replace(/[^a-zA-Z0-9_-]/g, '') + '.png';
+            canvas.toBlob((blob) => {
+                if (!blob) return;
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = filename;
+                link.rel = 'noopener';
+                link.style.display = 'none';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                setTimeout(() => URL.revokeObjectURL(url), 1000);
+            }, 'image/png');
+        };
+
         window.initInvictaImageCanvas = function() {
             const canvas = document.getElementById('adCanvas');
             if (!canvas || canvas.dataset.invictaInit === '1') return;
@@ -674,23 +695,6 @@
                 ctx.fillText(document.getElementById('imgWebsite').value, W - 40, H - 30);
                 ctx.restore();
             }
-
-    document.addEventListener('trigger-png-download', () => {
-        const modelCode = (document.getElementById('imgModelCode').value || 'invicta').replace(/[^a-zA-Z0-9_-]/g, '');
-        canvas.toBlob((blob) => {
-            if (!blob) return;
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = modelCode + '.png';
-            link.rel = 'noopener';
-            link.style.display = 'none';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            setTimeout(() => URL.revokeObjectURL(url), 1000);
-        }, 'image/png');
-    });
 
             // Vuelve a dibujar si Livewire re-renderiza el componente
             draw();

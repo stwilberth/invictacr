@@ -56,7 +56,6 @@ class Campaigns extends Component
             ]);
         }
 
-        $this->dispatch('trigger-png-download');
         session()->flash('message', 'Descarga registrada.');
     }
 
