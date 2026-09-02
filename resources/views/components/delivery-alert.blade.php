@@ -163,7 +163,6 @@
         text-decoration: none;
         background: #00c4ff;
         color: #0a0f1c;
-        box-shadow: 0 10px 24px -8px rgba(0, 196, 255, 0.6);
         transition: transform 0.15s ease, background-color 0.15s ease;
     }
     .promo-cta:hover {
@@ -228,7 +227,7 @@
 function deliveryAlert() {
     const ENTRY_HTML = `
         <div class="promo-header">
-            <button type="button" class="promo-x" onclick="Swal.close()" aria-label="Cerrar">
+            <button type="button" class="promo-x" aria-label="Cerrar">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                 </svg>
@@ -305,6 +304,9 @@ function deliveryAlert() {
                     htmlContainer: 'delivery-body',
                     actions: 'promo-actions',
                     confirmButton: 'promo-confirm',
+                },
+                didOpen: () => {
+                    document.querySelector('.promo-x')?.addEventListener('click', () => Swal.close());
                 },
                 didClose: () => {
                     self.minimized = true;
