@@ -83,6 +83,30 @@
         padding: 0.9rem 1.1rem 0.8rem;
         background: #0a0f1c;
     }
+    .promo-x {
+        position: absolute;
+        top: 0.5rem;
+        right: 0.5rem;
+        width: 1.9rem;
+        height: 1.9rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 9999px;
+        background: #00c4ff;
+        color: #0a0f1c;
+        border: none;
+        cursor: pointer;
+        transition: transform 0.15s ease, background-color 0.15s ease;
+    }
+    .promo-x:hover {
+        transform: scale(1.1);
+        background: #2ecfff;
+    }
+    .promo-x svg {
+        width: 1rem;
+        height: 1rem;
+    }
     .promo-title {
         position: relative;
         margin: 0;
@@ -189,27 +213,6 @@
     html.dark .promo-confirm:hover {
         background: rgba(255, 255, 255, 0.06) !important;
     }
-    .promo-close {
-        color: #0a0f1c !important;
-        background: #00c4ff !important;
-        width: 1.9rem !important;
-        height: 1.9rem !important;
-        display: flex !important;
-        align-items: center;
-        justify-content: center;
-        border-radius: 9999px !important;
-        font-size: 1.3rem !important;
-        line-height: 1 !important;
-        font-weight: 900 !important;
-        margin: 0.4rem !important;
-        box-shadow: 0 4px 12px -4px rgba(0, 0, 0, 0.5);
-        transition: transform 0.15s ease;
-    }
-    .promo-close:hover {
-        transform: scale(1.1);
-        color: #0a0f1c !important;
-        background: #2ecfff !important;
-    }
 
     @media (max-width: 480px) {
         .promo-popup {
@@ -225,6 +228,11 @@
 function deliveryAlert() {
     const ENTRY_HTML = `
         <div class="promo-header">
+            <button type="button" class="promo-x" onclick="Swal.close()" aria-label="Cerrar">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
             <h3 class="promo-title">Un anillo <span>gratis</span></h3>
             <p class="promo-sub">Por la compra de 2 relojes.</p>
         </div>
@@ -287,7 +295,7 @@ function deliveryAlert() {
                 title: '',
                 html: ENTRY_HTML,
                 icon: null,
-                showCloseButton: true,
+                showCloseButton: false,
                 showConfirmButton: true,
                 confirmButtonText: 'Quizás después',
                 background: document.documentElement.classList.contains('dark') ? '#0a0f1c' : '#fff',
@@ -296,7 +304,6 @@ function deliveryAlert() {
                     title: 'delivery-title',
                     htmlContainer: 'delivery-body',
                     actions: 'promo-actions',
-                    closeButton: 'promo-close',
                     confirmButton: 'promo-confirm',
                 },
                 didClose: () => {
