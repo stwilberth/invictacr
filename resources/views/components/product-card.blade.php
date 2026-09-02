@@ -14,7 +14,7 @@
     if ($coleccion !== '' && strtolower($coleccion) !== 'otros') {
         $cardTitle .= ' ' . $coleccion;
     }
-    $cardTitle .= ' - ' . ($model !== '' ? $model : 'Reloj');
+    $cardTitle .= ' ' . ($model !== '' ? $model : 'Reloj');
 @endphp
 
 <div class="group relative flex flex-col h-full transition-all duration-300 overflow-hidden">
