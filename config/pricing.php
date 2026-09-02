@@ -12,7 +12,7 @@ return [
     'minimum_margin_percent' => 25,
 
     // Competitividad: diferencia en colones sobre el precio del proveedor.
-    'competitive_difference_amount' => 0,
+    'competitive_difference_amount' => -2000,
 
     // Competitividad: diferencia porcentual sobre el precio del proveedor.
     'competitive_difference_percent' => 0,

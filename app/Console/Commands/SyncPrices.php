@@ -85,6 +85,8 @@ class SyncPrices extends Command
                 continue;
             }
 
+            $oldVenta = (float) $product->precio_venta;
+
             $product->precio_venta = $newVenta;
             $product->precio_costo = $newCosto;
             $product->save();
@@ -95,7 +97,7 @@ class SyncPrices extends Command
             $this->line(sprintf(
                 '  <fg=cyan>%s</>  <fg=gray>%s</> → <fg=green>%s</>',
                 $product->modelo,
-                number_format((float) $product->getOriginal('precio_venta'), 0),
+                number_format($oldVenta, 0),
                 number_format((float) $newVenta, 0),
             ));
         }
