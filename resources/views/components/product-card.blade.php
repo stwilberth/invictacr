@@ -17,15 +17,15 @@
     $cardTitle .= ' ' . ($model !== '' ? $model : 'Reloj');
 @endphp
 
-<div class="group relative flex flex-col h-full transition-all duration-300 overflow-hidden">
-    <a href="{{ $productUrl }}" class="w-full pt-[100%] relative block">
+<div class="group relative flex flex-col h-full rounded-2xl bg-white dark:bg-[#0d1424] border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden">
+    <a href="{{ $productUrl }}" class="w-full pt-[100%] relative block focus-visible:outline-none" aria-label="Ver {{ $cardTitle }}">
         <div class="absolute inset-0 flex items-center justify-center pt-1">
             <div class="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200 dark:from-[#0a0f1c] dark:to-[#1a2332]" @if($imageUrl) style="display:none" @endif>
                 <span class="font-black text-slate-300 dark:text-slate-600 {{ $compact ? 'text-lg' : 'text-2xl' }} tracking-tighter">{{ $model }}</span>
                 <span class="text-[8px] md:text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mt-1">Invicta</span>
             </div>
             @if($imageUrl)
-                <img src="{{ $imageUrl }}" alt="{{ $product->title }}" class="absolute max-w-full max-h-full object-contain" loading="{{ $priority ? 'eager' : 'lazy' }}" {{ $priority ? 'fetchpriority="high"' : '' }} onerror="this.style.display='none'; this.previousElementSibling.style.display='flex';" />
+                <img src="{{ $imageUrl }}" alt="{{ $product->title }}" class="absolute max-w-full max-h-full object-contain transition-transform duration-500 ease-out group-hover:scale-[1.04]" loading="{{ $priority ? 'eager' : 'lazy' }}" {{ $priority ? 'fetchpriority="high"' : '' }} onerror="this.style.display='none'; this.previousElementSibling.style.display='flex';" />
             @endif
         </div>
 
@@ -52,41 +52,37 @@
             </span>
         </div>
         @endif
-
-
     </a>
 
-    <div class="{{ $compact ? 'p-1' : 'p-1 md:p-2' }} flex flex-col flex-grow">
-        <a href="{{ $productUrl }}" class="block hover:text-blue-600 transition-colors">
-            <h3 class="{{ $compact ? 'text-[10px]' : 'text-[10px] md:text-xs' }} w-full font-bold text-slate-600 dark:text-gray-200 leading-tight uppercase tracking-tight group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors text-center line-clamp-2 min-h-[2.5em]">
+    <div class="{{ $compact ? 'p-2' : 'p-3 md:p-4' }} flex flex-col flex-grow">
+        <a href="{{ $productUrl }}" class="block focus-visible:outline-none" aria-label="Ver {{ $cardTitle }}">
+            <h3 class="{{ $compact ? 'text-[10px]' : 'text-xs md:text-sm' }} w-full font-bold text-slate-700 dark:text-slate-100 leading-snug uppercase tracking-wide line-clamp-2 min-h-[2.75em] text-center group-hover:text-[#00a3d6] dark:group-hover:text-[#00C4FF] transition-colors">
                 {{ $cardTitle }}
             </h3>
         </a>
 
-        <div class="text-center">
+        <div class="mt-2 flex flex-col items-center text-center">
             @if($product->proximo || $product->precio_venta <= 0)
                 <div class="py-1">
-                    <span class="text-[9px] md:text-xs font-bold px-1.5 md:px-2 py-0.5 bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 rounded-md">Próximamente</span>
+                    <span class="text-[9px] md:text-xs font-bold px-2 py-1 bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 rounded-md uppercase tracking-wide">Próximamente</span>
                 </div>
             @elseif($product->precio_venta > 0)
-                <div class="flex flex-col items-center w-full">
-                    <div class="flex items-baseline gap-1 md:gap-2 justify-center">
-                        <span class="{{ $compact ? 'text-sm' : 'text-sm md:text-xl' }} font-black text-red-600 dark:text-red-500 tracking-tighter">₡{{ number_format($priceAfterDiscount, 0) }}</span>
-                        @if(($product->descuento ?? 0) > 0)
-                            <span class="text-[9px] md:text-xs font-bold text-slate-400 dark:text-gray-500 line-through">₡{{ number_format($product->precio_venta, 0) }}</span>
-                        @endif
-                    </div>
+                <div class="flex items-baseline gap-1.5 md:gap-2 justify-center">
+                    @if(($product->descuento ?? 0) > 0)
+                        <span class="text-[10px] md:text-sm font-bold text-slate-400 dark:text-gray-500 line-through">₡{{ number_format($product->precio_venta, 0) }}</span>
+                    @endif
+                    <span class="{{ $compact ? 'text-sm' : 'text-lg md:text-2xl' }} font-black text-red-600 dark:text-red-500 tracking-tighter">₡{{ number_format($priceAfterDiscount, 0) }}</span>
                 </div>
             @else
-                <div class="py-1 text-center">
-                    <span class="text-[9px] md:text-xs font-bold px-1.5 md:px-2 py-0.5 bg-red-100 text-red-600 rounded-md">AGOTADO</span>
+                <div class="py-1">
+                    <span class="text-[9px] md:text-xs font-bold px-2 py-1 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-md uppercase tracking-wide">Agotado</span>
                 </div>
             @endif
         </div>
 
-        <div class="mt-auto pt-2 px-2 md:px-3">
+        <div class="mt-auto pt-3">
             <a href="{{ $whatsappLink }}" data-cta="comprar-whatsapp" data-product-id="{{ $product->id }}" target="_blank" rel="noopener noreferrer"
-                class="w-full inline-flex items-center justify-center gap-1.5 py-1.5 bg-[#00C4FF] hover:bg-[#00a3d6] text-[#0a0f1c] rounded-xl font-extrabold uppercase tracking-tight text-xs md:text-sm transition-all hover:-translate-y-0.5 active:scale-95 no-underline shadow-sm hover:shadow-md">
+                class="w-full inline-flex items-center justify-center gap-2 py-2 bg-[#00C4FF] hover:bg-[#00a3d6] text-[#0a0f1c] rounded-xl font-extrabold uppercase tracking-wide text-xs md:text-sm transition-all hover:-translate-y-0.5 active:scale-95 no-underline shadow-sm hover:shadow-md">
                 <i class="fa-brands fa-whatsapp text-sm md:text-base"></i> Comprar
             </a>
         </div>
