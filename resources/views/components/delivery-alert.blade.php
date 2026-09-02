@@ -11,186 +11,321 @@
      class="fixed bottom-4 left-4 md:bottom-6 md:left-6 z-50 transition-[bottom] duration-300"
      x-cloak>
     <button @click="showAlert()"
-             aria-label="Promoción"
-             class="flex items-center justify-center w-12 h-12 md:w-14 md:h-14 bg-[#0a0f1c] dark:bg-[#00C4FF] text-[#00C4FF] dark:text-[#0a0f1c] rounded-full shadow-[0_8px_24px_rgba(0,0,0,0.3)] dark:shadow-[0_8px_24px_rgba(0,196,255,0.35)] border border-white/10 dark:border-transparent transition-all duration-200 hover:-translate-y-0.5 active:scale-95">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 md:w-6 md:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.7">
+             aria-label="Promoción: un anillo gratis"
+             class="promo-fab relative flex items-center justify-center w-14 h-14 md:w-16 md:h-16 rounded-full transition-all duration-200 hover:-translate-y-0.5 active:scale-95">
+        <span class="promo-fab-glow absolute inset-0 rounded-full"></span>
+        <svg xmlns="http://www.w3.org/2000/svg" class="relative w-6 h-6 md:w-7 md:h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.7">
             <path stroke-linecap="round" stroke-linejoin="round" d="M21 11.25v8.25a1.5 1.5 0 0 1-1.5 1.5H5.25a1.5 1.5 0 0 1-1.5-1.5v-8.25M12 4.875A2.625 2.625 0 1 0 9.375 7.5H12m0-2.625V7.5m0-2.625A2.625 2.625 0 1 1 14.625 7.5H12m0 0V21m-8.625-9.75h18c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125h-18c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z" />
         </svg>
+        <span class="promo-fab-badge">GRATIS</span>
     </button>
 </div>
 
 @push('scripts')
 <style>
-    .delivery-popup {
-        border-radius: 1.25rem !important;
-        padding: 1.75rem !important;
-        max-width: 24rem !important;
-        box-shadow: 0 20px 50px -12px rgba(0, 0, 0, 0.25) !important;
-        border: 1px solid rgba(0, 0, 0, 0.08);
-    }
-    html.dark .delivery-popup {
-        background: #0a0f1c !important;
-        border-color: rgba(255, 255, 255, 0.1);
-    }
-    .delivery-title {
-        font-size: 1.05rem !important;
-        font-weight: 800 !important;
+    .promo-fab {
+        background: #00c4ff;
         color: #0a0f1c;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.4rem;
-        padding: 0 0 0.25rem !important;
+        box-shadow: 0 10px 30px -6px rgba(0, 196, 255, 0.55);
     }
-    html.dark .delivery-title {
+    .promo-fab-glow {
+        animation: promo-pulse 2.2s infinite;
+    }
+    @keyframes promo-pulse {
+        0%   { box-shadow: 0 0 0 0 rgba(0, 196, 255, 0.55); }
+        70%  { box-shadow: 0 0 0 16px rgba(0, 196, 255, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(0, 196, 255, 0); }
+    }
+    .promo-fab-badge {
+        position: absolute;
+        top: -8px;
+        right: -10px;
+        background: #ff2d55;
         color: #fff;
+        font-size: 0.52rem;
+        font-weight: 900;
+        letter-spacing: 0.05em;
+        padding: 0.2rem 0.5rem;
+        border-radius: 9999px;
+        box-shadow: 0 4px 12px -2px rgba(255, 45, 85, 0.6);
+        animation: promo-bounce 1.6s ease-in-out infinite;
     }
-    .delivery-body {
-        padding: 0.5rem 0 0 !important;
-        margin: 0 !important;
+    @keyframes promo-bounce {
+        0%, 100% { transform: translateY(0); }
+        50%      { transform: translateY(-4px); }
     }
-    .delivery-actions {
-        padding: 1.25rem 0 0 !important;
-        margin: 0 !important;
+
+    .promo-popup {
+        border-radius: 1.5rem !important;
+        padding: 0 !important;
+        max-width: 24rem !important;
+        overflow: hidden;
+        box-shadow: 0 24px 60px -12px rgba(0, 0, 0, 0.35) !important;
+        border: 1px solid rgba(0, 196, 255, 0.25);
     }
-    .delivery-confirm {
-        border-radius: 0.75rem !important;
-        font-weight: 800 !important;
-        text-transform: uppercase;
-        letter-spacing: -0.01em;
-        padding: 0.75rem 1.5rem !important;
-        font-size: 0.8rem !important;
-        width: 100%;
-        background: #00c4ff !important;
-        color: #0a0f1c !important;
-        box-shadow: none !important;
-        transition: transform 0.15s ease, background-color 0.15s ease;
+    html.dark .promo-popup {
+        background: #0a0f1c !important;
+        border-color: rgba(0, 196, 255, 0.25);
     }
-    .delivery-confirm:hover {
-        transform: translateY(-2px);
-        background: #00a3d6 !important;
-    }
-    .delivery-confirm:active {
-        transform: scale(0.97);
-    }
-    .delivery-close {
-        color: #9ca3af !important;
-        font-size: 1.15rem !important;
-    }
-    html.dark .delivery-close {
-        color: rgba(255, 255, 255, 0.5) !important;
-    }
-    .delivery-entry {
+
+    .promo-header {
+        position: relative;
         display: flex;
-        gap: 0.75rem;
-        align-items: flex-start;
-        padding: 0.75rem 0;
-        border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 2rem 1.5rem 1.5rem;
+        background: #0a0f1c;
     }
-    html.dark .delivery-entry {
-        border-bottom-color: rgba(255, 255, 255, 0.08);
+    .promo-header::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background:
+            radial-gradient(120px 120px at 50% -20px, rgba(0, 196, 255, 0.25), transparent 70%);
+        pointer-events: none;
     }
-    .delivery-entry:last-child {
-        border-bottom: none;
-        padding-bottom: 0;
-    }
-    .delivery-icon {
-        flex-shrink: 0;
-        width: 2rem;
-        height: 2rem;
+    .promo-icon-wrap {
+        position: relative;
+        width: 4.5rem;
+        height: 4.5rem;
         border-radius: 9999px;
         display: flex;
         align-items: center;
         justify-content: center;
-        background: #eaf9ff;
-        color: #00a3d6;
-    }
-    html.dark .delivery-icon {
-        background: rgba(0, 196, 255, 0.12);
         color: #00c4ff;
+        background: rgba(0, 196, 255, 0.12);
+        border: 1px solid rgba(0, 196, 255, 0.35);
+        margin-bottom: 0.9rem;
+        box-shadow: 0 0 0 8px rgba(0, 196, 255, 0.06);
     }
-    .delivery-entry-title {
-        font-weight: 700;
-        color: #111827;
-        font-size: 0.875rem;
-        line-height: 1.2;
+    .promo-icon-wrap svg {
+        width: 2.25rem;
+        height: 2.25rem;
     }
-    html.dark .delivery-entry-title {
-        color: #f3f4f6;
-    }
-    .delivery-entry-desc {
-        font-size: 0.7rem;
-        line-height: 1.4;
-        color: #6b7280;
-        margin-top: 0.15rem;
-    }
-    html.dark .delivery-entry-desc {
-        color: #9ca3af;
-    }
-    .delivery-entry-note {
-        font-size: 0.68rem;
-        line-height: 1.4;
-        color: #9ca3af;
-        margin-top: 0.4rem;
-        font-style: italic;
-    }
-    html.dark .delivery-entry-note {
-        color: #6b7280;
-    }
-    .delivery-entry-link {
+    .promo-pill {
+        position: relative;
         display: inline-flex;
         align-items: center;
-        justify-content: center;
-        margin-top: 0.75rem;
-        width: 100%;
-        padding: 0.75rem 1.5rem;
-        border-radius: 0.75rem;
-        font-weight: 800;
-        font-size: 0.8rem;
+        gap: 0.35rem;
+        font-size: 0.62rem;
+        font-weight: 900;
+        letter-spacing: 0.14em;
         text-transform: uppercase;
-        letter-spacing: -0.01em;
+        color: #0a0f1c;
+        background: #00c4ff;
+        padding: 0.3rem 0.8rem;
+        border-radius: 9999px;
+    }
+    .promo-title {
+        position: relative;
+        margin: 0.9rem 0 0.4rem;
+        font-size: 1.6rem;
+        line-height: 1.05;
+        font-weight: 900;
+        color: #ffffff;
+        letter-spacing: -0.02em;
+        text-transform: uppercase;
+    }
+    .promo-title span {
+        color: #00c4ff;
+    }
+    .promo-sub {
+        position: relative;
+        margin: 0;
+        font-size: 0.82rem;
+        line-height: 1.5;
+        color: rgba(255, 255, 255, 0.7);
+    }
+
+    .promo-body {
+        padding: 1.25rem 1.5rem 0.5rem;
+    }
+    .promo-products {
+        display: flex;
+        justify-content: center;
+        gap: 0.6rem;
+        margin-bottom: 1.25rem;
+    }
+    .promo-products img {
+        width: 4.5rem;
+        height: 4.5rem;
+        object-fit: cover;
+        border-radius: 0.9rem;
+        background: #fff;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        box-shadow: 0 6px 16px -6px rgba(0, 0, 0, 0.25);
+        transition: transform 0.15s ease;
+    }
+    html.dark .promo-products img {
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+    .promo-products img:hover {
+        transform: translateY(-3px) scale(1.04);
+    }
+    .promo-perks {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.6rem;
+        margin-bottom: 1.25rem;
+    }
+    .promo-perk {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: #111827;
+        background: rgba(0, 0, 0, 0.03);
+        border: 1px solid rgba(0, 0, 0, 0.06);
+        padding: 0.55rem 0.7rem;
+        border-radius: 0.75rem;
+    }
+    html.dark .promo-perk {
+        color: #e5e7eb;
+        background: rgba(255, 255, 255, 0.04);
+        border-color: rgba(255, 255, 255, 0.08);
+    }
+    .promo-perk svg {
+        flex-shrink: 0;
+        width: 1rem;
+        height: 1rem;
+        color: #00c4ff;
+    }
+    .promo-cta {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        width: 100%;
+        padding: 0.9rem 1.5rem;
+        border-radius: 0.9rem;
+        font-weight: 900;
+        font-size: 0.85rem;
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
         text-decoration: none;
         background: #00c4ff;
         color: #0a0f1c;
-        transition: transform 0.15s ease, background-color 0.15s ease;
+        box-shadow: 0 10px 24px -8px rgba(0, 196, 255, 0.6);
+        transition: transform 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
     }
-    .delivery-entry-link:hover {
+    .promo-cta:hover {
         transform: translateY(-2px);
-        background: #00a3d6;
+        background: #2ecfff;
         color: #0a0f1c;
+        box-shadow: 0 14px 30px -8px rgba(0, 196, 255, 0.7);
     }
-    .delivery-entry-link:active {
-        transform: scale(0.97);
+    .promo-cta:active {
+        transform: scale(0.98);
     }
+    .promo-cta svg {
+        width: 1rem;
+        height: 1rem;
+    }
+    .promo-note {
+        margin: 0.8rem 0 0;
+        font-size: 0.68rem;
+        line-height: 1.4;
+        text-align: center;
+        font-style: italic;
+        color: #9ca3af;
+    }
+    html.dark .promo-note {
+        color: #6b7280;
+    }
+
+    .promo-actions {
+        padding: 0.75rem 1.5rem 1.5rem !important;
+        margin: 0 !important;
+    }
+    .promo-confirm {
+        border-radius: 0.9rem !important;
+        font-weight: 800 !important;
+        letter-spacing: -0.01em;
+        padding: 0.7rem 1.5rem !important;
+        font-size: 0.78rem !important;
+        width: 100%;
+        background: transparent !important;
+        color: #9ca3af !important;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        box-shadow: none !important;
+        transition: transform 0.15s ease, color 0.15s ease;
+    }
+    html.dark .promo-confirm {
+        color: rgba(255, 255, 255, 0.5) !important;
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+    .promo-confirm:hover {
+        transform: translateY(-1px);
+        color: #111827 !important;
+    }
+    html.dark .promo-confirm:hover {
+        color: #fff !important;
+    }
+    .promo-close {
+        color: #9ca3af !important;
+        font-size: 1.15rem !important;
+    }
+    html.dark .promo-close {
+        color: rgba(255, 255, 255, 0.5) !important;
+    }
+
     @media (max-width: 480px) {
-        .delivery-popup {
-            padding: 1.25rem !important;
+        .promo-popup {
             width: 90vw !important;
             max-width: 22rem !important;
         }
-        .delivery-title {
-            font-size: 0.95rem !important;
+        .promo-title {
+            font-size: 1.4rem;
         }
     }
 </style>
 <script>
 function deliveryAlert() {
     const ENTRY_HTML = `
-        <div class="text-left">
-            <div class="delivery-entry">
-                <span class="delivery-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M14.25 6.087c0-.355.186-.676.401-.959.221-.29.349-.634.349-1.003 0-1.036-1.007-1.875-2.25-1.875s-2.25.84-2.25 1.875c0 .369.128.713.349 1.003.215.283.401.604.401.959v0a.64.64 0 0 1-.657.643 48.39 48.39 0 0 1-4.163-.3c.186 1.613.293 3.25.315 4.907a.656.656 0 0 1-.658.663v0c-.355 0-.676-.186-.959-.401a1.647 1.647 0 0 0-1.003-.349c-1.036 0-1.875 1.007-1.875 2.25s.84 2.25 1.875 2.25c.369 0 .713-.128 1.003-.349.283-.215.604-.401.959-.401v0c.31 0 .555.26.532.57a48.039 48.039 0 0 1-.642 5.056c1.518.19 3.058.309 4.616.354a.64.64 0 0 0 .657-.643v0c0-.355-.186-.676-.401-.959a1.647 1.647 0 0 1-.349-1.003c0-1.035 1.008-1.875 2.25-1.875 1.243 0 2.25.84 2.25 1.875 0 .369-.128.713-.349 1.003-.215.283-.4.604-.4.959v0c0 .333.277.599.61.58a48.1 48.1 0 0 0 5.427-.63 48.05 48.05 0 0 0 .582-4.717.532.532 0 0 0-.533-.57v0c-.355 0-.676.186-.959.401-.29.221-.634.349-1.003.349-1.035 0-1.875-1.007-1.875-2.25s.84-2.25 1.875-2.25c.37 0 .713.128 1.003.349.283.215.604.401.959.401v0a.656.656 0 0 0 .658-.663 48.422 48.422 0 0 0-.37-5.36c-1.886.342-3.81.574-5.766.689a.578.578 0 0 1-.61-.58v0z" />
-                    </svg>
-                </span>
-                <div class="flex-1">
-                    <p class="delivery-entry-title">Un anillo gratis</p>
-                    <p class="delivery-entry-desc">Llevate un anillo de regalo por la compra de dos relojes.</p>
-                    <p class="delivery-entry-note">*El env&iacute;o se cobra por separado en esta oferta.</p>
-                </div>
+        <div class="promo-header">
+            <span class="promo-icon-wrap">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 11.25v8.25a1.5 1.5 0 0 1-1.5 1.5H5.25a1.5 1.5 0 0 1-1.5-1.5v-8.25M12 4.875A2.625 2.625 0 1 0 9.375 7.5H12m0-2.625V7.5m0-2.625A2.625 2.625 0 1 1 14.625 7.5H12m0 0V21m-8.625-9.75h18c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125h-18c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z" />
+                </svg>
+            </span>
+            <span class="promo-pill">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style="width:0.7rem;height:0.7rem;">
+                    <path fill-rule="evenodd" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456Z" clip-rule="evenodd" />
+                </svg>
+                Promo especial
+            </span>
+            <h3 class="promo-title">Un anillo <span>gratis</span></h3>
+            <p class="promo-sub">Llevate un anillo de regalo por la compra de dos relojes.</p>
+        </div>
+        <div class="promo-body">
+            <div class="promo-products">
+                <img src="https://cdn.invictacostarica.com/relojes/44483.jpg" alt="Anillo Invicta" loading="lazy" />
+                <img src="https://cdn.invictacostarica.com/relojes/48948.jpg" alt="Anillo Invicta" loading="lazy" />
+                <img src="https://cdn.invictacostarica.com/relojes/49573.png" alt="Anillo Invicta" loading="lazy" />
             </div>
-            <a href="https://invictacostarica.com/relojes?coleccion=Mini"
-               class="delivery-entry-link">Ver los anillos</a>
+            <div class="promo-perks">
+                <span class="promo-perk">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                    </svg>
+                    2 relojes
+                </span>
+                <span class="promo-perk">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                    </svg>
+                    1 anillo
+                </span>
+            </div>
+            <a href="https://invictacostarica.com/relojes?coleccion=Mini" class="promo-cta">
+                Ver los anillos
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12l-7.5 7.5m6.75-7.5H3" />
+                </svg>
+            </a>
+            <p class="promo-note">*El env&iacute;o se cobra por separado en esta oferta.</p>
         </div>
     `;
 
@@ -234,20 +369,20 @@ function deliveryAlert() {
             const self = this;
 
             Swal.fire({
-                title: 'Promo del momento',
+                title: '',
                 html: ENTRY_HTML,
                 icon: null,
                 showCloseButton: true,
                 showConfirmButton: true,
-                confirmButtonText: 'Entendido',
+                confirmButtonText: 'Quizás después',
                 background: document.documentElement.classList.contains('dark') ? '#0a0f1c' : '#fff',
                 customClass: {
-                    popup: 'delivery-popup',
+                    popup: 'promo-popup',
                     title: 'delivery-title',
                     htmlContainer: 'delivery-body',
-                    actions: 'delivery-actions',
-                    closeButton: 'delivery-close',
-                    confirmButton: 'delivery-confirm',
+                    actions: 'promo-actions',
+                    closeButton: 'promo-close',
+                    confirmButton: 'promo-confirm',
                 },
                 didClose: () => {
                     self.minimized = true;
