@@ -8,6 +8,13 @@
 
     $thumbUrl = $product->imagen ? "{$cdnBase}/relojes/thumbs/{$model}.webp" : null;
     $imageUrl = $thumbUrl ?? $product->imagen;
+
+    $coleccion = trim($product->coleccion ?? '');
+    $cardTitle = 'Reloj Invicta';
+    if ($coleccion !== '' && strtolower($coleccion) !== 'otros') {
+        $cardTitle .= ' ' . $coleccion;
+    }
+    $cardTitle .= ' - ' . ($model !== '' ? $model : 'Reloj');
 @endphp
 
 <div class="group relative flex flex-col h-full transition-all duration-300 overflow-hidden">
@@ -52,7 +59,7 @@
     <div class="{{ $compact ? 'p-1' : 'p-1 md:p-2' }} flex flex-col flex-grow">
         <a href="{{ $productUrl }}" class="block hover:text-blue-600 transition-colors">
             <h3 class="{{ $compact ? 'text-[10px]' : 'text-[10px] md:text-xs' }} font-bold text-slate-600 dark:text-gray-200 leading-tight uppercase tracking-tight group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors text-center">
-                {{ $product->title }}
+                {{ $cardTitle }}
             </h3>
         </a>
 
@@ -77,18 +84,10 @@
             @endif
         </div>
 
-        <div class="mt-2 flex gap-1.5 md:gap-2">
-            @php
-                $cardAgotado = ($product->stock ?? 0) <= 0 || ($product->disponibilidad ?? 'disponible') === 'agotado';
-                $cardUpcoming = ($product->proximo ?? false) || (float) ($product->precio_venta ?? 0) <= 0;
-            @endphp
-            <a href="{{ $productUrl }}" data-cta="{{ ($cardAgotado || $cardUpcoming) ? 'ver-disponibilidad' : 'ver-detalle' }}" data-product-id="{{ $product->id }}"
-                class="flex-1 inline-flex items-center justify-center gap-1.5 py-2.5 bg-[#00C4FF] hover:bg-[#00a3d6] text-white rounded-xl font-extrabold uppercase tracking-tight text-[11px] md:text-sm transition-all hover:-translate-y-0.5 active:scale-95 no-underline shadow-sm hover:shadow-md">
-                <i class="fa-solid fa-eye text-xs md:text-sm"></i> Ver
-            </a>
+        <div class="mt-2">
             <a href="{{ $whatsappLink }}" data-cta="comprar-whatsapp" data-product-id="{{ $product->id }}" target="_blank" rel="noopener noreferrer"
-                class="flex-1 inline-flex items-center justify-center gap-1.5 py-2.5 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-xl font-extrabold uppercase tracking-tight text-[11px] md:text-sm transition-all hover:-translate-y-0.5 active:scale-95 no-underline shadow-sm hover:shadow-md">
-                <i class="fa-brands fa-whatsapp text-xs md:text-sm"></i> Pedir
+                class="w-full inline-flex items-center justify-center gap-2 py-3 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-xl font-extrabold uppercase tracking-tight text-[11px] md:text-sm transition-all hover:-translate-y-0.5 active:scale-95 no-underline shadow-sm hover:shadow-md">
+                <i class="fa-brands fa-whatsapp text-sm md:text-base"></i> Pedir
             </a>
         </div>
     </div>
