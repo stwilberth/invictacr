@@ -84,10 +84,10 @@
             @endif
         </div>
 
-        <div class="mt-auto pt-2">
+        <div class="mt-auto pt-2 px-2 md:px-3">
             <a href="{{ $whatsappLink }}" data-cta="comprar-whatsapp" data-product-id="{{ $product->id }}" target="_blank" rel="noopener noreferrer"
-                class="w-full inline-flex items-center justify-center gap-2 py-2 bg-[#0a0f1c] hover:bg-[#141b30] text-white rounded-xl font-extrabold uppercase tracking-tight text-xs md:text-sm transition-all hover:-translate-y-0.5 active:scale-95 no-underline shadow-sm hover:shadow-md">
-                <i class="fa-brands fa-whatsapp text-[13px] md:text-sm"></i> Comprar
+                class="w-full inline-flex items-center justify-center gap-1.5 py-1.5 bg-[#0a0f1c] hover:bg-[#141b30] text-white rounded-[10px] font-extrabold uppercase tracking-tight text-[10px] md:text-xs transition-all hover:-translate-y-0.5 active:scale-95 no-underline shadow-sm hover:shadow-md">
+                <i class="fa-brands fa-whatsapp text-[11px] md:text-xs"></i> Comprar
             </a>
         </div>
     </div>
