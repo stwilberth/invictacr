@@ -14,7 +14,6 @@
     elseif (request('brazalete')) $activeSection = "'brazalete'";
     elseif (request('tipo_movimiento')) $activeSection = "'movimiento'";
     elseif (request('size')) $activeSection = "'size'";
-    elseif (request('precio_min') || request('precio_max')) $activeSection = "'precio'";
     $defaultSection = $activeSection ?? ($isMobile ? "'gender'" : 'null');
 @endphp
 
@@ -159,19 +158,4 @@
         </div>
     </div>
     @endif
-
-    {{-- Precio --}}
-    <div class="mb-2">
-        <button type="button" @click="openSection = openSection === 'precio' ? null : 'precio'" class="w-full flex items-center justify-between text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider py-2">
-            <span>Precio</span>
-            <i class="fa-solid fa-chevron-down text-[10px] transition-transform" :class="{ 'rotate-180': openSection === 'precio' }"></i>
-        </button>
-        <div x-show="openSection === 'precio'" x-cloak class="pb-2">
-            <div class="flex items-center gap-2">
-                <input type="number" id="precio_min_{{ $formId }}" placeholder="Desde" value="{{ request('precio_min') }}" class="w-full bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-gray-600 rounded-lg text-xs px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-[#00C4FF]/50" onchange="window.CatalogManager && window.CatalogManager.setFilter('precio_min', this.value)" />
-                <span class="text-gray-400 text-xs">-</span>
-                <input type="number" id="precio_max_{{ $formId }}" placeholder="Hasta" value="{{ request('precio_max') }}" class="w-full bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-gray-600 rounded-lg text-xs px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-[#00C4FF]/50" onchange="window.CatalogManager && window.CatalogManager.setFilter('precio_max', this.value)" />
-            </div>
-        </div>
-    </div>
 </div>

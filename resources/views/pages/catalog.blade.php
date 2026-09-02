@@ -121,8 +121,6 @@
                                 <option value="" {{ !request('sort') ? 'selected' : '' }}>Más vistos</option>
                                 <option value="price_asc" {{ request('sort') === 'price_asc' ? 'selected' : '' }}>Precio: menor a mayor</option>
                                 <option value="price_desc" {{ request('sort') === 'price_desc' ? 'selected' : '' }}>Precio: mayor a menor</option>
-                                <option value="name_asc" {{ request('sort') === 'name_asc' ? 'selected' : '' }}>Nombre A–Z</option>
-                                <option value="name_desc" {{ request('sort') === 'name_desc' ? 'selected' : '' }}>Nombre Z–A</option>
                                 <option value="newest" {{ request('sort') === 'newest' ? 'selected' : '' }}>Más nuevos</option>
                             </select>
                         </div>
@@ -368,7 +366,6 @@
                 if (!els.activeFilters) return;
 
                 var chips = [];
-                var sortLabels = { price_asc: 'Menor precio', price_desc: 'Mayor precio', name_asc: 'A-Z', name_desc: 'Z-A' };
 
                 if (filters.gender) chips.push({ key: 'gender', label: 'Género: ' + capitalize(filters.gender) });
                 if (filters.color) chips.push({ key: 'color', label: 'Color: ' + capitalize(filters.color) });
@@ -378,9 +375,6 @@
                 if (filters.caja) chips.push({ key: 'caja', label: 'Caja: ' + capitalize(filters.caja) });
                 if (filters.resistencia_agua) chips.push({ key: 'resistencia_agua', label: 'Resistencia: ' + filters.resistencia_agua + 'M' });
                 if (filters.size) chips.push({ key: 'size', label: 'Tamaño: ' + filters.size + 'mm' });
-                if (filters.precio_min) chips.push({ key: 'precio_min', label: 'Desde: ₡' + Number(filters.precio_min).toLocaleString('es-CR') });
-                if (filters.precio_max) chips.push({ key: 'precio_max', label: 'Hasta: ₡' + Number(filters.precio_max).toLocaleString('es-CR') });
-                if (filters.sort && filters.sort !== 'newest') chips.push({ key: 'sort', label: 'Orden: ' + (sortLabels[filters.sort] || filters.sort) });
                 if (filters.proximo === '0') chips.push({ key: 'proximo', label: 'Sin próximos' });
 
                 if (chips.length === 0) {
@@ -419,14 +413,6 @@
                     var checkboxes = document.querySelectorAll('input[data-filter="proximo"]');
                     checkboxes.forEach(function(cb) {
                         cb.checked = value !== '0';
-                    });
-                }
-
-                // Sync price inputs
-                if (key === 'precio_min' || key === 'precio_max') {
-                    ['filter-form', 'filter-form-mobile'].forEach(function(formId) {
-                        var input = document.getElementById(key + '_' + formId);
-                        if (input) input.value = value || '';
                     });
                 }
 

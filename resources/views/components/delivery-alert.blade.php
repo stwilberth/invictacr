@@ -56,10 +56,11 @@
     }
 
     .promo-popup {
-        border-radius: 1.5rem !important;
+        border-radius: 1.25rem !important;
         padding: 0 !important;
-        max-width: 24rem !important;
-        overflow: hidden;
+        max-width: 20rem !important;
+        max-height: calc(100vh - 2rem);
+        overflow-y: auto;
         box-shadow: 0 24px 60px -12px rgba(0, 0, 0, 0.35) !important;
         border: 1px solid rgba(0, 196, 255, 0.25);
     }
@@ -74,7 +75,7 @@
         flex-direction: column;
         align-items: center;
         text-align: center;
-        padding: 2rem 1.5rem 1.5rem;
+        padding: 1.25rem 1.25rem 1rem;
         background: #0a0f1c;
     }
     .promo-header::after {
@@ -87,8 +88,8 @@
     }
     .promo-icon-wrap {
         position: relative;
-        width: 4.5rem;
-        height: 4.5rem;
+        width: 3rem;
+        height: 3rem;
         border-radius: 9999px;
         display: flex;
         align-items: center;
@@ -96,12 +97,12 @@
         color: #00c4ff;
         background: rgba(0, 196, 255, 0.12);
         border: 1px solid rgba(0, 196, 255, 0.35);
-        margin-bottom: 0.9rem;
-        box-shadow: 0 0 0 8px rgba(0, 196, 255, 0.06);
+        margin-bottom: 0.6rem;
+        box-shadow: 0 0 0 6px rgba(0, 196, 255, 0.06);
     }
     .promo-icon-wrap svg {
-        width: 2.25rem;
-        height: 2.25rem;
+        width: 1.5rem;
+        height: 1.5rem;
     }
     .promo-pill {
         position: relative;
@@ -119,8 +120,8 @@
     }
     .promo-title {
         position: relative;
-        margin: 0.9rem 0 0.4rem;
-        font-size: 1.6rem;
+        margin: 0.6rem 0 0.3rem;
+        font-size: 1.25rem;
         line-height: 1.05;
         font-weight: 900;
         color: #ffffff;
@@ -133,25 +134,25 @@
     .promo-sub {
         position: relative;
         margin: 0;
-        font-size: 0.82rem;
-        line-height: 1.5;
+        font-size: 0.75rem;
+        line-height: 1.4;
         color: rgba(255, 255, 255, 0.7);
     }
 
     .promo-body {
-        padding: 1.25rem 1.5rem 0.5rem;
+        padding: 1rem 1.25rem 0.25rem;
     }
     .promo-products {
         display: flex;
         justify-content: center;
-        gap: 0.6rem;
-        margin-bottom: 1.25rem;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
     }
     .promo-products img {
-        width: 4.5rem;
-        height: 4.5rem;
+        width: 3.25rem;
+        height: 3.25rem;
         object-fit: cover;
-        border-radius: 0.9rem;
+        border-radius: 0.75rem;
         background: #fff;
         border: 1px solid rgba(0, 0, 0, 0.08);
         box-shadow: 0 6px 16px -6px rgba(0, 0, 0, 0.25);
@@ -166,20 +167,20 @@
     .promo-perks {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 0.6rem;
-        margin-bottom: 1.25rem;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
     }
     .promo-perk {
         display: flex;
         align-items: center;
-        gap: 0.5rem;
-        font-size: 0.72rem;
+        gap: 0.4rem;
+        font-size: 0.68rem;
         font-weight: 700;
         color: #111827;
         background: rgba(0, 0, 0, 0.03);
         border: 1px solid rgba(0, 0, 0, 0.06);
-        padding: 0.55rem 0.7rem;
-        border-radius: 0.75rem;
+        padding: 0.45rem 0.6rem;
+        border-radius: 0.7rem;
     }
     html.dark .promo-perk {
         color: #e5e7eb;
@@ -198,10 +199,10 @@
         justify-content: center;
         gap: 0.5rem;
         width: 100%;
-        padding: 0.9rem 1.5rem;
-        border-radius: 0.9rem;
+        padding: 0.7rem 1.25rem;
+        border-radius: 0.8rem;
         font-weight: 900;
-        font-size: 0.85rem;
+        font-size: 0.78rem;
         letter-spacing: 0.02em;
         text-transform: uppercase;
         text-decoration: none;
@@ -236,15 +237,15 @@
     }
 
     .promo-actions {
-        padding: 0.75rem 1.5rem 1.5rem !important;
+        padding: 0.5rem 1.25rem 1.25rem !important;
         margin: 0 !important;
     }
     .promo-confirm {
-        border-radius: 0.9rem !important;
+        border-radius: 0.8rem !important;
         font-weight: 800 !important;
         letter-spacing: -0.01em;
-        padding: 0.7rem 1.5rem !important;
-        font-size: 0.78rem !important;
+        padding: 0.6rem 1.5rem !important;
+        font-size: 0.74rem !important;
         width: 100%;
         background: transparent !important;
         color: #9ca3af !important;
@@ -273,11 +274,11 @@
 
     @media (max-width: 480px) {
         .promo-popup {
-            width: 90vw !important;
-            max-width: 22rem !important;
+            width: min(20rem, 92vw) !important;
+            max-width: 20rem !important;
         }
         .promo-title {
-            font-size: 1.4rem;
+            font-size: 1.15rem;
         }
     }
 </style>
