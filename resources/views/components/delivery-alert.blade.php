@@ -301,7 +301,7 @@ function deliveryAlert() {
         </div>
         <div class="promo-body">
             <div class="promo-products">
-                <img src="https://cdn.invictacostarica.com/relojes/44483.jpg" alt="Anillo Invicta" loading="lazy" />
+                <img src="https://cdn.invictacostarica.com/relojes/49895.jpg" alt="Anillo Invicta" loading="lazy" />
                 <img src="https://cdn.invictacostarica.com/relojes/48948.jpg" alt="Anillo Invicta" loading="lazy" />
                 <img src="https://cdn.invictacostarica.com/relojes/49573.png" alt="Anillo Invicta" loading="lazy" />
             </div>
