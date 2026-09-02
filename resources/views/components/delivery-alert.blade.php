@@ -11,10 +11,10 @@
      class="fixed bottom-4 left-4 md:bottom-6 md:left-6 z-50 transition-[bottom] duration-300"
      x-cloak>
     <button @click="showAlert()"
-            aria-label="Información de entrega"
-            class="flex items-center justify-center w-12 h-12 md:w-14 md:h-14 bg-[#0a0f1c] dark:bg-[#00C4FF] text-[#00C4FF] dark:text-[#0a0f1c] rounded-full shadow-[0_8px_24px_rgba(0,0,0,0.3)] dark:shadow-[0_8px_24px_rgba(0,196,255,0.35)] border border-white/10 dark:border-transparent transition-all duration-200 hover:-translate-y-0.5 active:scale-95">
+             aria-label="Promoción"
+             class="flex items-center justify-center w-12 h-12 md:w-14 md:h-14 bg-[#0a0f1c] dark:bg-[#00C4FF] text-[#00C4FF] dark:text-[#0a0f1c] rounded-full shadow-[0_8px_24px_rgba(0,0,0,0.3)] dark:shadow-[0_8px_24px_rgba(0,196,255,0.35)] border border-white/10 dark:border-transparent transition-all duration-200 hover:-translate-y-0.5 active:scale-95">
         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 md:w-6 md:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.7">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 18.75a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 0 1-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 0 0-3.213-9.193 2.056 2.056 0 0 0-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 0 0-10.026 0 1.106 1.106 0 0 0-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 11.25v8.25a1.5 1.5 0 0 1-1.5 1.5H5.25a1.5 1.5 0 0 1-1.5-1.5v-8.25M12 4.875A2.625 2.625 0 1 0 9.375 7.5H12m0-2.625V7.5m0-2.625A2.625 2.625 0 1 1 14.625 7.5H12m0 0V21m-8.625-9.75h18c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125h-18c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z" />
         </svg>
     </button>
 </div>
@@ -127,6 +127,41 @@
     html.dark .delivery-entry-desc {
         color: #9ca3af;
     }
+    .delivery-entry-note {
+        font-size: 0.68rem;
+        line-height: 1.4;
+        color: #9ca3af;
+        margin-top: 0.4rem;
+        font-style: italic;
+    }
+    html.dark .delivery-entry-note {
+        color: #6b7280;
+    }
+    .delivery-entry-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: 0.75rem;
+        width: 100%;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.75rem;
+        font-weight: 800;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: -0.01em;
+        text-decoration: none;
+        background: #00c4ff;
+        color: #0a0f1c;
+        transition: transform 0.15s ease, background-color 0.15s ease;
+    }
+    .delivery-entry-link:hover {
+        transform: translateY(-2px);
+        background: #00a3d6;
+        color: #0a0f1c;
+    }
+    .delivery-entry-link:active {
+        transform: scale(0.97);
+    }
     @media (max-width: 480px) {
         .delivery-popup {
             padding: 1.25rem !important;
@@ -145,25 +180,17 @@ function deliveryAlert() {
             <div class="delivery-entry">
                 <span class="delivery-icon">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 18.75a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 0 1-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 0 0-3.213-9.193 2.056 2.056 0 0 0-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 0 0-10.026 0 1.106 1.106 0 0 0-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M14.25 6.087c0-.355.186-.676.401-.959.221-.29.349-.634.349-1.003 0-1.036-1.007-1.875-2.25-1.875s-2.25.84-2.25 1.875c0 .369.128.713.349 1.003.215.283.401.604.401.959v0a.64.64 0 0 1-.657.643 48.39 48.39 0 0 1-4.163-.3c.186 1.613.293 3.25.315 4.907a.656.656 0 0 1-.658.663v0c-.355 0-.676-.186-.959-.401a1.647 1.647 0 0 0-1.003-.349c-1.036 0-1.875 1.007-1.875 2.25s.84 2.25 1.875 2.25c.369 0 .713-.128 1.003-.349.283-.215.604-.401.959-.401v0c.31 0 .555.26.532.57a48.039 48.039 0 0 1-.642 5.056c1.518.19 3.058.309 4.616.354a.64.64 0 0 0 .657-.643v0c0-.355-.186-.676-.401-.959a1.647 1.647 0 0 1-.349-1.003c0-1.035 1.008-1.875 2.25-1.875 1.243 0 2.25.84 2.25 1.875 0 .369-.128.713-.349 1.003-.215.283-.4.604-.4.959v0c0 .333.277.599.61.58a48.1 48.1 0 0 0 5.427-.63 48.05 48.05 0 0 0 .582-4.717.532.532 0 0 0-.533-.57v0c-.355 0-.676.186-.959.401-.29.221-.634.349-1.003.349-1.035 0-1.875-1.007-1.875-2.25s.84-2.25 1.875-2.25c.37 0 .713.128 1.003.349.283.215.604.401.959.401v0a.656.656 0 0 0 .658-.663 48.422 48.422 0 0 0-.37-5.36c-1.886.342-3.81.574-5.766.689a.578.578 0 0 1-.61-.58v0z" />
                     </svg>
                 </span>
                 <div class="flex-1">
-                    <p class="delivery-entry-title">Recibe hoy mismo*</p>
-                    <p class="delivery-entry-desc">*En el &aacute;rea central de Costa Rica, y seg&uacute;n disponibilidad de los mensajeros.</p>
+                    <p class="delivery-entry-title">Un anillo gratis</p>
+                    <p class="delivery-entry-desc">Llevate un anillo de regalo por la compra de dos relojes.</p>
+                    <p class="delivery-entry-note">*El env&iacute;o se cobra por separado en esta oferta.</p>
                 </div>
             </div>
-            <div class="delivery-entry">
-                <span class="delivery-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m9.75 1.5h1.125c.621 0 1.125-.504 1.125-1.125V9.75c0-.621-.504-1.125-1.125-1.125H4.125C3.504 8.625 3 9.129 3 9.75v6.75c0 .621.504 1.125 1.125 1.125H6" />
-                    </svg>
-                </span>
-                <div class="flex-1">
-                    <p class="delivery-entry-title">Pago contra entrega</p>
-                    <p class="delivery-entry-desc">Disponible en la zona central de Costa Rica.</p>
-                </div>
-            </div>
+            <a href="https://invictacostarica.com/relojes?coleccion=Mini"
+               class="delivery-entry-link">Ver los anillos</a>
         </div>
     `;
 
@@ -207,7 +234,7 @@ function deliveryAlert() {
             const self = this;
 
             Swal.fire({
-                title: 'Entrega inmediata',
+                title: 'Promo del momento',
                 html: ENTRY_HTML,
                 icon: null,
                 showCloseButton: true,

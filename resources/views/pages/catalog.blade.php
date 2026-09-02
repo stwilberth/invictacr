@@ -102,7 +102,7 @@
                     </div>
                 </aside>
 
-                <div class="flex-1 min-w-0">
+                <div class="flex-1 min-w-0 relative">
                     {{-- Results info bar --}}
                     <div id="catalog-results-info"></div>
 
@@ -137,6 +137,14 @@
 
                     {{-- Active filters chips --}}
                     <div id="catalog-active-filters"></div>
+
+                    {{-- Loading overlay --}}
+                    <div id="catalog-loading" class="absolute inset-0 z-20 flex items-center justify-center bg-white/70 dark:bg-[#0a0f1c]/70 backdrop-blur-sm rounded-2xl" style="display:none;">
+                        <div class="flex flex-col items-center gap-3">
+                            <i class="fa-solid fa-spinner fa-spin text-4xl text-[#00C4FF]"></i>
+                            <span class="text-sm font-bold uppercase tracking-wider text-gray-600 dark:text-gray-300">Cargando relojes…</span>
+                        </div>
+                    </div>
 
                     @if($products->count() > 0)
                     <div
@@ -212,6 +220,7 @@
                 els.resultsInfo = document.getElementById('catalog-results-info');
                 els.activeFilters = document.getElementById('catalog-active-filters');
                 els.emptyState = document.getElementById('catalog-empty-state');
+                els.loading = document.getElementById('catalog-loading');
             }
 
             // ─── Read state from URL ───
@@ -267,6 +276,7 @@
                     els.grid.style.opacity = '0.5';
                     els.grid.style.pointerEvents = 'none';
                 }
+                if (els.loading) els.loading.style.display = 'flex';
 
                 var fetchUrl = buildFetchURL(filters);
 
@@ -285,12 +295,15 @@
                                 els.grid.style.opacity = '1';
                                 els.grid.style.pointerEvents = '';
                             }
+                            if (els.loading) els.loading.style.display = 'none';
                         }
                     });
             }
 
             // ─── Render results ───
             function renderResults(data, filters) {
+                if (els.loading) els.loading.style.display = 'none';
+
                 // Ensure grid exists
                 if (!els.grid) {
                     // Create grid if it was removed (was showing empty state)
