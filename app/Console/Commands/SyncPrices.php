@@ -31,7 +31,8 @@ class SyncPrices extends Command
             ->where('bloqueado', false)
             ->where('proximo', false)
             ->whereNotNull('precio_original')
-            ->where('precio_original', '>', 0);
+            ->where('precio_original', '>', 0)
+            ->whereNotNull('precio_costo');
 
         if (! $force) {
             $query->where('manual_override', false);

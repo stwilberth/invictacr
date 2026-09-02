@@ -17,7 +17,7 @@ class SyncPricesTest extends TestCase
             'title' => 'Reloj Invicta Prueba',
             'slug' => 'invicta-prueba',
             'precio_original' => 100000,
-            'precio_costo' => null,
+            'precio_costo' => 60000,
             'precio_venta' => 0,
             'descuento' => 0,
             'stock' => 5,
@@ -30,7 +30,7 @@ class SyncPricesTest extends TestCase
 
     public function test_recalcula_precio_de_producto_elegible()
     {
-        $product = $this->makeProduct();
+        $product = $this->makeProduct(['precio_venta' => 0]);
 
         $this->artisan('invicta:sync-prices')->assertExitCode(0);
 
@@ -38,6 +38,18 @@ class SyncPricesTest extends TestCase
 
         $this->assertEquals(60000.00, (float) $product->precio_costo);
         $this->assertEquals(100000.00, (float) $product->precio_venta);
+    }
+
+    public function test_excluye_producto_sin_costo()
+    {
+        $product = $this->makeProduct(['precio_costo' => null, 'precio_venta' => 0]);
+
+        $this->artisan('invicta:sync-prices')->assertExitCode(0);
+
+        $product->refresh();
+
+        $this->assertNull($product->precio_costo);
+        $this->assertEquals(0.00, (float) $product->precio_venta);
     }
 
     public function test_excluye_manual_override()
@@ -49,7 +61,7 @@ class SyncPricesTest extends TestCase
         $product->refresh();
 
         $this->assertEquals(75000.00, (float) $product->precio_venta);
-        $this->assertNull($product->precio_costo);
+        $this->assertEquals(60000.00, (float) $product->precio_costo);
     }
 
     public function test_force_recalcula_manual_override()
@@ -75,14 +87,12 @@ class SyncPricesTest extends TestCase
         $proximo->refresh();
 
         $this->assertEquals(0.00, (float) $bloqueado->precio_venta);
-        $this->assertNull($bloqueado->precio_costo);
         $this->assertEquals(0.00, (float) $proximo->precio_venta);
-        $this->assertNull($proximo->precio_costo);
     }
 
     public function test_dry_run_no_modifica_bd()
     {
-        $product = $this->makeProduct();
+        $product = $this->makeProduct(['precio_venta' => 0]);
 
         $this->artisan('invicta:sync-prices', ['--dry-run' => true])
             ->expectsOutputToContain('MODO DRY-RUN')
@@ -91,7 +101,6 @@ class SyncPricesTest extends TestCase
         $product->refresh();
 
         $this->assertEquals(0.00, (float) $product->precio_venta);
-        $this->assertNull($product->precio_costo);
     }
 
     public function test_idempotente_no_hace_update_si_no_cambia()
