@@ -43,6 +43,7 @@ class VariedadesSyncService
             $referenceUpdatedCount = 0;
             $markedAgotadoCount = 0;
             $priceUpdatedCount = 0;
+            $genderUpdatedCount = 0;
 
             $createdModels = [];
             $activatedModels = [];
@@ -50,6 +51,7 @@ class VariedadesSyncService
             $referenceUpdatedModels = [];
             $markedAgotadoModels = [];
             $priceUpdatedModels = [];
+            $genderUpdatedModels = [];
 
             $items = [];
 
@@ -65,7 +67,8 @@ class VariedadesSyncService
 
                 $stockVal = (int) ($item["stock"] ?? 0);
                 $priceVal = (int) ($item["precio_venta"] ?? 0);
-                $generoApi = $this->mapGender((int) ($item["genero"] ?? 0));
+                $generoRaw = (int) ($item["genero"] ?? 0);
+                $generoApi = $this->mapGender($generoRaw);
 
                 $product = Product::where("modelo", $modelKey)->first();
 
@@ -88,18 +91,24 @@ class VariedadesSyncService
                             $descripcion = $translator->translateDescription($iwData);
                         }
 
+                        $newGenero = $generoRaw > 0 ? $generoApi : ($iwData['genero'] ?? $product->genero);
+                        $newColeccion = Product::normalizeColeccion($iwData['coleccion'] ?? $product->coleccion);
+                        $newSize = $this->sanitizeNumeric($iwData['size'] ?? null) ?? $product->size;
+                        $newTipoMovimiento = $iwData['tipo_movimiento'] ?? $product->tipo_movimiento;
+
                         $product->update([
                             'proximo' => false,
                             'precio_venta' => $this->randomPrice($modelKey, $priceVal),
                             'precio_original' => $this->randomPrice($modelKey, $priceVal),
                             'stock' => max(1, $stockVal),
-                            'genero' => $iwData['genero'] ?? $product->genero,
-                            'coleccion' => Product::normalizeColeccion($iwData['coleccion'] ?? $product->coleccion),
+                            'genero' => $newGenero,
+                            'title' => Product::buildDisplayTitle($newColeccion, $newGenero, $modelKey, $newSize, $newTipoMovimiento),
+                            'coleccion' => $newColeccion,
                             'color' => $iwData['color'] ?? $product->color,
-                            'size' => $this->sanitizeNumeric($iwData['size'] ?? null) ?? $product->size,
+                            'size' => $newSize,
                             'caja' => $iwData['caja'] ?? $product->caja,
                             'brazalete' => $iwData['brazalete'] ?? $product->brazalete,
-                            'tipo_movimiento' => $iwData['tipo_movimiento'] ?? $product->tipo_movimiento,
+                            'tipo_movimiento' => $newTipoMovimiento,
                             'resistencia_agua' => $this->sanitizeNumeric($iwData['resistencia_agua'] ?? null) ?? $product->resistencia_agua,
                             'imagen' => $iwData['imagen_local'] ?? $product->imagen,
                             'descripcion' => $descripcion,
@@ -158,6 +167,22 @@ class VariedadesSyncService
                         $didChange = true;
                     }
 
+                    // Verificar/corregir género desde la API (fuente autoritativa) cuando entra stock positivo
+                    if ($stockVal > 0 && $generoRaw > 0 && (string) $product->genero !== $generoApi) {
+                        $updates["genero"] = $generoApi;
+                        $updates["title"] = Product::buildDisplayTitle(
+                            $product->coleccion,
+                            $generoApi,
+                            $product->modelo,
+                            $product->size,
+                            $product->tipo_movimiento,
+                        );
+                        $genderUpdatedCount++;
+                        $genderUpdatedModels[] = $modelKey;
+                        $items[] = ['sync_log_id' => $log->id, 'type' => 'gender_updated', 'modelo' => $modelKey, 'product_id' => $product->id];
+                        $didChange = true;
+                    }
+
                     if ($didChange) {
                         $product->update($updates);
                         Product::forgetAllCache($product->id);
@@ -194,7 +219,7 @@ class VariedadesSyncService
                         "precio_venta" => $this->randomPrice($modelKey, $priceVal),
                         "precio_original" => $this->randomPrice($modelKey, $priceVal),
                         "descuento" => 0,
-                        "genero" => $iwData['genero'] ?? $generoApi,
+                        "genero" => $generoRaw > 0 ? $generoApi : ($iwData['genero'] ?? 'unisex'),
                         "stock" => $stockVal,
                         "coleccion" => Product::normalizeColeccion($iwData['coleccion'] ?? null),
                         "color" => $iwData['color'] ?? null,
@@ -251,6 +276,8 @@ class VariedadesSyncService
                 "marcados_agotados_modelos" => $markedAgotadoModels,
                 "precios_actualizados" => $priceUpdatedCount,
                 "precios_actualizados_modelos" => $priceUpdatedModels,
+                "generos_actualizados" => $genderUpdatedCount,
+                "generos_actualizados_modelos" => $genderUpdatedModels,
             ];
 
             if (!empty($items)) {
@@ -263,6 +290,7 @@ class VariedadesSyncService
             if ($stockChangedCount > 0) $parts[] = "{$stockChangedCount} stock actualizado";
             if ($referenceUpdatedCount > 0) $parts[] = "{$referenceUpdatedCount} precios referencia actualizados";
             if ($priceUpdatedCount > 0) $parts[] = "{$priceUpdatedCount} precios actualizados";
+            if ($genderUpdatedCount > 0) $parts[] = "{$genderUpdatedCount} géneros corregidos";
             if ($markedAgotadoCount > 0) $parts[] = "{$markedAgotadoCount} marcados agotados";
             $msg = implode(", ", $parts) ?: "Sin cambios";
 
@@ -273,6 +301,7 @@ class VariedadesSyncService
                 $markedAgotadoModels,
                 $activatedModels,
                 $createdModels,
+                $genderUpdatedModels,
             ));
             if (!empty($affectedModels)) {
                 try {
@@ -328,8 +357,8 @@ class VariedadesSyncService
     private function mapGender(int $code): string
     {
         return match ($code) {
-            1 => "hombre",
-            2 => "mujer",
+            1 => "mujer",
+            2 => "hombre",
             3 => "unisex",
             default => "unisex",
         };

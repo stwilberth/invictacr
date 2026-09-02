@@ -117,6 +117,7 @@ class CatalogService
         }
 
         $products = $this->applyTextFilter($products, (string) ($filters['q'] ?? ''));
+        $products = $this->applyGender($products, (string) ($filters['gender'] ?? ''));
         $products = $this->applyEqualFilters($products, $filters);
         $products = $this->applyResistencia($products, (string) ($filters['resistencia_agua'] ?? ''));
         $products = $this->applySize($products, (string) ($filters['size'] ?? ''));
@@ -175,10 +176,30 @@ class CatalogService
         });
     }
 
+    private function applyGender(Collection $products, string $value): Collection
+    {
+        $value = trim(mb_strtolower($value, 'UTF-8'));
+        if ($value === '') {
+            return $products;
+        }
+
+        // Unisex aplica a Hombre y Mujer (misma convención que Product::scopeRelatedTo)
+        $allowed = match ($value) {
+            'hombre' => ['hombre', 'unisex'],
+            'mujer' => ['mujer', 'unisex'],
+            default => [$value],
+        };
+
+        return $products->filter(function (Product $p) use ($allowed) {
+            $raw = mb_strtolower((string) $p->genero, 'UTF-8');
+
+            return in_array($raw, $allowed, true);
+        });
+    }
+
     private function applyEqualFilters(Collection $products, array $filters): Collection
     {
         $map = [
-            'gender' => 'genero',
             'color' => 'color',
             'brazalete' => 'brazalete',
             'coleccion' => 'coleccion',

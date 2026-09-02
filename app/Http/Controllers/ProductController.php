@@ -252,10 +252,11 @@ class ProductController extends Controller
      */
     private function buildFilters(?string $gender = null): array
     {
-        $raw = cache()->remember("product:filters:" . ($gender ?? 'all'), now()->addDay(), function () use ($gender) {
+        $raw = cache()->remember("product:filters:v2:" . ($gender ?? 'all'), now()->addDay(), function () use ($gender) {
             $base = Product::where("activo", true)->where("precio_venta", ">", 0)->where("stock", ">", 0);
             if ($gender) {
-                $base->where("genero", $gender);
+                $allowed = in_array($gender, ['hombre', 'mujer'], true) ? [$gender, 'unisex'] : [$gender];
+                $base->whereIn("genero", $allowed);
             }
 
             $resistencias = (clone $base)

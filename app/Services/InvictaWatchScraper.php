@@ -280,11 +280,11 @@ class InvictaWatchScraper
         return null;
     }
 
-    private function detectGender(string $title, string $description, ?string $productGender): string
+    private function detectGender(string $title, string $description, ?string $productGender): ?string
     {
         if ($productGender) {
             $g = mb_strtolower($productGender);
-            if (str_contains($g, 'women') || str_contains($g, 'lady')) {
+            if (str_contains($g, 'women') || str_contains($g, 'lady') || str_contains($g, 'ladies')) {
                 return "mujer";
             }
             if (str_contains($g, 'men')) {
@@ -293,13 +293,13 @@ class InvictaWatchScraper
         }
 
         $text = $title . " " . $description;
-        if (preg_match('/\bWomen\b/i', $text)) {
+        if (preg_match('/\bWomen\b|\bLad(?:y|ies)\b|\bDamen\b/i', $text)) {
             return "mujer";
         }
         if (preg_match('/\bMen\b/i', $text)) {
             return "hombre";
         }
-        return "unisex";
+        return null;
     }
 
     private function downloadImage(string $modelo, string $imageUrl): ?string
