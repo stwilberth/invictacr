@@ -86,7 +86,7 @@
 
         <div class="mt-auto pt-2">
             <a href="{{ $whatsappLink }}" data-cta="comprar-whatsapp" data-product-id="{{ $product->id }}" target="_blank" rel="noopener noreferrer"
-                class="w-full inline-flex items-center justify-center gap-2 py-2 bg-white text-[#25D366] border-2 border-[#25D366] hover:bg-green-50 rounded-xl font-extrabold uppercase tracking-tight text-sm md:text-base transition-all hover:-translate-y-0.5 active:scale-95 no-underline shadow-sm hover:shadow-md">
+                class="w-full inline-flex items-center justify-center gap-2 py-2 bg-white text-[#25D366] border border-[#25D366] hover:bg-green-50 rounded-xl font-extrabold uppercase tracking-tight text-sm md:text-base transition-all hover:-translate-y-0.5 active:scale-95 no-underline shadow-sm hover:shadow-md">
                 <i class="fa-brands fa-whatsapp text-base md:text-lg"></i> Pedir
             </a>
         </div>
