@@ -106,6 +106,8 @@ class CheckoutController extends Controller
         return DB::transaction(function () use ($request, $cart, $paymentMethod, $paypalTransactionId) {
             $subtotal = 0;
             $discount = 0;
+            $totalCost = 0;
+            $hasCost = true;
 
             foreach ($cart->items as $item) {
                 $product = $item->product;
@@ -115,6 +117,12 @@ class CheckoutController extends Controller
                     : 0;
                 $subtotal += $lineSubtotal;
                 $discount += $lineDiscount;
+
+                if ($product->precio_costo !== null && $product->precio_costo !== '') {
+                    $totalCost += $product->precio_costo * $item->quantity;
+                } else {
+                    $hasCost = false;
+                }
             }
 
             $total = $subtotal - $discount;
@@ -162,6 +170,7 @@ class CheckoutController extends Controller
                 'source' => 'web',
                 'notes' => $request->notes,
                 'issued_at' => now(),
+                'estimated_utility' => $hasCost ? ($subtotal - $discount - $totalCost) : null,
             ]);
 
             foreach ($cart->items as $item) {
@@ -175,6 +184,7 @@ class CheckoutController extends Controller
                     'product_model' => $product->modelo,
                     'quantity' => $item->quantity,
                     'unit_price' => $product->precio_venta,
+                    'unit_cost' => $product->precio_costo,
                     'subtotal' => $lineSubtotal,
                 ]);
 

@@ -208,6 +208,8 @@ class PayPalController extends Controller
         return DB::transaction(function () use ($data, $cart, $transactionId) {
             $subtotal = 0;
             $discount = 0;
+            $totalCost = 0;
+            $hasCost = true;
 
             foreach ($cart->items as $item) {
                 $product = $item->product;
@@ -217,6 +219,12 @@ class PayPalController extends Controller
                     : 0;
                 $subtotal += $lineSubtotal;
                 $discount += $lineDiscount;
+
+                if ($product->precio_costo !== null && $product->precio_costo !== '') {
+                    $totalCost += $product->precio_costo * $item->quantity;
+                } else {
+                    $hasCost = false;
+                }
             }
 
             $total = $subtotal - $discount;
@@ -248,6 +256,7 @@ class PayPalController extends Controller
                 'source' => 'web',
                 'notes' => $data['notes'] ?? null,
                 'issued_at' => now(),
+                'estimated_utility' => $hasCost ? ($subtotal - $discount - $totalCost) : null,
             ]);
 
             foreach ($cart->items as $item) {
@@ -261,6 +270,7 @@ class PayPalController extends Controller
                     'product_model' => $product->modelo,
                     'quantity' => $item->quantity,
                     'unit_price' => $product->precio_venta,
+                    'unit_cost' => $product->precio_costo,
                     'subtotal' => $lineSubtotal,
                 ]);
 

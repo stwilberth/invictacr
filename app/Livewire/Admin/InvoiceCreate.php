@@ -31,6 +31,7 @@ class InvoiceCreate extends Component
     public $newItemModel = '';
     public $newItemQuantity = 1;
     public $newItemPrice = 0;
+    public $newItemCost = null;
     public $productSearch = '';
 
     protected function rules()
@@ -86,6 +87,7 @@ class InvoiceCreate extends Component
         $this->newItemName = $product->title;
         $this->newItemModel = $product->modelo;
         $this->newItemPrice = $product->precio_venta;
+        $this->newItemCost = $product->precio_costo;
         $this->productSearch = '';
     }
 
@@ -102,6 +104,7 @@ class InvoiceCreate extends Component
             'product_model' => $this->newItemModel,
             'quantity' => $this->newItemQuantity,
             'unit_price' => $this->newItemPrice,
+            'unit_cost' => $this->newItemCost,
             'subtotal' => $subtotalItem,
         ];
 
@@ -109,6 +112,7 @@ class InvoiceCreate extends Component
         $this->newItemModel = '';
         $this->newItemQuantity = 1;
         $this->newItemPrice = 0;
+        $this->newItemCost = null;
 
         $this->recalculateTotal();
     }
@@ -139,6 +143,30 @@ class InvoiceCreate extends Component
         $this->recalculateTotal();
     }
 
+    private function computeEstimatedUtility(): ?float
+    {
+        $totalCost = 0.0;
+        $hasCost = true;
+
+        foreach ($this->items as $item) {
+            $cost = $item['unit_cost'] ?? null;
+            if ($cost === null || $cost === '') {
+                $hasCost = false;
+                continue;
+            }
+            $totalCost += (float) $cost * (int) $item['quantity'];
+        }
+
+        if (! $hasCost) {
+            return null;
+        }
+
+        return round(
+            $this->subtotal - $this->discount + $this->shipping - $totalCost - (float) ($this->shipping_cost ?? 0),
+            2,
+        );
+    }
+
     public function save()
     {
         $this->validate();
@@ -151,6 +179,9 @@ class InvoiceCreate extends Component
         $invoiceNumber = $this->generateInvoiceNumber();
 
         $date = $this->issued_date ? \Carbon\Carbon::parse($this->issued_date) : now();
+
+        $autoUtility = $this->computeEstimatedUtility();
+        $estimatedUtility = $autoUtility !== null ? $autoUtility : ($this->estimated_utility ?: null);
 
         $invoice = Invoice::create([
             'invoice_number' => $invoiceNumber,
@@ -168,7 +199,7 @@ class InvoiceCreate extends Component
             'shipping_status' => $this->shipping_status,
             'notes' => $this->notes ?: null,
             'creation_date' => $this->creation_date ?: null,
-            'estimated_utility' => $this->estimated_utility ?: null,
+            'estimated_utility' => $estimatedUtility,
             'issued_at' => $date,
             'created_at' => $date,
         ]);
@@ -180,6 +211,7 @@ class InvoiceCreate extends Component
                 'product_model' => $item['product_model'],
                 'quantity' => $item['quantity'],
                 'unit_price' => $item['unit_price'],
+                'unit_cost' => $item['unit_cost'] ?? null,
                 'subtotal' => $item['subtotal'],
             ]);
         }

@@ -23,6 +23,7 @@ class Product extends Model
         "video_uid",
         "precio_venta",
         "precio_original",
+        "precio_costo",
         "descuento",
         "stock",
         "disponibilidad",
@@ -32,17 +33,20 @@ class Product extends Model
         "vistas",
         "bloqueado",
         "proximo",
+        "manual_override",
     ];
 
     protected $casts = [
         "precio_venta" => "decimal:2",
         "precio_original" => "decimal:2",
+        "precio_costo" => "decimal:2",
         "descuento" => "integer",
         "stock" => "integer",
         "vistas" => "integer",
         "activo" => "boolean",
         "bloqueado" => "boolean",
         "proximo" => "boolean",
+        "manual_override" => "boolean",
         "caracteristicas" => "array",
     ];
 

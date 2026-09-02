@@ -5,6 +5,7 @@ namespace App\Livewire\Admin;
 use App\Models\Product;
 use App\Services\ImageOptimizerService;
 use App\Services\InvictaWatchScraper;
+use App\Services\PricingService;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Illuminate\Support\Str;
@@ -19,7 +20,7 @@ class ProductForm extends Component
     public $productId;
     public $modelo, $title, $slug, $descripcion, $color, $brazalete;
     public $coleccion, $tipo_movimiento, $size, $genero, $caja;
-    public $resistencia_agua, $precio_venta, $precio_original;
+    public $resistencia_agua, $precio_venta, $precio_original, $precio_costo;
     public $video_uid;
     public $descuento = 0,
         $stock = 0,
@@ -27,8 +28,14 @@ class ProductForm extends Component
         $activo = true;
     public $bloqueado = false,
         $proximo = false,
-        $variedades_increase;
+        $manual_override = false;
     public $disponibilidad = 'disponible';
+
+    public $precioMinimo = null;
+    public $precioSugerido = null;
+    public $costoSugerido = null;
+    public $margenEsperado = null;
+    public $descuentoMaximo = null;
     public $imagenes_extra = [];
     public $newExtraImageUrl = "";
     public $extraDownloadStatus = "";
@@ -63,6 +70,7 @@ class ProductForm extends Component
             $this->resistencia_agua = $product->resistencia_agua;
             $this->precio_venta = $product->precio_venta;
             $this->precio_original = $product->precio_original;
+            $this->precio_costo = $product->precio_costo;
             $this->descuento = $product->descuento;
             $this->stock = $product->stock;
             $this->imagen = $product->imagen;
@@ -71,9 +79,11 @@ class ProductForm extends Component
             $this->activo = $product->activo;
             $this->bloqueado = (bool) $product->bloqueado;
             $this->proximo = (bool) $product->proximo;
+            $this->manual_override = (bool) $product->manual_override;
             $this->disponibilidad = $product->disponibilidad ?? 'disponible';
-            $this->variedades_increase = (int) $product->precio_original > 0 ? (int) $product->precio_venta - (int) $product->precio_original : 0;
         }
+
+        $this->refreshPricing();
     }
 
     public function updatedModelo($value)
@@ -102,6 +112,51 @@ class ProductForm extends Component
     public function updatedTipoMovimiento($value)
     {
         $this->title = Product::buildDisplayTitle($this->coleccion, $this->genero, $this->modelo, $this->size, $value);
+    }
+
+    public function updatedPrecioOriginal($value)
+    {
+        $this->refreshPricing();
+        if (! $this->manual_override) {
+            $this->aplicarSugerencia();
+        }
+    }
+
+    public function recalcular()
+    {
+        $this->refreshPricing();
+        $this->aplicarSugerencia();
+    }
+
+    public function refreshPricing(): void
+    {
+        $this->precioMinimo = null;
+        $this->precioSugerido = null;
+        $this->costoSugerido = null;
+        $this->margenEsperado = null;
+        $this->descuentoMaximo = null;
+
+        if (! is_numeric($this->precio_original) || (float) $this->precio_original <= 0) {
+            return;
+        }
+
+        $pricing = app(PricingService::class)->calculate((float) $this->precio_original);
+
+        $this->costoSugerido = $pricing['precio_costo'];
+        $this->precioMinimo = $pricing['precio_minimo'];
+        $this->precioSugerido = $pricing['precio_final'];
+        $this->margenEsperado = $pricing['margen_bruto_pct'];
+        $this->descuentoMaximo = $pricing['descuento_maximo'];
+    }
+
+    private function aplicarSugerencia(): void
+    {
+        if ($this->costoSugerido !== null) {
+            $this->precio_costo = $this->costoSugerido;
+        }
+        if ($this->precioSugerido !== null) {
+            $this->precio_venta = $this->precioSugerido;
+        }
     }
 
     public function addImagenExtra()
@@ -697,6 +752,7 @@ class ProductForm extends Component
                 Rule::unique("products", "slug")->ignore($ignoreId),
             ],
             "precio_venta" => "required|numeric|min:0",
+            "precio_costo" => "nullable|numeric|min:0",
         ]);
 
         $cleanedSize = $this->sanitizeNumeric($this->size);
@@ -717,6 +773,7 @@ class ProductForm extends Component
             "resistencia_agua" => $cleanedResistencia,
             "precio_venta" => $this->precio_venta,
             "precio_original" => $this->precio_original ?: null,
+            "precio_costo" => $this->precio_costo ?: null,
             "descuento" => $this->descuento ?: 0,
             "stock" => $this->stock ?: 0,
             "imagen" => $this->imagen,
@@ -724,11 +781,23 @@ class ProductForm extends Component
             "activo" => $this->activo,
             "bloqueado" => $this->bloqueado,
             "proximo" => $this->proximo,
+            "manual_override" => $this->manual_override,
             "disponibilidad" => $this->disponibilidad,
         ];
 
         if ($this->productId) {
             $product = Product::findOrFail($this->productId);
+
+            $priceChanged =
+                (float) $product->precio_venta !== (float) $this->precio_venta
+                || (float) $product->precio_original !== (float) ($this->precio_original ?: 0)
+                || (float) $product->precio_costo !== (float) ($this->precio_costo ?: 0);
+
+            if ($priceChanged) {
+                $this->manual_override = true;
+                $data["manual_override"] = true;
+            }
+
             $product->update($data);
             Product::forgetAllCache($product->id);
             try {

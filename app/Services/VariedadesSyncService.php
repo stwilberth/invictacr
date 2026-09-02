@@ -8,6 +8,7 @@ use App\Models\SyncLogItem;
 use App\Services\InvictaWatchScraper;
 use App\Services\DeepseekTranslationService;
 use App\Services\ImageOptimizerService;
+use App\Services\PricingService;
 use Illuminate\Support\Facades\Http;
 
 class VariedadesSyncService
@@ -96,10 +97,13 @@ class VariedadesSyncService
                         $newSize = $this->sanitizeNumeric($iwData['size'] ?? null) ?? $product->size;
                         $newTipoMovimiento = $iwData['tipo_movimiento'] ?? $product->tipo_movimiento;
 
+                        $pricing = $priceVal > 0 ? app(PricingService::class)->calculate($priceVal) : null;
+
                         $product->update([
                             'proximo' => false,
-                            'precio_venta' => $this->randomPrice($modelKey, $priceVal),
-                            'precio_original' => $this->randomPrice($modelKey, $priceVal),
+                            'precio_venta' => (! $product->manual_override && $pricing) ? $pricing['precio_final'] : $product->precio_venta,
+                            'precio_original' => $priceVal > 0 ? $priceVal : $product->precio_original,
+                            'precio_costo' => $pricing['precio_costo'] ?? $product->precio_costo,
                             'stock' => max(1, $stockVal),
                             'genero' => $newGenero,
                             'title' => Product::buildDisplayTitle($newColeccion, $newGenero, $modelKey, $newSize, $newTipoMovimiento),
@@ -147,24 +151,35 @@ class VariedadesSyncService
                         $didChange = true;
                     }
 
-                    $prevPrecioOriginal = (int) ($product->precio_original ?? 0);
-                    $expectedOriginal = $this->randomPrice($modelKey, $priceVal);
-                    if ($prevPrecioOriginal !== $expectedOriginal) {
-                        $updates["precio_original"] = $expectedOriginal;
-                        $referenceUpdatedCount++;
-                        $referenceUpdatedModels[] = $modelKey;
-                        $items[] = ['sync_log_id' => $log->id, 'type' => 'reference_updated', 'modelo' => $modelKey, 'product_id' => $product->id];
-                        $didChange = true;
-                    }
+                    if (! $product->manual_override) {
+                        $prevPrecioOriginal = (int) ($product->precio_original ?? 0);
+                        if ($priceVal > 0 && $prevPrecioOriginal !== $priceVal) {
+                            $updates["precio_original"] = $priceVal;
+                            $referenceUpdatedCount++;
+                            $referenceUpdatedModels[] = $modelKey;
+                            $items[] = ['sync_log_id' => $log->id, 'type' => 'reference_updated', 'modelo' => $modelKey, 'product_id' => $product->id];
+                            $didChange = true;
+                        }
 
-                    $isAgotado = (int) $product->stock <= 0 || $product->disponibilidad === "agotado";
-                    $newPrice = $priceVal > 0 ? $this->randomPrice($modelKey, $priceVal) : 0;
-                    if ($newPrice > 0 && (float) $product->precio_venta > 0 && $product->activo && !$isAgotado && (int) $product->precio_venta !== $newPrice) {
-                        $updates["precio_venta"] = $newPrice;
-                        $priceUpdatedCount++;
-                        $priceUpdatedModels[] = $modelKey;
-                        $items[] = ['sync_log_id' => $log->id, 'type' => 'price_updated', 'modelo' => $modelKey, 'product_id' => $product->id];
-                        $didChange = true;
+                        if ($priceVal > 0) {
+                            $pricing = app(PricingService::class)->calculate($priceVal);
+                            $expectedCosto = $pricing['precio_costo'];
+                            $expectedFinal = $pricing['precio_final'];
+
+                            if ((float) $product->precio_costo !== (float) $expectedCosto) {
+                                $updates["precio_costo"] = $expectedCosto;
+                                $didChange = true;
+                            }
+
+                            $isAgotado = (int) $product->stock <= 0 || $product->disponibilidad === "agotado";
+                            if ((float) $product->precio_venta > 0 && $product->activo && !$isAgotado && (int) $product->precio_venta !== (int) $expectedFinal) {
+                                $updates["precio_venta"] = $expectedFinal;
+                                $priceUpdatedCount++;
+                                $priceUpdatedModels[] = $modelKey;
+                                $items[] = ['sync_log_id' => $log->id, 'type' => 'price_updated', 'modelo' => $modelKey, 'product_id' => $product->id];
+                                $didChange = true;
+                            }
+                        }
                     }
 
                     // Verificar/corregir género desde la API (fuente autoritativa) cuando entra stock positivo
@@ -211,13 +226,16 @@ class VariedadesSyncService
                         $descripcion = $translator->translateDescription($iwData);
                     }
 
+                    $pricing = $priceVal > 0 ? app(PricingService::class)->calculate($priceVal) : null;
+
                     $product = Product::create([
                         "modelo" => $modelKey,
                         "title" => $title,
                         "slug" => "invicta-" . strtolower($modelKey),
                         "descripcion" => $descripcion,
-                        "precio_venta" => $this->randomPrice($modelKey, $priceVal),
-                        "precio_original" => $this->randomPrice($modelKey, $priceVal),
+                        "precio_venta" => $pricing['precio_final'] ?? 0,
+                        "precio_original" => $priceVal > 0 ? $priceVal : null,
+                        "precio_costo" => $pricing['precio_costo'] ?? null,
                         "descuento" => 0,
                         "genero" => $generoRaw > 0 ? $generoApi : ($iwData['genero'] ?? 'unisex'),
                         "stock" => $stockVal,
@@ -346,12 +364,6 @@ class VariedadesSyncService
         return Product::where('bloqueado', true)
             ->where('modelo', $numeric)
             ->exists();
-    }
-
-    private function randomPrice(string $modelKey, int $base): int
-    {
-        // +13% IVA y redondeo siempre hacia arriba a múltiplos de 1000
-        return (int) (ceil(($base * 1.13) / 1000) * 1000);
     }
 
     private function mapGender(int $code): string

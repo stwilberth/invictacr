@@ -4,6 +4,34 @@
 
 ---
 
+## Diagnóstico de la implementación actual (revisión del código)
+
+Hallazgos que condicionan la aplicabilidad del plan:
+
+1. **Campos existentes en `products`**: `precio_venta` (decimal 10,2), `precio_original` (decimal 10,2 nullable), `descuento` (integer), `bloqueado` (bool), `proximo` (bool), `activo` (bool), `stock` (int). **Faltan** (nueva migración): `precio_costo` y `manual_override`.
+
+2. **Fórmula de precio actual** — `VariedadesSyncService::randomPrice()`:
+   ```
+   ceil($base * 1.13 / 1000) * 1000
+   ```
+   Hoy se vende a `precio variedadescr + 13% IVA`, redondeado hacia arriba a ₡1.000. **No** hay descuento del 40%, margen mínimo ni competitividad. Debe sustituirse por `PricingService`.
+
+3. **Lógica antigua ya eliminada**: la variación por último dígito del modelo y el `±₡3.000` ya no existen en el código. La sección 15 se reduce a reemplazar `randomPrice()` por `PricingService`.
+
+4. **Fuente de `P`**: el precio del proveedor viene del campo `precio_venta` de la API de variedadescr (`VariedadesSyncService::execute()`, variable `$priceVal = (int) $item["precio_venta"]`), no de un campo propio. Por tanto `P = $priceVal`.
+
+5. **Conflicto semántico de `precio_original`**: el sincronizador lo escribe con el precio de variedadescr, pero `ProductForm::fetchFromInvicta()` y `Upcoming` lo escriben con el **MSRP de invictawatch.com** (referencia de marketing, no del proveedor). El plan lo define como "precio público de variedadescr". **Unificar**: `precio_original` = referencia del proveedor (variedadescr); el MSRP de invictawatch no debe sobrescribirlo (moverlo a otro campo solo si se requiere conservarlo).
+
+6. **`precio_original` no se muestra en la vista pública**: en el sitio solo se usan `precio_venta` y `descuento` (precio promocional calculado en modelo/vista). El plan no altera esto.
+
+7. **Facturas**: `invoice_items` ya guarda `unit_price` y `subtotal` como **snapshot**; las facturas históricas no cambian al actualizar precios. `InvoiceDetail` edita solo campos de cabecera (cliente, montos, estados, fechas), no las líneas. Ver sección "Facturas".
+
+8. **Comandos existentes**: `stock:sync` (cron cada 6h) ejecuta `VariedadesSyncService`. Existe además `invicta:update-prices` (fija `precio_venta` manual por modelo); debe marcar `manual_override = true` al usarse.
+
+9. **Residuo en admin**: `ProductForm` declara `variedades_increase` y lo muestra en la vista, pero esa columna ya se eliminó de la BD (`2026_07_02_070000_drop_variedades_increase_from_products`). Limpiar al integrar `PricingService`.
+
+---
+
 ## 1. Objetivo
 
 Definir y automatizar el cálculo de precios para que:
@@ -35,7 +63,7 @@ Definir y automatizar el cálculo de precios para que:
 
 - **`precio_costo`**: sin IVA (es lo que se paga a variedadescr).
 - **`precio_venta` y precio promocional**: con IVA (lo que paga el cliente).
-- **`precio_original`**: precio público de variedadescr (sin IVA), usado solo como referencia competitiva.
+- **`precio_original`**: precio público de variedadescr (sin IVA), usado solo como referencia competitiva. Equivale a `P` y su fuente es `$priceVal` de la API de variedadescr — **no** el MSRP de invictawatch (ver diagnóstico, punto 5).
 
 No mezclar bases. El IVA se aplica **una sola vez** y solo del lado de la venta.
 
@@ -340,10 +368,7 @@ Cuando un producto entra con stock positivo y sale de `proximo`, calcular el pre
 
 ## 15. Eliminación de lógica antigua
 
-Eliminar completamente:
-- Variación por último dígito del modelo.
-- `+₡3.000 / -₡3.000` automáticos.
-- Cualquier aleatoriedad o hash para fijar precios.
+La variación por último dígito del modelo y el `+₡3.000 / -₡3.000` automáticos **ya no existen** en el código. Lo único que queda por eliminar es `VariedadesSyncService::randomPrice()` (fórmula `base * 1.13` redondeada), reemplazándolo por `PricingService`.
 
 La competitividad depende solo de `competitive_difference_amount` y `competitive_difference_percent`.
 
@@ -439,25 +464,60 @@ Nunca: mezclar IVA, aplicar IVA dos veces, usar el último dígito del modelo, u
 
 ---
 
-## 19. Tareas de implementación
+## 19. Tareas de implementación (mapeadas al código actual)
 
-- [ ] Crear migración reversible para `precio_costo` y `manual_override`.
+- [ ] Migración reversible: `precio_costo` (decimal 10,2 nullable) y `manual_override` (bool default false) en `products`; `unit_cost` (decimal 12,2 nullable) en `invoice_items`.
 - [ ] Crear `config/pricing.php`.
-- [ ] Crear `PricingService` (única fuente de verdad).
-- [ ] Implementar costo, precio mínimo, competitivo, final y redondeo seguro.
-- [ ] Implementar promociones con `descuento_maximo` y validación de margen.
-- [ ] Crear `invicta:sync-prices` (`--dry-run`, `--force`).
-- [ ] Integrar con `VariedadesSyncService`.
-- [ ] Integrar `PricingService` en formulario Livewire (recálculo en cascada).
-- [ ] Detección automática de cambios manuales → `manual_override`.
-- [ ] Mantener descuentos y purga selectiva de caché.
-- [ ] Eliminar lógica de ±₡3.000 y del último dígito del modelo.
-- [ ] Crear/actualizar tests.
-- [ ] Ejecutar tests y `--dry-run` antes de la primera sincronización real.
+- [ ] Crear `app/Services/PricingService.php` (única fuente de verdad, BCMath).
+- [ ] `PricingService`: costo, precio mínimo, objetivo, base, final, redondeo seguro, margen, promoción, `descuento_maximo`.
+- [ ] Crear `app/Console/Commands/SyncPrices.php` (`invicta:sync-prices`, `--dry-run`, `--force`).
+- [ ] Reemplazar `VariedadesSyncService::randomPrice()` por `PricingService`; `precio_original = P = $priceVal` del proveedor.
+- [ ] `Product` model: añadir `precio_costo` y `manual_override` a `$fillable`/`$casts`.
+- [ ] `ProductForm` (Livewire): recálculo en cascada con `PricingService`, mostrar costo/margen/precio mínimo, detección automática de `manual_override`; quitar residuo `variedades_increase`.
+- [ ] `InvoiceCreate` y `CheckoutController`/`PayPalController`: congelar `unit_cost` en `invoice_items` y calcular `estimated_utility` automáticamente.
+- [ ] `UpdatePrices` (`invicta:update-prices`): marcar `manual_override = true` al fijar precio manual.
+- [ ] `InvoiceDetail`: mantener edición solo de cabecera (no líneas, no re-lectura de precios).
+- [ ] Programar `invicta:sync-prices` en cron (junto a `stock:sync`).
+- [ ] Tests en `tests/Unit/PricingServiceTest.php` + `tests/Feature/SyncPricesTest.php`.
+- [ ] `--dry-run` y revisión antes de la primera sincronización real (ver sección Despliegue).
 
 ---
 
-## 20. Condición para considerar terminado
+## 20. Facturas: creación y edición (solo futuras)
+
+Regla firme: **las facturas ya emitidas no se recalculan ni se les cambia el precio.** El precio queda congelado en el snapshot de `invoice_items.unit_price`/`subtotal` y en `invoices.subtotal`/`discount`/`total`.
+
+### Creación (factura nueva)
+- Al crear una factura (admin `InvoiceCreate` o web `CheckoutController`/`PayPalController`), el precio por unidad sigue siendo `precio_venta` (con IVA) y se aplica el descuento promocional si `descuento > 0`.
+- Para que `estimated_utility` sea automático, **copiar el costo** al crear la línea: añadir columna `unit_cost` (decimal 12,2 nullable) a `invoice_items` y congelar `precio_costo` en el momento de la venta. Utilidad estimada por línea ≈ `(unit_price - unit_cost) * quantity` (ajustada por descuento si aplica).
+- Si `precio_costo` es null (producto sin costo cargado), `estimated_utility` se deja manual, como hasta ahora.
+
+### Edición
+- Solo se editan facturas **futuras/pendientes**; una factura `facturado`/`entregado` no debe ver alterados sus montos.
+- La edición actual (`InvoiceDetail`) no toca las líneas; mantenerlo así. **No** reintroducir re-lectura de `Product::precio_venta` al editar una factura existente.
+- No hay migración retroactiva: ninguna factura antigua se recalcula con la nueva fórmula de costo/margen.
+
+### Impacto del plan en facturas
+- El cambio de `precio_venta` por sincronización **no** afecta facturas pasadas (snapshot).
+- Solo facturas creadas **después** del despliegue llevarán el nuevo precio y el costo congelado.
+
+---
+
+## 21. Despliegue / rollout
+
+> **ATENCIÓN — transición de datos:** la BD actual guarda `precio_original` con el valor **viejo** (proveedor + 13%, por la fórmula `randomPrice` que se elimina). El precio bruto del proveedor (sin IVA) viene de la API (`$priceVal`) y lo repuebla `stock:sync`. Por eso `invicta:sync-prices` **no debe correrse antes** de que `stock:sync` haya corrido al menos una vez con el código nuevo; de lo contrario usaría `precio_original` inflado.
+
+1. Crear la migración (`precio_costo`, `manual_override`, `unit_cost`).
+2. Ejecutar `stock:sync` (o esperar al cron de cada 6h) para repoblar `precio_original` con el precio bruto del proveedor y calcular costo/precio con `PricingService`.
+3. **Recién entonces** ejecutar `invicta:sync-prices --dry-run` y revisar los cambios propuestos.
+4. Si hay precios fijados manualmente que no deben tocarse, marcarlos `manual_override = 1` **antes** de correr el sync real.
+5. Programar `invicta:sync-prices` en el cron junto a `stock:sync` (cada 6h, 30 min después, working directory `/var/www/invictacostarica`).
+6. `invicta:update-prices` (manual) debe poner `manual_override = true` en los productos afectados.
+7. Limpiar el residuo `variedades_increase` del formulario admin (columna ya eliminada de la BD).
+
+---
+
+## 22. Condición para considerar terminado
 
 1. Costo refleja el 40% (sin IVA).
 2. Venta siempre con IVA (13%).
@@ -472,5 +532,7 @@ Nunca: mezclar IVA, aplicar IVA dos veces, usar el último dígito del modelo, u
 11. Formulario admin usa `PricingService`.
 12. Tests en verde.
 13. `--dry-run` permite revisar antes de aplicar.
+14. Facturas históricas intactas; solo las nuevas congelan costo (`unit_cost`) y calculan utilidad automática.
+15. `precio_original` = referencia de variedadescr (el MSRP de invictawatch no lo sobrescribe).
 
 Antes de programar, revisar la implementación actual (`Product`, `VariedadesSyncService`, comandos, migraciones, Livewire, vistas, caché, tests) y adaptar nombres a la arquitectura existente. Presentar un resumen de cambios antes de implementar.

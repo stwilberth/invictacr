@@ -60,6 +60,11 @@
                     <input wire:model="precio_original" type="number" step="0.01" class="w-full bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm" />
                 </div>
                 <div>
+                    <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Precio Costo (sin IVA)</label>
+                    <input wire:model="precio_costo" type="number" step="0.01" class="w-full bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm" />
+                    @error('precio_costo') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                </div>
+                <div>
                     <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Descuento (%)</label>
                     <input wire:model="descuento" type="number" class="w-full bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm" />
                 </div>
@@ -261,16 +266,43 @@
                 </div>
             </div>
 
-            {{-- Aumento calculado --}}
+            {{-- Precios calculados (PricingService) --}}
             <div class="border-t border-gray-100 dark:border-white/10 pt-4">
                 <h3 class="text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-3">
-                    <i class="fa-solid fa-calculator text-amber-500 mr-1"></i> Sync VariedadesCR
+                    <i class="fa-solid fa-calculator text-amber-500 mr-1"></i> Precios sugeridos
                 </h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <div>
-                        <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Aumento calculado</label>
-                        <input type="text" value="{{ $variedades_increase > 0 ? '₡' . number_format($variedades_increase, 0, ',', '.') : '—' }}" readonly class="w-full bg-gray-100 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm text-gray-500" />
+                        <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">Costo sugerido</label>
+                        <p class="text-sm font-black text-gray-900 dark:text-white">{{ $costoSugerido !== null ? '₡' . number_format((float) $costoSugerido, 2) : '—' }}</p>
                     </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">Precio sugerido</label>
+                        <p class="text-sm font-black text-[#00C4FF]">{{ $precioSugerido !== null ? '₡' . number_format((float) $precioSugerido, 0) : '—' }}</p>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">Precio mínimo</label>
+                        <p class="text-sm font-bold text-gray-900 dark:text-white">{{ $precioMinimo !== null ? '₡' . number_format((float) $precioMinimo, 0) : '—' }}</p>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">Margen esperado</label>
+                        <p class="text-sm font-bold {{ $margenEsperado !== null && $margenEsperado >= config('pricing.minimum_margin_percent') ? 'text-green-600' : 'text-red-500' }}">{{ $margenEsperado !== null ? number_format((float) $margenEsperado, 2) . '%' : '—' }}</p>
+                    </div>
+                </div>
+                @if($descuentoMaximo !== null)
+                    <p class="mt-3 text-xs text-gray-500 dark:text-gray-400">
+                        Descuento máximo permitido: <span class="font-bold">{{ number_format((float) $descuentoMaximo, 2) }}%</span> (margen de promoción {{ config('pricing.promotion_minimum_margin_percent') }}%).
+                    </p>
+                @endif
+                <button type="button" wire:click="recalcular" class="mt-3 inline-flex items-center gap-1.5 bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs uppercase tracking-wider px-4 py-2 rounded-xl transition-all">
+                    <i class="fa-solid fa-rotate"></i> Recalcular precio sugerido
+                </button>
+                <div class="flex items-center gap-3 pt-4">
+                    <input wire:model="manual_override" type="checkbox" id="manual_override" class="text-amber-500 rounded">
+                    <label for="manual_override" class="text-sm font-bold text-gray-700 dark:text-gray-300">
+                        Precio manual (no sincronizar)
+                        <span class="block text-xs font-normal text-gray-400">El sincronizador no modificará costo, precio original ni precio de venta</span>
+                    </label>
                 </div>
                 <div class="flex items-center gap-3 pt-6">
                     <input wire:model="activo" type="checkbox" id="activo" class="text-[#00C4FF] rounded">

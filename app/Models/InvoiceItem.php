@@ -8,11 +8,12 @@ class InvoiceItem extends Model
 {
     protected $fillable = [
         'invoice_id', 'product_id', 'product_name', 'product_model',
-        'quantity', 'unit_price', 'subtotal'
+        'quantity', 'unit_price', 'unit_cost', 'subtotal'
     ];
 
     protected $casts = [
         'unit_price' => 'decimal:2',
+        'unit_cost' => 'decimal:2',
         'subtotal' => 'decimal:2',
         'quantity' => 'integer',
     ];

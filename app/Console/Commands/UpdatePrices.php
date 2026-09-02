@@ -57,6 +57,7 @@ class UpdatePrices extends Command
 
             if (! $dry) {
                 $product->precio_venta = $newPrice;
+                $product->manual_override = true;
                 $product->save();
             }
         }
