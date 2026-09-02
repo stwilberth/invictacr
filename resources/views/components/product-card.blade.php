@@ -77,25 +77,18 @@
             @endif
         </div>
 
-        <div class="mt-1.5 flex gap-1">
+        <div class="mt-2 flex gap-1.5 md:gap-2">
             @php
                 $cardAgotado = ($product->stock ?? 0) <= 0 || ($product->disponibilidad ?? 'disponible') === 'agotado';
                 $cardUpcoming = ($product->proximo ?? false) || (float) ($product->precio_venta ?? 0) <= 0;
             @endphp
-            @if(!$cardAgotado && !$cardUpcoming)
-                <button type="button" data-cta="comprar-ahora" data-product-id="{{ $product->id }}" onclick="addToCart({{ $product->id }}, this)"
-                    class="flex-1 inline-flex items-center justify-center gap-1 py-1.5 bg-[#00C4FF] hover:bg-[#00a3d6] text-white rounded-lg font-extrabold uppercase tracking-tight text-[9px] md:text-[10px] transition-all hover:-translate-y-0.5 active:scale-95 shadow-sm hover:shadow-md">
-                    <i class="fa-solid fa-cart-plus text-[9px] md:text-[10px]"></i> Comprar
-                </button>
-            @else
-                <a href="{{ $productUrl }}" data-cta="ver-disponibilidad" data-product-id="{{ $product->id }}"
-                    class="flex-1 inline-flex items-center justify-center gap-1 py-1.5 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg font-extrabold uppercase tracking-tight text-[9px] md:text-[10px] transition-all hover:-translate-y-0.5 active:scale-95 border border-gray-200 dark:border-gray-600 no-underline">
-                    <i class="fa-solid fa-circle-info text-[9px] md:text-[10px]"></i> Disponibilidad
-                </a>
-            @endif
+            <a href="{{ $productUrl }}" data-cta="{{ ($cardAgotado || $cardUpcoming) ? 'ver-disponibilidad' : 'ver-detalle' }}" data-product-id="{{ $product->id }}"
+                class="flex-1 inline-flex items-center justify-center gap-1.5 py-2.5 bg-[#00C4FF] hover:bg-[#00a3d6] text-white rounded-xl font-extrabold uppercase tracking-tight text-[11px] md:text-sm transition-all hover:-translate-y-0.5 active:scale-95 no-underline shadow-sm hover:shadow-md">
+                <i class="fa-solid fa-eye text-xs md:text-sm"></i> Ver
+            </a>
             <a href="{{ $whatsappLink }}" data-cta="comprar-whatsapp" data-product-id="{{ $product->id }}" target="_blank" rel="noopener noreferrer"
-                class="flex-1 inline-flex items-center justify-center gap-1 py-1.5 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-lg font-extrabold uppercase tracking-tight text-[9px] md:text-[10px] transition-all hover:-translate-y-0.5 active:scale-95 no-underline shadow-sm hover:shadow-md">
-                <i class="fa-brands fa-whatsapp text-[9px] md:text-[10px]"></i> WhatsApp
+                class="flex-1 inline-flex items-center justify-center gap-1.5 py-2.5 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-xl font-extrabold uppercase tracking-tight text-[11px] md:text-sm transition-all hover:-translate-y-0.5 active:scale-95 no-underline shadow-sm hover:shadow-md">
+                <i class="fa-brands fa-whatsapp text-xs md:text-sm"></i> Pedir
             </a>
         </div>
     </div>
