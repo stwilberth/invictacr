@@ -61,20 +61,24 @@
                 </div>
             </div>
 
-            <div class="flex flex-col md:flex-row gap-8 pb-12" x-data="{ filterOpen: false, showProximo: {{ request('proximo', '1') !== '0' ? 'true' : 'false' }} }">
+            <div class="flex flex-col md:flex-row gap-8 pb-12" x-data="{ filterOpen: false }">
 
-                {{-- Mobile: Filtros + toggle próximos --}}
+                {{-- Mobile: Filtros + ordenar --}}
                 <div class="flex items-center gap-2.5 md:hidden">
                     <button @click="filterOpen = true" class="flex-1 flex items-center justify-center gap-1.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm px-3 py-2.5 font-bold text-xs uppercase tracking-wider text-gray-700 dark:text-gray-200 active:scale-95 transition-all">
                         <i class="fa-solid fa-sliders text-[#00C4FF] text-[11px]"></i>
                         Filtros
                     </button>
-                    <button @click="showProximo = !showProximo; window.CatalogManager && window.CatalogManager.setFilter('proximo', showProximo ? '' : '0')" class="inline-flex items-center gap-2 shrink-0 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full pl-3 pr-1 py-1 shadow-sm transition-all">
-                        <span class="text-[10px] font-bold uppercase tracking-wider transition-colors" :class="showProximo ? 'text-gray-700 dark:text-gray-200' : 'text-gray-400 dark:text-gray-500'">Próximos</span>
-                        <span class="relative inline-flex h-5 w-8 items-center rounded-full p-0.5 transition-colors duration-200" :class="showProximo ? 'bg-[#00C4FF]' : 'bg-gray-300 dark:bg-gray-600'">
-                            <span class="inline-block h-4 w-4 rounded-full bg-white shadow-sm transition-transform duration-200" :class="showProximo ? 'translate-x-3' : 'translate-x-0'"></span>
-                        </span>
-                    </button>
+                    <select
+                        id="catalog-sort-mobile"
+                        onchange="window.CatalogManager && window.CatalogManager.setFilter('sort', this.value)"
+                        class="flex-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2.5 text-xs font-bold text-gray-700 dark:text-gray-200 focus:outline-none focus:border-[#00C4FF]/50 focus:ring-2 focus:ring-[#00C4FF]/20 transition-all shadow-sm"
+                    >
+                        <option value="" {{ !request('sort') ? 'selected' : '' }}>Más vistos</option>
+                        <option value="price_asc" {{ request('sort') === 'price_asc' ? 'selected' : '' }}>Precio: menor a mayor</option>
+                        <option value="price_desc" {{ request('sort') === 'price_desc' ? 'selected' : '' }}>Precio: mayor a menor</option>
+                        <option value="newest" {{ request('sort') === 'newest' ? 'selected' : '' }}>Más nuevos</option>
+                    </select>
                 </div>
 
                 {{-- Mobile drawer overlay --}}
@@ -106,31 +110,22 @@
                     {{-- Results info bar --}}
                     <div id="catalog-results-info"></div>
 
-                    {{-- Ordenar + toggle próximos --}}
-                    <div class="flex items-center justify-between gap-3 mb-2">
-                        <div class="flex items-center gap-2">
-                            <span class="hidden sm:inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                                <i class="fa-solid fa-arrow-down-wide-short text-[#00C4FF]"></i>
-                                Ordenar
-                            </span>
-                            <select
-                                id="catalog-sort"
-                                onchange="window.CatalogManager && window.CatalogManager.setFilter('sort', this.value)"
-                                class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-2.5 py-1.5 text-xs font-bold text-gray-700 dark:text-gray-200 focus:outline-none focus:border-[#00C4FF]/50 focus:ring-2 focus:ring-[#00C4FF]/20 transition-all shadow-sm"
-                            >
-                                <option value="" {{ !request('sort') ? 'selected' : '' }}>Más vistos</option>
-                                <option value="price_asc" {{ request('sort') === 'price_asc' ? 'selected' : '' }}>Precio: menor a mayor</option>
-                                <option value="price_desc" {{ request('sort') === 'price_desc' ? 'selected' : '' }}>Precio: mayor a menor</option>
-                                <option value="newest" {{ request('sort') === 'newest' ? 'selected' : '' }}>Más nuevos</option>
-                            </select>
-                        </div>
-
-                        <button @click="showProximo = !showProximo; window.CatalogManager && window.CatalogManager.setFilter('proximo', showProximo ? '' : '0')" class="hidden md:inline-flex items-center gap-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full pl-3 pr-1 py-1 shadow-sm transition-all">
-                            <span class="text-[10px] font-bold uppercase tracking-wider transition-colors" :class="showProximo ? 'text-gray-700 dark:text-gray-200' : 'text-gray-400'">Próximos</span>
-                            <span class="relative inline-flex h-5 w-8 items-center rounded-full p-0.5 transition-colors duration-200" :class="showProximo ? 'bg-[#00C4FF]' : 'bg-gray-300 dark:bg-gray-600'">
-                                <span class="inline-block h-4 w-4 rounded-full bg-white shadow-sm transition-transform duration-200" :class="showProximo ? 'translate-x-3' : 'translate-x-0'"></span>
-                            </span>
-                        </button>
+                    {{-- Ordenar (desktop) --}}
+                    <div class="hidden md:flex items-center gap-2 mb-2">
+                        <span class="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                            <i class="fa-solid fa-arrow-down-wide-short text-[#00C4FF]"></i>
+                            Ordenar
+                        </span>
+                        <select
+                            id="catalog-sort"
+                            onchange="window.CatalogManager && window.CatalogManager.setFilter('sort', this.value)"
+                            class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-2.5 py-1.5 text-xs font-bold text-gray-700 dark:text-gray-200 focus:outline-none focus:border-[#00C4FF]/50 focus:ring-2 focus:ring-[#00C4FF]/20 transition-all shadow-sm"
+                        >
+                            <option value="" {{ !request('sort') ? 'selected' : '' }}>Más vistos</option>
+                            <option value="price_asc" {{ request('sort') === 'price_asc' ? 'selected' : '' }}>Precio: menor a mayor</option>
+                            <option value="price_desc" {{ request('sort') === 'price_desc' ? 'selected' : '' }}>Precio: mayor a menor</option>
+                            <option value="newest" {{ request('sort') === 'newest' ? 'selected' : '' }}>Más nuevos</option>
+                        </select>
                     </div>
 
                     {{-- Active filters chips --}}
@@ -200,7 +195,7 @@
         (function() {
             'use strict';
 
-            var FILTER_KEYS = ['q', 'gender', 'color', 'coleccion', 'brazalete', 'tipo_movimiento', 'caja', 'resistencia_agua', 'size', 'precio_min', 'precio_max', 'sort', 'proximo'];
+            var FILTER_KEYS = ['q', 'gender', 'color', 'coleccion', 'brazalete', 'tipo_movimiento', 'caja', 'resistencia_agua', 'size', 'precio_min', 'precio_max', 'sort'];
             var DEBOUNCE_MS = 300;
 
             var state = {
@@ -375,7 +370,6 @@
                 if (filters.caja) chips.push({ key: 'caja', label: 'Caja: ' + capitalize(filters.caja) });
                 if (filters.resistencia_agua) chips.push({ key: 'resistencia_agua', label: 'Resistencia: ' + filters.resistencia_agua + 'M' });
                 if (filters.size) chips.push({ key: 'size', label: 'Tamaño: ' + filters.size + 'mm' });
-                if (filters.proximo === '0') chips.push({ key: 'proximo', label: 'Sin próximos' });
 
                 if (chips.length === 0) {
                     els.activeFilters.innerHTML = '';
@@ -408,18 +402,12 @@
                     });
                 });
 
-                // Sync checkbox for proximo filter (checked = show, unchecked = hidden via value '0')
-                if (key === 'proximo') {
-                    var checkboxes = document.querySelectorAll('input[data-filter="proximo"]');
-                    checkboxes.forEach(function(cb) {
-                        cb.checked = value !== '0';
-                    });
-                }
-
                 // Sync sort select
                 if (key === 'sort') {
                     var sortSelect = document.getElementById('catalog-sort');
                     if (sortSelect) sortSelect.value = value || '';
+                    var sortMobile = document.getElementById('catalog-sort-mobile');
+                    if (sortMobile) sortMobile.value = value || '';
                 }
             }
 
