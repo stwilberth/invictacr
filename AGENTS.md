@@ -15,8 +15,10 @@
 - Vista de producto: `resources/views/pages/product-detail.blade.php`.
 - Catálogo: `resources/views/pages/catalog.blade.php`.
 
-## Cron
-- `stock:sync` corre cada 6h; debe apuntar a `/var/www/invictacostarica` (BD `invictacr`).
+## Sincronización (manual, sin cron)
+- No hay crons automáticos de stock/precios.
+- La sincronización se ejecuta manualmente desde `/admin/sync` (botón "Sincronizar" → `VariedadesSyncService::execute()`).
+- Los precios solo se recalculan en productos que cambiaron de stock y no están agotados (ver `app/Services/VariedadesSyncService.php`).
 
 ## Identidad visual / Diseño (resumen)
 - Marca: navy + cian eléctrico — sobria y premium. Evitar gradientes genéricos y colores pastel.

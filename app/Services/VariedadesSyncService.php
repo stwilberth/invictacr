@@ -141,6 +141,7 @@ class VariedadesSyncService
 
                     $updates = [];
                     $didChange = false;
+                    $stockChanged = false;
 
                     if ($prevStock !== $stockVal) {
                         $updates["stock"] = $stockVal;
@@ -149,9 +150,10 @@ class VariedadesSyncService
                         $stockChangedModels[] = $modelKey;
                         $items[] = ['sync_log_id' => $log->id, 'type' => 'stock_updated', 'modelo' => $modelKey, 'product_id' => $product->id];
                         $didChange = true;
+                        $stockChanged = true;
                     }
 
-                    if (! $product->manual_override) {
+                    if ($stockChanged && ! $product->manual_override) {
                         $prevPrecioOriginal = (int) ($product->precio_original ?? 0);
                         if ($priceVal > 0 && $prevPrecioOriginal !== $priceVal) {
                             $updates["precio_original"] = $priceVal;
@@ -171,7 +173,7 @@ class VariedadesSyncService
                                 $didChange = true;
                             }
 
-                            $isAgotado = (int) $product->stock <= 0 || $product->disponibilidad === "agotado";
+                            $isAgotado = $stockVal <= 0;
                             if ((float) $product->precio_venta > 0 && $product->activo && !$isAgotado && (int) $product->precio_venta !== (int) $expectedFinal) {
                                 $updates["precio_venta"] = $expectedFinal;
                                 $priceUpdatedCount++;
