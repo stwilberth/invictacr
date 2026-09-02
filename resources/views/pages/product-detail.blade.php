@@ -224,28 +224,12 @@
                         <span class="bg-red-500 text-white text-[11px] font-black px-2.5 py-1 rounded-lg shadow-sm shadow-red-500/30">-{{ $product->descuento }}% OFF</span>
                     </div>
                     @endif
-                    <div class="flex items-center gap-2 mt-1">
-                        <span class="text-[10px] font-medium text-gray-800 dark:text-gray-500 leading-none">IVA incluido</span>
-                        <span class="text-[10px] text-gray-300 dark:text-gray-600">•</span>
-                        <span class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 leading-none">Envío gratis</span>
+                    <div class="mt-2.5">
+                        <x-product-benefits :apartadoMinimo="$apartadoMinimo" :showApartado="($product->descuento ?? 0) <= 0" />
                     </div>
-                    <div class="flex items-center gap-1.5 mt-2 text-[10px] font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wide">
-                        <i class="fa-solid fa-circle-check text-emerald-500 text-[11px]"></i> 100% Original — Garantía 6 meses
-                    </div>
-                    @if(($product->descuento ?? 0) <= 0 && $apartadoMinimo > 0)
-                    <div class="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5">Apartado desde <span class="font-bold text-gray-700 dark:text-gray-200">₡{{ number_format($apartadoMinimo, 0) }}</span></div>
-                    @endif
 
                     {{-- Métodos de pago aceptados --}}
-                    <div class="flex items-center gap-2.5 mt-3 pt-3 border-t border-gray-100 dark:border-white/5">
-                        <span class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wide whitespace-nowrap">Aceptamos:</span>
-                        <div class="flex items-center gap-3">
-                            <div class="flex items-center gap-1 text-gray-500 dark:text-gray-400" title="Efectivo"><i class="fa-solid fa-money-bill-wave text-[11px]"></i><span class="text-[10px] font-semibold">Efectivo</span></div>
-                            <div class="flex items-center gap-1 text-gray-500 dark:text-gray-400" title="Tarjeta"><i class="fa-solid fa-credit-card text-[11px]"></i><span class="text-[10px] font-semibold">Tarjeta</span></div>
-                            <div class="flex items-center gap-1 text-gray-500 dark:text-gray-400" title="SINPE Móvil"><i class="fa-solid fa-mobile-screen-button text-[11px]"></i><span class="text-[10px] font-semibold">SINPE</span></div>
-                            <div class="flex items-center gap-1 text-gray-500 dark:text-gray-400" title="Transferencia"><i class="fa-solid fa-building-columns text-[11px]"></i><span class="text-[10px] font-semibold">Transf.</span></div>
-                        </div>
-                    </div>
+                    <x-payment-methods />
                     @endif
 
                     {{-- Mobile: Agotado banner --}}
@@ -317,39 +301,10 @@
                             </div>
                             @endif
                         </div>
-                        <div class="flex items-center gap-2 -mt-1">
-                            <span class="text-[10px] font-medium text-gray-400 dark:text-gray-500 leading-none">IVA incluido</span>
-                            <span class="text-[10px] text-gray-300 dark:text-gray-600">•</span>
-                            <span class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 leading-none">Envío gratis</span>
-                            <span class="text-[10px] text-gray-300 dark:text-gray-600">•</span>
-                            <span class="flex items-center gap-1 text-[10px] font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wide"><i class="fa-solid fa-circle-check text-emerald-500 text-[11px]"></i> 100% Original</span>
-                        </div>
-                        @if(($product->descuento ?? 0) <= 0 && $apartadoMinimo > 0)
-                        <div class="text-xs text-gray-500 dark:text-gray-400">Apartado desde <span class="font-bold text-gray-700 dark:text-gray-200">₡{{ number_format($apartadoMinimo, 0) }}</span></div>
-                        @endif
+                        <x-product-benefits :apartadoMinimo="$apartadoMinimo" :showApartado="($product->descuento ?? 0) <= 0" />
 
                         {{-- Métodos de pago aceptados --}}
-                        <div class="flex items-center gap-3 pt-2 border-t border-gray-100 dark:border-white/5">
-                            <span class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wide whitespace-nowrap">Aceptamos:</span>
-                            <div class="flex items-center gap-2.5">
-                                <div class="flex items-center gap-1 text-gray-500 dark:text-gray-400" title="Efectivo">
-                                    <i class="fa-solid fa-money-bill-wave text-[11px]"></i>
-                                    <span class="text-[10px] font-semibold hidden xl:inline">Efectivo</span>
-                                </div>
-                                <div class="flex items-center gap-1 text-gray-500 dark:text-gray-400" title="Tarjeta">
-                                    <i class="fa-solid fa-credit-card text-[11px]"></i>
-                                    <span class="text-[10px] font-semibold hidden xl:inline">Tarjeta</span>
-                                </div>
-                                <div class="flex items-center gap-1 text-gray-500 dark:text-gray-400" title="SINPE Móvil">
-                                    <i class="fa-solid fa-mobile-screen-button text-[11px]"></i>
-                                    <span class="text-[10px] font-semibold hidden xl:inline">SINPE</span>
-                                </div>
-                                <div class="flex items-center gap-1 text-gray-500 dark:text-gray-400" title="Transferencia">
-                                    <i class="fa-solid fa-building-columns text-[11px]"></i>
-                                    <span class="text-[10px] font-semibold hidden xl:inline">Transferencia</span>
-                                </div>
-                            </div>
-                        </div>
+                        <x-payment-methods />
 
                         {{-- Desktop Action buttons --}}
                         <div class="flex gap-2.5 w-full">
