@@ -57,8 +57,8 @@
     </a>
 
     <div class="{{ $compact ? 'p-1' : 'p-1 md:p-2' }} flex flex-col flex-grow">
-        <a href="{{ $productUrl }}" class="block hover:text-blue-600 transition-colors">
-            <h3 class="{{ $compact ? 'text-[10px]' : 'text-[10px] md:text-xs' }} font-bold text-slate-600 dark:text-gray-200 leading-tight uppercase tracking-tight group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors text-center">
+        <a href="{{ $productUrl }}" class="block truncate hover:text-blue-600 transition-colors">
+            <h3 class="{{ $compact ? 'text-[10px]' : 'text-[10px] md:text-xs' }} w-full font-bold text-slate-600 dark:text-gray-200 leading-tight uppercase tracking-tight group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors text-center truncate">
                 {{ $cardTitle }}
             </h3>
         </a>
@@ -84,7 +84,7 @@
             @endif
         </div>
 
-        <div class="mt-2">
+        <div class="mt-auto pt-2">
             <a href="{{ $whatsappLink }}" data-cta="comprar-whatsapp" data-product-id="{{ $product->id }}" target="_blank" rel="noopener noreferrer"
                 class="w-full inline-flex items-center justify-center gap-2 py-3 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-xl font-extrabold uppercase tracking-tight text-[11px] md:text-sm transition-all hover:-translate-y-0.5 active:scale-95 no-underline shadow-sm hover:shadow-md">
                 <i class="fa-brands fa-whatsapp text-sm md:text-base"></i> Pedir
