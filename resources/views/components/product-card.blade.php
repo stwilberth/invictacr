@@ -57,8 +57,8 @@
     </a>
 
     <div class="{{ $compact ? 'p-1' : 'p-1 md:p-2' }} flex flex-col flex-grow">
-        <a href="{{ $productUrl }}" class="block truncate hover:text-blue-600 transition-colors">
-            <h3 class="{{ $compact ? 'text-[10px]' : 'text-[10px] md:text-xs' }} w-full font-bold text-slate-600 dark:text-gray-200 leading-tight uppercase tracking-tight group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors text-center truncate">
+        <a href="{{ $productUrl }}" class="block hover:text-blue-600 transition-colors">
+            <h3 class="{{ $compact ? 'text-[10px]' : 'text-[10px] md:text-xs' }} w-full font-bold text-slate-600 dark:text-gray-200 leading-tight uppercase tracking-tight group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors text-center line-clamp-2 min-h-[2.5em]">
                 {{ $cardTitle }}
             </h3>
         </a>
