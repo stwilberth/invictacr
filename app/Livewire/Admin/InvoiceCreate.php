@@ -23,6 +23,7 @@ class InvoiceCreate extends Component
     public $shipping_status = 'pendiente';
     public $notes = '';
     public $creation_date = '';
+    public $issued_date = '';
     public $estimated_utility = 0;
 
     public $items = [];
@@ -49,8 +50,14 @@ class InvoiceCreate extends Component
             'shipping_status' => 'required|string',
             'notes' => 'nullable|string',
             'creation_date' => 'nullable|date',
+            'issued_date' => 'nullable|date',
             'estimated_utility' => 'nullable|numeric|min:0',
         ];
+    }
+
+    public function mount()
+    {
+        $this->issued_date = now()->format('Y-m-d');
     }
 
     public function updatedClientName()
@@ -143,6 +150,8 @@ class InvoiceCreate extends Component
 
         $invoiceNumber = $this->generateInvoiceNumber();
 
+        $date = $this->issued_date ? \Carbon\Carbon::parse($this->issued_date) : now();
+
         $invoice = Invoice::create([
             'invoice_number' => $invoiceNumber,
             'client_name' => $this->client_name,
@@ -160,7 +169,8 @@ class InvoiceCreate extends Component
             'notes' => $this->notes ?: null,
             'creation_date' => $this->creation_date ?: null,
             'estimated_utility' => $this->estimated_utility ?: null,
-            'issued_at' => now(),
+            'issued_at' => $date,
+            'created_at' => $date,
         ]);
 
         foreach ($this->items as $item) {

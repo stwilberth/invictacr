@@ -19,6 +19,7 @@ class InvoiceDetail extends Component
     public $delivery_date, $delivery_time_start, $delivery_time_end;
     public $location, $needs_bracelet_adjustment, $creation_date;
     public $estimated_utility, $cedula, $issued_at;
+    public $issued_date;
 
     public $newAbonoAmount, $newAbonoNote, $newAbonoDate;
 
@@ -43,6 +44,7 @@ class InvoiceDetail extends Component
             'location' => 'nullable|string',
             'needs_bracelet_adjustment' => 'boolean',
             'creation_date' => 'nullable|date',
+            'issued_date' => 'nullable|date',
             'estimated_utility' => 'nullable|numeric|min:0',
             'cedula' => 'nullable|string|max:255',
             'newAbonoAmount' => 'nullable|numeric|min:1',
@@ -79,6 +81,7 @@ class InvoiceDetail extends Component
         $this->location = $this->invoice->location;
         $this->needs_bracelet_adjustment = $this->invoice->needs_bracelet_adjustment;
         $this->creation_date = $this->invoice->creation_date?->format('Y-m-d');
+        $this->issued_date = $this->invoice->created_at?->format('Y-m-d');
         $this->estimated_utility = $this->invoice->estimated_utility;
         $this->cedula = $this->invoice->cedula;
     }
@@ -108,6 +111,7 @@ class InvoiceDetail extends Component
             'creation_date' => $this->creation_date ?: null,
             'estimated_utility' => $this->estimated_utility ?: null,
             'cedula' => $this->cedula ?: null,
+            'created_at' => $this->issued_date ? \Carbon\Carbon::parse($this->issued_date) : $this->invoice->created_at,
         ]);
 
         $this->loadInvoice();

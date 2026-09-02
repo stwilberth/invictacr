@@ -13,7 +13,7 @@ class Invoice extends Model
         'payment_method', 'paypal_transaction_id', 'source',
         'notes', 'issued_at', 'delivery_date', 'delivery_time_start',
         'delivery_time_end', 'location', 'needs_bracelet_adjustment',
-        'creation_date', 'estimated_utility', 'cedula',
+        'creation_date', 'estimated_utility', 'cedula', 'created_at',
     ];
 
     protected $casts = [

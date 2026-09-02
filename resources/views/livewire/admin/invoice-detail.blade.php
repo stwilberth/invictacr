@@ -593,6 +593,10 @@
                         <span>{{ $invoice->updated_at?->format('d/m/Y H:i') ?? '-' }}</span>
                     </div>
                     <div>
+                        <label class="text-xs text-gray-500 block mb-1">Fecha de factura (aparece en tabla y PDF)</label>
+                        <input wire:model="issued_date" type="date" class="w-full bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2 text-sm mt-1" />
+                    </div>
+                    <div>
                         <label class="text-xs text-gray-500 block mb-1">Fecha de creación (personalizada)</label>
                         <input wire:model="creation_date" type="date" class="w-full bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2 text-sm mt-1" />
                     </div>
