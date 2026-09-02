@@ -83,30 +83,6 @@
         padding: 0.9rem 1.1rem 0.8rem;
         background: #0a0f1c;
     }
-    .promo-x {
-        position: absolute;
-        top: 0.5rem;
-        right: 0.5rem;
-        width: 1.9rem;
-        height: 1.9rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 9999px;
-        background: #00c4ff;
-        color: #0a0f1c;
-        border: none;
-        cursor: pointer;
-        transition: transform 0.15s ease, background-color 0.15s ease;
-    }
-    .promo-x:hover {
-        transform: scale(1.1);
-        background: #2ecfff;
-    }
-    .promo-x svg {
-        width: 1rem;
-        height: 1rem;
-    }
     .promo-title {
         position: relative;
         margin: 0;
@@ -227,11 +203,6 @@
 function deliveryAlert() {
     const ENTRY_HTML = `
         <div class="promo-header">
-            <button type="button" class="promo-x" aria-label="Cerrar">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-            </button>
             <h3 class="promo-title">Un anillo <span>gratis</span></h3>
             <p class="promo-sub">Por la compra de 2 relojes.</p>
         </div>
@@ -304,9 +275,6 @@ function deliveryAlert() {
                     htmlContainer: 'delivery-body',
                     actions: 'promo-actions',
                     confirmButton: 'promo-confirm',
-                },
-                didOpen: () => {
-                    document.querySelector('.promo-x')?.addEventListener('click', () => Swal.close());
                 },
                 didClose: () => {
                     self.minimized = true;
