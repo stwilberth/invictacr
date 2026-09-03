@@ -640,7 +640,7 @@
             </a>
         @endif
         <a href="{{ $whatsappBuy }}" data-cta="comprar-whatsapp" data-product-id="{{ $product->id }}" data-conversion="whatsapp-comprar" target="_blank" rel="noopener noreferrer" class="flex-1 flex items-center justify-center gap-1.5 py-3 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-xl font-extrabold uppercase tracking-tight text-[12px] leading-none transition-all hover:-translate-y-0.5 active:scale-95 no-underline shadow-sm">
-            <i class="fa-brands fa-whatsapp text-lg"></i> WhatsApp
+            <i class="fa-brands fa-whatsapp text-lg"></i> Comprar
         </a>
     </div>
 </x-app-layout>
