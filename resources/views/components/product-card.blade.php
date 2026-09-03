@@ -155,7 +155,7 @@
         </div>
         @endif
 
-        <div class="mt-2 flex items-center justify-between gap-2">
+        <div class="mt-4 flex items-center justify-between gap-2">
             @if($product->proximo || $product->precio_venta <= 0)
                 <div class="flex-1 text-center">
                     <span class="text-[9px] md:text-xs font-bold px-2 py-1 bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 rounded-md uppercase tracking-wide">Próximamente</span>
