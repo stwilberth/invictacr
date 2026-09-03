@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Product;
+use App\Models\ProductImage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 
@@ -99,6 +100,31 @@ class CatalogService
     public function filteredFromRequest(Request $request): Collection
     {
         return $this->filtered($this->extractFilters($request));
+    }
+
+    /**
+     * Adjunta la relación "images" (galería extra del producto) a cada modelo
+     * de la colección con una sola consulta. Evita N+1 al renderizar las
+     * tarjetas que ahora muestran slider de fotos.
+     */
+    public function attachImages(Collection $products): Collection
+    {
+        $ids = $products->pluck('id')->filter()->unique()->values();
+        if ($ids->isEmpty()) {
+            return $products;
+        }
+
+        $images = ProductImage::whereIn('product_id', $ids)
+            ->orderBy('product_id')
+            ->orderBy('order')
+            ->get()
+            ->groupBy('product_id');
+
+        return $products->map(function (Product $product) use ($images) {
+            $product->setRelation('images', $images->get($product->id) ?? collect());
+
+            return $product;
+        })->values();
     }
 
     /**

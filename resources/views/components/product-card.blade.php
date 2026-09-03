@@ -3,11 +3,30 @@
     $productUrl = route('products.show', ['slug' => $product->slug]);
     $whatsappLink = 'https://wa.me/50686711422?text=' . urlencode("Hola, me interesa el reloj Invicta {$product->modelo}: " . url($productUrl));
     $priceAfterDiscount = $product->precio_venta * (1 - ($product->descuento ?? 0) / 100);
+    $apartadoMinimo = (float) $priceAfterDiscount > 0 ? round($priceAfterDiscount * 0.2, -3) : 0;
     $model = preg_replace('/^invicta-/i', '', $product->modelo ?? '');
     $cdnBase = 'https://cdn.invictacostarica.com';
 
-    $thumbUrl = $product->imagen ? "{$cdnBase}/relojes/thumbs/{$model}.webp" : null;
-    $imageUrl = $thumbUrl ?? $product->imagen;
+    // Imagen principal de calidad (medium/large) con fallback al JPG original.
+    $originalImg = $product->imagen;
+    $mainSrc = $originalImg && $model !== '' ? "{$cdnBase}/relojes/medium/{$model}.webp" : null;
+    if ($mainSrc === $originalImg) $mainSrc = null;
+
+    // Imágenes extra registradas en la galería del producto (para el slider).
+    $extras = $product->images->pluck('url')->values()->all();
+
+    $seen = [];
+    $slides = [];
+    $primary = $mainSrc ?: $originalImg;
+    foreach (array_merge($primary ? [$primary] : [], (array) $extras) as $url) {
+        $url = trim((string) $url);
+        if ($url === '' || isset($seen[$url])) {
+            continue;
+        }
+        $seen[$url] = true;
+        $slides[] = $url;
+    }
+    $slideCount = count($slides);
 
     $coleccion = trim($product->coleccion ?? '');
     $cardTitle = 'Reloj Invicta';
@@ -15,20 +34,84 @@
         $cardTitle .= ' ' . $coleccion;
     }
     $cardTitle .= ' ' . ($model !== '' ? $model : 'Reloj');
+
+    // "Datos del reloj" (specs cortos que caben en la tarjeta)
+    $specs = [];
+    $mov = trim(mb_strtolower((string) ($product->tipo_movimiento ?? ''), 'UTF-8'));
+    if (in_array($mov, ['automatico', 'automático', 'automatic', 'mecanico'], true)) {
+        $specs[] = 'Movimiento automático';
+    } elseif (in_array($mov, ['cuarzo', 'solar'], true)) {
+        $specs[] = $mov === 'solar' ? 'Movimiento solar' : 'Movimiento de cuarzo';
+    }
+    $sizeDigits = trim((string) preg_replace('/[^0-9.,]/', '', (string) ($product->size ?? '')));
+    if ($sizeDigits !== '' && (float) $sizeDigits > 0) {
+        $specs[] = 'Caja ' . $sizeDigits . ' mm';
+    }
+    $brazalete = trim((string) ($product->brazalete ?? ''));
+    if ($brazalete !== '' && $brazalete !== 'Otros') {
+        $specs[] = 'Correa ' . $brazalete;
+    } elseif (($caja = trim((string) ($product->caja ?? ''))) !== '' && $caja !== 'Otros') {
+        $specs[] = 'Caja ' . $caja;
+    }
+    $water = trim((string) ($product->resistencia_agua ?? ''));
+    if ($water !== '') {
+        $waterDigits = preg_replace('/[^0-9]/', '', $water);
+        $specs[] = 'Resistencia al agua ' . ($waterDigits !== '' ? $waterDigits : $water) . ' M';
+    }
 @endphp
 
-<div class="group relative flex flex-col h-full rounded-2xl bg-white dark:bg-[#0d1424] border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden">
-    <a href="{{ $productUrl }}" class="w-full pt-[100%] relative block focus-visible:outline-none" aria-label="Ver {{ $cardTitle }}">
-        <div class="absolute inset-0 flex items-center justify-center pt-1">
-            <div class="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200 dark:from-[#0a0f1c] dark:to-[#1a2332]" @if($imageUrl) style="display:none" @endif>
-                <span class="font-black text-slate-300 dark:text-slate-600 {{ $compact ? 'text-lg' : 'text-2xl' }} tracking-tighter">{{ $model }}</span>
-                <span class="text-[8px] md:text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mt-1">Invicta</span>
+<div class="group relative flex flex-col h-full rounded-2xl bg-white dark:bg-[#0d1424] border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+    {{-- Slider de imágenes --}}
+    <div class="relative w-full pt-[100%] overflow-hidden bg-white">
+        @if($slideCount > 0)
+        <div class="absolute inset-0">
+            <div class="pcard-slider w-full h-full flex overflow-x-auto snap-x snap-mandatory"
+                 data-slides="{{ $slideCount }}"
+                 data-label="{{ $cardTitle }}"
+                 @if($slideCount <= 1) style="overflow:hidden; scroll-snap-type:none;" @endif>
+                @foreach($slides as $i => $src)
+                <div class="relative w-full h-full shrink-0 snap-center flex items-center justify-center">
+                    <div class="absolute inset-0 flex flex-col items-center justify-center" data-ph style="display:none;">
+                        <span class="font-black text-slate-300 dark:text-slate-600 {{ $compact ? 'text-lg' : 'text-2xl' }} tracking-tighter">{{ $model }}</span>
+                        <span class="text-[8px] md:text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mt-1">Invicta</span>
+                    </div>
+                    <img
+                        src="{{ $src }}"
+                        alt="{{ $cardTitle }} {{ $i === 0 ? '' : '- Foto ' . ($i + 1) }}"
+                        class="absolute inset-0 w-full h-full object-contain {{ $compact ? 'p-0.5' : 'p-1.5' }} select-none"
+                        loading="{{ ($priority && $i === 0) ? 'eager' : 'lazy' }}"
+                        {{ ($priority && $i === 0) ? 'fetchpriority="high"' : '' }}
+                        @if($i === 0 && $mainSrc && $originalImg) data-original="{{ $originalImg }}" @endif
+                        @if($i === 0 && $slideCount === 1) draggable="false" @endif
+                        onerror="window.invictaImgFallback ? invictaImgFallback(this) : (this.style.display='none');"
+                    />
+                    <a href="{{ $productUrl }}" class="absolute inset-0 z-[2] focus-visible:outline-none" aria-label="Ver {{ $cardTitle }}"></a>
+                </div>
+                @endforeach
             </div>
-            @if($imageUrl)
-                <img src="{{ $imageUrl }}" alt="{{ $product->title }}" class="absolute max-w-full max-h-full object-contain transition-transform duration-500 ease-out group-hover:scale-[1.04]" loading="{{ $priority ? 'eager' : 'lazy' }}" {{ $priority ? 'fetchpriority="high"' : '' }} onerror="this.style.display='none'; this.previousElementSibling.style.display='flex';" />
+
+            @if($slideCount > 1)
+            <button type="button" data-pcard-prev aria-label="Anterior" class="absolute left-1 top-1/2 -translate-y-1/2 z-[5] flex items-center justify-center w-6 h-6 md:w-7 md:h-7 rounded-full bg-white/80 dark:bg-black/50 text-slate-700 dark:text-white shadow-md hover:bg-white dark:hover:bg-black/70 border border-black/5 dark:border-white/10 transition-all opacity-0 group-hover:opacity-100 focus:opacity-100">
+                <i class="fa-solid fa-chevron-left text-[9px] md:text-[10px]"></i>
+            </button>
+            <button type="button" data-pcard-next aria-label="Siguiente" class="absolute right-1 top-1/2 -translate-y-1/2 z-[5] flex items-center justify-center w-6 h-6 md:w-7 md:h-7 rounded-full bg-white/80 dark:bg-black/50 text-slate-700 dark:text-white shadow-md hover:bg-white dark:hover:bg-black/70 border border-black/5 dark:border-white/10 transition-all opacity-0 group-hover:opacity-100 focus:opacity-100">
+                <i class="fa-solid fa-chevron-right text-[9px] md:text-[10px]"></i>
+            </button>
+            <div class="pcard-dots absolute bottom-1.5 left-1/2 -translate-x-1/2 z-[4] flex items-center gap-1">
+                @for($d = 0; $d < $slideCount; $d++)
+                <button type="button" data-pcard-dot="{{ $d }}" aria-label="Ir a foto {{ $d + 1 }}" class="pcard-dot w-1.5 h-1.5 rounded-full bg-slate-400/70 dark:bg-white/40 hover:bg-slate-600 dark:hover:bg-white/80 transition-all"></button>
+                @endfor
+            </div>
             @endif
         </div>
+        @else
+        <div class="absolute inset-0 flex flex-col items-center justify-center">
+            <span class="font-black text-slate-300 dark:text-slate-600 {{ $compact ? 'text-lg' : 'text-2xl' }} tracking-tighter">{{ $model }}</span>
+            <span class="text-[8px] md:text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mt-1">Invicta</span>
+        </div>
+        @endif
 
+        {{-- Badges --}}
         @if(($product->descuento ?? 0) > 0 && $product->precio_venta > 0)
         <div class="absolute {{ $compact ? 'top-1 left-1' : 'top-1 left-1 md:top-2 md:left-2' }} z-10">
             <span class="inline-flex items-center rounded-full bg-red-600 {{ $compact ? 'px-1 py-0.5 text-[8px]' : 'px-1 py-0.5 text-[8px] md:px-2 md:py-1 md:text-[10px]' }} font-black text-white shadow-lg border border-white/10">
@@ -52,14 +135,25 @@
             </span>
         </div>
         @endif
-    </a>
+    </div>
 
     <div class="{{ $compact ? 'p-2' : 'p-3 md:p-4' }} flex flex-col flex-grow">
         <a href="{{ $productUrl }}" class="block focus-visible:outline-none" aria-label="Ver {{ $cardTitle }}">
-            <h3 class="{{ $compact ? 'text-[10px]' : 'text-xs md:text-sm' }} w-full font-bold text-slate-700 dark:text-slate-100 leading-snug uppercase tracking-wide line-clamp-2 min-h-[2.75em] text-center group-hover:text-[#00a3d6] dark:group-hover:text-[#00C4FF] transition-colors">
+            <h3 class="{{ $compact ? 'text-[10px]' : 'text-xs md:text-sm' }} w-full font-bold text-slate-700 dark:text-slate-100 leading-snug uppercase tracking-wide line-clamp-2 min-h-[2.75em] text-center">
                 {{ $cardTitle }}
             </h3>
         </a>
+
+        @if(!empty($specs))
+        <div class="mt-2 grid grid-cols-2 gap-x-2 gap-y-1 justify-items-start text-left">
+            @foreach($specs as $spec)
+            <span class="inline-flex w-full items-start gap-1.5 min-w-0 text-left text-[11px] md:text-[11px] font-semibold leading-snug text-slate-500 dark:text-slate-400">
+                <i class="fa-solid fa-circle text-[#00C4FF]/60 text-[3px] mt-1 shrink-0"></i>
+                <span class="leading-snug">{{ $spec }}</span>
+            </span>
+            @endforeach
+        </div>
+        @endif
 
         <div class="mt-2 flex flex-col items-center text-center">
             @if($product->proximo || $product->precio_venta <= 0)
@@ -73,6 +167,13 @@
                     @endif
                     <span class="{{ $compact ? 'text-sm' : 'text-lg md:text-2xl' }} font-black text-red-600 dark:text-red-500 tracking-tighter">₡{{ number_format($priceAfterDiscount, 0) }}</span>
                 </div>
+                @if($apartadoMinimo > 0)
+                <span class="mt-1.5 inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-[#00C4FF]/10 dark:bg-[#00C4FF]/10">
+                    <i class="fa-solid fa-hand-holding-dollar text-[#00C4FF] text-[9px] md:text-[10px]"></i>
+                    <span class="text-[9px] md:text-[10px] font-bold text-gray-700 dark:text-gray-200 leading-none">Apartado desde <span class="font-black text-[#0a0f1c] dark:text-[#00C4FF]">₡{{ number_format($apartadoMinimo, 0) }}</span></span>
+                </span>
+                @endif
+                <span class="mt-1 text-[9px] md:text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 leading-none">Envío gratis <span class="text-slate-400 dark:text-slate-500 mx-1">•</span> Paga al recibir</span>
             @else
                 <div class="py-1">
                     <span class="text-[9px] md:text-xs font-bold px-2 py-1 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-md uppercase tracking-wide">Agotado</span>
@@ -81,10 +182,18 @@
         </div>
 
         <div class="mt-auto pt-3">
-            <a href="{{ $whatsappLink }}" data-cta="comprar-whatsapp" data-product-id="{{ $product->id }}" target="_blank" rel="noopener noreferrer"
-                class="w-full inline-flex items-center justify-center gap-2 py-2 bg-[#00C4FF] hover:bg-[#00a3d6] text-[#0a0f1c] rounded-xl font-extrabold uppercase tracking-wide text-xs md:text-sm transition-all hover:-translate-y-0.5 active:scale-95 no-underline shadow-sm hover:shadow-md">
-                <i class="fa-brands fa-whatsapp text-sm md:text-base"></i> Comprar
-            </a>
+            <div class="flex items-center gap-2">
+                <a href="{{ $productUrl }}"
+                    class="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2.5 bg-white dark:bg-white/5 border border-slate-200 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-white/10 text-slate-700 dark:text-white rounded-xl font-bold uppercase tracking-wide text-sm leading-none no-underline ">
+                    <i class="fa-solid fa-eye text-sm text-slate-400 dark:text-slate-500"></i>
+                    <span>Ver</span>
+                </a>
+                <a href="{{ $whatsappLink }}" data-cta="comprar-whatsapp" data-product-id="{{ $product->id }}" target="_blank" rel="noopener noreferrer"
+                    class="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2.5 bg-[#00C4FF] hover:bg-[#00a3d6] text-[#0a0f1c] rounded-xl font-bold uppercase tracking-wide text-sm leading-none no-underline">
+                    <i class="fa-brands fa-whatsapp text-sm"></i>
+                    <span>Comprar</span>
+                </a>
+            </div>
         </div>
     </div>
 </div>

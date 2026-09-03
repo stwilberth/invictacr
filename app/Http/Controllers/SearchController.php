@@ -13,6 +13,7 @@ class SearchController extends Controller
 
         $products = Product::where('activo', true)
             ->where('precio_venta', '>', 0)
+            ->with('images')
             ->where(function ($q) use ($query) {
                 Product::applyTextSearch($q, $query ?? '');
             })

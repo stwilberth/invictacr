@@ -175,6 +175,43 @@
             width: auto !important;
             min-width: 280px !important;
         }
+
+        /* Slider de tarjetas de producto */
+        .pcard-slider {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            overscroll-behavior-x: contain;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+        }
+        .pcard-slider > * {
+            scroll-snap-align: center;
+        }
+        .pcard-slider::-webkit-scrollbar {
+            display: none;
+        }
+        .pcard-slider img {
+            pointer-events: none;
+            -webkit-user-drag: none;
+        }
+        .pcard-dot-active {
+            width: 1.25rem !important;
+            background: #00C4FF !important;
+        }
+
+        /* Barras flotantes del catálogo (filtros/ordenar) */
+        .catalog-toolbar {
+            background: rgba(255, 255, 255, 0.93);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-color: rgba(203, 213, 225, 0.9);
+            box-shadow: 0 8px 30px rgba(15, 23, 42, 0.12);
+        }
+        html.dark .catalog-toolbar {
+            background: rgba(10, 15, 28, 0.92);
+            border-color: rgba(100, 116, 139, 0.35);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+        }
     </style>
 
     <script>
@@ -560,6 +597,101 @@
             document.addEventListener('DOMContentLoaded', start);
         } else {
             start();
+        }
+    })();
+    </script>
+
+    <script>
+    // Fallback de imágenes de productos: si la webp de calidad falla, usa el JPG original; si falla también, muestra el placeholder.
+    window.invictaImgFallback = function (el) {
+        if (!el || !el.getAttribute) return;
+        var orig = el.getAttribute('data-original');
+        if (orig && !el.getAttribute('data-fb')) {
+            el.setAttribute('data-fb', '1');
+            el.src = orig;
+            return;
+        }
+        var holder = el.parentElement ? el.parentElement.querySelector('[data-ph]') : null;
+        if (holder) holder.style.display = 'flex';
+        el.style.display = 'none';
+    };
+
+    // Slider de imágenes (scroll-snap) para las tarjetas de producto.
+    (function () {
+        function bind(root) {
+            if (!root || root.__sliderBound) return;
+            root.__sliderBound = true;
+            var parent = root.parentElement;
+            var slides = root.querySelectorAll(':scope > div');
+            var count = slides.length || 1;
+            var dots = parent ? parent.querySelectorAll('.pcard-dot') : [];
+            var busy = false;
+
+            function currentIndex() {
+                var w = root.clientWidth || 1;
+                return Math.max(0, Math.min(count - 1, Math.round(root.scrollLeft / w)));
+            }
+            function updateDots() {
+                var i = currentIndex();
+                for (var d = 0; d < dots.length; d++) {
+                    if (d === i) dots[d].classList.add('pcard-dot-active');
+                    else dots[d].classList.remove('pcard-dot-active');
+                }
+            }
+            function go(idx, smooth) {
+                idx = Math.max(0, Math.min(count - 1, idx));
+                var left = idx * (root.clientWidth || 1);
+                if (busy) return;
+                busy = true;
+                var done = function () { busy = false; updateDots(); };
+                if (root.scrollTo && smooth !== false) {
+                    try {
+                        root.scrollTo({ left: left, behavior: 'smooth' });
+                        setTimeout(done, 450);
+                        return;
+                    } catch (e) { /* fallback */ }
+                }
+                root.scrollLeft = left;
+                done();
+            }
+            var ticking = false;
+            root.addEventListener('scroll', function () {
+                if (ticking) return;
+                ticking = true;
+                requestAnimationFrame(function () { ticking = false; updateDots(); });
+            }, { passive: true });
+            window.addEventListener('resize', updateDots);
+
+            if (parent) {
+                var prev = parent.querySelector('[data-pcard-prev]');
+                var next = parent.querySelector('[data-pcard-next]');
+                if (prev) prev.addEventListener('click', function (e) { e.preventDefault(); e.stopPropagation(); go(currentIndex() - 1); });
+                if (next) next.addEventListener('click', function (e) { e.preventDefault(); e.stopPropagation(); go(currentIndex() + 1); });
+                var dotBtns = parent.querySelectorAll('[data-pcard-dot]');
+                for (var b = 0; b < dotBtns.length; b++) {
+                    (function (btn) {
+                        btn.addEventListener('click', function (e) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            go(parseInt(btn.getAttribute('data-pcard-dot'), 10) || 0);
+                        });
+                    })(dotBtns[b]);
+                }
+            }
+            updateDots();
+        }
+        window.PCardSlider = {
+            init: function (scope) {
+                scope = scope || document;
+                if (!scope.querySelectorAll) return;
+                var roots = scope.querySelectorAll('.pcard-slider');
+                for (var i = 0; i < roots.length; i++) bind(roots[i]);
+            }
+        };
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function () { window.PCardSlider.init(); });
+        } else {
+            window.PCardSlider.init();
         }
     })();
     </script>

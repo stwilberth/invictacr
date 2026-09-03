@@ -3,6 +3,11 @@
     <x-product-card :product="$product" />
 @endforeach
 @else
+@php
+    $pageSize = 24;
+    $totalCount = $products->count();
+    $firstPage = $products->take($pageSize);
+@endphp
 
 <x-app-layout :title="'Relojes Invicta ' . ($gender ? ucfirst($gender) : 'Originales')" :description="'Explora nuestra colección de relojes Invicta ' . ($gender ? 'para ' . $gender : 'originales') . '. Envío gratis en GAM.'">
     @push('json-ld')
@@ -63,22 +68,24 @@
 
             <div class="flex flex-col md:flex-row gap-8 pb-12" x-data="{ filterOpen: false }">
 
-                {{-- Mobile: Filtros + ordenar --}}
-                <div class="flex items-center gap-2.5 md:hidden">
-                    <button @click="filterOpen = true" class="flex-1 min-w-0 flex items-center justify-center gap-1.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm px-3 py-2.5 font-bold text-xs uppercase tracking-wider text-gray-700 dark:text-gray-200 active:scale-95 transition-all">
-                        <i class="fa-solid fa-sliders text-[#00C4FF] text-[11px]"></i>
-                        Filtros
-                    </button>
-                    <select
-                        id="catalog-sort-mobile"
-                        onchange="window.CatalogManager && window.CatalogManager.setFilter('sort', this.value)"
-                        class="flex-1 min-w-0 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2.5 text-xs font-bold uppercase text-gray-700 dark:text-gray-200 focus:outline-none focus:border-[#00C4FF]/50 focus:ring-2 focus:ring-[#00C4FF]/20 transition-all shadow-sm"
-                    >
-                        <option value="" {{ !request('sort') ? 'selected' : '' }}>Más vistos</option>
-                        <option value="price_asc" {{ request('sort') === 'price_asc' ? 'selected' : '' }}>Precio: menor a mayor</option>
-                        <option value="price_desc" {{ request('sort') === 'price_desc' ? 'selected' : '' }}>Precio: mayor a menor</option>
-                        <option value="newest" {{ request('sort') === 'newest' ? 'selected' : '' }}>Más nuevos</option>
-                    </select>
+                {{-- Mobile: Filtros + ordenar (flotante al hacer scroll) --}}
+                <div class="sticky top-2 z-30 md:hidden">
+                    <div class="catalog-toolbar flex items-center gap-2.5 rounded-2xl border px-2.5 py-2">
+                        <button @click="filterOpen = true" class="flex-1 min-w-0 flex items-center justify-center gap-1.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm px-3 py-2.5 font-bold text-xs uppercase tracking-wider text-gray-700 dark:text-gray-200 active:scale-95 transition-all">
+                            <i class="fa-solid fa-sliders text-[#00C4FF] text-[11px]"></i>
+                            Filtros
+                        </button>
+                        <select
+                            id="catalog-sort-mobile"
+                            onchange="window.CatalogManager && window.CatalogManager.setFilter('sort', this.value)"
+                            class="flex-1 min-w-0 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2.5 text-xs font-bold uppercase text-gray-700 dark:text-gray-200 focus:outline-none focus:border-[#00C4FF]/50 focus:ring-2 focus:ring-[#00C4FF]/20 transition-all shadow-sm"
+                        >
+                            <option value="" {{ !request('sort') ? 'selected' : '' }}>Más vistos</option>
+                            <option value="price_asc" {{ request('sort') === 'price_asc' ? 'selected' : '' }}>Precio: menor a mayor</option>
+                            <option value="price_desc" {{ request('sort') === 'price_desc' ? 'selected' : '' }}>Precio: mayor a menor</option>
+                            <option value="newest" {{ request('sort') === 'newest' ? 'selected' : '' }}>Más nuevos</option>
+                        </select>
+                    </div>
                 </div>
 
                 {{-- Mobile drawer overlay --}}
@@ -101,7 +108,7 @@
 
                 {{-- Desktop sidebar --}}
                 <aside class="hidden md:block w-64 flex-shrink-0">
-                    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-4 md:p-6 sticky top-24 relative">
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-4 md:p-6 sticky top-2 relative">
                         <x-filter-form formId="filter-form" :gender="$gender" :filters="$filters" />
                     </div>
                 </aside>
@@ -110,8 +117,8 @@
                     {{-- Results info bar --}}
                     <div id="catalog-results-info"></div>
 
-                    {{-- Ordenar (desktop) --}}
-                    <div class="hidden md:flex items-center gap-2 mb-2">
+                    {{-- Ordenar (desktop, flotante) --}}
+                    <div class="catalog-toolbar hidden md:flex md:sticky md:top-2 z-20 items-center gap-2 mb-2 rounded-xl border px-2.5 py-2">
                         <span class="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
                             <i class="fa-solid fa-arrow-down-wide-short text-[#00C4FF]"></i>
                             Ordenar
@@ -139,12 +146,14 @@
                         </div>
                     </div>
 
-                    @if($products->count() > 0)
+                    @if($totalCount > 0)
                     <div
                         id="products-grid"
-                        class="grid grid-cols-2 md:grid-cols-4 gap-4"
+                        class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4"
+                        data-total="{{ $totalCount }}"
+                        data-page-size="{{ $pageSize }}"
                     >
-                        @foreach($products as $product)
+                        @foreach($firstPage as $product)
                             <x-product-card :product="$product" :priority="$loop->index < 4" />
                         @endforeach
                     </div>
@@ -158,7 +167,7 @@
                             @if($suggestions->isNotEmpty())
                             <div class="mb-6">
                                 <p class="text-sm font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-4">Tal vez te interese</p>
-                                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
                                     @foreach($suggestions as $suggestion)
                                         <x-product-card :product="$suggestion" />
                                     @endforeach
@@ -179,6 +188,16 @@
                         </div>
                     </div>
                     @endif
+
+                    {{-- Sentinel para scroll infinito --}}
+                    <div id="catalog-sentinel" class="flex flex-col items-center justify-center">
+                        <div id="catalog-sentinel-spinner" class="items-center gap-2 text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400" style="display:none;">
+                            <i class="fa-solid fa-spinner fa-spin text-[#00C4FF]"></i> Cargando más relojes…
+                        </div>
+                        <div id="catalog-sentinel-end" class="items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-gray-300 dark:text-gray-600" style="display:none;">
+                            <span class="h-px w-6 bg-gray-300 dark:bg-gray-700"></span> Fin del catálogo <span class="h-px w-6 bg-gray-300 dark:bg-gray-700"></span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -187,20 +206,30 @@
     @push('scripts')
     <script>
         /**
-         * CatalogManager — Single Source of Truth for search & filters.
+         * CatalogManager — Single Source of Truth for search, filters & scroll infinito.
          *
          * All filter/search state lives in the URL query params.
-         * Every interaction updates params → fetches results → updates DOM.
+         * La grilla se carga por bloques (scroll infinito): el servidor renderiza la
+         * primera página y aquí se piden los siguientes bloques vía /api/live-search.
          */
         (function() {
             'use strict';
 
             var FILTER_KEYS = ['q', 'gender', 'color', 'coleccion', 'brazalete', 'tipo_movimiento', 'caja', 'resistencia_agua', 'size', 'precio_min', 'precio_max', 'sort'];
             var DEBOUNCE_MS = 300;
+            var DEFAULT_PAGE_SIZE = 24;
 
             var state = {
                 abortController: null,
                 searchTimer: null,
+                filters: {},
+                total: 0,
+                loaded: 0,
+                pageSize: DEFAULT_PAGE_SIZE,
+                allLoaded: false,
+                loadingMore: false,
+                gen: 0,
+                observer: null
             };
 
             // ─── DOM refs ───
@@ -212,8 +241,8 @@
                 els.grid = document.getElementById('products-grid');
                 els.resultsInfo = document.getElementById('catalog-results-info');
                 els.activeFilters = document.getElementById('catalog-active-filters');
-                els.emptyState = document.getElementById('catalog-empty-state');
                 els.loading = document.getElementById('catalog-loading');
+                els.sentinel = document.getElementById('catalog-sentinel');
             }
 
             // ─── Read state from URL ───
@@ -245,33 +274,92 @@
                 return url;
             }
 
-            // ─── Core: apply filters and fetch ───
-            function applyFilters(filters, pushHistory) {
-                if (state.abortController) state.abortController.abort();
-                state.abortController = new AbortController();
-
-                var url = buildURL(filters);
-
-                // Update browser URL
-                if (pushHistory !== false) {
-                    var urlStr = url.pathname + url.search;
-                    window.history.pushState({ catalogFilters: filters }, '', urlStr);
-                }
-
-                // Update search input to reflect current q
-                if (els.searchInput) {
-                    els.searchInput.value = filters.q || '';
-                    els.searchClear.style.display = filters.q ? '' : 'none';
-                }
-
-                // Show loading state
+            // ─── UI helpers ───
+            function showLoadingUI() {
                 if (els.grid) {
                     els.grid.style.opacity = '0.5';
                     els.grid.style.pointerEvents = 'none';
                 }
                 if (els.loading) els.loading.style.display = 'flex';
+            }
+            function hideLoadingUI() {
+                if (els.grid) {
+                    els.grid.style.opacity = '1';
+                    els.grid.style.pointerEvents = '';
+                }
+                if (els.loading) els.loading.style.display = 'none';
+            }
 
-                var fetchUrl = buildFetchURL(filters);
+            function ensureGridExists() {
+                if (els.grid) return;
+                var container = document.querySelector('.flex-1.min-w-0');
+                if (!container) return;
+
+                var emptyEl = document.getElementById('catalog-empty-state');
+                if (emptyEl) emptyEl.remove();
+
+                var gridDiv = document.createElement('div');
+                gridDiv.id = 'products-grid';
+                gridDiv.className = 'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4';
+                gridDiv.setAttribute('data-page-size', String(state.pageSize));
+
+                if (els.sentinel && els.sentinel.parentNode === container) {
+                    container.insertBefore(gridDiv, els.sentinel);
+                } else {
+                    container.appendChild(gridDiv);
+                }
+
+                cacheEls();
+            }
+
+            function updateSentinelUI(showSpinner) {
+                if (!els.sentinel) return;
+                var spin = document.getElementById('catalog-sentinel-spinner');
+                var end = document.getElementById('catalog-sentinel-end');
+                if (!spin || !end) return;
+
+                if (showSpinner) {
+                    spin.style.display = 'flex';
+                    end.style.display = 'none';
+                    return;
+                }
+
+                spin.style.display = 'none';
+                end.style.display = (state.allLoaded && state.total > 0) ? 'flex' : 'none';
+            }
+
+            function emptyStateHTML() {
+                return '<div class="col-span-full text-center py-16 px-4"><div class="max-w-md mx-auto"><i class="fa-solid fa-clock-rotate-left text-5xl text-[#00C4FF]/30 mb-6"></i><h3 class="text-xl font-black text-gray-900 dark:text-white mb-2">No encontramos lo que buscás</h3><p class="text-gray-500 dark:text-gray-400 text-sm mb-6 leading-relaxed">No hay resultados para esa búsqueda. Podés intentar con otro modelo, colección o filtro.</p><div class="flex flex-col sm:flex-row gap-3 justify-center"><a href="/relojes" class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 font-bold rounded-xl text-sm transition-all border border-gray-200 dark:border-gray-700"><i class="fa-solid fa-clock"></i> Ver todo el catálogo</a><a href="https://wa.me/50686711422?text=Hola%2C%20busco%20un%20reloj%20Invicta" target="_blank" class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-green-500 hover:bg-green-600 text-white font-bold rounded-xl text-sm transition-all shadow-lg shadow-green-500/20"><i class="fa-brands fa-whatsapp text-lg"></i> Escribinos por WhatsApp</a></div></div></div>';
+            }
+
+            // ─── Core: apply filters → fetch primera página ───
+            function applyFilters(filters, pushHistory) {
+                if (state.abortController) state.abortController.abort();
+                state.abortController = new AbortController();
+                var gen = ++state.gen;
+
+                state.filters = filters || {};
+                state.loadingMore = false;
+                state.allLoaded = false;
+                state.loaded = 0;
+
+                var url = buildURL(state.filters);
+
+                if (pushHistory !== false) {
+                    var urlStr = url.pathname + url.search;
+                    window.history.pushState({ catalogFilters: state.filters }, '', urlStr);
+                }
+
+                if (els.searchInput) {
+                    els.searchInput.value = state.filters.q || '';
+                    if (els.searchClear) els.searchClear.style.display = state.filters.q ? '' : 'none';
+                }
+
+                showLoadingUI();
+
+                var fetchUrl = buildFetchURL(state.filters);
+                fetchUrl.searchParams.set('offset', '0');
+                fetchUrl.searchParams.set('limit', String(state.pageSize));
 
                 fetch(fetchUrl.toString(), { signal: state.abortController.signal })
                     .then(function(res) {
@@ -279,65 +367,140 @@
                         return res.json();
                     })
                     .then(function(data) {
-                        renderResults(data, filters);
+                        if (gen !== state.gen) return;
+                        renderFirstPage(data);
                     })
                     .catch(function(e) {
-                        if (e.name !== 'AbortError') {
+                        if (e.name !== 'AbortError' && gen === state.gen) {
                             console.error('CatalogManager fetch error:', e);
-                            if (els.grid) {
-                                els.grid.style.opacity = '1';
-                                els.grid.style.pointerEvents = '';
-                            }
-                            if (els.loading) els.loading.style.display = 'none';
+                            hideLoadingUI();
                         }
                     });
             }
 
-            // ─── Render results ───
-            function renderResults(data, filters) {
-                if (els.loading) els.loading.style.display = 'none';
+            function renderFirstPage(data) {
+                hideLoadingUI();
+                ensureGridExists();
+                if (!els.grid) return;
 
-                // Ensure grid exists
-                if (!els.grid) {
-                    // Create grid if it was removed (was showing empty state)
-                    var container = document.querySelector('.flex-1.min-w-0');
-                    if (!container) return;
-
-                    // Remove empty state if present
-                    var emptyEl = document.getElementById('catalog-empty-state');
-                    if (emptyEl) emptyEl.remove();
-
-                    // Create grid
-                    var gridDiv = document.createElement('div');
-                    gridDiv.id = 'products-grid';
-                    gridDiv.className = 'grid grid-cols-2 md:grid-cols-4 gap-4';
-                    container.appendChild(gridDiv);
-
-                    cacheEls();
-                }
+                var emptyEl = document.getElementById('catalog-empty-state');
+                if (emptyEl) emptyEl.remove();
 
                 if (data.html && data.html.trim()) {
                     els.grid.innerHTML = data.html;
-                    els.grid.style.opacity = '1';
-                    els.grid.style.pointerEvents = '';
-
-                    // Remove empty state if present
-                    var emptyEl2 = document.getElementById('catalog-empty-state');
-                    if (emptyEl2) emptyEl2.remove();
+                    state.total = data.total || 0;
+                    state.loaded = data.count || 0;
+                    state.allLoaded = state.loaded >= state.total;
+                    if (window.PCardSlider) window.PCardSlider.init(els.grid);
                 } else {
-                    els.grid.innerHTML = '<div class="col-span-full text-center py-16 px-4"><div class="max-w-md mx-auto"><i class="fa-solid fa-clock-rotate-left text-5xl text-[#00C4FF]/30 mb-6"></i><h3 class="text-xl font-black text-gray-900 dark:text-white mb-2">No encontramos lo que buscás</h3><p class="text-gray-500 dark:text-gray-400 text-sm mb-6 leading-relaxed">No hay resultados para esa búsqueda. Podés intentar con otro modelo, colección o filtro.</p><div class="flex flex-col sm:flex-row gap-3 justify-center"><a href="/relojes" class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 font-bold rounded-xl text-sm transition-all border border-gray-200 dark:border-gray-700"><i class="fa-solid fa-clock"></i> Ver todo el catálogo</a><a href="https://wa.me/50686711422?text=Hola%2C%20busco%20un%20reloj%20Invicta" target="_blank" class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-green-500 hover:bg-green-600 text-white font-bold rounded-xl text-sm transition-all shadow-lg shadow-green-500/20"><i class="fa-brands fa-whatsapp text-lg"></i> Escribinos por WhatsApp</a></div></div></div>';
-                    els.grid.style.opacity = '1';
-                    els.grid.style.pointerEvents = '';
+                    els.grid.innerHTML = emptyStateHTML();
+                    state.total = data.total || 0;
+                    state.loaded = 0;
+                    state.allLoaded = true;
                 }
 
-                // Update results info
-                renderResultsInfo(data.total, filters);
+                updateSentinelUI(false);
+                renderResultsInfo(state.total, state.filters);
+                renderActiveFilters(state.filters);
 
-                // Update active filter chips
-                renderActiveFilters(filters);
-
-                // Close mobile drawer
                 if (window.closeFilters) window.closeFilters();
+            }
+
+            // ─── Scroll infinito ───
+            function sentinelInReach() {
+                if (!els.grid || !els.sentinel) return false;
+                var rect = els.sentinel.getBoundingClientRect();
+                var vh = window.innerHeight || document.documentElement.clientHeight;
+                return rect.top < (vh + 800);
+            }
+
+            function maybeLoadMore() {
+                if (!els.grid) return;
+                if (state.loadingMore || state.allLoaded) {
+                    if (state.loaded >= state.total && state.total > 0) {
+                        state.allLoaded = true;
+                        updateSentinelUI(false);
+                    }
+                    return;
+                }
+                if (state.total > 0 && state.loaded >= state.total) {
+                    state.allLoaded = true;
+                    updateSentinelUI(false);
+                    return;
+                }
+                loadMore();
+            }
+
+            function loadMore() {
+                if (state.loadingMore || state.allLoaded || !els.grid) return;
+                if (state.total > 0 && state.loaded >= state.total) {
+                    state.allLoaded = true;
+                    updateSentinelUI(false);
+                    return;
+                }
+
+                state.loadingMore = true;
+                var gen = state.gen;
+                updateSentinelUI(true);
+
+                if (state.abortController) state.abortController.abort();
+                state.abortController = new AbortController();
+
+                var fetchUrl = buildFetchURL(state.filters);
+                fetchUrl.searchParams.set('offset', String(state.loaded));
+                fetchUrl.searchParams.set('limit', String(state.pageSize));
+
+                fetch(fetchUrl.toString(), { signal: state.abortController.signal })
+                    .then(function(res) {
+                        if (!res.ok) throw new Error('Fetch failed');
+                        return res.json();
+                    })
+                    .then(function(data) {
+                        if (gen !== state.gen) return;
+                        state.loadingMore = false;
+
+                        if (data.html && els.grid) {
+                            els.grid.insertAdjacentHTML('beforeend', data.html);
+                            state.loaded = data.offset + data.count;
+                            if (window.PCardSlider) window.PCardSlider.init(els.grid);
+                        }
+
+                        if (state.total === 0) state.total = data.total || 0;
+                        if (state.loaded >= data.total) {
+                            state.allLoaded = true;
+                        }
+
+                        updateSentinelUI(false);
+
+                        // Si la pantalla aún no se llena, seguimos cargando.
+                        requestAnimationFrame(function() {
+                            if (sentinelInReach()) maybeLoadMore();
+                        });
+                    })
+                    .catch(function(e) {
+                        if (e.name === 'AbortError') return;
+                        if (gen !== state.gen) return;
+                        state.loadingMore = false;
+                        updateSentinelUI(false);
+                    });
+            }
+
+            function setupObserver() {
+                if (state.observer || !els.sentinel) return;
+                if (!('IntersectionObserver' in window)) {
+                    window.addEventListener('scroll', function() {
+                        if (sentinelInReach()) maybeLoadMore();
+                    }, { passive: true });
+                    return;
+                }
+
+                state.observer = new IntersectionObserver(function(entries) {
+                    entries.forEach(function(entry) {
+                        if (entry.isIntersecting) maybeLoadMore();
+                    });
+                }, { rootMargin: '800px 0px' });
+
+                state.observer.observe(els.sentinel);
             }
 
             // ─── Results info bar ───
@@ -393,7 +556,6 @@
 
             // ─── Sync filter UI (radios) across desktop and mobile forms ───
             function syncFilterUI(key, value) {
-                // Sync radios: find all radios for this filter key in both forms
                 var radioNames = [key + '_filter-form', key + '_filter-form-mobile'];
                 radioNames.forEach(function(name) {
                     var radios = document.querySelectorAll('input[name="' + name + '"]');
@@ -402,7 +564,6 @@
                     });
                 });
 
-                // Sync sort select
                 if (key === 'sort') {
                     var sortSelect = document.getElementById('catalog-sort');
                     if (sortSelect) sortSelect.value = value || '';
@@ -433,10 +594,8 @@
                         delete filters[key];
                     }
 
-                    // No hay paginación: todos los resultados se cargan de una vez
                     syncFilterUI(key, value);
 
-                    // For search input, use debounce
                     if (key === 'q') {
                         if (els.searchInput && els.searchInput.value !== (value || '')) {
                             els.searchInput.value = value || '';
@@ -457,7 +616,6 @@
                 },
 
                 clearAll: function() {
-                    // Reset all filter UI
                     FILTER_KEYS.forEach(function(key) {
                         syncFilterUI(key, '');
                     });
@@ -474,7 +632,6 @@
             window.addEventListener('popstate', function() {
                 var filters = getFiltersFromURL();
 
-                // Sync all filter UI
                 FILTER_KEYS.forEach(function(key) {
                     syncFilterUI(key, filters[key] || '');
                 });
@@ -486,7 +643,6 @@
             document.addEventListener('DOMContentLoaded', function() {
                 cacheEls();
 
-                // Close filters helper
                 window.closeFilters = function() {
                     var aside = document.querySelector('aside[x-show="filterOpen"]');
                     if (aside && window.Alpine) {
@@ -496,7 +652,6 @@
                     document.body.style.overflow = '';
                 };
 
-                // Search input events
                 if (els.searchInput) {
                     els.searchInput.addEventListener('keydown', function(e) {
                         if (e.key === 'Enter') {
@@ -509,14 +664,12 @@
                     });
                 }
 
-                // Clear search button
                 if (els.searchClear) {
                     els.searchClear.addEventListener('click', function() {
                         window.location.href = '/relojes';
                     });
                 }
 
-                // Search button (magnifier)
                 if (els.searchBtn) {
                     els.searchBtn.addEventListener('click', function() {
                         var q = els.searchInput ? els.searchInput.value.trim() : '';
@@ -526,13 +679,34 @@
                     });
                 }
 
-                // Render initial active filters and results info from server-rendered state
+                // Estado inicial desde el HTML servido por el servidor
                 var initialFilters = getFiltersFromURL();
+                state.filters = initialFilters;
+
+                if (els.grid) {
+                    state.total = parseInt(els.grid.getAttribute('data-total') || '0', 10) || 0;
+                    state.pageSize = parseInt(els.grid.getAttribute('data-page-size') || '0', 10) || DEFAULT_PAGE_SIZE;
+                    state.loaded = els.grid.children.length;
+                    state.allLoaded = state.total <= state.loaded;
+                } else {
+                    state.total = 0;
+                    state.loaded = 0;
+                    state.allLoaded = true;
+                }
+
+                updateSentinelUI(false);
                 renderActiveFilters(initialFilters);
 
                 @if($searchQuery)
-                renderResultsInfo({{ $products->count() }}, { q: {!! json_encode($searchQuery) !!} });
+                renderResultsInfo({{ $totalCount }}, { q: {!! json_encode($searchQuery) !!} });
                 @endif
+
+                setupObserver();
+
+                // Si el contenido inicial no llena la pantalla, precargamos más.
+                requestAnimationFrame(function() {
+                    if (sentinelInReach()) maybeLoadMore();
+                });
             });
         })();
     </script>

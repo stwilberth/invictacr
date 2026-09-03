@@ -225,7 +225,7 @@
                     </div>
                     @endif
                     <div class="mt-2.5">
-                        <x-product-benefits :apartadoMinimo="$apartadoMinimo" :showApartado="($product->descuento ?? 0) <= 0" />
+                        <x-product-benefits :apartadoMinimo="$apartadoMinimo" />
                     </div>
 
                     {{-- Métodos de pago aceptados --}}
@@ -301,7 +301,7 @@
                             </div>
                             @endif
                         </div>
-                        <x-product-benefits :apartadoMinimo="$apartadoMinimo" :showApartado="($product->descuento ?? 0) <= 0" />
+                        <x-product-benefits :apartadoMinimo="$apartadoMinimo" />
 
                         {{-- Métodos de pago aceptados --}}
                         <x-payment-methods />

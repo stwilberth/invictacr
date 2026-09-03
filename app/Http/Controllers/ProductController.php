@@ -115,6 +115,8 @@ class ProductController extends Controller
 
         $searchQuery = $originalQuery;
 
+        $products = app(\App\Services\CatalogService::class)->attachImages($products);
+
         return view("pages.catalog", compact("products", "filters", "gender", "searchQuery", "suggestions"));
     }
 
