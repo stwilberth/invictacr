@@ -155,27 +155,29 @@
         </div>
         @endif
 
-        <div class="mt-2 flex flex-col items-center text-center">
+        <div class="mt-2 flex items-center justify-between gap-2">
             @if($product->proximo || $product->precio_venta <= 0)
-                <div class="py-1">
+                <div class="flex-1 text-center">
                     <span class="text-[9px] md:text-xs font-bold px-2 py-1 bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 rounded-md uppercase tracking-wide">Próximamente</span>
                 </div>
             @elseif($product->precio_venta > 0)
-                <div class="flex items-baseline gap-1.5 md:gap-2 justify-center">
-                    @if(($product->descuento ?? 0) > 0)
-                        <span class="text-[10px] md:text-sm font-bold text-slate-400 dark:text-gray-500 line-through">₡{{ number_format($product->precio_venta, 0) }}</span>
+                <div class="flex flex-col items-start gap-1 min-w-0">
+                    @if($apartadoMinimo > 0)
+                    <span class="inline-flex items-center gap-1.5 text-[11px] md:text-xs font-semibold text-gray-600 dark:text-gray-300 leading-tight">
+                        <i class="fa-solid fa-hand-holding-dollar text-[#00C4FF] text-[11px] md:text-xs"></i>
+                        <span>Apartado desde <span class="font-black text-gray-800 dark:text-white">₡{{ number_format($apartadoMinimo, 0) }}</span></span>
+                    </span>
                     @endif
-                    <span class="{{ $compact ? 'text-sm' : 'text-lg md:text-2xl' }} font-black text-red-600 dark:text-red-500 tracking-tighter">₡{{ number_format($priceAfterDiscount, 0) }}</span>
+                    <span class="text-[11px] md:text-xs font-semibold text-emerald-600 dark:text-emerald-400 leading-tight">Envío gratis <span class="text-slate-400 dark:text-slate-500">•</span> Paga al recibir</span>
                 </div>
-                @if($apartadoMinimo > 0)
-                <span class="mt-1.5 inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-[#00C4FF]/10 dark:bg-[#00C4FF]/10">
-                    <i class="fa-solid fa-hand-holding-dollar text-[#00C4FF] text-[9px] md:text-[10px]"></i>
-                    <span class="text-[9px] md:text-[10px] font-bold text-gray-700 dark:text-gray-200 leading-none">Apartado desde <span class="font-black text-[#0a0f1c] dark:text-[#00C4FF]">₡{{ number_format($apartadoMinimo, 0) }}</span></span>
-                </span>
-                @endif
-                <span class="mt-1 text-[9px] md:text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 leading-none">Envío gratis <span class="text-slate-400 dark:text-slate-500 mx-1">•</span> Paga al recibir</span>
+                <div class="shrink-0 flex flex-col items-end text-right leading-none">
+                    @if(($product->descuento ?? 0) > 0)
+                        <span class="text-[10px] md:text-xs font-bold text-slate-400 dark:text-gray-500 line-through">₡{{ number_format($product->precio_venta, 0) }}</span>
+                    @endif
+                    <span class="text-xl font-black text-red-600 dark:text-red-500 tracking-tighter">₡{{ number_format($priceAfterDiscount, 0) }}</span>
+                </div>
             @else
-                <div class="py-1">
+                <div class="flex-1 text-center">
                     <span class="text-[9px] md:text-xs font-bold px-2 py-1 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-md uppercase tracking-wide">Agotado</span>
                 </div>
             @endif
