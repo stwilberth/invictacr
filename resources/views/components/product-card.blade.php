@@ -168,7 +168,6 @@
                         <span>Apartado desde <span class="font-black text-gray-800 dark:text-white">₡{{ number_format($apartadoMinimo, 0) }}</span></span>
                     </span>
                     @endif
-                    <span class="text-[11px] md:text-xs font-semibold text-emerald-600 dark:text-emerald-400 leading-tight">Envío gratis <span class="text-slate-400 dark:text-slate-500">•</span> Paga al recibir</span>
                 </div>
                 <div class="shrink-0 flex flex-col items-end text-right leading-none">
                     @if(($product->descuento ?? 0) > 0)
@@ -182,6 +181,9 @@
                 </div>
             @endif
         </div>
+                        <div class="text-center">
+                    <span class="text-[11px] md:text-xs font-semibold text-emerald-600 dark:text-emerald-400 leading-tight">Envío gratis <span class="text-slate-400 dark:text-slate-500">•</span> Paga al recibir</span>
+                </div>
 
         <div class="mt-auto pt-3">
             <div class="flex items-center gap-2">
