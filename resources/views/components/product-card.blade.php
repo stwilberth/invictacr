@@ -189,6 +189,5 @@
                 <span>Comprar</span>
             </a>
         </div>
-        </div>
     </div>
 </div>
