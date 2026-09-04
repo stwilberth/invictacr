@@ -44,19 +44,19 @@
 
                 {{-- Mobile: Filtros + ordenar (flotante al hacer scroll) --}}
                 <div class="sticky top-2 z-30 md:hidden">
-                    <div class="catalog-toolbar flex items-center gap-2.5 rounded-2xl border px-2.5 py-2">
-                        <button @click="filterOpen = true" class="flex-1 min-w-0 flex items-center justify-center gap-1.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm px-3 py-2.5 font-bold text-xs uppercase tracking-wider text-gray-700 dark:text-gray-200 active:scale-95 transition-all">
+                    <div class="catalog-toolbar flex items-center gap-2.5">
+                        <button @click="filterOpen = true" class="flex-1 min-w-0 flex items-center justify-center gap-1.5 bg-gray-100 dark:bg-gray-800 rounded-xl px-3 py-2.5 font-bold text-xs uppercase tracking-wider text-gray-700 dark:text-gray-200 active:scale-95 transition-all">
                             <i class="fa-solid fa-sliders text-[#00C4FF] text-[11px]"></i>
                             Filtros
                         </button>
-                        <button @click="searchOpen = true" class="flex-1 min-w-0 flex items-center justify-center gap-1.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm px-3 py-2.5 font-bold text-xs uppercase tracking-wider text-gray-700 dark:text-gray-200 active:scale-95 transition-all">
+                        <button @click="searchOpen = true" class="flex-1 min-w-0 flex items-center justify-center gap-1.5 bg-gray-100 dark:bg-gray-800 rounded-xl px-3 py-2.5 font-bold text-xs uppercase tracking-wider text-gray-700 dark:text-gray-200 active:scale-95 transition-all">
                             <i class="fa-solid fa-search text-[#00C4FF] text-[11px]"></i>
                             Buscar
                         </button>
                         <select
                             id="catalog-sort-mobile"
                             onchange="window.CatalogManager && window.CatalogManager.setFilter('sort', this.value)"
-                            class="flex-1 min-w-0 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2.5 text-xs font-bold uppercase text-gray-700 dark:text-gray-200 focus:outline-none focus:border-[#00C4FF]/50 focus:ring-2 focus:ring-[#00C4FF]/20 transition-all shadow-sm"
+                            class="flex-1 min-w-0 bg-gray-100 dark:bg-gray-800 rounded-xl px-3 py-2.5 text-xs font-bold uppercase text-gray-700 dark:text-gray-200 focus:outline-none focus:border-[#00C4FF]/50 focus:ring-2 focus:ring-[#00C4FF]/20 transition-all"
                         >
                             <option value="" {{ !request('sort') ? 'selected' : '' }}>Más vistos</option>
                             <option value="price_asc" {{ request('sort') === 'price_asc' ? 'selected' : '' }}>Precio: menor a mayor</option>
@@ -147,7 +147,7 @@
                     <div id="catalog-results-info"></div>
 
                     {{-- Ordenar (desktop, flotante) --}}
-                    <div class="catalog-toolbar hidden md:flex md:sticky md:top-2 z-20 items-center gap-2 mb-2 rounded-xl border px-2.5 py-2">
+                    <div class="catalog-toolbar hidden md:flex md:sticky md:top-2 z-20 items-center gap-2 mb-2">
                         <span class="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
                             <i class="fa-solid fa-arrow-down-wide-short text-[#00C4FF]"></i>
                             Ordenar
@@ -155,14 +155,14 @@
                         <select
                             id="catalog-sort"
                             onchange="window.CatalogManager && window.CatalogManager.setFilter('sort', this.value)"
-                            class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-2.5 py-1.5 text-xs font-bold text-gray-700 dark:text-gray-200 focus:outline-none focus:border-[#00C4FF]/50 focus:ring-2 focus:ring-[#00C4FF]/20 transition-all shadow-sm"
+                            class="bg-gray-100 dark:bg-gray-800 rounded-xl px-2.5 py-1.5 text-xs font-bold text-gray-700 dark:text-gray-200 focus:outline-none focus:border-[#00C4FF]/50 focus:ring-2 focus:ring-[#00C4FF]/20 transition-all"
                         >
                             <option value="" {{ !request('sort') ? 'selected' : '' }}>Más vistos</option>
                             <option value="price_asc" {{ request('sort') === 'price_asc' ? 'selected' : '' }}>Precio: menor a mayor</option>
                             <option value="price_desc" {{ request('sort') === 'price_desc' ? 'selected' : '' }}>Precio: mayor a menor</option>
                             <option value="newest" {{ request('sort') === 'newest' ? 'selected' : '' }}>Más nuevos</option>
                         </select>
-                        <button @click="searchOpen = true" class="inline-flex items-center gap-1.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-2.5 py-1.5 text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-200 hover:border-[#00C4FF]/50 hover:text-[#00C4FF] active:scale-95 transition-all shadow-sm">
+                        <button @click="searchOpen = true" class="inline-flex items-center gap-1.5 bg-gray-100 dark:bg-gray-800 rounded-xl px-2.5 py-1.5 text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-200 hover:text-[#00C4FF] active:scale-95 transition-all">
                             <i class="fa-solid fa-search text-[#00C4FF]"></i>
                             Buscar
                         </button>

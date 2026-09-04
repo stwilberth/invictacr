@@ -201,16 +201,14 @@
 
         /* Barras flotantes del catálogo (filtros/ordenar) */
         .catalog-toolbar {
-            background: rgba(255, 255, 255, 0.93);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            border-color: rgba(203, 213, 225, 0.9);
-            box-shadow: 0 8px 30px rgba(15, 23, 42, 0.12);
+            background: transparent;
+            border: none;
+            box-shadow: none;
         }
         html.dark .catalog-toolbar {
-            background: rgba(10, 15, 28, 0.92);
-            border-color: rgba(100, 116, 139, 0.35);
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+            background: transparent;
+            border: none;
+            box-shadow: none;
         }
     </style>
 
