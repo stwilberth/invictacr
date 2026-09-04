@@ -15,20 +15,15 @@
      x-init="init()">
     <div class="mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-14 md:h-20 items-center">
-            <div class="flex-shrink-0 flex items-center justify-center mr-2 md:mr-8">
+            <div class="flex-shrink-0 flex items-center mr-2 md:mr-8">
                 <div class="flex items-center gap-2">
-                    <a href="/" class="flex-shrink-0">
-                        <img src="{{ asset('logo.webp') }}" alt="Invicta Costa Rica" class="h-12 md:h-11 w-auto hover:opacity-90 transition-opacity" width="160" height="160" onerror="this.src='{{ asset('logo.png') }}'" />
+                    <a href="/" class="group text-xl md:text-2xl">
+                        <p class="text-white/80 font-bold tracking-wider group-hover:text-white transition-colors">Invicta<span class="text-[#00C4FF]">CostaRica</span>.com</p>
                     </a>
-                    <div class="hidden md:grid gap-0.5">
-                        <a href="/" class="group text-xs md:text-xl">
-                            <p class="text-white/80 font-bold tracking-wider group-hover:text-white transition-colors">Invicta<span class="text-[#00C4FF]">CostaRica</span>.com</p>
-                        </a>
-                        <a href="https://wa.me/50686711422" target="_blank" rel="noopener noreferrer" class="text-[11px] md:text-xs text-white/50 hover:text-white flex items-center gap-1 transition-colors">
-                            <i class="fa-brands fa-whatsapp text-[#25D366]"></i>
-                            <span>8671-1422</span>
-                        </a>
-                    </div>
+                    <a href="https://wa.me/50686711422" target="_blank" rel="noopener noreferrer" class="text-xs text-white/50 hover:text-white flex items-center gap-1 transition-colors">
+                        <i class="fa-brands fa-whatsapp text-[#25D366]"></i>
+                        <span class="hidden sm:inline">8671-1422</span>
+                    </a>
                 </div>
             </div>
 
@@ -141,24 +136,6 @@
             </div>
 
             <div class="md:hidden flex items-center gap-1">
-                @auth
-                    <a href="{{ route('dashboard') }}" class="text-[#00C4FF] p-2 hover:bg-white/5 rounded-lg transition-colors" title="Mi Cuenta">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                        </svg>
-                    </a>
-                @else
-                    <a href="{{ route('login') }}" class="text-white p-2 hover:bg-white/5 rounded-lg transition-colors" title="Iniciar Sesión">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                        </svg>
-                    </a>
-                @endauth
-                <a href="/relojes" class="text-white p-2 hover:bg-white/5 rounded-lg transition-colors" title="Catálogo">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                </a>
                 <a href="{{ route('cart.show') }}" class="relative text-white p-2 hover:bg-white/5 rounded-lg transition-colors" title="Carrito">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
@@ -167,14 +144,6 @@
                     <span class="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center">{{ $cartCount > 9 ? '9+' : $cartCount }}</span>
                     @endif
                 </a>
-                <button @click="mobileSearchOpen = !mobileSearchOpen"
-                        class="p-2 rounded-lg transition-colors"
-                        :class="mobileSearchOpen ? 'text-[#00C4FF] bg-white/5' : 'text-white hover:bg-white/5'"
-                        aria-label="Toggle Search">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
-                </button>
                 <button @click="mobileMenuOpen = !mobileMenuOpen"
                         class="text-white p-2 hover:bg-white/5 rounded-lg transition-colors"
                         aria-label="Toggle Menu">
@@ -184,20 +153,6 @@
                     </svg>
                 </button>
             </div>
-        </div>
-    </div>
-
-    <div x-show="mobileSearchOpen"
-         x-transition:enter="transition ease-out duration-300"
-         x-transition:enter-start="-translate-y-4 opacity-0"
-         x-transition:enter-end="translate-y-0 opacity-100"
-         x-transition:leave="transition ease-in duration-200"
-         x-transition:leave-start="translate-y-0 opacity-100"
-         x-transition:leave-end="-translate-y-4 opacity-0"
-         class="md:hidden absolute top-[56px] left-0 right-0 bg-[#0f172a] z-50 border-b border-white/10"
-         style="display: none;">
-        <div class="p-4">
-            <x-search-bar />
         </div>
     </div>
 
@@ -220,6 +175,16 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </button>
+            </div>
+            <div class="px-4 py-4 border-b border-white/5">
+                <x-search-bar />
+                <a href="{{ route('cart.show') }}" class="mt-3 flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 text-white py-3 rounded-xl font-bold transition-colors">
+                    <i class="fa-solid fa-cart-shopping text-[#00C4FF]"></i>
+                    Mi Carrito
+                    @if($cartCount > 0)
+                        <span class="bg-[#00C4FF] text-[#0a0f1c] text-xs font-black px-2 py-0.5 rounded-full">{{ $cartCount > 9 ? '9+' : $cartCount }}</span>
+                    @endif
+                </a>
             </div>
             @auth
                 <div class="py-4 border-b border-white/5">
@@ -304,7 +269,6 @@
     function navbarState() {
         return {
             mobileMenuOpen: false,
-            mobileSearchOpen: false,
             theme: 'light',
             init() {
                 this.theme = localStorage.getItem('theme') || 'light';
@@ -314,11 +278,6 @@
                     document.documentElement.classList.remove('dark');
                 }
                 this.$watch('mobileMenuOpen', (val) => {
-                    document.body.style.overflow = val ? 'hidden' : '';
-                    document.documentElement.style.overflow = val ? 'hidden' : '';
-                });
-                this.$watch('mobileSearchOpen', (val) => {
-                    if (this.mobileMenuOpen) return;
                     document.body.style.overflow = val ? 'hidden' : '';
                     document.documentElement.style.overflow = val ? 'hidden' : '';
                 });

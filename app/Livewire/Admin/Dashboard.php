@@ -45,11 +45,6 @@ class Dashboard extends Component
     public array $serverSeries = [];
     public bool $serverMetricsAvailable = false;
 
-    public string $codeServerStatus = 'unknown';
-    public string $opencodeWebStatus = 'unknown';
-    public string $devToolsMessage = '';
-    public string $devToolsError = '';
-
     public ?array $topCeoRecommendation = null;
     public ?int $daysSinceLastGaSync = null;
     public ?int $daysSinceLastAdsSync = null;
@@ -63,7 +58,6 @@ class Dashboard extends Component
     {
         $this->loadAdminData();
         $this->loadAnalytics();
-        $this->loadDevToolsStatus();
         $this->loadServerStats();
         $this->loadTopCeoRecommendation();
         $this->loadSyncHealth();
@@ -422,72 +416,6 @@ class Dashboard extends Component
         }
 
         $this->syncing = false;
-    }
-
-    protected function runSystemctl(string $action, string $unit): ?string
-    {
-        $allowed = ['start', 'stop', 'restart', 'is-active', 'status'];
-        $allowedUnits = ['code-server@bitnami', 'opencode-web'];
-        if (!in_array($action, $allowed, true) || !in_array($unit, $allowedUnits, true)) {
-            return null;
-        }
-
-        $cmd = sprintf('sudo -n /usr/bin/systemctl %s %s 2>&1', escapeshellarg($action), escapeshellarg($unit));
-        $out = shell_exec($cmd);
-        return $out !== null ? trim($out) : '';
-    }
-
-    public function loadDevToolsStatus(): void
-    {
-        $this->codeServerStatus = $this->runSystemctl('is-active', 'code-server@bitnami') ?? 'unknown';
-        $this->opencodeWebStatus = $this->runSystemctl('is-active', 'opencode-web') ?? 'unknown';
-    }
-
-    public function toggleDevTool(string $unit): void
-    {
-        $allowedUnits = ['code-server@bitnami', 'opencode-web'];
-        if (!in_array($unit, $allowedUnits, true)) {
-            return;
-        }
-
-        $current = $this->runSystemctl('is-active', $unit);
-        $action = $current === 'active' ? 'stop' : 'start';
-        $out = $this->runSystemctl($action, $unit);
-        sleep(2);
-        $newStatus = $this->runSystemctl('is-active', $unit);
-
-        $label = $unit === 'code-server@bitnami' ? 'code-server' : 'opencode web';
-        $expected = $action === 'stop' ? 'inactive' : 'active';
-
-        if ($newStatus === $expected) {
-            $this->devToolsMessage = sprintf('%s %s correctamente (estado: %s).', $label, $action === 'stop' ? 'detenido' : 'iniciado', $newStatus);
-        } else {
-            $this->devToolsError = sprintf('No se pudo %s %s. Salida: %s', $action, $label, $out);
-        }
-
-        $this->loadDevToolsStatus();
-    }
-
-    public function restartDevTool(string $unit): void
-    {
-        $allowedUnits = ['code-server@bitnami', 'opencode-web'];
-        if (!in_array($unit, $allowedUnits, true)) {
-            return;
-        }
-
-        $out = $this->runSystemctl('restart', $unit);
-        sleep(2);
-        $newStatus = $this->runSystemctl('is-active', $unit);
-
-        $label = $unit === 'code-server@bitnami' ? 'code-server' : 'opencode web';
-
-        if ($newStatus === 'active') {
-            $this->devToolsMessage = sprintf('%s reiniciado correctamente (estado: %s).', $label, $newStatus);
-        } else {
-            $this->devToolsError = sprintf('No se pudo reiniciar %s. Salida: %s', $label, $out);
-        }
-
-        $this->loadDevToolsStatus();
     }
 
     public function testGaConnection(): void
