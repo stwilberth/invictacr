@@ -60,7 +60,7 @@
                                 onchange="window.CatalogManager && window.CatalogManager.setFilter('sort', this.value)"
                                 class="flex-1 min-w-0 bg-transparent text-[#0a0f1c] appearance-none -webkit-appearance-none uppercase text-xs font-bold focus:outline-none transition-all"
                             >
-                                <option value="" {{ !request('sort') ? 'selected' : '' }}>Más vistos</option>
+                                <option value="" {{ !request('sort') ? 'selected' : '' }}>Ordenar</option>
                                 <option value="price_asc" {{ request('sort') === 'price_asc' ? 'selected' : '' }}>Precio: menor a mayor</option>
                                 <option value="price_desc" {{ request('sort') === 'price_desc' ? 'selected' : '' }}>Precio: mayor a menor</option>
                                 <option value="newest" {{ request('sort') === 'newest' ? 'selected' : '' }}>Más nuevos</option>
@@ -158,7 +158,7 @@
                                 onchange="window.CatalogManager && window.CatalogManager.setFilter('sort', this.value)"
                                 class="bg-transparent text-[#0a0f1c] appearance-none -webkit-appearance-none uppercase text-xs font-bold focus:outline-none transition-all"
                             >
-                                <option value="" {{ !request('sort') ? 'selected' : '' }}>Más vistos</option>
+                                <option value="" {{ !request('sort') ? 'selected' : '' }}>Ordenar</option>
                                 <option value="price_asc" {{ request('sort') === 'price_asc' ? 'selected' : '' }}>Precio: menor a mayor</option>
                                 <option value="price_desc" {{ request('sort') === 'price_desc' ? 'selected' : '' }}>Precio: mayor a menor</option>
                                 <option value="newest" {{ request('sort') === 'newest' ? 'selected' : '' }}>Más nuevos</option>
