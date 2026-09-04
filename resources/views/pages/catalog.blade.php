@@ -34,10 +34,9 @@
     </script>
     @endpush
     <div class="bg-white dark:bg-[#0a0f1c]">
-        <div class="max-w-7xl mx-auto px-4">
+        <div class="max-w-7xl mx-auto px-4 pt-6 md:pt-12">
             <x-page-title
-                :title="'Relojes Invicta' . ($gender ? ' para ' . ucfirst($gender) : '')"
-                :highlight="$gender ? ucfirst($gender) : null"
+                :title="'Relojes Invicta'"
                 :subtitle="''"
             />
 
