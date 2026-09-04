@@ -7,26 +7,11 @@
     $model = preg_replace('/^invicta-/i', '', $product->modelo ?? '');
     $cdnBase = 'https://cdn.invictacostarica.com';
 
-    // Imagen principal de calidad (medium/large) con fallback al JPG original.
+    // Imagen principal de calidad (medium) con fallback al JPG original. Solo una imagen, sin slider.
     $originalImg = $product->imagen;
     $mainSrc = $originalImg && $model !== '' ? "{$cdnBase}/relojes/medium/{$model}.webp" : null;
     if ($mainSrc === $originalImg) $mainSrc = null;
-
-    // Imágenes extra registradas en la galería del producto (para el slider).
-    $extras = $product->images->pluck('url')->values()->all();
-
-    $seen = [];
-    $slides = [];
     $primary = $mainSrc ?: $originalImg;
-    foreach (array_merge($primary ? [$primary] : [], (array) $extras) as $url) {
-        $url = trim((string) $url);
-        if ($url === '' || isset($seen[$url])) {
-            continue;
-        }
-        $seen[$url] = true;
-        $slides[] = $url;
-    }
-    $slideCount = count($slides);
 
     $coleccion = trim($product->coleccion ?? '');
     $cardTitle = 'Reloj Invicta';
@@ -61,49 +46,21 @@
 @endphp
 
 <div class="group relative flex flex-col h-full rounded-2xl bg-white dark:bg-[#0d1424] border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
-    {{-- Slider de imágenes --}}
+    {{-- Imagen principal (sin slider) --}}
     <div class="relative w-full pt-[100%] overflow-hidden bg-white">
-        @if($slideCount > 0)
-        <div class="absolute inset-0">
-            <div class="pcard-slider w-full h-full flex overflow-x-auto snap-x snap-mandatory"
-                 data-slides="{{ $slideCount }}"
-                 data-label="{{ $cardTitle }}"
-                 @if($slideCount <= 1) style="overflow:hidden; scroll-snap-type:none;" @endif>
-                @foreach($slides as $i => $src)
-                <div class="relative w-full h-full shrink-0 snap-center flex items-center justify-center">
-                    <div class="absolute inset-0 flex flex-col items-center justify-center" data-ph style="display:none;">
-                        <span class="font-black text-slate-300 dark:text-slate-600 {{ $compact ? 'text-lg' : 'text-2xl' }} tracking-tighter">{{ $model }}</span>
-                        <span class="text-[8px] md:text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mt-1">Invicta</span>
-                    </div>
-                    <img
-                        src="{{ $src }}"
-                        alt="{{ $cardTitle }} {{ $i === 0 ? '' : '- Foto ' . ($i + 1) }}"
-                        class="absolute inset-0 w-full h-full object-contain {{ $compact ? 'p-0.5' : 'p-1.5' }} select-none"
-                        loading="{{ ($priority && $i === 0) ? 'eager' : 'lazy' }}"
-                        {{ ($priority && $i === 0) ? 'fetchpriority="high"' : '' }}
-                        @if($i === 0 && $mainSrc && $originalImg) data-original="{{ $originalImg }}" @endif
-                        @if($i === 0 && $slideCount === 1) draggable="false" @endif
-                        onerror="window.invictaImgFallback ? invictaImgFallback(this) : (this.style.display='none');"
-                    />
-                    <a href="{{ $productUrl }}" class="absolute inset-0 z-[2] focus-visible:outline-none" aria-label="Ver {{ $cardTitle }}"></a>
-                </div>
-                @endforeach
-            </div>
-
-            @if($slideCount > 1)
-            <button type="button" data-pcard-prev aria-label="Anterior" class="absolute left-1 top-1/2 -translate-y-1/2 z-[5] flex items-center justify-center w-6 h-6 md:w-7 md:h-7 rounded-full bg-white/80 dark:bg-black/50 text-slate-700 dark:text-white shadow-md hover:bg-white dark:hover:bg-black/70 border border-black/5 dark:border-white/10 transition-all opacity-0 group-hover:opacity-100 focus:opacity-100">
-                <i class="fa-solid fa-chevron-left text-[9px] md:text-[10px]"></i>
-            </button>
-            <button type="button" data-pcard-next aria-label="Siguiente" class="absolute right-1 top-1/2 -translate-y-1/2 z-[5] flex items-center justify-center w-6 h-6 md:w-7 md:h-7 rounded-full bg-white/80 dark:bg-black/50 text-slate-700 dark:text-white shadow-md hover:bg-white dark:hover:bg-black/70 border border-black/5 dark:border-white/10 transition-all opacity-0 group-hover:opacity-100 focus:opacity-100">
-                <i class="fa-solid fa-chevron-right text-[9px] md:text-[10px]"></i>
-            </button>
-            <div class="pcard-dots absolute bottom-1.5 left-1/2 -translate-x-1/2 z-[4] flex items-center gap-1">
-                @for($d = 0; $d < $slideCount; $d++)
-                <button type="button" data-pcard-dot="{{ $d }}" aria-label="Ir a foto {{ $d + 1 }}" class="pcard-dot w-1.5 h-1.5 rounded-full bg-slate-400/70 dark:bg-white/40 hover:bg-slate-600 dark:hover:bg-white/80 transition-all"></button>
-                @endfor
-            </div>
-            @endif
-        </div>
+        @if($primary)
+        <a href="{{ $productUrl }}" class="absolute inset-0 flex items-center justify-center focus-visible:outline-none" aria-label="Ver {{ $cardTitle }}">
+            <img
+                src="{{ $primary }}"
+                alt="{{ $cardTitle }}"
+                class="absolute inset-0 w-full h-full object-contain {{ $compact ? 'p-0.5' : 'p-1.5' }} select-none"
+                loading="{{ $priority ? 'eager' : 'lazy' }}"
+                {{ $priority ? 'fetchpriority="high"' : '' }}
+                @if($mainSrc && $originalImg) data-original="{{ $originalImg }}" @endif
+                draggable="false"
+                onerror="window.invictaImgFallback ? invictaImgFallback(this) : (this.style.display='none');"
+            />
+        </a>
         @else
         <div class="absolute inset-0 flex flex-col items-center justify-center">
             <span class="font-black text-slate-300 dark:text-slate-600 {{ $compact ? 'text-lg' : 'text-2xl' }} tracking-tighter">{{ $model }}</span>
@@ -128,12 +85,6 @@
         </div>
         @endif
 
-        @if($product->video_uid)
-        <div class="absolute {{ $compact ? 'bottom-1.5 left-1.5' : 'bottom-2 left-2' }} z-10">
-            <span class="inline-flex items-center justify-center rounded-full bg-red-600 shadow-lg border border-white/20 {{ $compact ? 'w-5 h-5' : 'w-6 h-6 md:w-8 md:h-8' }}">
-                <i class="fa-solid fa-play text-white {{ $compact ? 'text-[7px]' : 'text-[8px] md:text-[11px]' }} ml-0.5"></i>
-            </span>
-        </div>
         @endif
     </div>
 
