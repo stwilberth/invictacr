@@ -85,7 +85,6 @@
         </div>
         @endif
 
-        @endif
     </div>
 
     <div class="{{ $compact ? 'p-2' : 'p-2 md:p-4' }} flex flex-col flex-grow">
