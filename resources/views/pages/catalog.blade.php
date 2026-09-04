@@ -49,15 +49,15 @@
                 {{-- Mobile: Filtros + ordenar (flotante al hacer scroll) --}}
                 <div class="sticky top-2 z-30 md:hidden">
                     <div class="catalog-toolbar flex items-center gap-1.5">
-                        <button @click="filterOpen = true" class="flex-1 min-w-0 flex items-center justify-center gap-1.5 bg-[#59D9FF] hover:bg-[#39CEFF] text-[#0a0f1c] rounded-xl px-2.5 py-2.5 font-bold text-xs uppercase tracking-wider active:scale-95 transition-all">
+                        <button @click="filterOpen = true" class="flex-1 min-w-0 flex items-center justify-center gap-1.5 bg-[#59D9FF] hover:bg-[#39CEFF] text-[#0a0f1c] rounded-xl px-2 py-2.5 font-bold text-xs uppercase tracking-wider active:scale-95 transition-all">
                             <i class="fa-solid fa-sliders text-[#0a0f1c] text-[11px]"></i>
                             Filtrar
                         </button>
-                        <button @click="searchOpen = true" class="flex-1 min-w-0 flex items-center justify-center gap-1.5 bg-[#59D9FF] hover:bg-[#39CEFF] text-[#0a0f1c] rounded-xl px-2.5 py-2.5 font-bold text-xs uppercase tracking-wider active:scale-95 transition-all">
+                        <button @click="searchOpen = true" class="flex-1 min-w-0 flex items-center justify-center gap-1.5 bg-[#59D9FF] hover:bg-[#39CEFF] text-[#0a0f1c] rounded-xl px-2 py-2.5 font-bold text-xs uppercase tracking-wider active:scale-95 transition-all">
                             <i class="fa-solid fa-search text-[#0a0f1c] text-[11px]"></i>
                             Buscar
                         </button>
-                        <div class="flex-1 min-w-0 flex items-center justify-center gap-1.5 bg-[#59D9FF] rounded-xl px-2.5 py-2.5">
+                        <div class="flex-1 min-w-0 flex items-center justify-center gap-1.5 bg-[#59D9FF] rounded-xl px-2 py-2.5">
                             <i class="fa-solid fa-arrow-down-wide-short text-[#0a0f1c] text-xs"></i>
                             <select
                                 id="catalog-sort-mobile"
