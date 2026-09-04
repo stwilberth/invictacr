@@ -185,7 +185,7 @@
                     @if($totalCount > 0)
                     <div
                         id="products-grid"
-                        class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4"
+                        class="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4"
                         data-total="{{ $totalCount }}"
                         data-page-size="{{ $pageSize }}"
                     >
@@ -203,7 +203,7 @@
                             @if($suggestions->isNotEmpty())
                             <div class="mb-6">
                                 <p class="text-sm font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-4">Tal vez te interese</p>
-                                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                                <div class="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4">
                                     @foreach($suggestions as $suggestion)
                                         <x-product-card :product="$suggestion" />
                                     @endforeach
@@ -336,7 +336,7 @@
 
                 var gridDiv = document.createElement('div');
                 gridDiv.id = 'products-grid';
-                gridDiv.className = 'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4';
+                gridDiv.className = 'grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4';
                 gridDiv.setAttribute('data-page-size', String(state.pageSize));
 
                 if (els.sentinel && els.sentinel.parentNode === container) {

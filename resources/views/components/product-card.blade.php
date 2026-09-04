@@ -137,15 +137,15 @@
         @endif
     </div>
 
-    <div class="{{ $compact ? 'p-2' : 'p-3 md:p-4' }} flex flex-col flex-grow">
+    <div class="{{ $compact ? 'p-2' : 'p-2 md:p-4' }} flex flex-col flex-grow">
         <a href="{{ $productUrl }}" class="block focus-visible:outline-none" aria-label="Ver {{ $cardTitle }}">
-            <h3 class="{{ $compact ? 'text-[10px]' : 'text-xs md:text-sm' }} w-full font-bold text-slate-700 dark:text-slate-100 leading-snug uppercase tracking-wide line-clamp-2 min-h-[2.75em] text-center">
+            <h3 class="{{ $compact ? 'text-[10px]' : 'text-[11px] md:text-sm' }} w-full font-bold text-slate-700 dark:text-slate-100 leading-snug uppercase tracking-wide line-clamp-2 min-h-[2.75em] text-center">
                 {{ $cardTitle }}
             </h3>
         </a>
 
         @if(!empty($specs))
-        <div class="mt-2 grid grid-cols-2 gap-x-2 gap-y-1 justify-items-start text-left">
+        <div class="mt-2 hidden md:grid grid-cols-2 gap-x-2 gap-y-1 justify-items-start text-left">
             @foreach($specs as $spec)
             <span class="inline-flex w-full items-start gap-1.5 min-w-0 text-left text-[11px] md:text-[11px] font-semibold leading-snug text-slate-500 dark:text-slate-400">
                 <i class="fa-solid fa-circle text-[#00C4FF]/60 text-[3px] mt-1 shrink-0"></i>
@@ -155,7 +155,7 @@
         </div>
         @endif
 
-        <div class="mt-4 flex items-center justify-between gap-2">
+        <div class="mt-2 md:mt-4 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between sm:gap-2">
             @if($product->proximo || $product->precio_venta <= 0)
                 <div class="flex-1 text-center">
                     <span class="text-[9px] md:text-xs font-bold px-2 py-1 bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 rounded-md uppercase tracking-wide">Próximamente</span>
@@ -163,17 +163,17 @@
             @elseif($product->precio_venta > 0)
                 <div class="flex flex-col items-start gap-1 min-w-0">
                     @if($apartadoMinimo > 0)
-                    <span class="inline-flex items-center gap-1.5 text-[11px] md:text-xs font-semibold text-gray-600 dark:text-gray-300 leading-tight">
-                        <i class="fa-solid fa-hand-holding-dollar text-[#00C4FF] text-[11px] md:text-xs"></i>
-                        <span>Apartado desde <span class="font-black text-gray-800 dark:text-white">₡{{ number_format($apartadoMinimo, 0) }}</span></span>
+                    <span class="inline-flex items-center gap-1 text-[10px] md:text-xs font-semibold text-gray-600 dark:text-gray-300 leading-tight">
+                        <i class="fa-solid fa-hand-holding-dollar text-[#00C4FF] text-[10px] md:text-xs"></i>
+                        <span>Apartado <span class="font-black text-gray-800 dark:text-white">₡{{ number_format($apartadoMinimo, 0) }}</span></span>
                     </span>
                     @endif
                 </div>
-                <div class="shrink-0 flex flex-col items-end text-right leading-none">
+                <div class="shrink-0 flex flex-row items-baseline gap-1 sm:flex-col sm:items-end text-right leading-none">
                     @if(($product->descuento ?? 0) > 0)
                         <span class="text-[10px] md:text-xs font-bold text-slate-400 dark:text-gray-500 line-through">₡{{ number_format($product->precio_venta, 0) }}</span>
                     @endif
-                    <span class="text-xl font-black text-red-600 dark:text-red-500 tracking-tighter">₡{{ number_format($priceAfterDiscount, 0) }}</span>
+                    <span class="text-base md:text-xl font-black text-red-600 dark:text-red-500 tracking-tighter">₡{{ number_format($priceAfterDiscount, 0) }}</span>
                 </div>
             @else
                 <div class="flex-1 text-center">
@@ -182,19 +182,20 @@
             @endif
         </div>
 
-        <div class="mt-auto pt-3">
-            <div class="flex items-center gap-2">
+        <div class="mt-auto pt-2 md:pt-3">
+            <div class="flex items-center gap-1.5 md:gap-2">
                 <a href="{{ $productUrl }}"
-                    class="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2.5 bg-white dark:bg-white/5 border border-slate-200 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-white/10 text-slate-700 dark:text-white rounded-xl font-bold uppercase tracking-wide text-sm leading-none no-underline ">
-                    <i class="fa-solid fa-eye text-sm text-slate-400 dark:text-slate-500"></i>
+                    class="flex-1 inline-flex items-center justify-center gap-1 px-2 py-2 md:px-3 md:py-2.5 bg-white dark:bg-white/5 border border-slate-200 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-white/10 text-slate-700 dark:text-white rounded-xl font-bold uppercase tracking-wide text-[11px] md:text-sm leading-none no-underline ">
+                    <i class="fa-solid fa-eye text-xs md:text-sm text-slate-400 dark:text-slate-500"></i>
                     <span>Ver</span>
                 </a>
                 <a href="{{ $whatsappLink }}" data-cta="comprar-whatsapp" data-product-id="{{ $product->id }}" target="_blank" rel="noopener noreferrer"
-                    class="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2.5 bg-[#7BD389] hover:bg-[#5EC975] text-[#0a0f1c] rounded-xl font-bold uppercase tracking-wide text-sm leading-none no-underline">
-                    <i class="fa-brands fa-whatsapp text-sm"></i>
+                    class="flex-1 inline-flex items-center justify-center gap-1 px-2 py-2 md:px-3 md:py-2.5 bg-[#7BD389] hover:bg-[#5EC975] text-[#0a0f1c] rounded-xl font-bold uppercase tracking-wide text-[11px] md:text-sm leading-none no-underline">
+                    <i class="fa-brands fa-whatsapp text-xs md:text-sm"></i>
                     <span>Comprar</span>
                 </a>
             </div>
+        </div>
         </div>
     </div>
 </div>
