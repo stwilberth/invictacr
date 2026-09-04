@@ -22,7 +22,7 @@
                     </a>
                     <a href="https://wa.me/50686711422" target="_blank" rel="noopener noreferrer" class="text-[11px] md:text-xs text-white/50 hover:text-white flex items-center gap-1 transition-colors">
                         <i class="fa-brands fa-whatsapp text-[#25D366]"></i>
-                        <span>WhatsApp: 8671-1422</span>
+                        <span>8671-1422</span>
                     </a>
                 </div>
             </div>
