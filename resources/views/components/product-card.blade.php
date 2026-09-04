@@ -190,7 +190,7 @@
                     <span>Ver</span>
                 </a>
                 <a href="{{ $whatsappLink }}" data-cta="comprar-whatsapp" data-product-id="{{ $product->id }}" target="_blank" rel="noopener noreferrer"
-                    class="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2.5 bg-[#00C4FF] hover:bg-[#00a3d6] text-[#0a0f1c] rounded-xl font-bold uppercase tracking-wide text-sm leading-none no-underline">
+                    class="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2.5 bg-[#7BD389] hover:bg-[#5EC975] text-[#0a0f1c] rounded-xl font-bold uppercase tracking-wide text-sm leading-none no-underline">
                     <i class="fa-brands fa-whatsapp text-sm"></i>
                     <span>Comprar</span>
                 </a>
