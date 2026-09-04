@@ -53,12 +53,12 @@
                             <i class="fa-solid fa-search text-[#0a0f1c] text-[11px]"></i>
                             Buscar
                         </button>
-                        <div class="flex-1 min-w-0 flex items-center gap-1.5 bg-[#59D9FF] rounded-xl px-3 py-3">
+                        <div class="flex-1 min-w-0 flex items-center gap-1.5 bg-[#59D9FF] rounded-xl px-3 py-2.5">
                             <i class="fa-solid fa-arrow-down-wide-short text-[#0a0f1c] text-xs"></i>
                             <select
                                 id="catalog-sort-mobile"
                                 onchange="window.CatalogManager && window.CatalogManager.setFilter('sort', this.value)"
-                                class="flex-1 min-w-0 bg-transparent text-[#0a0f1c] text-sm font-semibold focus:outline-none transition-all"
+                                class="flex-1 min-w-0 bg-transparent text-[#0a0f1c] appearance-none -webkit-appearance-none uppercase text-xs font-bold focus:outline-none transition-all"
                             >
                                 <option value="" {{ !request('sort') ? 'selected' : '' }}>Más vistos</option>
                                 <option value="price_asc" {{ request('sort') === 'price_asc' ? 'selected' : '' }}>Precio: menor a mayor</option>
@@ -151,12 +151,12 @@
 
                     {{-- Ordenar (desktop, flotante) --}}
                     <div class="catalog-toolbar hidden md:flex md:sticky md:top-2 z-20 items-center gap-2 mb-2">
-                        <div class="flex items-center gap-1.5 bg-[#59D9FF] rounded-xl px-3 py-3">
+                        <div class="flex items-center gap-1.5 bg-[#59D9FF] rounded-xl px-2.5 py-2.5">
                             <i class="fa-solid fa-arrow-down-wide-short text-[#0a0f1c] text-xs"></i>
                             <select
                                 id="catalog-sort"
                                 onchange="window.CatalogManager && window.CatalogManager.setFilter('sort', this.value)"
-                                class="bg-transparent text-[#0a0f1c] text-sm font-semibold focus:outline-none transition-all"
+                                class="bg-transparent text-[#0a0f1c] appearance-none -webkit-appearance-none uppercase text-xs font-bold focus:outline-none transition-all"
                             >
                                 <option value="" {{ !request('sort') ? 'selected' : '' }}>Más vistos</option>
                                 <option value="price_asc" {{ request('sort') === 'price_asc' ? 'selected' : '' }}>Precio: menor a mayor</option>
