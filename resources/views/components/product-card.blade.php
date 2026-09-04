@@ -45,7 +45,7 @@
     }
 @endphp
 
-<div class="group relative flex flex-col h-full rounded-2xl bg-white dark:bg-[#0d1424] border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+<div class="group relative flex flex-col h-full rounded-2xl bg-white dark:bg-[#0d1424] overflow-hidden">
     {{-- Imagen principal (sin slider) --}}
     <div class="relative w-full pt-[100%] overflow-hidden bg-white">
         @if($primary)
