@@ -56,7 +56,7 @@
                         <select
                             id="catalog-sort-mobile"
                             onchange="window.CatalogManager && window.CatalogManager.setFilter('sort', this.value)"
-                            class="flex-1 min-w-0 bg-gray-100 dark:bg-gray-800 rounded-xl px-3 py-2.5 text-xs font-bold uppercase text-gray-700 dark:text-gray-200 focus:outline-none focus:border-[#00C4FF]/50 focus:ring-2 focus:ring-[#00C4FF]/20 transition-all"
+                            class="flex-1 min-w-0 bg-gray-100 dark:bg-gray-800 rounded-xl px-3 py-2.5 text-sm font-semibold text-gray-900 dark:text-gray-100 focus:outline-none focus:border-[#00C4FF]/50 focus:ring-2 focus:ring-[#00C4FF]/20 transition-all"
                         >
                             <option value="" {{ !request('sort') ? 'selected' : '' }}>Más vistos</option>
                             <option value="price_asc" {{ request('sort') === 'price_asc' ? 'selected' : '' }}>Precio: menor a mayor</option>
@@ -155,7 +155,7 @@
                         <select
                             id="catalog-sort"
                             onchange="window.CatalogManager && window.CatalogManager.setFilter('sort', this.value)"
-                            class="bg-gray-100 dark:bg-gray-800 rounded-xl px-2.5 py-1.5 text-xs font-bold text-gray-700 dark:text-gray-200 focus:outline-none focus:border-[#00C4FF]/50 focus:ring-2 focus:ring-[#00C4FF]/20 transition-all"
+                            class="bg-gray-100 dark:bg-gray-800 rounded-xl px-2.5 py-1.5 text-sm font-semibold text-gray-900 dark:text-gray-100 focus:outline-none focus:border-[#00C4FF]/50 focus:ring-2 focus:ring-[#00C4FF]/20 transition-all"
                         >
                             <option value="" {{ !request('sort') ? 'selected' : '' }}>Más vistos</option>
                             <option value="price_asc" {{ request('sort') === 'price_asc' ? 'selected' : '' }}>Precio: menor a mayor</option>
