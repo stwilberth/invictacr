@@ -57,7 +57,7 @@
                             <i class="fa-solid fa-search text-[#0a0f1c] text-[11px]"></i>
                             Buscar
                         </button>
-                        <div class="flex-1 min-w-0 flex items-center justify-center gap-1.5 bg-[#59D9FF] rounded-xl px-2 py-2.5">
+                        <div class="flex-[1.4] min-w-0 flex items-center justify-center gap-1.5 bg-[#59D9FF] rounded-xl px-2 py-2.5">
                             <i class="fa-solid fa-arrow-down-wide-short text-[#0a0f1c] text-xs"></i>
                             <select
                                 id="catalog-sort-mobile"
