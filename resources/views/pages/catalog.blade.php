@@ -45,20 +45,20 @@
                 {{-- Mobile: Filtros + ordenar (flotante al hacer scroll) --}}
                 <div class="sticky top-2 z-30 md:hidden">
                     <div class="catalog-toolbar flex items-center gap-2.5">
-                        <button @click="filterOpen = true" class="shrink-0 flex items-center justify-center gap-1.5 bg-[#59D9FF] hover:bg-[#39CEFF] text-[#0a0f1c] rounded-xl px-2.5 py-2.5 font-bold text-xs uppercase tracking-wider active:scale-95 transition-all">
+                        <button @click="filterOpen = true" class="flex-1 min-w-0 flex items-center justify-center gap-1.5 bg-[#59D9FF] hover:bg-[#39CEFF] text-[#0a0f1c] rounded-xl px-2.5 py-2.5 font-bold text-xs uppercase tracking-wider active:scale-95 transition-all">
                             <i class="fa-solid fa-sliders text-[#0a0f1c] text-[11px]"></i>
-                            Filtros
+                            Filtrar
                         </button>
-                        <button @click="searchOpen = true" class="shrink-0 flex items-center justify-center gap-1.5 bg-[#59D9FF] hover:bg-[#39CEFF] text-[#0a0f1c] rounded-xl px-2.5 py-2.5 font-bold text-xs uppercase tracking-wider active:scale-95 transition-all">
+                        <button @click="searchOpen = true" class="flex-1 min-w-0 flex items-center justify-center gap-1.5 bg-[#59D9FF] hover:bg-[#39CEFF] text-[#0a0f1c] rounded-xl px-2.5 py-2.5 font-bold text-xs uppercase tracking-wider active:scale-95 transition-all">
                             <i class="fa-solid fa-search text-[#0a0f1c] text-[11px]"></i>
                             Buscar
                         </button>
-                        <div class="flex-1 min-w-0 flex items-center gap-1.5 bg-[#59D9FF] rounded-xl px-3 py-2.5">
+                        <div class="flex-1 min-w-0 flex items-center justify-center gap-1.5 bg-[#59D9FF] rounded-xl px-2.5 py-2.5">
                             <i class="fa-solid fa-arrow-down-wide-short text-[#0a0f1c] text-xs"></i>
                             <select
                                 id="catalog-sort-mobile"
                                 onchange="window.CatalogManager && window.CatalogManager.setFilter('sort', this.value)"
-                                class="flex-1 min-w-0 bg-transparent text-[#0a0f1c] appearance-none -webkit-appearance-none uppercase text-xs font-bold focus:outline-none transition-all"
+                                class="min-w-0 bg-transparent text-[#0a0f1c] appearance-none -webkit-appearance-none uppercase text-xs font-bold focus:outline-none transition-all"
                             >
                                 <option value="" {{ !request('sort') ? 'selected' : '' }}>Ordenar</option>
                                 <option value="price_asc" {{ request('sort') === 'price_asc' ? 'selected' : '' }}>Precio: menor a mayor</option>
@@ -151,12 +151,12 @@
 
                     {{-- Ordenar (desktop, flotante) --}}
                     <div class="catalog-toolbar hidden md:flex md:sticky md:top-2 z-20 items-center gap-2 mb-2">
-                        <div class="flex items-center gap-1.5 bg-[#59D9FF] rounded-xl px-2.5 py-2.5">
+                        <div class="flex-1 min-w-0 flex items-center justify-center gap-1.5 bg-[#59D9FF] rounded-xl px-2.5 py-2.5">
                             <i class="fa-solid fa-arrow-down-wide-short text-[#0a0f1c] text-xs"></i>
                             <select
                                 id="catalog-sort"
                                 onchange="window.CatalogManager && window.CatalogManager.setFilter('sort', this.value)"
-                                class="bg-transparent text-[#0a0f1c] appearance-none -webkit-appearance-none uppercase text-xs font-bold focus:outline-none transition-all"
+                                class="min-w-0 bg-transparent text-[#0a0f1c] appearance-none -webkit-appearance-none uppercase text-xs font-bold focus:outline-none transition-all"
                             >
                                 <option value="" {{ !request('sort') ? 'selected' : '' }}>Ordenar</option>
                                 <option value="price_asc" {{ request('sort') === 'price_asc' ? 'selected' : '' }}>Precio: menor a mayor</option>
@@ -164,7 +164,7 @@
                                 <option value="newest" {{ request('sort') === 'newest' ? 'selected' : '' }}>Más nuevos</option>
                             </select>
                         </div>
-                        <button @click="searchOpen = true" class="inline-flex items-center gap-1.5 bg-[#59D9FF] hover:bg-[#39CEFF] rounded-xl px-2.5 py-2.5 text-xs font-bold uppercase tracking-wider text-[#0a0f1c] active:scale-95 transition-all">
+                        <button @click="searchOpen = true" class="flex-1 min-w-0 inline-flex items-center justify-center gap-1.5 bg-[#59D9FF] hover:bg-[#39CEFF] rounded-xl px-2.5 py-2.5 text-xs font-bold uppercase tracking-wider text-[#0a0f1c] active:scale-95 transition-all">
                             <i class="fa-solid fa-search text-[#0a0f1c]"></i>
                             Buscar
                         </button>
