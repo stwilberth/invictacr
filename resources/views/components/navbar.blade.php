@@ -16,12 +16,12 @@
     <div class="mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-14 md:h-20 items-center">
             <div class="flex-shrink-0 flex items-center mr-2 md:mr-8">
-                <div class="flex flex-col justify-center leading-tight">
+                <div class="flex flex-col justify-center items-center leading-tight">
                     <a href="/" class="group">
                         <p class="text-base md:text-xl font-bold tracking-wider text-white/80 group-hover:text-white transition-colors">Invicta<span class="text-[#00C4FF]">CostaRica</span>.com</p>
                     </a>
-                    <a href="https://wa.me/50686711422" target="_blank" rel="noopener noreferrer" class="text-[11px] md:text-xs text-white/50 hover:text-white flex items-center gap-1 transition-colors">
-                        <i class="fa-brands fa-whatsapp text-[#25D366]"></i>
+                    <a href="https://wa.me/50686711422" target="_blank" rel="noopener noreferrer" class="text-sm md:text-base text-white/50 hover:text-white flex items-center gap-1 transition-colors">
+                        <i class="fa-brands fa-whatsapp text-[#25D366] text-base md:text-lg"></i>
                         <span>8671-1422</span>
                     </a>
                 </div>
