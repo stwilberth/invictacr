@@ -40,6 +40,10 @@
                 :subtitle="''"
             />
 
+            <div class="text-center -mt-4 mb-4">
+                <span class="text-xs md:text-sm font-semibold text-emerald-600 dark:text-emerald-400 leading-tight">Envío gratis <span class="text-slate-400 dark:text-slate-500">•</span> Paga al recibir</span>
+            </div>
+
             <div class="flex flex-col md:flex-row gap-8 pb-12" x-data="{ filterOpen: false, searchOpen: false }">
 
                 {{-- Mobile: Filtros + ordenar (flotante al hacer scroll) --}}

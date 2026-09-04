@@ -181,9 +181,6 @@
                 </div>
             @endif
         </div>
-                        <div class="text-center">
-                    <span class="text-[11px] md:text-xs font-semibold text-emerald-600 dark:text-emerald-400 leading-tight">Envío gratis <span class="text-slate-400 dark:text-slate-500">•</span> Paga al recibir</span>
-                </div>
 
         <div class="mt-auto pt-3">
             <div class="flex items-center gap-2">
