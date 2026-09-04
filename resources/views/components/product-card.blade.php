@@ -105,30 +105,13 @@
         </div>
         @endif
 
-        <div class="mt-2 md:mt-4 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between sm:gap-2">
+        <div class="mt-2 md:mt-4 text-center">
             @if($product->proximo || $product->precio_venta <= 0)
-                <div class="flex-1 text-center">
-                    <span class="text-[9px] md:text-xs font-bold px-2 py-1 bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 rounded-md uppercase tracking-wide">Próximamente</span>
-                </div>
+                <span class="text-[9px] md:text-xs font-bold px-2 py-1 bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 rounded-md uppercase tracking-wide">Próximamente</span>
             @elseif($product->precio_venta > 0)
-                <div class="flex flex-col items-start gap-1 min-w-0">
-                    @if($apartadoMinimo > 0)
-                    <span class="inline-flex items-center gap-1 text-[10px] md:text-xs font-semibold text-gray-600 dark:text-gray-300 leading-tight">
-                        <i class="fa-solid fa-hand-holding-dollar text-[#00C4FF] text-[10px] md:text-xs"></i>
-                        <span>Apartado <span class="font-black text-gray-800 dark:text-white">₡{{ number_format($apartadoMinimo, 0) }}</span></span>
-                    </span>
-                    @endif
-                </div>
-                <div class="shrink-0 flex flex-row items-baseline gap-1 sm:flex-col sm:items-end text-right leading-none">
-                    @if(($product->descuento ?? 0) > 0)
-                        <span class="text-[10px] md:text-xs font-bold text-slate-400 dark:text-gray-500 line-through">₡{{ number_format($product->precio_venta, 0) }}</span>
-                    @endif
-                    <span class="text-base md:text-xl font-black text-red-600 dark:text-red-500 tracking-tighter">₡{{ number_format($priceAfterDiscount, 0) }}</span>
-                </div>
+                <span class="text-base md:text-xl font-black text-red-600 dark:text-red-500 tracking-tighter">₡{{ number_format($priceAfterDiscount, 0) }}</span>
             @else
-                <div class="flex-1 text-center">
-                    <span class="text-[9px] md:text-xs font-bold px-2 py-1 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-md uppercase tracking-wide">Agotado</span>
-                </div>
+                <span class="text-[9px] md:text-xs font-bold px-2 py-1 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-md uppercase tracking-wide">Agotado</span>
             @endif
         </div>
 
