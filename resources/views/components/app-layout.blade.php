@@ -241,9 +241,6 @@
     @unless($hideWhatsApp ?? false)
         <x-whatsapp-button />
     @endunless
-    @unless($hideDeliveryAlert ?? false)
-        <x-delivery-alert />
-    @endunless
     {{-- <x-cookie-banner /> --}}
 
     <!-- Image Modal -->

@@ -88,7 +88,7 @@
 }
 </script>
 @endpush
-<x-app-layout :title="$seoTitle" :description="$seoDescription" :ogImage="$ogImage" :ogImageAlt="$displayTitle" ogType="product" :hideWhatsApp="true" :hideDeliveryAlert="true" :titleSuffix="false" :head="$lcpImageUrl ? '<link rel=&quot;preload&quot; href=&quot;' . $lcpImageUrl . '&quot; as=&quot;image&quot; fetchpriority=&quot;high&quot;>' : ''" >
+<x-app-layout :title="$seoTitle" :description="$seoDescription" :ogImage="$ogImage" :ogImageAlt="$displayTitle" ogType="product" :hideWhatsApp="true" :titleSuffix="false" :head="$lcpImageUrl ? '<link rel=&quot;preload&quot; href=&quot;' . $lcpImageUrl . '&quot; as=&quot;image&quot; fetchpriority=&quot;high&quot;>' : ''" >
     @php
         $isAgotado = ($product->stock ?? 0) <= 0 || ($product->disponibilidad ?? 'disponible') === 'agotado';
         $isUpcoming = $product->proximo || $product->precio_venta <= 0;
