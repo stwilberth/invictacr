@@ -40,32 +40,7 @@
                 :subtitle="''"
             />
 
-            <div class="max-w-2xl mx-auto mb-6 -mt-2">
-                <div class="flex gap-2">
-                    <div class="relative flex-1">
-                        <input
-                            id="catalog-search-input"
-                            type="text"
-                            value="{{ $searchQuery ?? request('q') }}"
-                            placeholder="Escribí un modelo o colección..."
-                            class="w-full px-4 py-2.5 bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-[#00C4FF]/50 focus:ring-2 focus:ring-[#00C4FF]/20 transition-all text-sm pr-10"
-                            autocomplete="off"
-                        />
-                        <button type="button" id="catalog-search-clear" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors" style="{{ ($searchQuery ?? request('q')) ? '' : 'display:none' }}">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                        </button>
-                    </div>
-                    <button
-                        type="button"
-                        id="catalog-search-btn"
-                        class="px-5 py-2.5 bg-[#00C4FF] hover:bg-[#00a0cc] text-white font-bold uppercase tracking-wider rounded-xl transition-all active:scale-95 text-sm flex items-center gap-1.5"
-                    >
-                        <i class="fa-solid fa-search"></i>
-                    </button>
-                </div>
-            </div>
-
-            <div class="flex flex-col md:flex-row gap-8 pb-12" x-data="{ filterOpen: false }">
+            <div class="flex flex-col md:flex-row gap-8 pb-12" x-data="{ filterOpen: false, searchOpen: false }">
 
                 {{-- Mobile: Filtros + ordenar (flotante al hacer scroll) --}}
                 <div class="sticky top-2 z-30 md:hidden">
@@ -73,6 +48,10 @@
                         <button @click="filterOpen = true" class="flex-1 min-w-0 flex items-center justify-center gap-1.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm px-3 py-2.5 font-bold text-xs uppercase tracking-wider text-gray-700 dark:text-gray-200 active:scale-95 transition-all">
                             <i class="fa-solid fa-sliders text-[#00C4FF] text-[11px]"></i>
                             Filtros
+                        </button>
+                        <button @click="searchOpen = true" class="flex-1 min-w-0 flex items-center justify-center gap-1.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm px-3 py-2.5 font-bold text-xs uppercase tracking-wider text-gray-700 dark:text-gray-200 active:scale-95 transition-all">
+                            <i class="fa-solid fa-search text-[#00C4FF] text-[11px]"></i>
+                            Buscar
                         </button>
                         <select
                             id="catalog-sort-mobile"
@@ -84,6 +63,57 @@
                             <option value="price_desc" {{ request('sort') === 'price_desc' ? 'selected' : '' }}>Precio: mayor a menor</option>
                             <option value="newest" {{ request('sort') === 'newest' ? 'selected' : '' }}>Más nuevos</option>
                         </select>
+                    </div>
+                </div>
+
+                {{-- Search popup modal --}}
+                <div x-show="searchOpen" @click="searchOpen = false" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[60]" style="display:none;"></div>
+                <div
+                    class="fixed inset-0 z-[70] flex items-start justify-center px-4 pt-20"
+                    x-show="searchOpen"
+                    x-transition:enter="transition ease-out duration-200"
+                    x-transition:enter-start="opacity-0 translate-y-2"
+                    x-transition:enter-end="opacity-100 translate-y-0"
+                    x-transition:leave="transition ease-in duration-150"
+                    x-transition:leave-start="opacity-100 translate-y-0"
+                    x-transition:leave-end="opacity-0 translate-y-2"
+                    @keydown.escape="searchOpen = false"
+                    x-effect="searchOpen && $nextTick(() => $refs.searchInput && $refs.searchInput.focus())"
+                    style="display:none;"
+                >
+                    <div class="w-full max-w-xl bg-white dark:bg-[#0f172a] rounded-2xl shadow-2xl border border-gray-100 dark:border-white/10 overflow-hidden" @click.stop>
+                        <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-white/10">
+                            <span class="text-sm font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300">Buscar reloj</span>
+                            <button @click="searchOpen = false" aria-label="Cerrar" class="text-gray-400 hover:text-white p-1.5 rounded-lg hover:bg-white/10 transition-colors">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                            </button>
+                        </div>
+                        <div class="p-4">
+                            <div class="flex gap-2">
+                                <div class="relative flex-1">
+                                    <input
+                                        x-ref="searchInput"
+                                        id="catalog-search-input"
+                                        type="text"
+                                        value="{{ $searchQuery ?? request('q') }}"
+                                        placeholder="Escribí un modelo o colección..."
+                                        class="w-full px-4 py-3 bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-[#00C4FF]/50 focus:ring-2 focus:ring-[#00C4FF]/20 transition-all text-sm pr-10"
+                                        autocomplete="off"
+                                    />
+                                    <button type="button" id="catalog-search-clear" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors" style="{{ ($searchQuery ?? request('q')) ? '' : 'display:none' }}">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                    </button>
+                                </div>
+                                <button
+                                    type="button"
+                                    id="catalog-search-btn"
+                                    class="px-5 py-3 bg-[#00C4FF] hover:bg-[#00a0cc] text-white font-bold uppercase tracking-wider rounded-xl transition-all active:scale-95 text-sm flex items-center gap-1.5"
+                                >
+                                    <i class="fa-solid fa-search"></i>
+                                    <span class="hidden sm:inline">Buscar</span>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -132,6 +162,10 @@
                             <option value="price_desc" {{ request('sort') === 'price_desc' ? 'selected' : '' }}>Precio: mayor a menor</option>
                             <option value="newest" {{ request('sort') === 'newest' ? 'selected' : '' }}>Más nuevos</option>
                         </select>
+                        <button @click="searchOpen = true" class="inline-flex items-center gap-1.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-2.5 py-1.5 text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-200 hover:border-[#00C4FF]/50 hover:text-[#00C4FF] active:scale-95 transition-all shadow-sm">
+                            <i class="fa-solid fa-search text-[#00C4FF]"></i>
+                            Buscar
+                        </button>
                     </div>
 
                     {{-- Active filters chips --}}
