@@ -45,11 +45,11 @@
                 {{-- Mobile: Filtros + ordenar (flotante al hacer scroll) --}}
                 <div class="sticky top-2 z-30 md:hidden">
                     <div class="catalog-toolbar flex items-center gap-2.5">
-                        <button @click="filterOpen = true" class="flex-1 min-w-0 flex items-center justify-center gap-1.5 bg-gray-100 dark:bg-gray-800 rounded-xl px-3 py-2.5 font-bold text-xs uppercase tracking-wider text-gray-700 dark:text-gray-200 active:scale-95 transition-all">
+                        <button @click="filterOpen = true" class="shrink-0 flex items-center justify-center gap-1.5 bg-gray-100 dark:bg-gray-800 rounded-xl px-2.5 py-2.5 font-bold text-xs uppercase tracking-wider text-gray-700 dark:text-gray-200 active:scale-95 transition-all">
                             <i class="fa-solid fa-sliders text-[#00C4FF] text-[11px]"></i>
                             Filtros
                         </button>
-                        <button @click="searchOpen = true" class="flex-1 min-w-0 flex items-center justify-center gap-1.5 bg-gray-100 dark:bg-gray-800 rounded-xl px-3 py-2.5 font-bold text-xs uppercase tracking-wider text-gray-700 dark:text-gray-200 active:scale-95 transition-all">
+                        <button @click="searchOpen = true" class="shrink-0 flex items-center justify-center gap-1.5 bg-gray-100 dark:bg-gray-800 rounded-xl px-2.5 py-2.5 font-bold text-xs uppercase tracking-wider text-gray-700 dark:text-gray-200 active:scale-95 transition-all">
                             <i class="fa-solid fa-search text-[#00C4FF] text-[11px]"></i>
                             Buscar
                         </button>
