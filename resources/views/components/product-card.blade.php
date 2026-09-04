@@ -183,18 +183,11 @@
         </div>
 
         <div class="mt-auto pt-2 md:pt-3">
-            <div class="flex items-center gap-1.5 md:gap-2">
-                <a href="{{ $productUrl }}"
-                    class="flex-1 inline-flex items-center justify-center gap-1 px-2 py-2 md:px-3 md:py-2.5 bg-white dark:bg-white/5 border border-slate-200 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-white/10 text-slate-700 dark:text-white rounded-xl font-bold uppercase tracking-wide text-[11px] md:text-sm leading-none no-underline ">
-                    <i class="fa-solid fa-eye text-xs md:text-sm text-slate-400 dark:text-slate-500"></i>
-                    <span>Ver</span>
-                </a>
-                <a href="{{ $whatsappLink }}" data-cta="comprar-whatsapp" data-product-id="{{ $product->id }}" target="_blank" rel="noopener noreferrer"
-                    class="flex-1 inline-flex items-center justify-center gap-1 px-2 py-2 md:px-3 md:py-2.5 bg-[#7BD389] hover:bg-[#5EC975] text-[#0a0f1c] rounded-xl font-bold uppercase tracking-wide text-[11px] md:text-sm leading-none no-underline">
-                    <i class="fa-brands fa-whatsapp text-xs md:text-sm"></i>
-                    <span>Comprar</span>
-                </a>
-            </div>
+            <a href="{{ $whatsappLink }}" data-cta="comprar-whatsapp" data-product-id="{{ $product->id }}" target="_blank" rel="noopener noreferrer"
+                class="w-full inline-flex items-center justify-center gap-1 px-2 py-2 md:px-3 md:py-2.5 bg-[#7BD389] hover:bg-[#5EC975] text-[#0a0f1c] rounded-xl font-bold uppercase tracking-wide text-[11px] md:text-sm leading-none no-underline">
+                <i class="fa-brands fa-whatsapp text-xs md:text-sm"></i>
+                <span>Comprar</span>
+            </a>
         </div>
         </div>
     </div>
