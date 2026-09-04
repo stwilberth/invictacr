@@ -147,7 +147,7 @@
                     <div id="catalog-results-info"></div>
 
                     {{-- Ordenar (desktop, flotante) --}}
-                    <div class="catalog-toolbar hidden md:flex md:sticky md:top-2 z-20 items-center gap-2 mb-2">
+                    <div class="catalog-toolbar hidden md:flex md:sticky md:top-2 z-20 items-center justify-center gap-2 mb-2">
                         <button @click="filterOpen = true" class="shrink-0 inline-flex items-center justify-center gap-1.5 bg-[#59D9FF] hover:bg-[#39CEFF] rounded-xl px-2.5 py-2.5 text-xs font-bold uppercase tracking-wider text-[#0a0f1c] active:scale-95 transition-all">
                             <i class="fa-solid fa-sliders text-[#0a0f1c]"></i>
                             Filtrar
