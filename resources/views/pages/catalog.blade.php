@@ -44,7 +44,7 @@
                 <span class="text-xs md:text-sm font-semibold text-emerald-600 dark:text-emerald-400 leading-tight">Envío gratis <span class="text-slate-400 dark:text-slate-500">•</span> Paga al recibir</span>
             </div>
 
-            <div class="flex flex-col md:flex-row gap-8 pb-12" x-data="{ filterOpen: false, searchOpen: false }">
+            <div class="flex flex-col md:flex-row gap-8 pb-12" x-data="{ filterOpen: false, searchOpen: false, filtersOpen: true }">
 
                 {{-- Mobile: Filtros + ordenar (flotante al hacer scroll) --}}
                 <div class="sticky top-2 z-30 md:hidden">
@@ -143,7 +143,17 @@
                 </aside>
 
                 {{-- Desktop sidebar --}}
-                <aside class="hidden md:block w-64 flex-shrink-0">
+                <aside
+                    class="hidden md:block w-64 flex-shrink-0 transition-all duration-300"
+                    x-show="filtersOpen"
+                    x-transition:enter="transition ease-out duration-300"
+                    x-transition:enter-start="opacity-0 -translate-x-2"
+                    x-transition:enter-end="opacity-100 translate-x-0"
+                    x-transition:leave="transition ease-in duration-200"
+                    x-transition:leave-start="opacity-100 translate-x-0"
+                    x-transition:leave-end="opacity-0 -translate-x-2"
+                    style="display:none;"
+                >
                     <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-4 md:p-6 sticky top-2 relative">
                         <x-filter-form formId="filter-form" :gender="$gender" :filters="$filters" />
                     </div>
@@ -155,6 +165,10 @@
 
                     {{-- Ordenar (desktop, flotante) --}}
                     <div class="catalog-toolbar hidden md:flex md:sticky md:top-2 z-20 items-center gap-2 mb-2">
+                        <button @click="filtersOpen = !filtersOpen" class="flex-1 min-w-0 inline-flex items-center justify-center gap-1.5 bg-[#59D9FF] hover:bg-[#39CEFF] rounded-xl px-2.5 py-2.5 text-xs font-bold uppercase tracking-wider text-[#0a0f1c] active:scale-95 transition-all">
+                            <i class="fa-solid fa-sliders text-[#0a0f1c]"></i>
+                            Filtrar
+                        </button>
                         <div class="flex-1 min-w-0 flex items-center justify-center gap-1.5 bg-[#59D9FF] rounded-xl px-2.5 py-2.5">
                             <i class="fa-solid fa-arrow-down-wide-short text-[#0a0f1c] text-xs"></i>
                             <select
