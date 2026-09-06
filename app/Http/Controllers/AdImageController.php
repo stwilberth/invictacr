@@ -142,7 +142,7 @@ class AdImageController extends Controller
         $this->drawRightText($img, '8671-1422', 32, 70, $darkText, self::FONT_BOLD);
 
         // Website
-        $this->drawRightText($img, 'INVICTACR.COM', 38, self::H - 40, $darkText, self::FONT_BOLD);
+        $this->drawRightText($img, 'invictaCostaRica.com', 38, self::H - 40, $darkText, self::FONT_BOLD);
 
         ob_start();
         imagepng($img, null, 8);

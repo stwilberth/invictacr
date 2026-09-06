@@ -129,7 +129,7 @@
                             <input type="hidden" id="imgShipping" value="ENVÍO GRATIS" />
                             <textarea id="imgSpecs" class="sr-only">{{ $this->imageTemplateData['specs'] }}</textarea>
                             <input type="hidden" id="imgWhatsapp" value="8671-1422" />
-                            <input type="hidden" id="imgWebsite" value="INVICTACR.COM" />
+                            <input type="hidden" id="imgWebsite" value="invictaCostaRica.com" />
 
                             <div>
                                 <label class="block text-xs sm:text-[9px] uppercase font-bold tracking-wide text-gray-600 dark:text-gray-400 mb-1.5">Foto del reloj</label>
