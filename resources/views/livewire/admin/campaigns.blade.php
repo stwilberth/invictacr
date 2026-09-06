@@ -550,7 +550,7 @@
                 ctx.fill();
                 ctx.restore();
 
-                // ===== BLOQUE DE PRECIO: etiqueta dorada + badge apilados y alineados =====
+                // ===== BLOQUE DE PRECIO: badge con pestaña dorada arriba =====
                 const badgePadX = 40; // padding desde el borde izquierdo
                 const badgeW = 520; // ancho del bloque
                 const badgeH = 160; // alto del badge rojo
@@ -564,25 +564,26 @@
                 ctx.fill();
                 ctx.restore();
 
-                // etiqueta dorada de envío (mismo ancho, arriba del badge)
-                const tagH = 60;
-                const tagGap = 14;
-                const tagY = badgeY - tagGap - tagH;
+                // pestaña dorada de envío (pequeña, centrada sobre el borde superior)
+                const tagW = 300;
+                const tagH = 44;
+                const tagX = badgePadX + (badgeW - tagW) / 2;
+                const tagY = badgeY - tagH / 2;
                 ctx.save();
                 ctx.shadowColor = 'rgba(0,0,0,.2)';
                 ctx.shadowBlur = 12;
                 ctx.shadowOffsetY = 4;
                 ctx.fillStyle = '#e6b800';
-                roundRect(badgePadX, tagY, badgeW, tagH, tagH / 2);
+                roundRect(tagX, tagY, tagW, tagH, tagH / 2);
                 ctx.fill();
                 ctx.shadowColor = 'transparent';
                 ctx.shadowBlur = 0;
                 ctx.shadowOffsetY = 0;
-                ctx.font = 'bold 28px Arial';
+                ctx.font = 'bold 20px Arial';
                 ctx.fillStyle = '#1c1c1c';
                 ctx.textBaseline = 'middle';
                 ctx.textAlign = 'center';
-                ctx.fillText(document.getElementById('imgShipping').value, badgePadX + badgeW / 2, tagY + tagH / 2);
+                ctx.fillText(document.getElementById('imgShipping').value, tagX + tagW / 2, tagY + tagH / 2);
                 ctx.restore();
 
                 // precio centrado vertical y horizontalmente dentro del badge

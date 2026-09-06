@@ -112,7 +112,7 @@ class AdImageController extends Controller
             $this->drawRightText($img, $spec, 32, (int) ($specY + $i * 70), $darkText, self::FONT_REGULAR);
         }
 
-        // Bloque de precio: etiqueta dorada + badge rojo apilados y alineados
+        // Bloque de precio: badge rojo con pestaña dorada sobre el borde superior
         $badgeX = 40;
         $badgeW = 520;
         $badgeBottom = self::H - 100;
@@ -120,14 +120,15 @@ class AdImageController extends Controller
         $badgeH = 160;
         $badgeY = $badgeBottom - $badgeH;
 
-        $tagH = 60;
-        $tagGap = 14;
-        $tagY = $badgeY - $tagGap - $tagH;
-
-        $this->roundRect($img, $badgeX, $tagY, $badgeW, $tagH, (int) ($tagH / 2), $goldLight);
-        $this->drawCenteredText($img, 'ENVÍO GRATIS', 28, $this->vCenterY($tagY, $tagH, 28, self::FONT_BOLD, 'ENVÍO GRATIS'), $darkText, self::FONT_BOLD, $badgeX + $badgeW / 2);
-
         $this->roundRect($img, $badgeX, $badgeY, $badgeW, $badgeH, (int) ($badgeH / 2), $badgeRed);
+
+        $tagW = 300;
+        $tagH = 44;
+        $tagX = (int) ($badgeX + ($badgeW - $tagW) / 2);
+        $tagY = (int) ($badgeY - $tagH / 2);
+
+        $this->roundRect($img, $tagX, $tagY, $tagW, $tagH, (int) ($tagH / 2), $goldLight);
+        $this->drawCenteredText($img, 'ENVÍO GRATIS', 20, $this->vCenterY($tagY, $tagH, 20, self::FONT_BOLD, 'ENVÍO GRATIS'), $darkText, self::FONT_BOLD, $tagX + $tagW / 2);
 
         // Precio (auto-reducir si no cabe)
         $price = '₡' . number_format((float) $product->price_after_discount, 0);
