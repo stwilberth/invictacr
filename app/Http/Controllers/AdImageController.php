@@ -112,19 +112,22 @@ class AdImageController extends Controller
             $this->drawRightText($img, $spec, 32, (int) ($specY + $i * 70), $darkText, self::FONT_REGULAR);
         }
 
-        // Badge de precio (más compacto)
-        $badgePadX = 40;
-        $badgeY = self::H - 260;
-        $badgeW = 480;
-        $badgeH = 150;
-        $badgeRadius = 75;
-        $this->roundRect($img, $badgePadX, $badgeY, $badgeW, $badgeH, $badgeRadius, $badgeRed);
+        // Bloque de precio: etiqueta dorada + badge rojo apilados y alineados
+        $badgeX = 40;
+        $badgeW = 520;
+        $badgeBottom = self::H - 100;
 
-        // Badge de envío gratis (más grande y centrado)
-        $tagH = 56;
-        $tagW = 360;
-        $this->roundRect($img, $badgePadX + 30, $badgeY - $tagH / 2, $tagW, $tagH, 28, $goldLight);
-        $this->drawCenteredText($img, 'ENVÍO GRATIS', 26, (int) ($badgeY), $darkText, self::FONT_BOLD, $badgePadX + 30 + $tagW / 2);
+        $badgeH = 160;
+        $badgeY = $badgeBottom - $badgeH;
+
+        $tagH = 60;
+        $tagGap = 14;
+        $tagY = $badgeY - $tagGap - $tagH;
+
+        $this->roundRect($img, $badgeX, $tagY, $badgeW, $tagH, (int) ($tagH / 2), $goldLight);
+        $this->drawCenteredText($img, 'ENVÍO GRATIS', 28, $this->vCenterY($tagY, $tagH, 28, self::FONT_BOLD, 'ENVÍO GRATIS'), $darkText, self::FONT_BOLD, $badgeX + $badgeW / 2);
+
+        $this->roundRect($img, $badgeX, $badgeY, $badgeW, $badgeH, (int) ($badgeH / 2), $badgeRed);
 
         // Precio (auto-reducir si no cabe)
         $price = '₡' . number_format((float) $product->price_after_discount, 0);
@@ -136,7 +139,7 @@ class AdImageController extends Controller
             $priceBox = imagettfbbox($priceSize, 0, self::FONT_BOLD, $price);
             $priceWidth = $priceBox[2] - $priceBox[0];
         }
-        $this->drawCenteredText($img, $price, $priceSize, (int) ($badgeY + $badgeH / 2 + 20), $white, self::FONT_BOLD, $badgePadX + $badgeW / 2);
+        $this->drawCenteredText($img, $price, $priceSize, $this->vCenterY($badgeY, $badgeH, $priceSize, self::FONT_BOLD, $price), $white, self::FONT_BOLD, $badgeX + $badgeW / 2);
 
         // WhatsApp (más pequeño y con icono)
         $this->drawRightText($img, '8671-1422', 32, 70, $darkText, self::FONT_BOLD);
@@ -255,5 +258,15 @@ class AdImageController extends Controller
         $shadowColor = imagecolorallocate($img, 0, 0, 0);
         imagettftext($img, $size, 0, (int) ($x + 3), $y + 3, $shadowColor, $font, $text);
         imagettftext($img, $size, 0, (int) $x, $y, $color, $font, $text);
+    }
+
+    /**
+     * Baseline Y para centrar verticalmente un texto dentro de un bloque.
+     */
+    private function vCenterY(int $y, int $h, int $size, string $font, string $text): int
+    {
+        $box = imagettfbbox($size, 0, $font, $text);
+        $textH = $box[1] - $box[7];
+        return (int) ($y + ($h + $textH) / 2);
     }
 }
