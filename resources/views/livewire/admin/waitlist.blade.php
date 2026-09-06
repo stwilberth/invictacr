@@ -49,10 +49,21 @@
                     <input type="text" wire:model="telefono" placeholder="Ej: 8888-8888" class="w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-white/5 text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#00C4FF]" />
                     @error('telefono') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
                 </div>
-                <div>
+                <div class="relative" x-data="{ open: false }" @click.outside="open = false">
                     <label class="block text-xs font-bold text-gray-600 dark:text-gray-300 uppercase tracking-wider mb-1">N.º de modelo *</label>
-                    <input type="text" wire:model="modelo" placeholder="Ej: 37217" class="w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-white/5 text-sm font-mono text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#00C4FF]" />
+                    <input type="text" wire:model.live.debounce.300ms="modelo" placeholder="Ej: 37217 — escriba para buscar" @focus="open = true" @keydown.escape="open = false" class="w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-white/5 text-sm font-mono text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#00C4FF]" />
                     @error('modelo') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
+                    @if(strlen(trim($modeloSearch)) >= 1 && count($modeloResults) > 0)
+                    <div x-show="open" class="absolute top-full left-0 right-0 mt-1 z-50 bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-white/10 rounded-xl shadow-xl max-h-56 overflow-y-auto">
+                        @foreach($modeloResults as $product)
+                        <button type="button" wire:click="selectModelo({{ $product->id }})" @click="open = false" class="w-full text-left px-4 py-2.5 hover:bg-gray-50 dark:hover:bg-white/5 border-b border-gray-100 dark:border-white/5 last:border-0">
+                            <div class="font-mono font-bold text-sm text-[#00C4FF]">{{ $product->modelo }}</div>
+                            <div class="text-xs text-gray-500 truncate">{{ $product->title }}</div>
+                            <div class="text-[10px] {{ (int) $product->stock > 0 ? 'text-emerald-500' : 'text-red-500' }} font-bold">{{ (int) $product->stock }} uds · {{ $product->disponibilidad ?? '—' }}</div>
+                        </button>
+                        @endforeach
+                    </div>
+                    @endif
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-gray-600 dark:text-gray-300 uppercase tracking-wider mb-1">Nota</label>

@@ -19,6 +19,19 @@ class Waitlist extends Component
 
     public string $search = '';
     public string $filtroEstado = 'todos';
+    public string $modeloSearch = '';
+
+    public function updatedModelo(): void
+    {
+        $this->modeloSearch = $this->modelo;
+    }
+
+    public function selectModelo(int $id): void
+    {
+        $product = Product::findOrFail($id);
+        $this->modelo = $product->modelo;
+        $this->modeloSearch = '';
+    }
 
     public function updatedSearch(): void
     {
@@ -51,7 +64,7 @@ class Waitlist extends Component
             'estado' => WaitlistEntry::ESTADO_PENDIENTE,
         ]);
 
-        $this->reset(['nombre', 'telefono', 'modelo', 'nota']);
+        $this->reset(['nombre', 'telefono', 'modelo', 'nota', 'modeloSearch']);
 
         session()->flash('message', 'Contacto agregado a la lista de espera.');
     }
@@ -132,9 +145,20 @@ class Waitlist extends Component
 
         $pendientesCount = WaitlistEntry::where('estado', WaitlistEntry::ESTADO_PENDIENTE)->count();
 
+        $modeloResults = collect();
+        if (strlen(trim($this->modeloSearch)) >= 1) {
+            $s = trim($this->modeloSearch);
+            $modeloResults = Product::where('modelo', 'like', "%{$s}%")
+                ->orWhere('title', 'like', "%{$s}%")
+                ->orderBy('modelo')
+                ->limit(10)
+                ->get(['id', 'modelo', 'title', 'stock', 'disponibilidad', 'precio_venta']);
+        }
+
         return view('livewire.admin.waitlist', [
             'entries' => $entries,
             'pendientesCount' => $pendientesCount,
+            'modeloResults' => $modeloResults,
         ])->layout('components.admin-layout', ['title' => 'Lista de Espera']);
     }
 }
