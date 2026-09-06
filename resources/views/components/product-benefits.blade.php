@@ -5,12 +5,6 @@
 <div class="w-full grid {{ $withApartado ? 'grid-cols-2' : 'grid-cols-1' }} gap-1.5">
     <div class="flex items-center gap-2 px-2.5 py-2 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5">
         <span class="flex-shrink-0 w-7 h-7 flex items-center justify-center rounded-lg bg-emerald-50 dark:bg-emerald-500/15">
-            <i class="fa-solid fa-circle-check text-emerald-600 dark:text-emerald-400 text-xs"></i>
-        </span>
-        <span class="text-[10px] md:text-[11px] font-bold text-gray-700 dark:text-gray-200 leading-tight">IVA incluido</span>
-    </div>
-    <div class="flex items-center gap-2 px-2.5 py-2 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5">
-        <span class="flex-shrink-0 w-7 h-7 flex items-center justify-center rounded-lg bg-emerald-50 dark:bg-emerald-500/15">
             <i class="fa-solid fa-truck-fast text-emerald-600 dark:text-emerald-400 text-xs"></i>
         </span>
         <span class="text-[10px] md:text-[11px] font-bold text-gray-700 dark:text-gray-200 leading-tight">Envío gratis</span>
