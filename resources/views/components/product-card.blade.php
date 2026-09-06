@@ -43,6 +43,11 @@
         $waterDigits = preg_replace('/[^0-9]/', '', $water);
         $specs[] = 'Resistencia al agua ' . ($waterDigits !== '' ? $waterDigits : $water) . ' M';
     }
+
+    // Género y tamaño para el card de /relojes (visible en mobile y desktop)
+    $generoLabel = trim((string) ($product->genero ?? ''));
+    $generoLabel = $generoLabel !== '' ? ucfirst(mb_strtolower($generoLabel, 'UTF-8')) : 'Unisex';
+    $sizeLabel = $sizeDigits !== '' && (float) $sizeDigits > 0 ? $sizeDigits . ' mm' : trim((string) ($product->size ?? ''));
 @endphp
 
 <div class="group relative flex flex-col h-full rounded-2xl bg-white dark:bg-[#0d1424] overflow-hidden">
@@ -93,6 +98,9 @@
                 {{ $cardTitle }}
             </h3>
         </a>
+        <p class="mt-1 w-full text-center text-[10px] md:text-[11px] font-semibold text-slate-500 dark:text-slate-400 leading-snug">
+            {{ $generoLabel }}@if($sizeLabel !== '') • {{ $sizeLabel }}@endif
+        </p>
 
         @if(!empty($specs))
         <div class="mt-2 hidden md:grid grid-cols-2 gap-x-2 gap-y-1 justify-items-start text-left">
