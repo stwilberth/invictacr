@@ -75,6 +75,7 @@ Route::middleware(['auth'])->group(function () {
 
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(function () {
     Route::get('/dashboard', \App\Livewire\Admin\Dashboard::class)->name('dashboard');
+    Route::get('/waitlist', \App\Livewire\Admin\Waitlist::class)->name('waitlist');
     Route::get('/products', \App\Livewire\Admin\Products::class)->name('products');
     Route::get('/products/create', \App\Livewire\Admin\ProductForm::class)->name('products.create');
     Route::get('/products/{productId}/edit', \App\Livewire\Admin\ProductForm::class)->name('products.edit');

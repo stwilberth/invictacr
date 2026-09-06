@@ -19,6 +19,13 @@
                 <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors {{ request()->routeIs('admin.dashboard') ? 'bg-[#00C4FF]/10 text-[#00C4FF]' : 'text-white/70 hover:text-white hover:bg-white/5' }}">
                     <i class="fa-solid fa-chart-simple w-5"></i> Dashboard
                 </a>
+                <a href="{{ route('admin.waitlist') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors {{ request()->routeIs('admin.waitlist') ? 'bg-[#00C4FF]/10 text-[#00C4FF]' : 'text-white/70 hover:text-white hover:bg-white/5' }}">
+                    <i class="fa-solid fa-bell-concierge w-5"></i> Lista de Espera
+                    @php $waitlistPending = \App\Models\WaitlistEntry::where('estado', 'pendiente')->count(); @endphp
+                    @if($waitlistPending > 0)
+                    <span class="ml-auto text-[10px] font-black px-2 py-0.5 rounded-full bg-amber-500 text-white">{{ $waitlistPending }}</span>
+                    @endif
+                </a>
 
                 <p class="px-4 pt-4 pb-2 text-xs text-white/40 uppercase tracking-wider font-black">IA &amp; Estrategia</p>
                 <a href="{{ route('admin.ceo-advisor') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors {{ request()->routeIs('admin.ceo-advisor') ? 'bg-[#00C4FF]/10 text-[#00C4FF]' : 'text-white/70 hover:text-white hover:bg-white/5' }}">
@@ -144,6 +151,12 @@
                 <nav class="p-4 space-y-1">
                     <a href="{{ route('admin.dashboard') }}" @click="sidebarOpen = false" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors {{ request()->routeIs('admin.dashboard') ? 'bg-[#00C4FF]/10 text-[#00C4FF]' : 'text-white/70 hover:text-white hover:bg-white/5' }}">
                         <i class="fa-solid fa-chart-simple w-5"></i> Dashboard
+                    </a>
+                    <a href="{{ route('admin.waitlist') }}" @click="sidebarOpen = false" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors {{ request()->routeIs('admin.waitlist') ? 'bg-[#00C4FF]/10 text-[#00C4FF]' : 'text-white/70 hover:text-white hover:bg-white/5' }}">
+                        <i class="fa-solid fa-bell-concierge w-5"></i> Lista de Espera
+                        @if(($waitlistPending ?? 0) > 0)
+                        <span class="ml-auto text-[10px] font-black px-2 py-0.5 rounded-full bg-amber-500 text-white">{{ $waitlistPending }}</span>
+                        @endif
                     </a>
 
                     <p class="px-4 pt-4 pb-2 text-xs text-white/40 uppercase tracking-wider font-black">IA &amp; Estrategia</p>

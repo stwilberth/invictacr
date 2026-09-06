@@ -807,11 +807,13 @@ class ProductForm extends Component
                     "{$baseUrl}/relojes",
                 ]);
             } catch (\Exception $e) {}
-            session()->flash("message", "Producto <strong>" . e($product->modelo) . "</strong> actualizado. <a href=\"" . route('products.show', $product->slug) . "\" class=\"underline text-green-800 dark:text-green-300\">Ver reloj</a>");
+            $waitlistMsg = $this->notifyWaitlist($product);
+            session()->flash("message", "Producto <strong>" . e($product->modelo) . "</strong> actualizado.{$waitlistMsg} <a href=\"" . route('products.show', $product->slug) . "\" class=\"underline text-green-800 dark:text-green-300\">Ver reloj</a>");
         } else {
             $product = Product::create($data);
             Product::forgetAllCache($product->id);
-            session()->flash("message", "Producto creado.");
+            $waitlistMsg = $this->notifyWaitlist($product);
+            session()->flash("message", "Producto creado.{$waitlistMsg}");
         }
 
         $product->images()->delete();
@@ -824,6 +826,18 @@ class ProductForm extends Component
         }
 
         $this->redirect(route("admin.products"));
+    }
+
+    private function notifyWaitlist(Product $product): string
+    {
+        try {
+            $notified = app(\App\Services\WaitlistService::class)->checkAndNotify($product);
+            if ($notified > 0) {
+                return " <strong>{$notified} contacto(s) en lista de espera notificados.</strong> <a href=\"" . route('admin.waitlist') . "\" class=\"underline text-green-800 dark:text-green-300\">Ver lista</a>";
+            }
+        } catch (\Throwable $e) {
+        }
+        return "";
     }
 
     private function sanitizeNumeric(mixed $value): ?string

@@ -1,4 +1,69 @@
 <div>
+    {{-- ==================== LISTA DE ESPERA (inicio) ==================== --}}
+    <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-5 mb-6">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+            <div class="flex items-center gap-2">
+                <i class="fa-solid fa-bell-concierge text-amber-500"></i>
+                <h2 class="font-black text-gray-900 dark:text-white uppercase tracking-wider text-sm">Lista de espera</h2>
+                <span class="text-[10px] font-black px-2 py-0.5 rounded-full {{ $waitlistPendientes > 0 ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300' : 'bg-gray-100 text-gray-500 dark:bg-white/5' }}">{{ $waitlistPendientes }} en espera</span>
+                @if($waitlistUnread > 0)
+                <span class="text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300">{{ $waitlistUnread }} aviso(s)</span>
+                @endif
+            </div>
+            <a href="{{ route('admin.waitlist') }}" class="text-xs font-extrabold uppercase text-[#00C4FF] hover:underline">Gestionar <i class="fa-solid fa-arrow-right text-[10px]"></i></a>
+        </div>
+
+        @if($waitlistUnread > 0)
+        <div class="space-y-2 mb-3">
+            @foreach($waitlistNotifications as $notif)
+            @if(!$notif['leida'])
+            <div class="flex items-start gap-2 p-2.5 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/30 text-sm">
+                <i class="fa-solid fa-bell mt-0.5 text-amber-500"></i>
+                <div class="flex-1 min-w-0">
+                    <p class="font-bold text-gray-900 dark:text-white text-xs">{{ $notif['titulo'] }}</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">{{ $notif['mensaje'] }}</p>
+                </div>
+                <button wire:click="marcarWaitlistLeida({{ $notif['id'] }})" class="shrink-0 text-[10px] font-extrabold uppercase text-amber-700 dark:text-amber-300 hover:underline">Leída</button>
+            </div>
+            @endif
+            @endforeach
+        </div>
+        @endif
+
+        @if(count($waitlistResumen) > 0)
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="text-left text-[10px] uppercase tracking-wider text-gray-400 border-b border-gray-100 dark:border-white/5">
+                        <th class="py-1.5 pr-2">Contacto</th>
+                        <th class="py-1.5 pr-2">Modelo</th>
+                        <th class="py-1.5">Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($waitlistResumen as $w)
+                    <tr class="border-b border-gray-50 dark:border-white/5 last:border-0">
+                        <td class="py-2 pr-2"><span class="font-bold text-gray-900 dark:text-white text-xs">{{ $w['nombre'] }}</span> <span class="text-xs text-gray-400">{{ $w['telefono'] ?? '' }}</span></td>
+                        <td class="py-2 pr-2 font-mono font-bold text-xs text-[#00C4FF]">{{ $w['modelo'] }}</td>
+                        <td class="py-2">
+                            @if($w['estado'] === 'pendiente')
+                            <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-lg bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">En espera</span>
+                            @elseif($w['estado'] === 'notificado')
+                            <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-lg bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300">Avisar</span>
+                            @else
+                            <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-lg bg-gray-100 text-gray-500 dark:bg-white/5">{{ $w['estado'] }}</span>
+                            @endif
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+        @else
+        <p class="text-sm text-gray-500">Nadie en lista de espera. <a href="{{ route('admin.waitlist') }}" class="font-bold text-[#00C4FF] hover:underline">Agregar contacto</a></p>
+        @endif
+    </div>
+
     <div class="flex flex-wrap justify-between items-center gap-3 mb-6">
         <h1 class="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tight">Dashboard</h1>
         <div class="flex flex-wrap items-center gap-3">

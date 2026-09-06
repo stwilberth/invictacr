@@ -20,6 +20,10 @@ class Dashboard extends Component
     public array $userStats = [];
     public array $upcomingProducts = [];
     public int $upcomingCount = 0;
+    public array $waitlistResumen = [];
+    public int $waitlistPendientes = 0;
+    public array $waitlistNotifications = [];
+    public int $waitlistUnread = 0;
 
     // Métricas de negocio (Analytics)
     public string $period = '30d';
@@ -57,6 +61,7 @@ class Dashboard extends Component
     public function mount(): void
     {
         $this->loadAdminData();
+        $this->loadWaitlist();
         $this->loadAnalytics();
         $this->loadServerStats();
         $this->loadTopCeoRecommendation();
@@ -155,6 +160,38 @@ class Dashboard extends Component
                 'image' => $p->imagen,
             ])
             ->toArray();
+    }
+
+    protected function loadWaitlist(): void
+    {
+        $this->waitlistPendientes = \App\Models\WaitlistEntry::where('estado', \App\Models\WaitlistEntry::ESTADO_PENDIENTE)->count();
+        $this->waitlistResumen = \App\Models\WaitlistEntry::latest()
+            ->take(5)
+            ->get(['id', 'nombre', 'telefono', 'modelo', 'estado', 'created_at'])
+            ->map(fn($e) => [
+                'nombre' => $e->nombre,
+                'telefono' => $e->telefono,
+                'modelo' => $e->modelo,
+                'estado' => $e->estado,
+            ])
+            ->toArray();
+        $this->waitlistUnread = \App\Models\WaitlistNotification::whereNull('leida_at')->count();
+        $this->waitlistNotifications = \App\Models\WaitlistNotification::latest()
+            ->take(5)
+            ->get(['id', 'titulo', 'mensaje', 'leida_at', 'created_at'])
+            ->map(fn($n) => [
+                'id' => $n->id,
+                'titulo' => $n->titulo,
+                'mensaje' => $n->mensaje,
+                'leida' => !is_null($n->leida_at),
+            ])
+            ->toArray();
+    }
+
+    public function marcarWaitlistLeida(int $id): void
+    {
+        \App\Models\WaitlistNotification::where('id', $id)->whereNull('leida_at')->update(['leida_at' => now()]);
+        $this->loadWaitlist();
     }
 
     protected function loadAnalytics(): void
@@ -409,6 +446,7 @@ class Dashboard extends Component
             \Illuminate\Support\Facades\Artisan::call('sync:github');
 
             $this->loadAdminData();
+            $this->loadWaitlist();
             $this->loadAnalytics();
             session()->flash('message', "Datos sincronizados para los últimos {$days} días.");
         } catch (\Exception $e) {

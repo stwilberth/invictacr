@@ -9,6 +9,7 @@ use App\Services\InvictaWatchScraper;
 use App\Services\DeepseekTranslationService;
 use App\Services\ImageOptimizerService;
 use App\Services\PricingService;
+use App\Services\WaitlistService;
 use Illuminate\Support\Facades\Http;
 
 class VariedadesSyncService
@@ -45,6 +46,7 @@ class VariedadesSyncService
             $markedAgotadoCount = 0;
             $priceUpdatedCount = 0;
             $genderUpdatedCount = 0;
+            $waitlistNotifiedCount = 0;
 
             $createdModels = [];
             $activatedModels = [];
@@ -53,6 +55,7 @@ class VariedadesSyncService
             $markedAgotadoModels = [];
             $priceUpdatedModels = [];
             $genderUpdatedModels = [];
+            $waitlistNotifiedModels = [];
 
             $items = [];
 
@@ -127,6 +130,7 @@ class VariedadesSyncService
                         $activatedCount++;
                         $activatedModels[] = $modelKey;
                         $items[] = ['sync_log_id' => $log->id, 'type' => 'activated', 'modelo' => $modelKey, 'product_id' => $product->id];
+                        $this->notifyWaitlist($product, $waitlistNotifiedCount, $waitlistNotifiedModels, $log, $items);
                         continue;
                     }
 
@@ -203,6 +207,7 @@ class VariedadesSyncService
                     if ($didChange) {
                         $product->update($updates);
                         Product::forgetAllCache($product->id);
+                        $this->notifyWaitlist($product, $waitlistNotifiedCount, $waitlistNotifiedModels, $log, $items);
                     }
                 } else {
                     $iwData = null;
@@ -256,6 +261,7 @@ class VariedadesSyncService
                     $createdCount++;
                     $createdModels[] = $modelKey;
                     $items[] = ['sync_log_id' => $log->id, 'type' => 'created', 'modelo' => $modelKey, 'product_id' => $product->id];
+                    $this->notifyWaitlist($product, $waitlistNotifiedCount, $waitlistNotifiedModels, $log, $items);
 
                     if (!empty($iwData['imagen_local'])) {
                         $this->optimizeProductImages($product);
@@ -298,6 +304,8 @@ class VariedadesSyncService
                 "precios_actualizados_modelos" => $priceUpdatedModels,
                 "generos_actualizados" => $genderUpdatedCount,
                 "generos_actualizados_modelos" => $genderUpdatedModels,
+                "lista_espera_notificada" => $waitlistNotifiedCount,
+                "lista_espera_notificada_modelos" => $waitlistNotifiedModels,
             ];
 
             if (!empty($items)) {
@@ -311,6 +319,7 @@ class VariedadesSyncService
             if ($referenceUpdatedCount > 0) $parts[] = "{$referenceUpdatedCount} precios referencia actualizados";
             if ($priceUpdatedCount > 0) $parts[] = "{$priceUpdatedCount} precios actualizados";
             if ($genderUpdatedCount > 0) $parts[] = "{$genderUpdatedCount} géneros corregidos";
+            if ($waitlistNotifiedCount > 0) $parts[] = "{$waitlistNotifiedCount} avisos lista de espera";
             if ($markedAgotadoCount > 0) $parts[] = "{$markedAgotadoCount} marcados agotados";
             $msg = implode(", ", $parts) ?: "Sin cambios";
 
@@ -343,6 +352,7 @@ class VariedadesSyncService
                 "stock_changed" => $stockChangedCount,
                 "reference_updated" => $referenceUpdatedCount,
                 "marked_agotado" => $markedAgotadoCount,
+                "waitlist_notified" => $waitlistNotifiedCount,
                 "message" => $msg,
                 "details" => $details,
             ];
@@ -353,6 +363,20 @@ class VariedadesSyncService
                 "success" => false,
                 "error" => $e->getMessage(),
             ];
+        }
+    }
+
+    private function notifyWaitlist(Product $product, int &$count, array &$models, SyncLog $log, array &$items): void
+    {
+        try {
+            $notified = app(WaitlistService::class)->checkAndNotify($product);
+            if ($notified > 0) {
+                $count += $notified;
+                $models[] = $product->modelo;
+                $items[] = ['sync_log_id' => $log->id, 'type' => 'waitlist_notified', 'modelo' => $product->modelo, 'product_id' => $product->id];
+            }
+        } catch (\Throwable $e) {
+            // La notificación de lista de espera nunca debe bloquear el sync
         }
     }
 
