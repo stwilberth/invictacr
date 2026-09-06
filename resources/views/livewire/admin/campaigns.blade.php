@@ -174,7 +174,7 @@
             <div class="lg:col-span-2 space-y-3">
                 <div class="bg-white dark:bg-[#0f172a] rounded-xl border border-gray-200 dark:border-white/5 p-3 sm:p-4">
                     <div class="space-y-3">
-                        <input type="url" wire:model="utmUrl" placeholder="https://invictacr.com/producto/..."
+                        <input type="url" wire:model="utmUrl" placeholder="https://invictacostarica.com/producto/..."
                             class="w-full bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-3 sm:py-2 text-sm sm:text-xs focus:border-[#00C4FF] focus:ring-1 focus:ring-[#00C4FF] outline-none min-h-[44px] sm:min-h-0" />
                         <div class="grid grid-cols-2 gap-2 sm:gap-2">
                             <select wire:model="utmSource"

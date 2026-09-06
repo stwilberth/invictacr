@@ -20,8 +20,8 @@
                 @if(file_exists(public_path('logo.png')))
                     <img src="{{ public_path('logo.png') }}" width="70" alt="Invicta" /><br/>
                 @endif
-                <span style="font-size: 22px; font-weight: bold; color: #00b4d8;">invictaCR.com</span><br/>
-                <span style="font-size: 9px; color: #555;">invictaCR.com | invictacostarica.com</span><br/>
+                <span style="font-size: 22px; font-weight: bold; color: #00b4d8;">invictaCostaRica.com</span><br/>
+                <span style="font-size: 9px; color: #555;">invictaCostaRica.com</span><br/>
                 <span style="font-size: 9px; color: #555;">Tel: 8671-1422</span><br/>
                 <span style="font-size: 9px; color: #555;">San José, Costa Rica</span>
             </td>
@@ -147,7 +147,7 @@
                     @if(file_exists(public_path('logo.png')))
                         <img src="{{ public_path('logo.png') }}" width="50" alt="Invicta" /><br/>
                     @endif
-                    <span style="font-size: 20px; font-weight: bold; color: #00b4d8;">invictaCR.com</span>
+                    <span style="font-size: 20px; font-weight: bold; color: #00b4d8;">invictaCostaRica.com</span>
                 </td>
             </tr>
         </table>

@@ -1,8 +1,7 @@
 <footer class="bg-gray-900 dark:bg-gray-950 text-gray-200 py-10 animate-fade-in">
     <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-8">
         <div>
-            <p class="text-sm"><span class="text-[#00C4FF]">InvictaCostaRica.com</span></p>
-            <p class="text-sm"><span class="text-[#00C4FF]">InvictaCR.com</span></p>
+            <p class="text-sm"><span class="text-[#00C4FF]">invictaCostaRica.com</span></p>
         </div>
         <div>
             <h4 class="font-bold mb-2">Contacto</h4>
