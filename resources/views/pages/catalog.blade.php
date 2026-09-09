@@ -40,8 +40,9 @@
                 :subtitle="''"
             />
 
-            <div class="text-center -mt-4 mb-4">
-                <span class="text-xs md:text-sm font-semibold text-emerald-600 dark:text-emerald-400 leading-tight">Envío gratis <span class="text-slate-400 dark:text-slate-500">•</span> Pago contra entrega en el GAM</span>
+            <div class="text-center -mt-4 mb-4 space-y-0.5">
+                <p class="text-xs md:text-sm font-semibold text-emerald-600 dark:text-emerald-400 leading-tight">Envío gratis</p>
+                <p class="text-xs md:text-sm font-semibold text-slate-500 dark:text-slate-400 leading-tight">Pago contra entrega en el GAM</p>
             </div>
 
             <div class="flex flex-col md:flex-row gap-8 pb-12" x-data="{ filterOpen: false, searchOpen: false }">
