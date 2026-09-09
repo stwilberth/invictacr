@@ -16,3 +16,10 @@ Schedule::command('sync:all-analytics', ['--days' => 1])
     ->dailyAt('03:00')
     ->withoutOverlapping()
     ->appendOutputTo(storage_path('logs/sync-analytics-cron.log'));
+
+// Publica en Facebook los relojes pendientes al azar (foto + texto + enlace).
+// Ajustá --limit con el número de publicaciones diarias deseadas.
+Schedule::command('campaigns:publish-facebook', ['--limit' => 3])
+    ->dailyAt('09:00')
+    ->withoutOverlapping()
+    ->appendOutputTo(storage_path('logs/facebook-publish-cron.log'));

@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\FacebookInsight;
 use App\Models\FacebookPost;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class FacebookBusinessService
 {
@@ -148,5 +149,64 @@ class FacebookBusinessService
         }
 
         return $count;
+    }
+
+    /**
+     * Publica una foto con texto (y enlace al producto) en la página de Facebook.
+     *
+     * @return string|null id del post creado, o null si falla.
+     */
+    public function publishPhotoPost(string $imageUrl, string $message, ?string $link = null): ?string
+    {
+        if (!$this->isConfigured()) {
+            return null;
+        }
+
+        $pageToken = $this->getPageToken();
+        if (!$pageToken) {
+            Log::error('Facebook publish failed: no page token.');
+            return null;
+        }
+
+        try {
+            $response = Http::post("https://graph.facebook.com/{$this->apiVersion}/{$this->pageId}/photos", [
+                'url' => $imageUrl,
+                'caption' => $message,
+                'message' => $message,
+                'link' => $link,
+                'access_token' => $pageToken,
+            ]);
+
+            if (!$response->successful()) {
+                Log::error('Facebook publish failed: ' . $response->body());
+                return null;
+            }
+
+            $postId = $response->json('id');
+            if (!$postId) {
+                return null;
+            }
+
+            FacebookPost::updateOrCreate(
+                ['post_id' => $postId],
+                [
+                    'message' => $message,
+                    'link' => $link,
+                    'media_type' => 'photo',
+                    'posted_at' => now(),
+                    'likes' => 0,
+                    'comments' => 0,
+                    'shares' => 0,
+                    'reach' => 0,
+                    'impressions' => 0,
+                    'raw_data' => $response->json(),
+                ]
+            );
+
+            return $postId;
+        } catch (\Exception $e) {
+            report($e);
+            return null;
+        }
     }
 }
