@@ -28,6 +28,9 @@ class CatalogController extends Controller
         try {
             $products = Product::where('activo', true)
                 ->where('precio_venta', '>', 0)
+                ->where('stock', '>', 0)
+                ->where('disponibilidad', '!=', 'agotado')
+                ->where('proximo', false)
                 ->with('images')
                 ->cursor();
 
