@@ -50,6 +50,7 @@ Route::get('/metodos-envio', fn() => redirect('/informacion-de-envio', 301));
 Route::get('/garantia', [PageController::class, 'garantia'])->name('garantia');
 Route::get('/resistencia-agua', [PageController::class, 'resistenciaAgua'])->name('resistencia-agua');
 Route::get('/sobre-nosotros', [PageController::class, 'sobreNosotros'])->name('sobre-nosotros');
+Route::get('/resenas', [PageController::class, 'resenas'])->name('resenas');
 Route::get('/privacidad', [PageController::class, 'privacidad'])->name('privacidad');
 Route::get('/redes', [PageController::class, 'redes'])->name('redes');
 

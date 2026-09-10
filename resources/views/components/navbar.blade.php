@@ -42,6 +42,12 @@
                     Garantía
                 </a>
 
+                <a href="/resenas"
+                   class="{{ $currentPath === 'resenas' ? 'text-[#00C4FF] bg-white/5' : 'text-white/90' }} hover:text-[#00C4FF] px-3 py-2 rounded-md text-sm lg:text-base font-black uppercase tracking-tighter transition-all duration-200 flex items-center gap-1.5">
+                    <i class="fa-solid fa-star text-xs {{ $currentPath === 'resenas' ? 'text-[#00C4FF]' : 'text-[#00C4FF]/70' }}"></i>
+                    Reseñas
+                </a>
+
 
                 <a href="{{ route('cart.show') }}" class="relative text-white/80 hover:text-[#00C4FF] p-2 rounded-full transition-all duration-300 hover:bg-white/5" title="Carrito">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -215,6 +221,10 @@
             <a href="/garantia"
                class="{{ $currentPath === 'garantia' ? 'text-[#00C4FF] bg-white/5' : 'text-gray-300' }} hover:text-white block px-4 py-4 text-lg font-black uppercase tracking-tight border-b border-white/5">
                 Garantía Real
+            </a>
+            <a href="/resenas"
+               class="{{ $currentPath === 'resenas' ? 'text-[#00C4FF] bg-white/5' : 'text-gray-300' }} hover:text-white block px-4 py-4 text-lg font-black uppercase tracking-tight border-b border-white/5">
+                Reseñas
             </a>
 
             <div class="border-b border-white/5" x-data="{ mobileSupportOpen: false }">

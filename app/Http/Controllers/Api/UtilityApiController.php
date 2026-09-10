@@ -25,6 +25,7 @@ class UtilityApiController extends Controller
             '/garantia' => ['changefreq' => 'monthly', 'priority' => '0.7'],
             '/resistencia-agua' => ['changefreq' => 'monthly', 'priority' => '0.7'],
             '/sobre-nosotros' => ['changefreq' => 'monthly', 'priority' => '0.6'],
+            '/resenas' => ['changefreq' => 'weekly', 'priority' => '0.7'],
         ];
 
         foreach ($staticPages as $page => $meta) {
