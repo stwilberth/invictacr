@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Storage;
 
 class CopyResenasToStream extends Command
 {
-    protected $signature = 'resenas:copy-to-stream {--dry-run : Solo listar sin copiar}';
+    protected $signature = 'resenas:copy-to-stream {--dry-run : Solo listar sin copiar} {--force : Re-copiar aunque ya exista en BD (borra el video Stream anterior y aplica watermark)}';
     protected $description = 'Copia los videos de R2 resennas/ a Cloudflare Stream y los registra en review_videos (R2 queda intacto)';
 
     public function handle(): int
@@ -54,7 +54,9 @@ class CopyResenasToStream extends Command
         foreach ($mp4 as $path) {
             $nombre = pathinfo($path, PATHINFO_FILENAME);
 
-            if (ReviewVideo::where('nombre', $nombre)->exists()) {
+            $existente = ReviewVideo::where('nombre', $nombre)->first();
+
+            if ($existente && !$this->option('force')) {
                 $this->line("Omitido (ya existe): {$nombre}");
                 $omitidos++;
                 continue;
@@ -63,6 +65,12 @@ class CopyResenasToStream extends Command
             $encoded = implode('/', array_map('rawurlencode', explode('/', $path)));
             $url = "https://cdn.invictacostarica.com/{$encoded}";
 
+            $payload = ['url' => $url, 'meta' => ['name' => $nombre]];
+            $watermarkUid = config('services.cloudflare.stream_watermark_uid');
+            if ($watermarkUid) {
+                $payload['watermark'] = ['uid' => $watermarkUid];
+            }
+
             try {
                 $resp = Http::withHeaders(['Authorization' => 'Bearer ' . $apiToken])
                     ->timeout(60)
@@ -70,7 +78,7 @@ class CopyResenasToStream extends Command
                     ->asJson()
                     ->post(
                         "https://api.cloudflare.com/client/v4/accounts/{$accountId}/stream/copy",
-                        ['url' => $url, 'meta' => ['name' => $nombre]]
+                        $payload
                     );
             } catch (\Exception $e) {
                 $this->error("Error red {$nombre}: " . $e->getMessage());
@@ -92,12 +100,24 @@ class CopyResenasToStream extends Command
             }
 
             $maxOrden++;
-            ReviewVideo::create([
-                'stream_uid' => $uid,
-                'nombre' => $nombre,
-                'activo' => true,
-                'orden' => $maxOrden,
-            ]);
+            if ($existente) {
+                try {
+                    Http::withHeaders(['Authorization' => 'Bearer ' . $apiToken])
+                        ->timeout(30)
+                        ->withOptions(['curl' => [CURLOPT_IPRESOLVE => CURL_IPRESOLVE_V4]])
+                        ->delete("https://api.cloudflare.com/client/v4/accounts/{$accountId}/stream/{$existente->stream_uid}");
+                } catch (\Exception $e) {
+                    // Se reemplaza el registro aunque falle el borrado anterior
+                }
+                $existente->update(['stream_uid' => $uid, 'activo' => true]);
+            } else {
+                ReviewVideo::create([
+                    'stream_uid' => $uid,
+                    'nombre' => $nombre,
+                    'activo' => true,
+                    'orden' => $maxOrden,
+                ]);
+            }
 
             $this->info("Copiado: {$nombre} -> {$uid}");
             $copiados++;
