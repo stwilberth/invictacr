@@ -96,7 +96,8 @@
         $priceAfterDiscount = $product->price_after_discount;
         $apartadoMinimo = round((float) ($priceAfterDiscount ?? $product->precio_venta ?? 0) * 0.2, -3);
         $whatsappBuy = 'https://wa.me/50686711422?text=' . urlencode("¡Hola! Me interesa el reloj Invicta {$product->modelo}");
-        $shareUrl = urlencode(url()->current());
+        $shareLinkFor = fn(string $source): string => url()->current() . '?utm_source=' . $source . '&utm_medium=compartir&utm_campaign=ficha_producto';
+        $shareUrl = urlencode($shareLinkFor('whatsapp'));
         $shareTitle = urlencode("¡Mira este reloj Invicta!: {$product->title}");
 
         $inCart = false;
@@ -484,22 +485,22 @@
             <div class="p-4">
                 <h3 class="text-sm font-black text-gray-800 dark:text-white uppercase tracking-wide mb-3">Compartir</h3>
                 <div class="grid grid-cols-3 sm:grid-cols-6 gap-2">
-                    <a href="https://api.whatsapp.com/send?text={{ $shareTitle }}%20{{ $shareUrl }}" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center gap-1 py-3 rounded-lg bg-[#25D366] text-white text-[11px] font-semibold hover:brightness-110 transition-all no-underline">
+                    <a href="https://api.whatsapp.com/send?text={{ $shareTitle }}%20{{ urlencode($shareLinkFor('whatsapp')) }}" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center gap-1 py-3 rounded-lg bg-[#25D366] text-white text-[11px] font-semibold hover:brightness-110 transition-all no-underline">
                         <i class="fa-brands fa-whatsapp text-lg"></i> WhatsApp
                     </a>
-                    <a href="https://www.facebook.com/sharer/sharer.php?u={{ $shareUrl }}&quote={{ $shareTitle }}" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center gap-1 py-3 rounded-lg bg-[#1877F2] text-white text-[11px] font-semibold hover:brightness-110 transition-all no-underline">
+                    <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode($shareLinkFor('facebook')) }}&quote={{ $shareTitle }}" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center gap-1 py-3 rounded-lg bg-[#1877F2] text-white text-[11px] font-semibold hover:brightness-110 transition-all no-underline">
                         <i class="fa-brands fa-facebook text-lg"></i> Facebook
                     </a>
-                    <a href="https://twitter.com/intent/tweet?text={{ $shareTitle }}&url={{ $shareUrl }}" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center gap-1 py-3 rounded-lg bg-gray-900 text-white text-[11px] font-semibold hover:bg-gray-800 transition-all no-underline">
+                    <a href="https://twitter.com/intent/tweet?text={{ $shareTitle }}&url={{ urlencode($shareLinkFor('x')) }}" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center gap-1 py-3 rounded-lg bg-gray-900 text-white text-[11px] font-semibold hover:bg-gray-800 transition-all no-underline">
                         <i class="fa-brands fa-x-twitter text-lg"></i> X
                     </a>
-                    <a href="https://pinterest.com/pin/create/button/?url={{ $shareUrl }}&description={{ $shareTitle }}&media={{ urlencode($product->imagen) }}" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center gap-1 py-3 rounded-lg bg-[#E60023] text-white text-[11px] font-semibold hover:brightness-110 transition-all no-underline">
+                    <a href="https://pinterest.com/pin/create/button/?url={{ urlencode($shareLinkFor('pinterest')) }}&description={{ $shareTitle }}&media={{ urlencode($product->imagen) }}" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center gap-1 py-3 rounded-lg bg-[#E60023] text-white text-[11px] font-semibold hover:brightness-110 transition-all no-underline">
                         <i class="fa-brands fa-pinterest text-lg"></i> Pinterest
                     </a>
                     <button type="button" onclick="copyProductUrl()" class="flex flex-col items-center gap-1 py-3 rounded-lg bg-gray-500 text-white text-[11px] font-semibold hover:bg-gray-600 transition-all">
                         <i class="fa-solid fa-link text-lg"></i> Copiar
                     </button>
-                    <a href="https://t.me/share/url?url={{ $shareUrl }}&text={{ $shareTitle }}" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center gap-1 py-3 rounded-lg bg-[#0088cc] text-white text-[11px] font-semibold hover:brightness-110 transition-all no-underline">
+                    <a href="https://t.me/share/url?url={{ urlencode($shareLinkFor('telegram')) }}&text={{ $shareTitle }}" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center gap-1 py-3 rounded-lg bg-[#0088cc] text-white text-[11px] font-semibold hover:brightness-110 transition-all no-underline">
                         <i class="fa-brands fa-telegram text-lg"></i> Telegram
                     </a>
                 </div>
@@ -582,9 +583,9 @@
             slider.scrollBy({ left: step * dir, behavior: "smooth" });
         }
 
-        // Copy URL functionality
+        // Copy URL functionality (incluye UTM de compartir)
         function copyProductUrl() {
-            const url = window.location.href;
+            const url = "{!! $shareLinkFor('copiar') !!}";
             if (navigator.clipboard && navigator.clipboard.writeText) {
                 navigator.clipboard.writeText(url).then(function() {
                     const btn = event.currentTarget;
