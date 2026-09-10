@@ -14,17 +14,17 @@
                 <a href="/relojes" class="inline-block mt-4 text-[#00C4FF] font-bold hover:underline">Ver catálogo</a>
             </div>
             @else
-            <div class="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
+            <div class="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-4">
                 @foreach($videos as $video)
-                <div class="group relative rounded-2xl overflow-hidden shadow-lg bg-gray-900 aspect-[9/16] max-h-[520px] w-full mx-auto">
+                <div class="group relative rounded-xl overflow-hidden shadow bg-gray-900 aspect-[9/16] w-full mx-auto">
                     <img src="https://{{ config('services.cloudflare.stream_customer_subdomain') }}.cloudflarestream.com/{{ $video->stream_uid }}/thumbnails/thumbnail.jpg" alt="Reseña de {{ $video->nombre ?? 'cliente' }}" class="w-full h-full object-cover" loading="lazy" />
                     <div class="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/10 transition-all pointer-events-none">
-                        <div class="w-14 h-14 md:w-16 md:h-16 rounded-full bg-white/90 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                            <i class="fa-solid fa-play text-[#00C4FF] text-xl md:text-2xl ml-1"></i>
+                        <div class="w-9 h-9 md:w-11 md:h-11 rounded-full bg-white/90 flex items-center justify-center shadow group-hover:scale-110 transition-transform">
+                            <i class="fa-solid fa-play text-[#00C4FF] text-sm md:text-base ml-0.5"></i>
                         </div>
                     </div>
                     @if($video->nombre)
-                    <span class="absolute bottom-2 left-2 right-2 truncate text-[11px] md:text-xs font-bold text-white/90 bg-black/50 rounded-lg px-2 py-1 pointer-events-none">{{ $video->nombre }}</span>
+                    <span class="absolute bottom-1.5 left-1.5 right-1.5 truncate text-[10px] font-bold text-white/90 bg-black/50 rounded-md px-1.5 py-0.5 pointer-events-none">{{ $video->nombre }}</span>
                     @endif
                     <button type="button" onclick="openVideoModal('{{ $video->stream_uid }}')" aria-label="Ver reseña" class="absolute inset-0 z-10 cursor-pointer"></button>
                 </div>
