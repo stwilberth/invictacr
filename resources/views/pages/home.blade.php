@@ -163,26 +163,26 @@
 
     <!-- Reseñas de Clientes -->
     @if(!empty($resenaVideos))
-    <section class="py-10 md:py-16 bg-gray-50 dark:bg-gray-900">
+    <section class="py-6 md:py-10 bg-gray-50 dark:bg-gray-900">
         <div class="max-w-7xl mx-auto px-4">
-            <div class="text-center mb-8">
+            <div class="text-center mb-4 md:mb-5">
                 <h2 class="text-lg md:text-3xl font-bold text-gray-900 dark:text-white uppercase tracking-wider mb-1 md:mb-2">Lo Que Dicen Nuestros Clientes</h2>
                 <p class="text-xs md:text-base text-gray-500 dark:text-gray-400">Reseñas reales en video de quienes ya compraron su Invicta original</p>
             </div>
-            <div class="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-6">
+            <div class="grid grid-cols-3 md:grid-cols-6 gap-2 md:gap-3">
                 @foreach($resenaVideos as $video)
-                <div class="group relative rounded-2xl overflow-hidden shadow-lg bg-gray-900 aspect-[9/16] max-h-[440px]">
+                <div class="group relative rounded-xl overflow-hidden shadow-md bg-gray-900 aspect-[9/16] max-h-[200px] md:max-h-[240px]">
                     <img src="https://{{ config('services.cloudflare.stream_customer_subdomain') }}.cloudflarestream.com/{{ $video->stream_uid }}/thumbnails/thumbnail.jpg" alt="Reseña de cliente" class="w-full h-full object-cover" loading="lazy" />
                     <div class="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/10 transition-all pointer-events-none">
-                        <div class="w-14 h-14 rounded-full bg-white/90 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                            <i class="fa-solid fa-play text-[#00C4FF] text-xl ml-1"></i>
+                        <div class="w-8 h-8 md:w-10 md:h-10 rounded-full bg-white/90 flex items-center justify-center shadow group-hover:scale-110 transition-transform">
+                            <i class="fa-solid fa-play text-[#00C4FF] text-xs md:text-sm ml-0.5"></i>
                         </div>
                     </div>
                     <a href="/resenas" aria-label="Ver reseñas" class="absolute inset-0 z-10"></a>
                 </div>
                 @endforeach
             </div>
-            <div class="text-center mt-8">
+            <div class="text-center mt-5">
                 <a href="/resenas" class="inline-flex items-center gap-2 bg-[#0a0f1c] dark:bg-white hover:bg-[#00C4FF] dark:hover:bg-[#00C4FF] text-white dark:text-[#0a0f1c] font-extrabold uppercase tracking-tight text-sm px-8 py-3.5 rounded-xl transition-all hover:-translate-y-0.5 shadow-sm">
                     <i class="fa-solid fa-star text-[#00C4FF] dark:text-[#0a0f1c]"></i>
                     Ver todas las reseñas
