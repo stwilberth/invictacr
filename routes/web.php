@@ -10,6 +10,7 @@ use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\PayPalController;
 use App\Http\Controllers\OrderTrackingController;
 use App\Http\Controllers\OgImageController;
+use App\Http\Controllers\Api\CatalogController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -60,6 +61,7 @@ Route::post('/subscribe', [\App\Http\Controllers\SubscriberController::class, 's
 Route::post('/track/event', [\App\Http\Controllers\Api\VisitorTrackController::class, 'event'])->middleware('throttle:60,1')->name('track.event');
 Route::post('/track/heartbeat', [\App\Http\Controllers\Api\VisitorTrackController::class, 'heartbeat'])->middleware('throttle:120,1')->name('track.heartbeat');
 Route::get('/sitemap.xml', [\App\Http\Controllers\Api\UtilityApiController::class, 'sitemap']);
+Route::get('/pinterest-feed.xml', [CatalogController::class, 'pinterestCatalog']);
 Route::get('/og/product/{slug}.png', [OgImageController::class, 'product'])->name('og.product');
 Route::get('/og/brand.png', [OgImageController::class, 'brand'])->name('og.brand');
 Route::get('/sitemap', function () {
