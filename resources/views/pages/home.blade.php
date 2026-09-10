@@ -172,7 +172,7 @@
             <div class="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-6">
                 @foreach($resenaVideos as $video)
                 <div class="group relative rounded-2xl overflow-hidden shadow-lg bg-gray-900 aspect-[9/16] max-h-[440px]">
-                    <video src="{{ $video['url'] }}" class="w-full h-full object-cover" preload="metadata" playsinline muted disablepictureinpicture></video>
+                    <img src="https://{{ config('services.cloudflare.stream_customer_subdomain') }}.cloudflarestream.com/{{ $video->stream_uid }}/thumbnails/thumbnail.jpg" alt="Reseña de cliente" class="w-full h-full object-cover" loading="lazy" />
                     <div class="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/10 transition-all pointer-events-none">
                         <div class="w-14 h-14 rounded-full bg-white/90 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
                             <i class="fa-solid fa-play text-[#00C4FF] text-xl ml-1"></i>

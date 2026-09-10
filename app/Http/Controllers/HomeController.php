@@ -3,10 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use App\Models\ReviewVideo;
 use App\Models\SearchLog;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 
 class HomeController extends Controller
 {
@@ -83,25 +82,8 @@ class HomeController extends Controller
                 return str_contains($p->modelo, "50413");
             }) ?? $activeProducts->first();
 
-        // Reseñas (R2 resennas/) para sección home
-        $resenaVideos = Cache::remember('resenas_r2_home', 3600, function () {
-            try {
-                $files = Storage::disk('r2')->files('resennas');
-            } catch (\Exception $e) {
-                return [];
-            }
-            $mp4 = array_filter($files, fn($f) => str_ends_with(strtolower($f), '.mp4'));
-            sort($mp4, SORT_NATURAL | SORT_FLAG_CASE);
-            $mp4 = array_slice(array_values($mp4), 0, 6);
-            return array_map(function ($path) {
-                $encoded = implode('/', array_map('rawurlencode', explode('/', $path)));
-                return [
-                    'path' => $path,
-                    'url' => "https://cdn.invictacostarica.com/{$encoded}",
-                    'nombre' => pathinfo($path, PATHINFO_FILENAME),
-                ];
-            }, $mp4);
-        });
+        // Reseñas (Cloudflare Stream) para sección home
+        $resenaVideos = ReviewVideo::activos()->orderBy('orden')->orderBy('id')->take(6)->get();
 
         return view(
             "pages.home",
