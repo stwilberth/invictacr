@@ -27,7 +27,7 @@
             <i class="fa-solid fa-box md:text-xl"></i>
         </span>
         <span class="leading-tight min-w-0 flex-1">
-            <span class="text-xs md:block md:text-[13px] font-extrabold text-[#14325E] dark:text-gray-100">Apartado desde ₡{{ number_format($apartadoMinimo, 0) }}</span>
+            <span class="text-xs md:block md:text-[13px] font-extrabold text-[#14325E] dark:text-gray-100">Apartado desde</span>
         </span>
         <i class="fa-solid fa-chevron-down text-[10px] text-gray-400 md:hidden transition-transform" :class="{ 'rotate-180': abierto }"></i>
     </div>
