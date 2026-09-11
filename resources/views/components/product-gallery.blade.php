@@ -3,10 +3,10 @@
 @php
     $totalSlides = count($galleryItems);
     $streamSubdomain = config('services.cloudflare.stream_customer_subdomain', 'customer-8ybt5aiee4vaophw');
-    $navBase = 'absolute top-1/2 -translate-y-1/2 w-9 h-9 md:w-11 md:h-11 bg-[#1E293B] hover:bg-[#334155] text-white rounded-full shadow-lg flex items-center justify-center transition-all duration-300 z-20';
+    $navBase = 'absolute top-1/2 -translate-y-1/2 w-7 h-7 md:w-11 md:h-11 bg-[#1E293B] hover:bg-[#334155] text-white rounded-full shadow-lg flex items-center justify-center transition-all duration-300 z-20';
     $navLeft = 'left-2 md:left-4 ' . $navBase;
     $navRight = 'right-2 md:right-4 ' . $navBase;
-    $zoomBtn = 'absolute bottom-3 right-3 md:bottom-4 md:right-4 w-9 h-9 bg-white/95 dark:bg-gray-900/95 border border-gray-200 dark:border-gray-700/80 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white rounded-lg shadow-sm flex items-center justify-center transition-all duration-300 z-30';
+    $zoomBtn = 'absolute bottom-3 right-3 md:bottom-4 md:right-4 w-7 h-7 md:w-9 md:h-9 bg-white/95 dark:bg-gray-900/95 border border-gray-200 dark:border-gray-700/80 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white rounded-lg shadow-sm flex items-center justify-center transition-all duration-300 z-30';
     $videoItem = collect($galleryItems)->first(fn($i) => ($i['type'] ?? 'image') !== 'image');
     $videoUid = $videoItem['videoUid'] ?? $videoItem['video_uid'] ?? null;
 @endphp
@@ -62,8 +62,8 @@
                     <div class="absolute inset-0 flex items-center justify-center cursor-pointer" @click="openModalVideo()">
                         <img src="{{ $item['thumbnail'] ?? $galleryItems[0]['url'] }}" alt="Video del reloj" class="w-full h-full object-cover" loading="lazy" />
                         <div class="absolute inset-0 flex flex-col items-center justify-center gap-1.5">
-                            <div class="w-12 h-12 md:w-16 md:h-16 bg-red-600 rounded-full flex items-center justify-center shadow-2xl border-4 border-white/30 hover:border-white/60 transition-all duration-300 hover:scale-110">
-                                <i class="fa-solid fa-play text-white text-lg md:text-2xl ml-1"></i>
+                            <div class="w-10 h-10 md:w-16 md:h-16 bg-red-600 rounded-full flex items-center justify-center shadow-2xl border-4 border-white/30 hover:border-white/60 transition-all duration-300 hover:scale-110">
+                                <i class="fa-solid fa-play text-white text-base md:text-2xl ml-1"></i>
                             </div>
                             <span class="bg-black/60 backdrop-blur-sm text-white text-[9px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full">
                                 <i class="fa-solid fa-play text-[8px] mr-1"></i> Ver video
@@ -77,38 +77,38 @@
 
         {{-- Navigation buttons --}}
         <button type="button" @click="prev()" x-show="totalSlides > 1" class="{{ $navLeft }}" aria-label="Anterior">
-            <i class="fa-solid fa-chevron-left text-sm md:text-base"></i>
+            <i class="fa-solid fa-chevron-left text-xs md:text-base"></i>
         </button>
         <button type="button" @click="next()" x-show="totalSlides > 1" class="{{ $navRight }}" aria-label="Siguiente">
-            <i class="fa-solid fa-chevron-right text-sm md:text-base"></i>
+            <i class="fa-solid fa-chevron-right text-xs md:text-base"></i>
         </button>
 
         {{-- Badge único VER VIDEO REAL: solo sobre fotos, nunca duplicado --}}
-        <button type="button" x-show="hasVideo() && galleryItems[currentIndex]?.type === 'image'" @click="openModalVideo()" class="absolute bottom-3 left-3 md:bottom-4 md:left-4 z-30 flex items-center gap-2 bg-[#1E293B]/90 hover:bg-[#1E293B] text-white text-[11px] md:text-xs font-extrabold px-3 py-1.5 md:px-4 md:py-2 rounded-full shadow-md transition-colors">
+        <button type="button" x-show="hasVideo() && galleryItems[currentIndex]?.type === 'image'" @click="openModalVideo()" class="absolute bottom-3 left-3 md:bottom-4 md:left-4 z-30 flex items-center gap-1.5 md:gap-2 bg-[#1E293B]/90 hover:bg-[#1E293B] text-white text-[10px] md:text-xs font-extrabold px-2.5 py-1 md:px-4 md:py-2 rounded-full shadow-md transition-colors">
             <i class="fa-solid fa-play text-[10px] md:text-xs"></i> VER VIDEO REAL
         </button>
 
         {{-- Zoom button (only on images) --}}
         <button type="button" x-show="galleryItems[currentIndex]?.type === 'image'" @click="event.preventDefault(); openImageModal(galleryItems[currentIndex].zoomUrl, '{{ $title }}', '{{ $videoUid }}')" class="{{ $zoomBtn }} cursor-pointer">
-            <i class="fa-solid fa-expand text-sm"></i>
+            <i class="fa-solid fa-expand text-xs md:text-sm"></i>
         </button>
     </div>
 
     {{-- Thumbnail gallery --}}
     @if($totalSlides > 1)
     <div class="flex items-center gap-2 mt-3">
-        <button type="button" @click="prev()" aria-label="Anterior" class="flex-shrink-0 w-8 h-8 md:w-9 md:h-9 flex items-center justify-center rounded-full border border-gray-200 text-gray-500 hover:border-gray-400 hover:text-gray-800 transition-colors">
+        <button type="button" @click="prev()" aria-label="Anterior" class="flex-shrink-0 w-7 h-7 md:w-9 md:h-9 flex items-center justify-center rounded-full border border-gray-200 text-gray-500 hover:border-gray-400 hover:text-gray-800 transition-colors">
             <i class="fa-solid fa-chevron-left text-xs"></i>
         </button>
     <div class="flex gap-2 md:gap-2.5 flex-1 justify-start md:justify-center overflow-x-auto scrollbar-hide">
         @foreach($galleryItems as $i => $item)
             @if($item['type'] === 'image')
-            <button type="button" @click="goTo({{ $i }})" data-gallery-img="{{ $item['zoomUrl'] }}" class="w-16 h-16 md:w-[84px] md:h-[84px] flex-shrink-0 rounded-[10px] border-2 overflow-hidden bg-gray-50 dark:bg-gray-900 transition-all gallery-thumb"
+            <button type="button" @click="goTo({{ $i }})" data-gallery-img="{{ $item['zoomUrl'] }}" class="w-14 h-14 md:w-[84px] md:h-[84px] flex-shrink-0 rounded-[10px] border-2 overflow-hidden bg-gray-50 dark:bg-gray-900 transition-all gallery-thumb"
                 :class="currentIndex === {{ $i }} ? 'border-[#0A7CFF]' : 'border-transparent hover:border-gray-300 dark:hover:border-gray-600'">
                 <img src="{{ $item['url'] }}" alt="" class="w-full h-full object-contain" loading="lazy" onerror="this.closest('.gallery-thumb').style.display='none'" />
             </button>
             @else
-            <button type="button" @click="goTo({{ $i }})" class="w-16 h-16 md:w-[84px] md:h-[84px] flex-shrink-0 rounded-[10px] border-2 overflow-hidden bg-gray-900 transition-all gallery-thumb relative"
+            <button type="button" @click="goTo({{ $i }})" class="w-14 h-14 md:w-[84px] md:h-[84px] flex-shrink-0 rounded-[10px] border-2 overflow-hidden bg-gray-900 transition-all gallery-thumb relative"
                 :class="currentIndex === {{ $i }} ? 'border-[#0A7CFF]' : 'border-transparent hover:border-gray-300 dark:hover:border-gray-600'">
                 <img src="{{ $item['thumbnail'] ?? $galleryItems[0]['url'] }}" alt="" class="w-full h-full object-cover opacity-80" loading="lazy" />
                 <div class="absolute inset-0 flex items-center justify-center">
@@ -120,7 +120,7 @@
             @endif
         @endforeach
     </div>
-        <button type="button" @click="next()" aria-label="Siguiente" class="flex-shrink-0 w-8 h-8 md:w-9 md:h-9 flex items-center justify-center rounded-full border border-gray-200 text-gray-500 hover:border-gray-400 hover:text-gray-800 transition-colors">
+        <button type="button" @click="next()" aria-label="Siguiente" class="flex-shrink-0 w-7 h-7 md:w-9 md:h-9 flex items-center justify-center rounded-full border border-gray-200 text-gray-500 hover:border-gray-400 hover:text-gray-800 transition-colors">
             <i class="fa-solid fa-chevron-right text-xs"></i>
         </button>
     </div>
