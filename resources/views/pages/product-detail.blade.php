@@ -142,9 +142,9 @@
                         </div>
                         @endif
                         {{-- Badge 100% ORIGINAL (mockup style) --}}
-                        <div class="absolute top-4 left-4 z-30">
-                            <span class="flex items-center gap-2 bg-[#101828] text-white text-xs font-extrabold px-4 py-2 rounded-full shadow-md">
-                                <i class="fa-solid fa-shield-halved text-sm"></i> 100% ORIGINAL
+                        <div class="absolute top-2.5 left-2.5 z-30 sm:top-4 sm:left-4">
+                            <span class="flex items-center gap-1 sm:gap-2 bg-[#101828] text-white text-[8px] xs:text-[9px] sm:text-xs font-extrabold px-2 py-1 sm:px-4 sm:py-2 rounded-full shadow-md">
+                                <i class="fa-solid fa-shield-halved text-[8px] sm:text-sm"></i> 100% ORIGINAL
                             </span>
                         </div>
                         <x-product-gallery :galleryItems="$galleryItems" :title="$displayTitle" />
