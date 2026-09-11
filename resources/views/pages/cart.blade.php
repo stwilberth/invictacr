@@ -137,6 +137,7 @@ function cartPage() {
             try {
                 const res = await fetch(`/carrito/${itemId}`, {
                     method: 'PATCH',
+                    credentials: 'same-origin',
                     headers: {
                         'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': '{{ csrf_token() }}',
@@ -159,6 +160,7 @@ function cartPage() {
             try {
                 const res = await fetch(`/carrito/${itemId}`, {
                     method: 'DELETE',
+                    credentials: 'same-origin',
                     headers: {
                         'X-CSRF-TOKEN': '{{ csrf_token() }}',
                         'Accept': 'application/json',

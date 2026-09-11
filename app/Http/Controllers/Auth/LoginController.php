@@ -22,6 +22,11 @@ class LoginController extends Controller
             'password' => ['required'],
         ]);
 
+        // El ID de sesión de invitado debe capturarse ANTES del attempt:
+        // Auth::attempt() ya regenera la sesión (SessionGuard::updateSession),
+        // así que capturarlo después siempre devuelve el ID nuevo y el merge falla.
+        $oldSessionId = $request->session()->getId();
+
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             // Vincular perfil de visitante anónimo con el usuario
             try {
@@ -30,7 +35,6 @@ class LoginController extends Controller
                 report($e);
             }
 
-            $oldSessionId = $request->session()->getId();
             $request->session()->regenerate();
 
             $guestCart = Cart::where('session_id', $oldSessionId)->whereNull('user_id')->first();

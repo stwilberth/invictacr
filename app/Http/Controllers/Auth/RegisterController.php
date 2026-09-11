@@ -60,6 +60,9 @@ class RegisterController extends Controller
                 );
         }
 
+        // Capturar ANTES del login: Auth::login() regenera la sesión.
+        $oldSessionId = $request->session()->getId();
+
         Auth::login($user);
 
         // Vincular perfil de visitante anónimo con el nuevo usuario
@@ -69,7 +72,6 @@ class RegisterController extends Controller
             report($e);
         }
 
-        $oldSessionId = $request->session()->getId();
         $request->session()->regenerate();
 
         $guestCart = Cart::where('session_id', $oldSessionId)->whereNull('user_id')->first();
