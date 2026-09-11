@@ -73,6 +73,7 @@
                             <span class="{{ $compact ? 'text-[10px]' : 'text-xs md:text-sm' }} text-slate-400 dark:text-slate-500 line-through">₡{{ number_format($product->precio_venta, 0) }}</span>
                         @endif
                         <span class="{{ $compact ? 'text-sm' : 'text-sm md:text-base' }} font-bold text-red-600 dark:text-red-500 tracking-tighter">₡{{ number_format($priceAfterDiscount, 0) }}</span>
+                        <span class="text-[9px] font-bold text-slate-400 dark:text-slate-500">+ IVA</span>
                     </div>
                 </div>
             @else

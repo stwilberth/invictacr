@@ -227,7 +227,7 @@
                     @if($isUpcoming)
                     <div class="text-xl font-black text-amber-500 tracking-tight mt-3">Próximamente</div>
                     @elseif(!$isAgotado)
-                    <div class="text-2xl font-black text-red-600 dark:text-red-400 tracking-tight mt-3">₡{{ number_format($priceAfterDiscount, 0) }}</div>
+                    <div class="text-2xl font-black text-red-600 dark:text-red-400 tracking-tight mt-3">₡{{ number_format($priceAfterDiscount, 0) }} <span class="text-xs font-bold text-gray-700">+ IVA</span></div>
                     @if(($product->descuento ?? 0) > 0)
                     <div class="flex items-center gap-2 mt-1">
                         <span class="text-sm text-gray-400 line-through font-medium">₡{{ number_format($product->precio_venta, 0) }}</span>
@@ -304,6 +304,7 @@
                     <div class="hidden lg:flex flex-col items-start gap-4 mb-5">
                         <div class="flex items-baseline gap-3">
                             <span class="text-[40px] leading-none font-black text-[#0A7CFF] tracking-tight">₡{{ number_format($priceAfterDiscount, 0) }}</span>
+                            <span class="text-sm font-bold text-gray-400">+ IVA</span>
                             @if(($product->descuento ?? 0) > 0)
                             <div class="flex items-center gap-2">
                                 <span class="text-sm text-gray-400 line-through font-medium">₡{{ number_format($product->precio_venta, 0) }}</span>

@@ -318,64 +318,81 @@
         }, 300);
     }
 
-    var imageGallery = [];
-    var currentImageIndex = 0;
+    var modalSlides = [];
+    var modalIndex = 0;
     window.imageModalVideoUid = null;
-    window.imageModalShowingVideo = false;
 
     function openImageModal(src, alt, videoUid, startVideo) {
         var img = document.getElementById('imageModalImg');
         if (!img) return;
         var thumbs = document.querySelectorAll('[data-gallery-img]');
-        imageGallery = [];
-        thumbs.forEach(function(el) { imageGallery.push(el.getAttribute('data-gallery-img')); });
-        if (imageGallery.length === 0 && src) imageGallery = [src];
-        currentImageIndex = src ? imageGallery.indexOf(src) : 0;
-        if (currentImageIndex === -1) currentImageIndex = 0;
-        img.src = src;
-        img.alt = alt || '';
+        modalSlides = [];
+        thumbs.forEach(function(el) {
+            var s = el.getAttribute('data-gallery-img');
+            if (s) modalSlides.push({ type: 'image', src: s });
+        });
+        var seenSrc = {};
+        modalSlides = modalSlides.filter(function(sl) {
+            if (seenSrc[sl.src]) return false;
+            seenSrc[sl.src] = true;
+            return true;
+        });
+        if (modalSlides.length === 0 && src) modalSlides.push({ type: 'image', src: src });
         window.imageModalVideoUid = videoUid || null;
-        showImageModalImage();
+        if (window.imageModalVideoUid) modalSlides.push({ type: 'video', uid: window.imageModalVideoUid });
+        modalIndex = 0;
+        if (startVideo && window.imageModalVideoUid) {
+            modalIndex = modalSlides.length - 1;
+        } else if (src) {
+            var found = modalSlides.findIndex(function(sl) { return sl.type === 'image' && sl.src === src; });
+            if (found !== -1) modalIndex = found;
+        }
+        img.alt = alt || '';
         var vbtn = document.getElementById('imageModalVideoBtn');
         if (vbtn) {
             if (window.imageModalVideoUid) { vbtn.classList.remove('hidden'); vbtn.classList.add('flex'); }
             else { vbtn.classList.add('hidden'); vbtn.classList.remove('flex'); }
         }
-        updateNavButtons();
+        renderModalSlide();
         openModal('imageModal');
-        if (startVideo && window.imageModalVideoUid) toggleImageModalVideo();
     }
-    function setImageModalVideoBtn(showingVideo) {
+    function setImageModalVideoBtn(onVideo) {
         var vbtn = document.getElementById('imageModalVideoBtn');
         if (!vbtn) return;
-        vbtn.innerHTML = showingVideo
+        vbtn.innerHTML = onVideo
             ? '<i class="fa-solid fa-images text-xs"></i><span>VER FOTOS</span>'
             : '<i class="fa-solid fa-play text-xs"></i><span>VER VIDEO REAL</span>';
     }
-    function showImageModalImage() {
-        window.imageModalShowingVideo = false;
+    function renderModalSlide() {
         var img = document.getElementById('imageModalImg');
         var wrap = document.getElementById('imageModalVideoWrap');
         var frame = document.getElementById('imageModalVideoFrame');
         if (frame) frame.src = '';
-        if (img) img.classList.remove('hidden');
-        if (wrap) { wrap.classList.add('hidden'); wrap.classList.remove('flex'); }
-        setImageModalVideoBtn(false);
+        var sl = modalSlides[modalIndex];
+        var onVideo = !!(sl && sl.type === 'video');
+        if (onVideo) {
+            if (img) img.classList.add('hidden');
+            if (wrap) { wrap.classList.remove('hidden'); wrap.classList.add('flex'); }
+            if (frame) frame.src = 'https://' + streamCustomerSubdomain + '.cloudflarestream.com/' + sl.uid + '/iframe?autoplay=1';
+        } else {
+            if (wrap) { wrap.classList.add('hidden'); wrap.classList.remove('flex'); }
+            if (img) {
+                img.classList.remove('hidden');
+                img.src = sl ? sl.src : '';
+            }
+        }
+        setImageModalVideoBtn(onVideo);
+        updateNavButtons();
     }
     function toggleImageModalVideo() {
-        if (!window.imageModalVideoUid) return;
-        if (window.imageModalShowingVideo) {
-            showImageModalImage();
-            return;
+        if (!window.imageModalVideoUid || modalSlides.length === 0) return;
+        var sl = modalSlides[modalIndex];
+        if (sl && sl.type === 'video') {
+            modalIndex = 0;
+        } else {
+            modalIndex = modalSlides.length - 1;
         }
-        window.imageModalShowingVideo = true;
-        var img = document.getElementById('imageModalImg');
-        var wrap = document.getElementById('imageModalVideoWrap');
-        var frame = document.getElementById('imageModalVideoFrame');
-        if (img) img.classList.add('hidden');
-        if (wrap) { wrap.classList.remove('hidden'); wrap.classList.add('flex'); }
-        if (frame) frame.src = 'https://' + streamCustomerSubdomain + '.cloudflarestream.com/' + window.imageModalVideoUid + '/iframe?autoplay=1';
-        setImageModalVideoBtn(true);
+        renderModalSlide();
     }
     function closeImageModal() {
         var img = document.getElementById('imageModalImg');
@@ -383,31 +400,25 @@
         var frame = document.getElementById('imageModalVideoFrame');
         if (frame) frame.src = '';
         window.imageModalVideoUid = null;
-        window.imageModalShowingVideo = false;
-        imageGallery = [];
+        modalSlides = [];
+        modalIndex = 0;
         closeModal('imageModal');
     }
     function prevImage() {
-        if (imageGallery.length < 2) return;
-        if (window.imageModalShowingVideo) showImageModalImage();
-        currentImageIndex = (currentImageIndex - 1 + imageGallery.length) % imageGallery.length;
-        var img = document.getElementById('imageModalImg');
-        img.src = imageGallery[currentImageIndex];
-        updateNavButtons();
+        if (modalSlides.length < 2) return;
+        modalIndex = (modalIndex - 1 + modalSlides.length) % modalSlides.length;
+        renderModalSlide();
     }
     function nextImage() {
-        if (imageGallery.length < 2) return;
-        if (window.imageModalShowingVideo) showImageModalImage();
-        currentImageIndex = (currentImageIndex + 1) % imageGallery.length;
-        var img = document.getElementById('imageModalImg');
-        img.src = imageGallery[currentImageIndex];
-        updateNavButtons();
+        if (modalSlides.length < 2) return;
+        modalIndex = (modalIndex + 1) % modalSlides.length;
+        renderModalSlide();
     }
     function updateNavButtons() {
         var prev = document.getElementById('modalPrevBtn');
         var next = document.getElementById('modalNextBtn');
         if (!prev || !next) return;
-        var show = imageGallery.length > 1;
+        var show = modalSlides.length > 1;
         prev.style.display = show ? '' : 'none';
         next.style.display = show ? '' : 'none';
     }

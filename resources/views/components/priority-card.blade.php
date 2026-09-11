@@ -45,6 +45,7 @@
             <div class="flex flex-col">
                 <span class="text-sm sm:text-base font-black text-white">
                     ₡{{ number_format($priceAfterDiscount, 0) }}
+                    <span class="text-[9px] sm:text-[10px] font-bold text-white/60">+ IVA</span>
                 </span>
                 @if(($product->descuento ?? 0) > 0)
                     <span class="text-[9px] sm:text-[10px] font-bold text-white/40 line-through">
