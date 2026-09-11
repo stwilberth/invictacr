@@ -274,7 +274,7 @@
                 {{-- Desktop Title Header --}}
                 <div class="hidden lg:block mb-3">
                     <div class="flex items-start gap-3 mb-2">
-                        <h1 class="flex-1 text-[28px] xl:text-[32px] font-black text-[#0A2342] dark:text-white tracking-tight leading-[1.1] uppercase">
+                        <h1 class="flex-1 text-[28px] xl:text-[32px] font-black text-[#14325E] dark:text-white tracking-tight leading-[1.1] uppercase">
                             {{ $displayTitle }}
                         </h1>
                     </div>
@@ -354,57 +354,57 @@
                 <div class="hidden lg:block w-full mb-3.5 mt-1">
                     <div class="grid grid-cols-2 gap-x-6 gap-y-5">
                         <div class="flex items-center gap-3">
-                            <div class="flex-shrink-0 w-11 h-11 rounded-[10px] bg-[#EEF3FA] dark:bg-gray-800 flex items-center justify-center text-[#0A2342] dark:text-gray-300">
+                            <div class="flex-shrink-0 w-11 h-11 rounded-[10px] bg-[#EEF3FA] dark:bg-gray-800 flex items-center justify-center text-[#14325E] dark:text-gray-300">
                                 <i class="fa-solid fa-venus-mars text-base"></i>
                             </div>
                             <div>
                                 <p class="text-[11px] text-gray-400 font-semibold uppercase tracking-wide">Para</p>
-                                <p class="text-sm font-bold text-[#0A2342] dark:text-white capitalize">{{ $product->genero === 'mujer' ? 'Mujer' : ($product->genero ?? 'Unisex') }}</p>
+                                <p class="text-sm font-bold text-[#14325E] dark:text-white capitalize">{{ $product->genero === 'mujer' ? 'Mujer' : ($product->genero ?? 'Unisex') }}</p>
                             </div>
                         </div>
                         <div class="flex items-center gap-3">
-                            <div class="flex-shrink-0 w-11 h-11 rounded-[10px] bg-[#EEF3FA] dark:bg-gray-800 flex items-center justify-center text-[#0A2342] dark:text-gray-300">
+                            <div class="flex-shrink-0 w-11 h-11 rounded-[10px] bg-[#EEF3FA] dark:bg-gray-800 flex items-center justify-center text-[#14325E] dark:text-gray-300">
                                 <i class="fa-solid fa-arrows-up-down-left-right text-base"></i>
                             </div>
                             <div>
                                 <p class="text-[11px] text-gray-400 font-semibold uppercase tracking-wide">Tamaño de caja</p>
-                                <p class="text-sm font-bold text-[#0A2342] dark:text-white">{{ $size ? $size . '.0mm' : 'N/A' }}</p>
+                                <p class="text-sm font-bold text-[#14325E] dark:text-white">{{ $size ? $size . '.0mm' : 'N/A' }}</p>
                             </div>
                         </div>
                         <div class="flex items-center gap-3">
-                            <div class="flex-shrink-0 w-11 h-11 rounded-[10px] bg-[#EEF3FA] dark:bg-gray-800 flex items-center justify-center text-[#0A2342] dark:text-gray-300">
+                            <div class="flex-shrink-0 w-11 h-11 rounded-[10px] bg-[#EEF3FA] dark:bg-gray-800 flex items-center justify-center text-[#14325E] dark:text-gray-300">
                                 <i class="fa-solid fa-gear text-base"></i>
                             </div>
                             <div>
                                 <p class="text-[11px] text-gray-400 font-semibold uppercase tracking-wide">Movimiento</p>
-                                <p class="text-sm font-bold text-[#0A2342] dark:text-white capitalize line-clamp-1">{{ $product->tipo_movimiento === 'cuarzo' ? 'Batería' : ($product->tipo_movimiento ?? 'Especial') }}</p>
+                                <p class="text-sm font-bold text-[#14325E] dark:text-white capitalize line-clamp-1">{{ $product->tipo_movimiento === 'cuarzo' ? 'Batería' : ($product->tipo_movimiento ?? 'Especial') }}</p>
                             </div>
                         </div>
                         <div class="flex items-center gap-3">
-                            <div class="flex-shrink-0 w-11 h-11 rounded-[10px] bg-[#EEF3FA] dark:bg-gray-800 flex items-center justify-center text-[#0A2342] dark:text-gray-300">
+                            <div class="flex-shrink-0 w-11 h-11 rounded-[10px] bg-[#EEF3FA] dark:bg-gray-800 flex items-center justify-center text-[#14325E] dark:text-gray-300">
                                 <i class="fa-solid fa-droplet text-base"></i>
                             </div>
                             <div>
                                 <p class="text-[11px] text-gray-400 font-semibold uppercase tracking-wide">Resistencia al agua</p>
-                                <p class="text-sm font-bold text-[#0A2342] dark:text-white whitespace-nowrap">{{ $product->resistencia_agua ? $product->resistencia_agua . 'm' : 'Resistente' }}</p>
+                                <p class="text-sm font-bold text-[#14325E] dark:text-white whitespace-nowrap">{{ $product->resistencia_agua ? $product->resistencia_agua . 'm' : 'Resistente' }}</p>
                             </div>
                         </div>
                         <div class="flex items-center gap-3">
-                            <div class="flex-shrink-0 w-11 h-11 rounded-[10px] bg-[#EEF3FA] dark:bg-gray-800 flex items-center justify-center text-[#0A2342] dark:text-gray-300">
+                            <div class="flex-shrink-0 w-11 h-11 rounded-[10px] bg-[#EEF3FA] dark:bg-gray-800 flex items-center justify-center text-[#14325E] dark:text-gray-300">
                                 <i class="fa-solid fa-water text-base"></i>
                             </div>
                             <div>
                                 <p class="text-[11px] text-gray-400 font-semibold uppercase tracking-wide">Colección</p>
-                                <p class="text-sm font-bold text-[#0A2342] dark:text-white">{{ $product->coleccion ?? '—' }}</p>
+                                <p class="text-sm font-bold text-[#14325E] dark:text-white">{{ $product->coleccion ?? '—' }}</p>
                             </div>
                         </div>
                         <div class="flex items-center gap-3">
-                            <div class="flex-shrink-0 w-11 h-11 rounded-[10px] bg-[#EEF3FA] dark:bg-gray-800 flex items-center justify-center text-[#0A2342] dark:text-gray-300">
+                            <div class="flex-shrink-0 w-11 h-11 rounded-[10px] bg-[#EEF3FA] dark:bg-gray-800 flex items-center justify-center text-[#14325E] dark:text-gray-300">
                                 <i class="fa-solid fa-stopwatch text-base"></i>
                             </div>
                             <div>
                                 <p class="text-[11px] text-gray-400 font-semibold uppercase tracking-wide">Brazalete</p>
-                                <p class="text-sm font-bold text-[#0A2342] dark:text-white capitalize">{{ $product->brazalete ?? '—' }}</p>
+                                <p class="text-sm font-bold text-[#14325E] dark:text-white capitalize">{{ $product->brazalete ?? '—' }}</p>
                             </div>
                         </div>
                     </div>
@@ -416,7 +416,7 @@
                                     <i class="fa-solid fa-award text-2xl"></i>
                                 </span>
                                 <div>
-                                    <p class="text-[13px] leading-snug font-medium text-[#0A2342] dark:text-blue-100">Este modelo es solo uno de los más de 300 estilos Invicta que tenemos disponibles.</p>
+                                    <p class="text-[13px] leading-snug font-medium text-[#14325E] dark:text-blue-100">Este modelo es solo uno de los más de 300 estilos Invicta que tenemos disponibles.</p>
                                     <a href="/catalogo-completo" class="text-[13px] font-semibold text-[#0A7CFF] hover:underline no-underline">Ver catálogo completo →</a>
                                 </div>
                             </div>
@@ -429,7 +429,7 @@
         @if($relatedProducts->count() > 0)
         <div class="hidden lg:block mt-12">
             <div class="flex items-center justify-between mb-4">
-                <h2 class="text-lg font-black text-[#0A2342] dark:text-white uppercase tracking-wide">También te puede interesar</h2>
+                <h2 class="text-lg font-black text-[#14325E] dark:text-white uppercase tracking-wide">También te puede interesar</h2>
                 <div class="flex gap-2">
                     <button type="button" onclick="scrollRelated(-1)" aria-label="Anterior" class="w-9 h-9 flex items-center justify-center rounded-full border border-gray-200 dark:border-gray-600 text-gray-400 hover:text-[#0A7CFF] hover:border-[#0A7CFF] transition-colors">
                         <i class="fa-solid fa-chevron-left text-xs"></i>

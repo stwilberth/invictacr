@@ -7,7 +7,7 @@
     $streamSubdomain = config('services.cloudflare.stream_customer_subdomain', 'customer-8ybt5aiee4vaophw');
     $navLeft = $isMobile
         ? 'absolute left-1 top-1/2 -translate-y-1/2 w-7 h-7 bg-white/80 dark:bg-gray-900/80 text-gray-600 dark:text-gray-300 rounded-full shadow flex items-center justify-center transition-all opacity-60 z-20'
-        : 'absolute left-4 top-1/2 -translate-y-1/2 w-11 h-11 bg-[#101828] hover:bg-[#1d2939] text-white rounded-full shadow-lg flex items-center justify-center transition-all duration-300 z-20';
+        : 'absolute left-4 top-1/2 -translate-y-1/2 w-11 h-11 bg-[#1E293B] hover:bg-[#334155] text-white rounded-full shadow-lg flex items-center justify-center transition-all duration-300 z-20';
     $navRight = str_replace('left-1', 'right-1', str_replace('left-4', 'right-4', $navLeft));
     $navChevron = $isMobile ? 'text-[10px]' : 'text-base';
     $thumbSize = $isMobile ? 'w-14 h-14' : 'w-[84px] h-[84px]';
@@ -138,7 +138,7 @@
 
         {{-- Badge único VER VIDEO REAL: solo en desktop, solo sobre fotos, nunca duplicado --}}
         @if(!$isMobile)
-        <button type="button" x-show="hasVideo() && galleryItems[currentIndex]?.type === 'image'" @click="openModalVideo()" class="absolute bottom-4 left-4 z-30 flex items-center gap-2 bg-[#101828]/90 hover:bg-[#101828] text-white text-xs font-extrabold px-4 py-2 rounded-full shadow-md transition-colors">
+        <button type="button" x-show="hasVideo() && galleryItems[currentIndex]?.type === 'image'" @click="openModalVideo()" class="absolute bottom-4 left-4 z-30 flex items-center gap-2 bg-[#1E293B]/90 hover:bg-[#1E293B] text-white text-xs font-extrabold px-4 py-2 rounded-full shadow-md transition-colors">
             <i class="fa-solid fa-play text-xs"></i> VER VIDEO REAL
         </button>
         @endif

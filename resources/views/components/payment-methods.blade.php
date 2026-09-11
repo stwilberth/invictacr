@@ -1,5 +1,5 @@
 <div class="flex flex-wrap items-center gap-2">
-    <span class="text-xs font-extrabold text-[#0A2342] dark:text-gray-300 uppercase tracking-wide whitespace-nowrap">Aceptamos:</span>
+    <span class="text-xs font-extrabold text-[#14325E] dark:text-gray-300 uppercase tracking-wide whitespace-nowrap">Aceptamos:</span>
     <div class="flex flex-wrap items-center gap-2">
         <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 text-xs font-semibold text-gray-700 dark:text-gray-300" title="Efectivo">
             <i class="fa-solid fa-money-bill-wave text-sm text-[#0A7CFF]"></i> Efectivo
