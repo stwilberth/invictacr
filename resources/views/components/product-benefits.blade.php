@@ -2,25 +2,33 @@
 @php
     $withApartado = $showApartado && (float) $apartadoMinimo > 0;
 @endphp
-<div class="w-full grid {{ $withApartado ? 'grid-cols-2' : 'grid-cols-1' }} gap-1.5">
-    <div class="flex items-center gap-2 px-2.5 py-2 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5">
-        <span class="flex-shrink-0 w-7 h-7 flex items-center justify-center rounded-lg bg-emerald-50 dark:bg-emerald-500/15">
-            <i class="fa-solid fa-truck-fast text-emerald-600 dark:text-emerald-400 text-xs"></i>
+<div class="w-full grid {{ $withApartado ? 'grid-cols-3' : 'grid-cols-3' }} gap-3">
+    {{-- Trust signals estilo mockup --}}
+    <div class="flex items-center gap-3 px-4 py-3 bg-[#F1F5FA] dark:bg-gray-800 rounded-xl">
+        <span class="flex-shrink-0 text-[#0A2342] dark:text-gray-200">
+            <i class="fa-solid fa-truck-fast text-xl"></i>
         </span>
-        <span class="text-[10px] md:text-[11px] font-bold text-gray-700 dark:text-gray-200 leading-tight">Envío gratis</span>
-    </div>
-    <div class="flex items-center gap-2 px-2.5 py-2 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5">
-        <span class="flex-shrink-0 w-7 h-7 flex items-center justify-center rounded-lg bg-emerald-50 dark:bg-emerald-500/15">
-            <i class="fa-solid fa-shield-halved text-emerald-600 dark:text-emerald-400 text-xs"></i>
+        <span class="leading-tight">
+            <span class="block text-[13px] font-extrabold text-[#0A2342] dark:text-gray-100">Envío gratis</span>
+            <span class="block text-xs font-medium text-gray-500 dark:text-gray-400">a todo Costa Rica</span>
         </span>
-        <span class="text-[10px] md:text-[11px] font-bold text-gray-700 dark:text-gray-200 leading-tight">100% Original &mdash; Garantía 6 meses</span>
     </div>
-    @if($withApartado)
-    <div class="flex items-center gap-2 px-2.5 py-2 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5">
-        <span class="flex-shrink-0 w-7 h-7 flex items-center justify-center rounded-lg bg-emerald-50 dark:bg-emerald-500/15">
-            <i class="fa-solid fa-hand-holding-dollar text-emerald-600 dark:text-emerald-400 text-xs"></i>
+    <div class="flex items-center gap-3 px-4 py-3 bg-[#F1F5FA] dark:bg-gray-800 rounded-xl">
+        <span class="flex-shrink-0 text-[#0A2342] dark:text-gray-200">
+            <i class="fa-solid fa-shield-halved text-xl"></i>
         </span>
-        <span class="text-[10px] md:text-[11px] font-bold text-gray-700 dark:text-gray-200 leading-tight">Apartado desde <span class="font-black text-gray-900 dark:text-white">₡{{ number_format($apartadoMinimo, 0) }}</span></span>
+        <span class="leading-tight">
+            <span class="block text-[13px] font-extrabold text-[#0A2342] dark:text-gray-100">100% Original</span>
+            <span class="block text-xs font-medium text-gray-500 dark:text-gray-400">Garantía 6 meses</span>
+        </span>
     </div>
-    @endif
+    <div class="flex items-center gap-3 px-4 py-3 bg-[#F1F5FA] dark:bg-gray-800 rounded-xl">
+        <span class="flex-shrink-0 text-[#0A2342] dark:text-gray-200">
+            <i class="fa-solid fa-box text-xl"></i>
+        </span>
+        <span class="leading-tight">
+            <span class="block text-[13px] font-extrabold text-[#0A2342] dark:text-gray-100">Apartado desde</span>
+            <span class="block text-[13px] font-extrabold text-[#0A2342] dark:text-white">₡{{ number_format($apartadoMinimo, 0) }}</span>
+        </span>
+    </div>
 </div>

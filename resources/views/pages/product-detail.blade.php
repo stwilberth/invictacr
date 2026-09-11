@@ -108,7 +108,7 @@
         }
     @endphp
 
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 lg:py-4">
+    <div class="max-w-[1472px] mx-auto px-4 sm:px-6 lg:px-8 py-4 lg:py-5">
         {{-- Breadcrumbs 
         <nav class="flex items-center gap-1.5 text-xs lg:text-sm text-slate-400 dark:text-gray-500 mb-1.5 overflow-x-auto whitespace-nowrap pb-1">
             <a href="/" class="hover:text-[#00C4FF] transition-colors">Inicio</a>
@@ -153,16 +153,22 @@
          </div>
 
         {{-- Main Product Layout --}}
-        <div class="grid grid-cols-1 lg:grid-cols-12 items-start gap-3 lg:gap-8">
+        <div class="grid grid-cols-1 lg:grid-cols-2 items-start gap-4 lg:gap-10 xl:gap-14">
             {{-- Left Column: Media --}}
-            <div class="lg:col-span-6">
-                <div class="hidden lg:block lg:sticky lg:top-0">
-                    <div class="relative">
+            <div class="lg:col-span-1">
+                <div class="hidden lg:block lg:sticky lg:top-5">
+                    <div class="relative group/image">
                         @if(($product->descuento ?? 0) > 0)
-                        <div class="absolute top-3 right-3 z-30">
-                            <span class="bg-red-500 text-white text-[11px] font-black px-2.5 py-1 rounded-lg shadow-sm">-{{ $product->descuento }}%</span>
+                        <div class="absolute top-4 right-4 z-30">
+                            <span class="bg-red-500 text-white text-xs font-black px-3 py-1.5 rounded-lg shadow-sm">-{{ $product->descuento }}%</span>
                         </div>
                         @endif
+                        {{-- Badge 100% ORIGINAL (mockup style) --}}
+                        <div class="absolute top-4 left-4 z-30">
+                            <span class="flex items-center gap-2 bg-[#101828] text-white text-xs font-extrabold px-4 py-2 rounded-full shadow-md">
+                                <i class="fa-solid fa-shield-halved text-sm"></i> 100% ORIGINAL
+                            </span>
+                        </div>
                         <x-product-gallery :galleryItems="$galleryItems" :title="$displayTitle" variant="desktop" />
                     </div>
                 </div>
@@ -264,16 +270,13 @@
             </div>
 
             {{-- Right Column: Buy Box --}}
-            <div class="lg:col-span-6 flex flex-col">
+            <div class="lg:col-span-1 flex flex-col">
                 {{-- Desktop Title Header --}}
-                <div class="hidden lg:block mb-1">
-                    <div class="flex items-center gap-3 mb-1">
-                        <h1 class="flex-1 text-xl sm:text-2xl lg:text-3xl font-black text-gray-800 dark:text-white tracking-tight leading-[1.1] uppercase">
+                <div class="hidden lg:block mb-3">
+                    <div class="flex items-start gap-3 mb-2">
+                        <h1 class="flex-1 text-[28px] xl:text-[32px] font-black text-[#0A2342] dark:text-white tracking-tight leading-[1.1] uppercase">
                             {{ $displayTitle }}
                         </h1>
-                        <button type="button" onclick="openShareModal()" aria-label="Compartir" class="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-full border border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-300 hover:text-[#00C4FF] hover:border-[#00C4FF] transition-colors" title="Compartir">
-                            <i class="fa-solid fa-share-nodes"></i>
-                        </button>
                     </div>
                     <div class="flex items-center justify-center md:justify-start gap-3">
                         @if($isUpcoming)
@@ -298,38 +301,39 @@
                 </div>
                 @elseif(!$isUpcoming)
                     {{-- Desktop Price & Action Buttons --}}
-                    <div class="hidden lg:flex flex-col items-start gap-2.5 mb-3.5">
+                    <div class="hidden lg:flex flex-col items-start gap-4 mb-5">
                         <div class="flex items-baseline gap-3">
-                            <span class="text-2xl lg:text-3xl font-black text-red-600 dark:text-red-400 tracking-tighter">₡{{ number_format($priceAfterDiscount, 0) }}</span>
+                            <span class="text-[40px] leading-none font-black text-[#0A7CFF] tracking-tight">₡{{ number_format($priceAfterDiscount, 0) }}</span>
                             @if(($product->descuento ?? 0) > 0)
                             <div class="flex items-center gap-2">
-                                <span class="text-xs text-gray-400 line-through font-medium">₡{{ number_format($product->precio_venta, 0) }}</span>
-                                <span class="bg-red-500 text-white text-[10px] font-black px-2 py-1 rounded-lg shadow-sm shadow-red-500/30">-{{ $product->descuento }}% OFF</span>
+                                <span class="text-sm text-gray-400 line-through font-medium">₡{{ number_format($product->precio_venta, 0) }}</span>
+                                <span class="bg-red-500 text-white text-[11px] font-black px-2.5 py-1 rounded-lg shadow-sm">-{{ $product->descuento }}% OFF</span>
                             </div>
                             @endif
                         </div>
                         <x-product-benefits :apartadoMinimo="$apartadoMinimo" />
 
-                        {{-- Métodos de pago aceptados --}}
-                        <x-payment-methods />
-
                         {{-- Desktop Action buttons --}}
-                        <div class="flex gap-2.5 w-full">
+                        <div class="flex gap-3 w-full">
+                            <a href="{{ $whatsappBuy }}" data-cta="comprar-whatsapp" data-product-id="{{ $product->id }}" target="_blank" rel="noopener noreferrer" class="flex-1 flex items-center justify-center gap-2 py-3.5 bg-[#0EB45D] hover:bg-[#0aa550] text-white rounded-[10px] font-bold text-[15px] transition-all no-underline shadow-sm">
+                                <i class="fa-brands fa-whatsapp text-xl"></i> Comprar por WhatsApp
+                            </a>
                             @if(!$isAgotado && !$isUpcoming && ($product->stock ?? 0) > 0)
                                 @if($inCart)
-                                <a href="{{ route('cart.show') }}" class="flex-1 flex items-center justify-center gap-1 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-xl font-extrabold uppercase tracking-tight text-xs transition-all hover:-translate-y-0.5 active:scale-95 shadow-sm hover:shadow-md">
-                                    <i class="fa-solid fa-cart-shopping text-base"></i> Ver Carrito
+                                <a href="{{ route('cart.show') }}" class="flex-1 flex items-center justify-center gap-2 py-3.5 bg-[#0A2342] hover:bg-[#132e57] text-white rounded-[10px] font-bold text-[15px] transition-all shadow-sm">
+                                    <i class="fa-solid fa-cart-shopping text-lg"></i> Ver Carrito
                                 </a>
                                 @else
-                                <button type="button" data-cta="comprar-ahora" data-product-id="{{ $product->id }}" onclick="addToCart({{ $product->id }}, this)" class="flex-1 flex items-center justify-center gap-1 py-2 bg-[#00C4FF] hover:bg-[#00a3d6] text-white rounded-xl font-extrabold uppercase tracking-tight text-xs transition-all hover:-translate-y-0.5 active:scale-95 shadow-sm hover:shadow-md">
-                                    <i class="fa-solid fa-bag-shopping text-base"></i> Comprar ahora
+                                <button type="button" data-cta="comprar-ahora" data-product-id="{{ $product->id }}" onclick="addToCart({{ $product->id }}, this)" class="flex-1 flex items-center justify-center gap-2 py-3.5 bg-[#0A2342] hover:bg-[#132e57] text-white rounded-[10px] font-bold text-[15px] transition-all shadow-sm">
+                                    <i class="fa-solid fa-cart-shopping text-lg"></i> Comprar ahora
                                 </button>
                                 @endif
                             @endif
-                            <a href="{{ $whatsappBuy }}" data-cta="comprar-whatsapp" data-product-id="{{ $product->id }}" target="_blank" rel="noopener noreferrer" class="flex-1 flex items-center justify-center gap-1 py-2 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-xl font-extrabold uppercase tracking-tight text-xs transition-all hover:-translate-y-0.5 active:scale-95 no-underline shadow-sm hover:shadow-md">
-                                <i class="fa-brands fa-whatsapp text-base"></i> Comprar por WhatsApp
-                            </a>
                         </div>
+
+                        {{-- Métodos de pago aceptados --}}
+                        <x-payment-methods />
+
                     </div>
                 @else
                     {{-- Desktop Action buttons (no price for upcoming / agotado) --}}
@@ -346,92 +350,103 @@
                 @endif
 
                 {{-- Especificaciones (siempre visible) --}}
-                <div class="hidden lg:block w-full mb-3.5 mt-4">
-                    <div class="grid grid-cols-2">
-                        <div class="p-2.5 flex items-start gap-2">
-                            <div class="mt-1 flex-shrink-0 w-7 h-7 rounded-lg bg-gray-50 dark:bg-gray-900 flex items-center justify-center text-gray-400">
-                                <i class="fa-solid fa-venus-mars text-xs"></i>
+                <div class="hidden lg:block w-full mb-3.5 mt-1">
+                    <div class="grid grid-cols-2 gap-x-6 gap-y-5">
+                        <div class="flex items-center gap-3">
+                            <div class="flex-shrink-0 w-11 h-11 rounded-[10px] bg-[#EEF3FA] dark:bg-gray-800 flex items-center justify-center text-[#0A2342] dark:text-gray-300">
+                                <i class="fa-solid fa-venus-mars text-base"></i>
                             </div>
                             <div>
-                                <p class="text-[9px] text-gray-400 font-bold uppercase tracking-tight">Para</p>
-                                <p class="text-xs font-bold text-gray-900 dark:text-white capitalize">{{ $product->genero ?? 'Unisex' }}</p>
+                                <p class="text-[11px] text-gray-400 font-semibold uppercase tracking-wide">Para</p>
+                                <p class="text-sm font-bold text-[#0A2342] dark:text-white capitalize">{{ $product->genero === 'mujer' ? 'Mujer' : ($product->genero ?? 'Unisex') }}</p>
                             </div>
                         </div>
-                        <div class="p-2.5 flex items-start gap-2">
-                            <div class="mt-1 flex-shrink-0 w-7 h-7 rounded-lg bg-gray-50 dark:bg-gray-900 flex items-center justify-center text-gray-400">
-                                <i class="fa-solid fa-arrows-up-down-left-right text-xs"></i>
+                        <div class="flex items-center gap-3">
+                            <div class="flex-shrink-0 w-11 h-11 rounded-[10px] bg-[#EEF3FA] dark:bg-gray-800 flex items-center justify-center text-[#0A2342] dark:text-gray-300">
+                                <i class="fa-solid fa-arrows-up-down-left-right text-base"></i>
                             </div>
                             <div>
-                                <p class="text-[9px] text-gray-400 font-bold uppercase tracking-tight">Tamaño de caja</p>
-                                <p class="text-xs font-bold text-gray-900 dark:text-white">{{ $size ? $size . 'mm' : 'N/A' }}</p>
+                                <p class="text-[11px] text-gray-400 font-semibold uppercase tracking-wide">Tamaño de caja</p>
+                                <p class="text-sm font-bold text-[#0A2342] dark:text-white">{{ $size ? $size . '.0mm' : 'N/A' }}</p>
                             </div>
                         </div>
-                        <div class="p-2.5 flex items-start gap-2">
-                            <div class="mt-1 flex-shrink-0 w-7 h-7 rounded-lg bg-gray-50 dark:bg-gray-900 flex items-center justify-center text-gray-400">
-                                <i class="fa-solid fa-gear text-xs"></i>
+                        <div class="flex items-center gap-3">
+                            <div class="flex-shrink-0 w-11 h-11 rounded-[10px] bg-[#EEF3FA] dark:bg-gray-800 flex items-center justify-center text-[#0A2342] dark:text-gray-300">
+                                <i class="fa-solid fa-gear text-base"></i>
                             </div>
                             <div>
-                                <p class="text-[9px] text-gray-400 font-bold uppercase tracking-tight">Movimiento</p>
-                                <p class="text-xs font-bold text-gray-900 dark:text-white capitalize line-clamp-1">{{ $product->tipo_movimiento === 'cuarzo' ? 'Batería' : ($product->tipo_movimiento ?? 'Especial') }}</p>
+                                <p class="text-[11px] text-gray-400 font-semibold uppercase tracking-wide">Movimiento</p>
+                                <p class="text-sm font-bold text-[#0A2342] dark:text-white capitalize line-clamp-1">{{ $product->tipo_movimiento === 'cuarzo' ? 'Batería' : ($product->tipo_movimiento ?? 'Especial') }}</p>
                             </div>
                         </div>
-                        <div class="p-2.5 flex items-start gap-2">
-                            <div class="mt-1 flex-shrink-0 w-7 h-7 rounded-lg bg-gray-50 dark:bg-gray-900 flex items-center justify-center text-gray-400">
-                                <i class="fa-solid fa-droplet text-xs"></i>
+                        <div class="flex items-center gap-3">
+                            <div class="flex-shrink-0 w-11 h-11 rounded-[10px] bg-[#EEF3FA] dark:bg-gray-800 flex items-center justify-center text-[#0A2342] dark:text-gray-300">
+                                <i class="fa-solid fa-droplet text-base"></i>
                             </div>
                             <div>
-                                <p class="text-[9px] text-gray-400 font-bold uppercase tracking-tight">Resistencia al agua</p>
-                                <p class="text-xs font-bold text-gray-900 dark:text-white whitespace-nowrap">{{ $product->resistencia_agua ? $product->resistencia_agua . 'm' : 'Resistente' }}</p>
+                                <p class="text-[11px] text-gray-400 font-semibold uppercase tracking-wide">Resistencia al agua</p>
+                                <p class="text-sm font-bold text-[#0A2342] dark:text-white whitespace-nowrap">{{ $product->resistencia_agua ? $product->resistencia_agua . 'm' : 'Resistente' }}</p>
                             </div>
                         </div>
-                        <div class="p-2.5 flex items-start gap-2">
-                            <div class="mt-1 flex-shrink-0 w-7 h-7 rounded-lg bg-gray-50 dark:bg-gray-900 flex items-center justify-center text-gray-400">
-                                <i class="fa-solid fa-layer-group text-xs"></i>
+                        <div class="flex items-center gap-3">
+                            <div class="flex-shrink-0 w-11 h-11 rounded-[10px] bg-[#EEF3FA] dark:bg-gray-800 flex items-center justify-center text-[#0A2342] dark:text-gray-300">
+                                <i class="fa-solid fa-water text-base"></i>
                             </div>
                             <div>
-                                <p class="text-[9px] text-gray-400 font-bold uppercase tracking-tight">Colección</p>
-                                <p class="text-xs font-bold text-gray-900 dark:text-white">{{ $product->coleccion ?? '—' }}</p>
+                                <p class="text-[11px] text-gray-400 font-semibold uppercase tracking-wide">Colección</p>
+                                <p class="text-sm font-bold text-[#0A2342] dark:text-white">{{ $product->coleccion ?? '—' }}</p>
                             </div>
                         </div>
-                        <div class="p-2.5 flex items-start gap-2">
-                            <div class="mt-1 flex-shrink-0 w-7 h-7 rounded-lg bg-gray-50 dark:bg-gray-900 flex items-center justify-center text-gray-400">
-                                <i class="fa-solid fa-clock text-xs"></i>
+                        <div class="flex items-center gap-3">
+                            <div class="flex-shrink-0 w-11 h-11 rounded-[10px] bg-[#EEF3FA] dark:bg-gray-800 flex items-center justify-center text-[#0A2342] dark:text-gray-300">
+                                <i class="fa-solid fa-stopwatch text-base"></i>
                             </div>
                             <div>
-                                <p class="text-[9px] text-gray-400 font-bold uppercase tracking-tight">Brazalete</p>
-                                <p class="text-xs font-bold text-gray-900 dark:text-white capitalize">{{ $product->brazalete ?? '—' }}</p>
+                                <p class="text-[11px] text-gray-400 font-semibold uppercase tracking-wide">Brazalete</p>
+                                <p class="text-sm font-bold text-[#0A2342] dark:text-white capitalize">{{ $product->brazalete ?? '—' }}</p>
                             </div>
                         </div>
                     </div>
+
+                        {{-- Banner informativo azul (mockup style) --}}
+                        <div class="w-full mt-6">
+                            <div class="bg-[#EAF2FF] dark:bg-blue-900/20 rounded-xl px-5 py-4 flex items-start gap-3">
+                                <span class="flex-shrink-0 w-8 h-8 flex items-center justify-center text-[#0A7CFF] mt-0.5">
+                                    <i class="fa-solid fa-award text-2xl"></i>
+                                </span>
+                                <div>
+                                    <p class="text-[13px] leading-snug font-medium text-[#0A2342] dark:text-blue-100">Este modelo es solo uno de los más de 300 estilos Invicta que tenemos disponibles.</p>
+                                    <a href="/catalogo-completo" class="text-[13px] font-semibold text-[#0A7CFF] hover:underline no-underline">Ver catálogo completo →</a>
+                                </div>
+                            </div>
+                        </div>
                 </div>
-
-                {{-- Desktop: Related products slider with nav buttons --}}
-                @if($relatedProducts->count() > 0)
-                <div class="hidden lg:block mt-4">
-                    <div class="flex items-center justify-between mb-3">
-                        <h2 class="text-lg font-black text-gray-900 dark:text-white uppercase tracking-tight">Productos Relacionados</h2>
-                        <div class="flex gap-1.5">
-                            <button type="button" onclick="scrollRelated(-1)" aria-label="Anterior" class="w-8 h-8 flex items-center justify-center rounded-full border border-gray-200 dark:border-gray-600 text-gray-400 hover:text-[#00C4FF] hover:border-[#00C4FF] transition-colors">
-                                <i class="fa-solid fa-chevron-left text-xs"></i>
-                            </button>
-                            <button type="button" onclick="scrollRelated(1)" aria-label="Siguiente" class="w-8 h-8 flex items-center justify-center rounded-full border border-gray-200 dark:border-gray-600 text-gray-400 hover:text-[#00C4FF] hover:border-[#00C4FF] transition-colors">
-                                <i class="fa-solid fa-chevron-right text-xs"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div id="related-slider" class="flex gap-3 overflow-x-auto pb-1 snap-x snap-mandatory scrollbar-hide" style="scroll-behavior: smooth;">
-                        @foreach($relatedProducts as $related)
-                        <div class="flex-shrink-0 w-40 snap-start">
-                            <x-product-card-related :product="$related" compact />
-                        </div>
-                        @endforeach
-                    </div>
-                </div>
-                @endif
-
-
             </div>
         </div>
+
+        {{-- Desktop: También te puede interesar (ancho completo, estilo mockup) --}}
+        @if($relatedProducts->count() > 0)
+        <div class="hidden lg:block mt-12">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-lg font-black text-[#0A2342] dark:text-white uppercase tracking-wide">También te puede interesar</h2>
+                <div class="flex gap-2">
+                    <button type="button" onclick="scrollRelated(-1)" aria-label="Anterior" class="w-9 h-9 flex items-center justify-center rounded-full border border-gray-200 dark:border-gray-600 text-gray-400 hover:text-[#0A7CFF] hover:border-[#0A7CFF] transition-colors">
+                        <i class="fa-solid fa-chevron-left text-xs"></i>
+                    </button>
+                    <button type="button" onclick="scrollRelated(1)" aria-label="Siguiente" class="w-9 h-9 flex items-center justify-center rounded-full border border-gray-200 dark:border-gray-600 text-gray-400 hover:text-[#0A7CFF] hover:border-[#0A7CFF] transition-colors">
+                        <i class="fa-solid fa-chevron-right text-xs"></i>
+                    </button>
+                </div>
+            </div>
+            <div id="related-slider" class="flex gap-4 overflow-x-auto pb-1 snap-x snap-mandatory scrollbar-hide" style="scroll-behavior: smooth;">
+                @foreach($relatedProducts as $related)
+                <div class="flex-shrink-0 w-48 snap-start">
+                    <x-product-card-related :product="$related" compact />
+                </div>
+                @endforeach
+            </div>
+        </div>
+        @endif
     </div>
 
     {{-- Vistos Recientemente --}}

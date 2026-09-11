@@ -256,7 +256,13 @@
             </button>
             <div class="flex items-center justify-center p-8" style="max-width: 94vw; max-height: 94vh;">
                 <img id="imageModalImg" src="" alt="" class="max-w-full max-h-full w-auto h-auto object-contain rounded-2xl shadow-2xl" style="max-height: 88vh;" />
+                <div id="imageModalVideoWrap" class="hidden items-center justify-center" style="width: 82vw; max-width: 960px; height: 72vh;">
+                    <iframe id="imageModalVideoFrame" src="" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen class="w-full h-full rounded-2xl shadow-2xl bg-black" frameborder="0"></iframe>
+                </div>
             </div>
+            <button type="button" id="imageModalVideoBtn" onclick="toggleImageModalVideo()" class="absolute bottom-6 left-6 z-40 hidden items-center gap-2 bg-white hover:bg-gray-100 text-gray-900 text-xs font-extrabold px-4 py-2.5 rounded-full shadow-2xl transition-colors">
+                <i class="fa-solid fa-play text-xs"></i><span>VER VIDEO REAL</span>
+            </button>
         </div>
     </div>
 
@@ -314,29 +320,76 @@
 
     var imageGallery = [];
     var currentImageIndex = 0;
+    window.imageModalVideoUid = null;
+    window.imageModalShowingVideo = false;
 
-    function openImageModal(src, alt) {
+    function openImageModal(src, alt, videoUid, startVideo) {
         var img = document.getElementById('imageModalImg');
         if (!img) return;
         var thumbs = document.querySelectorAll('[data-gallery-img]');
         imageGallery = [];
         thumbs.forEach(function(el) { imageGallery.push(el.getAttribute('data-gallery-img')); });
-        if (imageGallery.length === 0) imageGallery = [src];
-        currentImageIndex = imageGallery.indexOf(src);
+        if (imageGallery.length === 0 && src) imageGallery = [src];
+        currentImageIndex = src ? imageGallery.indexOf(src) : 0;
         if (currentImageIndex === -1) currentImageIndex = 0;
         img.src = src;
         img.alt = alt || '';
+        window.imageModalVideoUid = videoUid || null;
+        showImageModalImage();
+        var vbtn = document.getElementById('imageModalVideoBtn');
+        if (vbtn) {
+            if (window.imageModalVideoUid) { vbtn.classList.remove('hidden'); vbtn.classList.add('flex'); }
+            else { vbtn.classList.add('hidden'); vbtn.classList.remove('flex'); }
+        }
         updateNavButtons();
         openModal('imageModal');
+        if (startVideo && window.imageModalVideoUid) toggleImageModalVideo();
+    }
+    function setImageModalVideoBtn(showingVideo) {
+        var vbtn = document.getElementById('imageModalVideoBtn');
+        if (!vbtn) return;
+        vbtn.innerHTML = showingVideo
+            ? '<i class="fa-solid fa-images text-xs"></i><span>VER FOTOS</span>'
+            : '<i class="fa-solid fa-play text-xs"></i><span>VER VIDEO REAL</span>';
+    }
+    function showImageModalImage() {
+        window.imageModalShowingVideo = false;
+        var img = document.getElementById('imageModalImg');
+        var wrap = document.getElementById('imageModalVideoWrap');
+        var frame = document.getElementById('imageModalVideoFrame');
+        if (frame) frame.src = '';
+        if (img) img.classList.remove('hidden');
+        if (wrap) { wrap.classList.add('hidden'); wrap.classList.remove('flex'); }
+        setImageModalVideoBtn(false);
+    }
+    function toggleImageModalVideo() {
+        if (!window.imageModalVideoUid) return;
+        if (window.imageModalShowingVideo) {
+            showImageModalImage();
+            return;
+        }
+        window.imageModalShowingVideo = true;
+        var img = document.getElementById('imageModalImg');
+        var wrap = document.getElementById('imageModalVideoWrap');
+        var frame = document.getElementById('imageModalVideoFrame');
+        if (img) img.classList.add('hidden');
+        if (wrap) { wrap.classList.remove('hidden'); wrap.classList.add('flex'); }
+        if (frame) frame.src = 'https://' + streamCustomerSubdomain + '.cloudflarestream.com/' + window.imageModalVideoUid + '/iframe?autoplay=1';
+        setImageModalVideoBtn(true);
     }
     function closeImageModal() {
         var img = document.getElementById('imageModalImg');
         if (img) img.src = '';
+        var frame = document.getElementById('imageModalVideoFrame');
+        if (frame) frame.src = '';
+        window.imageModalVideoUid = null;
+        window.imageModalShowingVideo = false;
         imageGallery = [];
         closeModal('imageModal');
     }
     function prevImage() {
         if (imageGallery.length < 2) return;
+        if (window.imageModalShowingVideo) showImageModalImage();
         currentImageIndex = (currentImageIndex - 1 + imageGallery.length) % imageGallery.length;
         var img = document.getElementById('imageModalImg');
         img.src = imageGallery[currentImageIndex];
@@ -344,6 +397,7 @@
     }
     function nextImage() {
         if (imageGallery.length < 2) return;
+        if (window.imageModalShowingVideo) showImageModalImage();
         currentImageIndex = (currentImageIndex + 1) % imageGallery.length;
         var img = document.getElementById('imageModalImg');
         img.src = imageGallery[currentImageIndex];
