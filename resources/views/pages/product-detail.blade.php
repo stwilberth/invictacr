@@ -147,7 +147,7 @@
                                 <i class="fa-solid fa-shield-halved text-sm"></i> 100% ORIGINAL
                             </span>
                         </div>
-                        <x-product-gallery :galleryItems="$galleryItems" :title="$displayTitle" variant="desktop" />
+                        <x-product-gallery :galleryItems="$galleryItems" :title="$displayTitle" />
                     </div>
                 </div>
 
@@ -203,16 +203,16 @@
 
                         {{-- Action buttons --}}
                         <div class="flex flex-col sm:flex-row gap-3 w-full">
-                            <a href="{{ $whatsappBuy }}" data-cta="comprar-whatsapp" data-product-id="{{ $product->id }}" target="_blank" rel="noopener noreferrer" class="flex-1 flex items-center justify-center gap-2 py-3.5 bg-[#0EB45D] hover:bg-[#0aa550] text-white rounded-[10px] font-bold text-[15px] transition-all no-underline shadow-sm">
+                            <a href="{{ $whatsappBuy }}" data-cta="comprar-whatsapp" data-product-id="{{ $product->id }}" target="_blank" rel="noopener noreferrer" class="flex-1 flex items-center justify-center gap-2 py-3 md:py-3.5 bg-[#0EB45D] hover:bg-[#0aa550] text-white rounded-[10px] font-bold text-sm md:text-[15px] transition-all no-underline shadow-sm">
                                 <i class="fa-brands fa-whatsapp text-xl"></i> Contactar
                             </a>
                             @if(!$isAgotado && !$isUpcoming && ($product->stock ?? 0) > 0)
                                 @if($inCart)
-                                <a href="{{ route('cart.show') }}" class="flex-1 flex items-center justify-center gap-2 py-3.5 bg-[#0A7CFF] hover:bg-[#0869D6] text-white rounded-[10px] font-bold text-[15px] transition-all shadow-sm">
+                                <a href="{{ route('cart.show') }}" class="flex-1 flex items-center justify-center gap-2 py-3 md:py-3.5 bg-[#0A7CFF] hover:bg-[#0869D6] text-white rounded-[10px] font-bold text-sm md:text-[15px] transition-all shadow-sm">
                                     <i class="fa-solid fa-cart-shopping text-lg"></i> Ver Carrito
                                 </a>
                                 @else
-                                <button type="button" data-cta="comprar-ahora" data-product-id="{{ $product->id }}" onclick="addToCart({{ $product->id }}, this)" class="flex-1 flex items-center justify-center gap-2 py-3.5 bg-[#0A7CFF] hover:bg-[#0869D6] text-white rounded-[10px] font-bold text-[15px] transition-all shadow-sm">
+                                <button type="button" data-cta="comprar-ahora" data-product-id="{{ $product->id }}" onclick="addToCart({{ $product->id }}, this)" class="flex-1 flex items-center justify-center gap-2 py-3 md:py-3.5 bg-[#0A7CFF] hover:bg-[#0869D6] text-white rounded-[10px] font-bold text-sm md:text-[15px] transition-all shadow-sm">
                                     <i class="fa-solid fa-cart-shopping text-lg"></i> Comprar ahora
                                 </button>
                                 @endif
@@ -241,57 +241,57 @@
                 <div class="w-full mb-3.5 mt-1">
                     <div class="grid grid-cols-2 gap-x-4 lg:gap-x-6 gap-y-4 lg:gap-y-5">
                         <div class="flex items-center gap-3">
-                            <div class="flex-shrink-0 w-11 h-11 rounded-[10px] bg-[#EEF3FA] dark:bg-gray-800 flex items-center justify-center text-[#14325E] dark:text-gray-300">
+                            <div class="flex-shrink-0 w-10 h-10 md:w-11 md:h-11 rounded-[10px] bg-[#EEF3FA] dark:bg-gray-800 flex items-center justify-center text-[#14325E] dark:text-gray-300">
                                 <i class="fa-solid fa-venus-mars text-base"></i>
                             </div>
                             <div>
                                 <p class="text-[11px] text-gray-400 font-semibold uppercase tracking-wide">Para</p>
-                                <p class="text-sm font-bold text-[#14325E] dark:text-white capitalize">{{ $product->genero === 'mujer' ? 'Mujer' : ($product->genero ?? 'Unisex') }}</p>
+                                <p class="text-[13px] md:text-sm font-bold text-[#14325E] dark:text-white capitalize">{{ $product->genero === 'mujer' ? 'Mujer' : ($product->genero ?? 'Unisex') }}</p>
                             </div>
                         </div>
                         <div class="flex items-center gap-3">
-                            <div class="flex-shrink-0 w-11 h-11 rounded-[10px] bg-[#EEF3FA] dark:bg-gray-800 flex items-center justify-center text-[#14325E] dark:text-gray-300">
+                            <div class="flex-shrink-0 w-10 h-10 md:w-11 md:h-11 rounded-[10px] bg-[#EEF3FA] dark:bg-gray-800 flex items-center justify-center text-[#14325E] dark:text-gray-300">
                                 <i class="fa-solid fa-arrows-up-down-left-right text-base"></i>
                             </div>
                             <div>
                                 <p class="text-[11px] text-gray-400 font-semibold uppercase tracking-wide">Tamaño de caja</p>
-                                <p class="text-sm font-bold text-[#14325E] dark:text-white">{{ $size ? $size . '.0mm' : 'N/A' }}</p>
+                                <p class="text-[13px] md:text-sm font-bold text-[#14325E] dark:text-white">{{ $size ? $size . '.0mm' : 'N/A' }}</p>
                             </div>
                         </div>
                         <div class="flex items-center gap-3">
-                            <div class="flex-shrink-0 w-11 h-11 rounded-[10px] bg-[#EEF3FA] dark:bg-gray-800 flex items-center justify-center text-[#14325E] dark:text-gray-300">
+                            <div class="flex-shrink-0 w-10 h-10 md:w-11 md:h-11 rounded-[10px] bg-[#EEF3FA] dark:bg-gray-800 flex items-center justify-center text-[#14325E] dark:text-gray-300">
                                 <i class="fa-solid fa-gear text-base"></i>
                             </div>
                             <div>
                                 <p class="text-[11px] text-gray-400 font-semibold uppercase tracking-wide">Movimiento</p>
-                                <p class="text-sm font-bold text-[#14325E] dark:text-white capitalize line-clamp-1">{{ $product->tipo_movimiento === 'cuarzo' ? 'Batería' : ($product->tipo_movimiento ?? 'Especial') }}</p>
+                                <p class="text-[13px] md:text-sm font-bold text-[#14325E] dark:text-white capitalize line-clamp-1">{{ $product->tipo_movimiento === 'cuarzo' ? 'Batería' : ($product->tipo_movimiento ?? 'Especial') }}</p>
                             </div>
                         </div>
                         <div class="flex items-center gap-3">
-                            <div class="flex-shrink-0 w-11 h-11 rounded-[10px] bg-[#EEF3FA] dark:bg-gray-800 flex items-center justify-center text-[#14325E] dark:text-gray-300">
+                            <div class="flex-shrink-0 w-10 h-10 md:w-11 md:h-11 rounded-[10px] bg-[#EEF3FA] dark:bg-gray-800 flex items-center justify-center text-[#14325E] dark:text-gray-300">
                                 <i class="fa-solid fa-droplet text-base"></i>
                             </div>
                             <div>
                                 <p class="text-[11px] text-gray-400 font-semibold uppercase tracking-wide">Resistencia al agua</p>
-                                <p class="text-sm font-bold text-[#14325E] dark:text-white whitespace-nowrap">{{ $product->resistencia_agua ? $product->resistencia_agua . 'm' : 'Resistente' }}</p>
+                                <p class="text-[13px] md:text-sm font-bold text-[#14325E] dark:text-white whitespace-nowrap">{{ $product->resistencia_agua ? $product->resistencia_agua . 'm' : 'Resistente' }}</p>
                             </div>
                         </div>
                         <div class="flex items-center gap-3">
-                            <div class="flex-shrink-0 w-11 h-11 rounded-[10px] bg-[#EEF3FA] dark:bg-gray-800 flex items-center justify-center text-[#14325E] dark:text-gray-300">
+                            <div class="flex-shrink-0 w-10 h-10 md:w-11 md:h-11 rounded-[10px] bg-[#EEF3FA] dark:bg-gray-800 flex items-center justify-center text-[#14325E] dark:text-gray-300">
                                 <i class="fa-solid fa-water text-base"></i>
                             </div>
                             <div>
                                 <p class="text-[11px] text-gray-400 font-semibold uppercase tracking-wide">Colección</p>
-                                <p class="text-sm font-bold text-[#14325E] dark:text-white">{{ $product->coleccion ?? '—' }}</p>
+                                <p class="text-[13px] md:text-sm font-bold text-[#14325E] dark:text-white">{{ $product->coleccion ?? '—' }}</p>
                             </div>
                         </div>
                         <div class="flex items-center gap-3">
-                            <div class="flex-shrink-0 w-11 h-11 rounded-[10px] bg-[#EEF3FA] dark:bg-gray-800 flex items-center justify-center text-[#14325E] dark:text-gray-300">
+                            <div class="flex-shrink-0 w-10 h-10 md:w-11 md:h-11 rounded-[10px] bg-[#EEF3FA] dark:bg-gray-800 flex items-center justify-center text-[#14325E] dark:text-gray-300">
                                 <i class="fa-solid fa-stopwatch text-base"></i>
                             </div>
                             <div>
                                 <p class="text-[11px] text-gray-400 font-semibold uppercase tracking-wide">Brazalete</p>
-                                <p class="text-sm font-bold text-[#14325E] dark:text-white capitalize">{{ $product->brazalete ?? '—' }}</p>
+                                <p class="text-[13px] md:text-sm font-bold text-[#14325E] dark:text-white capitalize">{{ $product->brazalete ?? '—' }}</p>
                             </div>
                         </div>
                     </div>
@@ -342,7 +342,7 @@
     <div class="max-w-7xl mx-auto px-4 mt-5 mb-8">
         <div class="flex items-center justify-between mb-3 lg:mb-4">
             <h2 class="text-sm lg:text-xl font-black text-gray-600 dark:text-gray-400 lg:text-gray-900 lg:dark:text-white uppercase tracking-widest lg:tracking-tight px-1 lg:px-0">Vistos Recientemente</h2>
-            <div class="hidden sm:flex gap-1.5">
+            <div class="flex gap-1.5">
                 <button type="button" onclick="scrollRecentlyViewed(-1)" aria-label="Anterior" class="w-8 h-8 flex items-center justify-center rounded-full border border-gray-200 dark:border-gray-600 text-gray-400 hover:text-[#00C4FF] hover:border-[#00C4FF] transition-colors">
                     <i class="fa-solid fa-chevron-left text-xs"></i>
                 </button>
