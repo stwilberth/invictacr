@@ -199,7 +199,6 @@
                             </div>
                             @endif
                         </div>
-                        <x-product-benefits :apartadoMinimo="$apartadoMinimo" :apartadoWhatsapp="$whatsappApartado" />
 
                         {{-- Action buttons --}}
                         <div class="flex flex-col sm:flex-row gap-3 w-full">
@@ -218,6 +217,8 @@
                                 @endif
                             @endif
                         </div>
+
+                        <x-product-benefits :apartadoMinimo="$apartadoMinimo" :apartadoWhatsapp="$whatsappApartado" />
 
                         {{-- Métodos de pago aceptados --}}
                         <x-payment-methods />
