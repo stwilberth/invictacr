@@ -204,9 +204,6 @@
 
                         {{-- Action buttons --}}
                         <div class="flex flex-row gap-3 w-full">
-                            <a href="{{ $whatsappBuy }}" data-cta="comprar-whatsapp" data-product-id="{{ $product->id }}" target="_blank" rel="noopener noreferrer" class="flex-1 flex items-center justify-center gap-2 py-3 md:py-3.5 bg-[#0EB45D] hover:bg-[#0aa550] text-white rounded-[10px] font-bold text-sm md:text-[15px] transition-all no-underline shadow-sm">
-                                <i class="fa-brands fa-whatsapp text-xl"></i> Contactar
-                            </a>
                             @if(!$isAgotado && !$isUpcoming && ($product->stock ?? 0) > 0)
                                 @if($inCart)
                                 <a href="{{ route('cart.show') }}" class="flex-1 flex items-center justify-center gap-2 py-3 md:py-3.5 bg-[#0A7CFF] hover:bg-[#0869D6] text-white rounded-[10px] font-bold text-sm md:text-[15px] transition-all shadow-sm">
@@ -218,6 +215,9 @@
                                 </button>
                                 @endif
                             @endif
+                            <a href="{{ $whatsappBuy }}" data-cta="comprar-whatsapp" data-product-id="{{ $product->id }}" target="_blank" rel="noopener noreferrer" class="flex-1 flex items-center justify-center gap-2 py-3 md:py-3.5 bg-[#0EB45D] hover:bg-[#0aa550] text-white rounded-[10px] font-bold text-sm md:text-[15px] transition-all no-underline shadow-sm">
+                                <i class="fa-brands fa-whatsapp text-xl"></i> Contactar
+                            </a>
                         </div>
 
                         <x-product-benefits :apartadoMinimo="$apartadoMinimo" :apartadoWhatsapp="$whatsappApartado" />
