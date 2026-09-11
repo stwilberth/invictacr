@@ -10,7 +10,7 @@
         </span>
         <span class="leading-tight min-w-0">
             <span class="text-xs md:block md:text-[13px] font-extrabold text-[#14325E] dark:text-gray-100">Envío gratis </span>
-            <span class="text-xs font-medium text-gray-500 dark:text-gray-400 md:block">a todo Costa Rica</span>
+            <span class="text-xs font-medium text-gray-500 dark:text-gray-400 hidden md:block">a todo Costa Rica</span>
         </span>
     </div>
     <div class="flex items-center gap-3 px-3 py-2.5 md:px-4 md:py-3 bg-[#F1F5FA] dark:bg-gray-800 rounded-xl min-w-0">
@@ -19,7 +19,7 @@
         </span>
         <span class="leading-tight min-w-0">
             <span class="text-xs md:block md:text-[13px] font-extrabold text-[#14325E] dark:text-gray-100">100% Original </span>
-            <span class="text-xs font-medium text-gray-500 dark:text-gray-400 md:block">Garantía 6 meses</span>
+            <span class="text-xs font-medium text-gray-500 dark:text-gray-400 hidden md:block">Garantía 6 meses</span>
         </span>
     </div>
     <div class="flex items-center gap-3 px-3 py-2.5 md:px-4 md:py-3 bg-[#F1F5FA] dark:bg-gray-800 rounded-xl min-w-0">
@@ -36,7 +36,7 @@
         </span>
         <span class="leading-tight min-w-0">
             <span class="text-xs md:block md:text-[13px] font-extrabold text-[#14325E] dark:text-gray-100">Pago al recibir* </span>
-            <span class="text-xs font-medium text-gray-500 dark:text-gray-400 md:block">solo en el GAM</span>
+            <span class="text-xs font-medium text-gray-500 dark:text-gray-400 hidden md:block">solo en el GAM</span>
         </span>
     </div>
 </div>
