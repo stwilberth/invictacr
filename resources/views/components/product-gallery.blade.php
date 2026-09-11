@@ -83,11 +83,6 @@
             <i class="fa-solid fa-chevron-right text-xs md:text-base"></i>
         </button>
 
-        {{-- Badge único VER VIDEO REAL: solo sobre fotos, nunca duplicado --}}
-        <button type="button" x-show="hasVideo() && galleryItems[currentIndex]?.type === 'image'" @click="openModalVideo()" class="absolute bottom-3 left-3 md:bottom-4 md:left-4 z-30 flex items-center gap-1.5 md:gap-2 bg-[#1E293B]/90 hover:bg-[#1E293B] text-white text-[10px] md:text-xs font-extrabold px-2.5 py-1 md:px-4 md:py-2 rounded-full shadow-md transition-colors">
-            <i class="fa-solid fa-play text-[10px] md:text-xs"></i> VER VIDEO REAL
-        </button>
-
         {{-- Zoom button (only on images) --}}
         <button type="button" x-show="galleryItems[currentIndex]?.type === 'image'" @click="event.preventDefault(); openImageModal(galleryItems[currentIndex].zoomUrl, '{{ $title }}', '{{ $videoUid }}')" class="{{ $zoomBtn }} cursor-pointer">
             <i class="fa-solid fa-expand text-xs md:text-sm"></i>
