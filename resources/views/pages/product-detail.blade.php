@@ -189,7 +189,7 @@
                         <div class="flex items-center justify-between gap-2 w-full">
                             <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1 min-w-0">
                             <span class="text-2xl md:text-[40px] leading-none font-black text-[#0A7CFF] tracking-tight">₡{{ number_format($priceAfterDiscount, 0) }}</span>
-                            <span class="text-sm font-bold text-gray-400">+ IVA</span>
+                            <span class="text-sm font-bold text-gray-400 ml-2">+ IVA</span>
                             @if(($product->descuento ?? 0) > 0)
                             <div class="flex items-center gap-2">
                                 <span class="text-sm text-gray-400 line-through font-medium">₡{{ number_format($product->precio_venta, 0) }}</span>
@@ -197,7 +197,7 @@
                             </div>
                             @endif
                             </div>
-                            <button type="button" onclick="openShareModal()" aria-label="Compartir" class="flex-shrink-0 inline-flex items-center gap-1.5 h-9 px-3.5 rounded-full border border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-300 hover:text-[#00C4FF] hover:border-[#00C4FF] transition-colors text-xs font-bold uppercase tracking-wide" title="Compartir">
+                            <button type="button" onclick="openShareModal()" aria-label="Compartir" class="flex-shrink-0 inline-flex items-center gap-1.5 h-9 px-6 rounded-full border border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-300 hover:text-[#00C4FF] hover:border-[#00C4FF] transition-colors text-xs font-bold uppercase tracking-wide" title="Compartir">
                                 <i class="fa-solid fa-share-nodes text-sm"></i> Compartir
                             </button>
                         </div>
