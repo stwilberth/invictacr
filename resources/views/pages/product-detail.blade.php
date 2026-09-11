@@ -259,7 +259,7 @@
                      <div id="mobile-related-slider" class="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1 scrollbar-hide">
                         @foreach($relatedProducts as $related)
                         <div class="flex-shrink-0 w-32 snap-start">
-                            <x-product-card-related :product="$related" compact />
+                            <x-product-card-related :product="$related" />
                         </div>
                         @endforeach
                     </div>
@@ -317,7 +317,7 @@
                         {{-- Desktop Action buttons --}}
                         <div class="flex gap-3 w-full">
                             <a href="{{ $whatsappBuy }}" data-cta="comprar-whatsapp" data-product-id="{{ $product->id }}" target="_blank" rel="noopener noreferrer" class="flex-1 flex items-center justify-center gap-2 py-3.5 bg-[#0EB45D] hover:bg-[#0aa550] text-white rounded-[10px] font-bold text-[15px] transition-all no-underline shadow-sm">
-                                <i class="fa-brands fa-whatsapp text-xl"></i> Comprar por WhatsApp
+                                <i class="fa-brands fa-whatsapp text-xl"></i> Contactar
                             </a>
                             @if(!$isAgotado && !$isUpcoming && ($product->stock ?? 0) > 0)
                                 @if($inCart)
@@ -344,7 +344,7 @@
                                 <i class="fa-solid fa-circle-info text-base"></i> Ver disponibilidad
                             </a>
                             <a href="{{ $whatsappBuy }}" data-cta="comprar-whatsapp" data-product-id="{{ $product->id }}" target="_blank" rel="noopener noreferrer" class="flex-1 flex items-center justify-center gap-1 py-2 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-xl font-extrabold uppercase tracking-tight text-xs transition-all hover:-translate-y-0.5 active:scale-95 no-underline shadow-sm hover:shadow-md">
-                                <i class="fa-brands fa-whatsapp text-base"></i> Comprar por WhatsApp
+                                <i class="fa-brands fa-whatsapp text-base"></i> Contactar
                             </a>
                         </div>
                     </div>
@@ -417,7 +417,7 @@
                                 </span>
                                 <div>
                                     <p class="text-[13px] leading-snug font-medium text-[#14325E] dark:text-blue-100">Este modelo es solo uno de los más de 300 estilos Invicta que tenemos disponibles.</p>
-                                    <a href="/catalogo-completo" class="text-[13px] font-semibold text-[#0A7CFF] hover:underline no-underline">Ver catálogo completo →</a>
+                                    <a href="/relojes" class="text-[13px] font-semibold text-[#0A7CFF] hover:underline no-underline">Ver catálogo completo →</a>
                                 </div>
                             </div>
                         </div>
@@ -442,7 +442,7 @@
             <div id="related-slider" class="flex gap-4 overflow-x-auto pb-1 snap-x snap-mandatory scrollbar-hide" style="scroll-behavior: smooth;">
                 @foreach($relatedProducts as $related)
                 <div class="flex-shrink-0 w-48 snap-start">
-                    <x-product-card-related :product="$related" compact />
+                    <x-product-card-related :product="$related" />
                 </div>
                 @endforeach
             </div>
@@ -459,7 +459,7 @@
             <div id="mobile-recently-viewed-slider" class="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1 scrollbar-hide">
                 @foreach($recentlyViewed as $recent)
                 <div class="flex-shrink-0 w-32 snap-start">
-                    <x-product-card-related :product="$recent" compact />
+                    <x-product-card-related :product="$recent" />
                 </div>
                 @endforeach
             </div>
@@ -481,7 +481,7 @@
             <div id="recently-viewed-slider" class="flex gap-3 overflow-x-auto pb-1 snap-x snap-mandatory scrollbar-hide" style="scroll-behavior: smooth;">
                 @foreach($recentlyViewed as $recent)
                 <div class="flex-shrink-0 w-40 snap-start">
-                    <x-product-card-related :product="$recent" compact />
+                    <x-product-card-related :product="$recent" />
                 </div>
                 @endforeach
             </div>
@@ -663,7 +663,7 @@
             </a>
         @endif
         <a href="{{ $whatsappBuy }}" data-cta="comprar-whatsapp" data-product-id="{{ $product->id }}" data-conversion="whatsapp-comprar" target="_blank" rel="noopener noreferrer" class="flex-1 flex items-center justify-center gap-1.5 py-3 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-xl font-extrabold uppercase tracking-tight text-[12px] leading-none transition-all hover:-translate-y-0.5 active:scale-95 no-underline shadow-sm">
-            <i class="fa-brands fa-whatsapp text-lg"></i> Comprar
+            <i class="fa-brands fa-whatsapp text-lg"></i> Contactar
         </a>
     </div>
 </x-app-layout>

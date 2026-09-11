@@ -1,4 +1,4 @@
-@props(['product', 'compact' => false])
+@props(['product'])
 @php
     $productUrl = route('products.show', ['slug' => $product->slug]);
     $priceAfterDiscount = $product->precio_venta * (1 - ($product->descuento ?? 0) / 100);
@@ -20,7 +20,7 @@
     <a href="{{ $productUrl }}" class="w-full pt-[100%] relative block">
         <div class="absolute inset-0 flex items-center justify-center pt-1">
             <div class="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200 dark:from-[#0a0f1c] dark:to-[#1a2332]" @if($imageUrl) style="display:none" @endif>
-                <span class="font-black text-slate-300 dark:text-slate-600 {{ $compact ? 'text-lg' : 'text-2xl' }} tracking-tighter">{{ $model }}</span>
+                <span class="font-black text-slate-300 dark:text-slate-600 text-lg tracking-tighter">{{ $model }}</span>
                 <span class="text-[8px] md:text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mt-1">Invicta</span>
             </div>
             @if($imageUrl)
@@ -29,34 +29,34 @@
         </div>
 
         @if(($product->descuento ?? 0) > 0 && $product->precio_venta > 0)
-        <div class="absolute {{ $compact ? 'top-1 left-1' : 'top-1 left-1 md:top-2 md:left-2' }} z-10">
-            <span class="inline-flex items-center rounded-full bg-red-600 {{ $compact ? 'px-1 py-0.5 text-[8px]' : 'px-1 py-0.5 text-[8px] md:px-2 md:py-1 md:text-[10px]' }} font-black text-white shadow-lg border border-white/10">
+        <div class="absolute top-1 left-1 z-10">
+            <span class="inline-flex items-center rounded-full bg-red-600 px-1 py-0.5 text-[8px] font-black text-white shadow-lg border border-white/10">
                 -{{ $product->descuento }}%
             </span>
         </div>
         @endif
 
         @if($product->tipo_movimiento && in_array(strtolower($product->tipo_movimiento), ['automatico', 'automático', 'automatic'], true))
-        <div class="absolute {{ $compact ? 'top-1 right-1' : 'top-1 right-1 md:top-2 md:right-2' }} z-10">
-            <span class="inline-flex items-center gap-0.5 rounded-full bg-slate-900/90 dark:bg-white/90 {{ $compact ? 'px-1 py-0.5 text-[7px]' : 'px-1 py-0.5 text-[7px] md:px-2 md:py-1 md:text-[9px]' }} font-black text-white dark:text-slate-900 shadow-lg uppercase tracking-wide">
+        <div class="absolute top-1 right-1 z-10">
+            <span class="inline-flex items-center gap-0.5 rounded-full bg-slate-900/90 dark:bg-white/90 px-1 py-0.5 text-[7px] font-black text-white dark:text-slate-900 shadow-lg uppercase tracking-wide">
                 <i class="fa-solid fa-gear"></i> Automático
             </span>
         </div>
         @endif
 
         @if($product->video_uid)
-        <div class="absolute {{ $compact ? 'bottom-1.5 left-1.5' : 'bottom-2 left-2' }} z-10">
-            <span class="inline-flex items-center justify-center rounded-full bg-red-600 shadow-lg border border-white/20 {{ $compact ? 'w-5 h-5' : 'w-6 h-6 md:w-8 md:h-8' }}">
-                <i class="fa-solid fa-play text-white {{ $compact ? 'text-[7px]' : 'text-[8px] md:text-[11px]' }} ml-0.5"></i>
+        <div class="absolute bottom-1.5 left-1.5 z-10">
+            <span class="inline-flex items-center justify-center rounded-full bg-red-600 shadow-lg border border-white/20 w-5 h-5">
+                <i class="fa-solid fa-play text-white text-[7px] ml-0.5"></i>
             </span>
         </div>
         @endif
 
     </a>
 
-    <div class="{{ $compact ? 'p-1' : 'p-1 md:p-2' }} flex flex-col flex-grow">
+    <div class="p-1 flex flex-col flex-grow">
         <a href="{{ $productUrl }}" class="block hover:text-blue-600 transition-colors">
-            <h3 class="{{ $compact ? 'text-[10px]' : 'text-[10px] md:text-xs' }} font-bold text-gray-500 dark:text-white leading-tight uppercase tracking-tight group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors text-center">
+            <h3 class="text-[10px] font-bold text-gray-500 dark:text-white leading-tight uppercase tracking-tight group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors text-center">
                 {{ $relatedTitle }}
             </h3>
         </a>
@@ -70,9 +70,9 @@
                 <div class="flex flex-col items-center w-full">
                     <div class="flex items-baseline gap-1 md:gap-2 justify-center">
                         @if(($product->descuento ?? 0) > 0)
-                            <span class="{{ $compact ? 'text-[10px]' : 'text-xs md:text-sm' }} text-slate-400 dark:text-slate-500 line-through">₡{{ number_format($product->precio_venta, 0) }}</span>
+                            <span class="text-[10px] text-slate-400 dark:text-slate-500 line-through">₡{{ number_format($product->precio_venta, 0) }}</span>
                         @endif
-                        <span class="{{ $compact ? 'text-sm' : 'text-sm md:text-base' }} font-bold text-red-600 dark:text-red-500 tracking-tighter">₡{{ number_format($priceAfterDiscount, 0) }}</span>
+                        <span class="text-sm font-bold text-red-600 dark:text-red-500 tracking-tighter">₡{{ number_format($priceAfterDiscount, 0) }}</span>
                         <span class="text-[9px] font-bold text-slate-400 dark:text-slate-500">+ IVA</span>
                     </div>
                 </div>

@@ -1,4 +1,4 @@
-@props(['product', 'compact' => false, 'priority' => false])
+@props(['product', 'priority' => false])
 @php
     $productUrl = route('products.show', ['slug' => $product->slug]);
     $whatsappLink = 'https://wa.me/50686711422?text=' . urlencode("Hola, me interesa el reloj Invicta {$product->modelo}: " . url($productUrl));
@@ -36,7 +36,7 @@
             <img
                 src="{{ $primary }}"
                 alt="{{ $cardTitle }}"
-                class="absolute inset-0 w-full h-full object-contain {{ $compact ? 'p-0.5' : 'p-1.5' }} select-none"
+                class="absolute inset-0 w-full h-full object-contain p-1.5 select-none"
                 loading="{{ $priority ? 'eager' : 'lazy' }}"
                 {{ $priority ? 'fetchpriority="high"' : '' }}
                 @if($mainSrc && $originalImg) data-original="{{ $originalImg }}" @endif
@@ -46,23 +46,23 @@
         </a>
         @else
         <div class="absolute inset-0 flex flex-col items-center justify-center">
-            <span class="font-black text-slate-300 dark:text-slate-600 {{ $compact ? 'text-lg' : 'text-2xl' }} tracking-tighter">{{ $model }}</span>
+            <span class="font-black text-slate-300 dark:text-slate-600 text-2xl tracking-tighter">{{ $model }}</span>
             <span class="text-[8px] md:text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mt-1">Invicta</span>
         </div>
         @endif
 
         {{-- Badges --}}
         @if(($product->descuento ?? 0) > 0 && $product->precio_venta > 0)
-        <div class="absolute {{ $compact ? 'top-1 left-1' : 'top-1 left-1 md:top-2 md:left-2' }} z-10">
-            <span class="inline-flex items-center rounded-full bg-red-600 {{ $compact ? 'px-1 py-0.5 text-[8px]' : 'px-1 py-0.5 text-[8px] md:px-2 md:py-1 md:text-[10px]' }} font-black text-white shadow-lg border border-white/10">
+        <div class="absolute top-1 left-1 md:top-2 md:left-2 z-10">
+            <span class="inline-flex items-center rounded-full bg-red-600 px-1 py-0.5 text-[8px] md:px-2 md:py-1 md:text-[10px] font-black text-white shadow-lg border border-white/10">
                 -{{ $product->descuento }}%
             </span>
         </div>
         @endif
 
         @if($product->tipo_movimiento && in_array(strtolower($product->tipo_movimiento), ['automatico', 'automático', 'automatic'], true))
-        <div class="absolute {{ $compact ? 'top-1 right-1' : 'top-1 right-1 md:top-2 md:right-2' }} z-10">
-            <span class="inline-flex border border-gray-400 dark:border-gray-500 items-center rounded-full bg-[#facc15] dark:bg-[#facc15] {{ $compact ? 'px-1 py-0.5 text-[7px]' : 'px-1 py-0.5 text-[7px] md:px-2 md:py-1 md:text-[9px]' }} font-black text-black dark:text-black shadow-lg uppercase tracking-wide">
+        <div class="absolute top-1 right-1 md:top-2 md:right-2 z-10">
+            <span class="inline-flex border border-gray-400 dark:border-gray-500 items-center rounded-full bg-[#facc15] dark:bg-[#facc15] px-1 py-0.5 text-[7px] md:px-2 md:py-1 md:text-[9px] font-black text-black dark:text-black shadow-lg uppercase tracking-wide">
                 Automático
             </span>
         </div>
@@ -70,9 +70,9 @@
 
     </div>
 
-    <div class="{{ $compact ? 'p-2' : 'p-2 md:p-4' }} flex flex-col flex-grow">
+    <div class="p-2 md:p-4 flex flex-col flex-grow">
         <a href="{{ $productUrl }}" class="block focus-visible:outline-none" aria-label="Ver {{ $cardTitle }}">
-            <h3 class="{{ $compact ? 'text-[10px]' : 'text-[11px] md:text-sm' }} w-full font-bold text-slate-700 dark:text-slate-100 leading-snug uppercase tracking-wide line-clamp-2 min-h-[2.75em] text-center">
+            <h3 class="text-[11px] md:text-sm w-full font-bold text-slate-700 dark:text-slate-100 leading-snug uppercase tracking-wide line-clamp-2 min-h-[2.75em] text-center">
                 {{ $cardTitle }}
             </h3>
         </a>
