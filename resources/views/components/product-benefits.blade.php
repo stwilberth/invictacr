@@ -5,8 +5,8 @@
 <div class="w-full grid grid-cols-2 gap-2 md:gap-3">
     {{-- Trust signals estilo mockup --}}
     <div class="flex items-center gap-3 px-3 py-2.5 md:px-4 md:py-3 bg-[#F1F5FA] dark:bg-gray-800 rounded-xl min-w-0">
-        <span class="flex-shrink-0 text-[#14325E] dark:text-gray-200">
-            <i class="fa-solid fa-truck-fast hidden md:block md:text-xl"></i>
+        <span class="hidden md:block flex-shrink-0 text-[#14325E] dark:text-gray-200">
+            <i class="fa-solid fa-truck-fast md:text-xl"></i>
         </span>
         <span class="leading-tight min-w-0">
             <span class="text-xs md:block md:text-[13px] font-extrabold text-[#14325E] dark:text-gray-100">Envío gratis </span>
@@ -14,8 +14,8 @@
         </span>
     </div>
     <div class="flex items-center gap-3 px-3 py-2.5 md:px-4 md:py-3 bg-[#F1F5FA] dark:bg-gray-800 rounded-xl min-w-0">
-        <span class="flex-shrink-0 text-[#14325E] dark:text-gray-200">
-            <i class="fa-solid fa-shield-halved hidden md:block md:text-xl"></i>
+        <span class="hidden md:block flex-shrink-0 text-[#14325E] dark:text-gray-200">
+            <i class="fa-solid fa-shield-halved md:text-xl"></i>
         </span>
         <span class="leading-tight min-w-0">
             <span class="text-xs md:block md:text-[13px] font-extrabold text-[#14325E] dark:text-gray-100">100% Original </span>
@@ -23,16 +23,16 @@
         </span>
     </div>
     <div class="flex items-center gap-3 px-3 py-2.5 md:px-4 md:py-3 bg-[#F1F5FA] dark:bg-gray-800 rounded-xl min-w-0">
-        <span class="flex-shrink-0 text-[#14325E] dark:text-gray-200">
-            <i class="fa-solid fa-box hidden md:block md:text-xl"></i>
+        <span class="hidden md:block flex-shrink-0 text-[#14325E] dark:text-gray-200">
+            <i class="fa-solid fa-box md:text-xl"></i>
         </span>
         <span class="leading-tight min-w-0">
             <span class="text-xs md:block md:text-[13px] font-extrabold text-[#14325E] dark:text-gray-100">Apartado desde ₡{{ number_format($apartadoMinimo, 0) }}</span>
         </span>
     </div>
     <div class="flex items-center gap-3 px-3 py-2.5 md:px-4 md:py-3 bg-[#F1F5FA] dark:bg-gray-800 rounded-xl min-w-0">
-        <span class="flex-shrink-0 text-[#14325E] dark:text-gray-200">
-            <i class="fa-solid fa-hand-holding-dollar hidden md:block md:text-xl"></i>
+        <span class="hidden md:block flex-shrink-0 text-[#14325E] dark:text-gray-200">
+            <i class="fa-solid fa-hand-holding-dollar md:text-xl"></i>
         </span>
         <span class="leading-tight min-w-0">
             <span class="text-xs md:block md:text-[13px] font-extrabold text-[#14325E] dark:text-gray-100">Pago al recibir* </span>
