@@ -130,34 +130,11 @@
         </nav>
         --}}
 
-        {{-- Mobile Header: Title above media --}}
-        <div class="lg:hidden">
-            <div class="flex items-center gap-2 mb-2">
-                <h2 class="flex-1 text-md leading-snug font-black text-gray-800 dark:text-white tracking-tight uppercase">
-                    {{ $displayTitle }}
-                </h2>
-                <button type="button" onclick="openShareModal()" aria-label="Compartir" class="flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-full border border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-300 hover:text-[#00C4FF] hover:border-[#00C4FF] transition-colors">
-                    <i class="fa-solid fa-share-nodes text-sm"></i>
-                </button>
-            </div>
-            <div class="flex items-center gap-2 flex-wrap">
-                @if($isUpcoming)
-                <div class="flex items-center gap-2 px-3 py-1 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/50 rounded-full">
-                    <span class="relative flex h-2 w-2">
-                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                        <span class="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
-                    </span>
-                    <span class="text-[10px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-wider">Próximamente</span>
-                 </div>
-                 @endif
-             </div>
-         </div>
-
-        {{-- Main Product Layout --}}
+        {{-- Main Product Layout (vista única responsive) --}}
         <div class="grid grid-cols-1 lg:grid-cols-2 items-start gap-4 lg:gap-10 xl:gap-14">
             {{-- Left Column: Media --}}
             <div class="lg:col-span-1">
-                <div class="hidden lg:block lg:sticky lg:top-5">
+                <div class="lg:sticky lg:top-5">
                     <div class="relative group/image">
                         @if(($product->descuento ?? 0) > 0)
                         <div class="absolute top-4 right-4 z-30">
@@ -174,110 +151,19 @@
                     </div>
                 </div>
 
-                {{-- Mobile: single column layout --}}
-                <div class="lg:hidden">
-                    <div class="relative">
-                        @if(($product->descuento ?? 0) > 0)
-                        <div class="absolute top-3 right-3 z-30">
-                            <span class="bg-red-500 text-white text-[11px] font-black px-2.5 py-1 rounded-lg shadow-sm">-{{ $product->descuento }}%</span>
-                        </div>
-                        @endif
-                        <x-product-gallery :galleryItems="$galleryItems" :title="$product->title" variant="mobile" :extraSlides="2" :extraThumbIcons="['fa-circle-info', 'fa-truck-fast']">
-                        {{-- Extra slide: specs del reloj --}}
-                        <div class="relative w-full h-full flex-shrink-0 flex flex-col justify-center gap-2 px-6 bg-gray-50 dark:bg-gray-900">
-                            <div class="flex justify-between items-center py-2 border-b border-gray-200 dark:border-gray-700">
-                                <span class="text-[11px] text-gray-400 font-bold uppercase tracking-wide">Para</span>
-                                <span class="text-sm font-semibold text-gray-800 dark:text-white capitalize">{{ $product->genero ?? 'Unisex' }}</span>
-                            </div>
-                            <div class="flex justify-between items-center py-2 border-b border-gray-200 dark:border-gray-700">
-                                <span class="text-[11px] text-gray-400 font-bold uppercase tracking-wide">Tamaño de caja</span>
-                                <span class="text-sm font-semibold text-gray-800 dark:text-white">{{ $size ? $size . 'mm' : 'N/A' }}</span>
-                            </div>
-                            <div class="flex justify-between items-center py-2 border-b border-gray-200 dark:border-gray-700">
-                                <span class="text-[11px] text-gray-400 font-bold uppercase tracking-wide">Movimiento</span>
-                                <span class="text-sm font-semibold text-gray-800 dark:text-white capitalize">{{ $product->tipo_movimiento === 'cuarzo' ? 'Batería' : ($product->tipo_movimiento ?? 'Especial') }}</span>
-                            </div>
-                            <div class="flex justify-between items-center py-2 border-b border-gray-200 dark:border-gray-700">
-                                <span class="text-[11px] text-gray-400 font-bold uppercase tracking-wide">Resistencia al agua</span>
-                                <span class="text-sm font-semibold text-gray-800 dark:text-white">{{ $product->resistencia_agua ? $product->resistencia_agua . 'm' : 'Resistente' }}</span>
-                            </div>
-                        </div>
-
-                        {{-- Extra slide: info de envío --}}
-                        <div class="relative w-full h-full flex-shrink-0 flex flex-col items-center justify-center gap-3 px-8 bg-gradient-to-br from-emerald-50 to-blue-50 dark:from-emerald-900/20 dark:to-blue-900/20">
-                            <div class="w-full flex items-center gap-3">
-                                <i class="fa-solid fa-truck text-emerald-500 text-xl w-8 text-center"></i>
-                                <span class="text-sm font-bold text-gray-800 dark:text-gray-100">Envío gratis* con tu cuenta</span>
-                            </div>
-                            <div class="w-full flex items-center gap-3">
-                                <i class="fa-solid fa-hand-holding-dollar text-[#00C4FF] text-xl w-8 text-center"></i>
-                                <span class="text-sm font-bold text-gray-800 dark:text-gray-100">Pago contra entrega*</span>
-                            </div>
-                            <div class="w-full flex items-center gap-3">
-                                <i class="fa-solid fa-clock text-[#00C4FF] text-xl w-8 text-center"></i>
-                                <span class="text-sm font-bold text-gray-800 dark:text-gray-100">Entrega inmediata en el GAM</span>
-                            </div>
-                            <div class="w-full flex items-center gap-3">
-                                <i class="fa-solid fa-shield-heart text-[#00C4FF] text-xl w-8 text-center"></i>
-                                <span class="text-sm font-bold text-gray-800 dark:text-gray-100">Garantía incluida</span>
-                            </div>
-                        </div>
-                    </x-product-gallery>
-
-                    {{-- Price --}}
-                    @if($isUpcoming)
-                    <div class="text-xl font-black text-amber-500 tracking-tight mt-3">Próximamente</div>
-                    @elseif(!$isAgotado)
-                    <div class="text-2xl font-black text-red-600 dark:text-red-400 tracking-tight mt-3">₡{{ number_format($priceAfterDiscount, 0) }} <span class="text-xs font-bold text-gray-700">+ IVA</span></div>
-                    @if(($product->descuento ?? 0) > 0)
-                    <div class="flex items-center gap-2 mt-1">
-                        <span class="text-sm text-gray-400 line-through font-medium">₡{{ number_format($product->precio_venta, 0) }}</span>
-                        <span class="bg-red-500 text-white text-[11px] font-black px-2.5 py-1 rounded-lg shadow-sm shadow-red-500/30">-{{ $product->descuento }}% OFF</span>
-                    </div>
-                    @endif
-                    <div class="mt-2.5">
-                        <x-product-benefits :apartadoMinimo="$apartadoMinimo" :apartadoWhatsapp="$whatsappApartado" />
-                    </div>
-
-                    {{-- Métodos de pago aceptados --}}
-                    <x-payment-methods />
-                    @endif
-
-                    {{-- Mobile: Agotado banner --}}
-                    @if($isAgotado && !$isUpcoming)
-                    <div class="flex items-center gap-3 mt-2 bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/50 rounded-xl p-3">
-                        <div class="flex flex-col">
-                            <span class="text-xs font-black text-red-700 dark:text-red-400 uppercase leading-tight">Agotado</span>
-                        </div>
-                    </div>
-                    @endif
-                </div>
-
-                 {{-- Mobile: Relojes Similares slider (replaces thumbnail strip, since all watches have a single image) --}}
-                 @if($relatedProducts->count() > 0)
-                 <div class="lg:hidden mt-3">
-                     <h3 class="text-sm font-black text-gray-600 dark:text-gray-500 uppercase tracking-widest mb-3 px-1">Relojes Similares</h3>
-                     <div id="mobile-related-slider" class="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1 scrollbar-hide">
-                        @foreach($relatedProducts as $related)
-                        <div class="flex-shrink-0 w-32 snap-start">
-                            <x-product-card-related :product="$related" />
-                        </div>
-                        @endforeach
-                    </div>
-                </div>
-                @endif
-
-            </div>
             </div>
 
             {{-- Right Column: Buy Box --}}
             <div class="lg:col-span-1 flex flex-col">
-                {{-- Desktop Title Header --}}
-                <div class="hidden lg:block mb-3">
-                    <div class="flex items-start gap-3 mb-2">
-                        <h1 class="flex-1 text-[28px] xl:text-[32px] font-black text-[#14325E] dark:text-white tracking-tight leading-[1.1] uppercase">
+                {{-- Title Header --}}
+                <div class="mb-3">
+                    <div class="flex items-start gap-2 sm:gap-3 mb-2">
+                        <h1 class="flex-1 text-[22px] sm:text-2xl lg:text-[28px] xl:text-[32px] font-black text-[#14325E] dark:text-white tracking-tight leading-[1.1] uppercase">
                             {{ $displayTitle }}
                         </h1>
+                        <button type="button" onclick="openShareModal()" aria-label="Compartir" class="flex-shrink-0 w-9 h-9 lg:w-10 lg:h-10 flex items-center justify-center rounded-full border border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-300 hover:text-[#00C4FF] hover:border-[#00C4FF] transition-colors" title="Compartir">
+                            <i class="fa-solid fa-share-nodes text-sm"></i>
+                        </button>
                     </div>
                     <div class="flex items-center justify-center md:justify-start gap-3">
                         @if($isUpcoming)
@@ -294,17 +180,17 @@
 
                 {{-- Agotado / Próximo State --}}
                 @if($isAgotado && !$isUpcoming)
-                <div class="hidden lg:block bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/50 rounded-2xl p-3 mt-2 text-center">
+                <div class="bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/50 rounded-2xl p-3 mt-2 text-center">
                     <h3 class="text-lg font-bold text-red-700 dark:text-red-400 mb-1 leading-tight">Agotado</h3>
                     <a href="{{ $whatsappBuy }}" data-cta="ver-disponibilidad" data-product-id="{{ $product->id }}" target="_blank" rel="noopener noreferrer" class="mt-2 inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[#00C4FF] hover:bg-[#00a3d6] text-white rounded-xl font-extrabold uppercase tracking-tight text-xs transition-all hover:-translate-y-0.5 active:scale-95 no-underline shadow-sm hover:shadow-md">
                         <i class="fa-solid fa-circle-info"></i> Ver disponibilidad
                     </a>
                 </div>
                 @elseif(!$isUpcoming)
-                    {{-- Desktop Price & Action Buttons --}}
-                    <div class="hidden lg:flex flex-col items-start gap-4 mb-5">
-                        <div class="flex items-baseline gap-3">
-                            <span class="text-[40px] leading-none font-black text-[#0A7CFF] tracking-tight">₡{{ number_format($priceAfterDiscount, 0) }}</span>
+                    {{-- Price & Action Buttons --}}
+                    <div class="flex flex-col items-start gap-4 mb-5">
+                        <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                            <span class="text-3xl md:text-[40px] leading-none font-black text-[#0A7CFF] tracking-tight">₡{{ number_format($priceAfterDiscount, 0) }}</span>
                             <span class="text-sm font-bold text-gray-400">+ IVA</span>
                             @if(($product->descuento ?? 0) > 0)
                             <div class="flex items-center gap-2">
@@ -313,10 +199,10 @@
                             </div>
                             @endif
                         </div>
-                        <x-product-benefits :apartadoMinimo="$apartadoMinimo" />
+                        <x-product-benefits :apartadoMinimo="$apartadoMinimo" :apartadoWhatsapp="$whatsappApartado" />
 
-                        {{-- Desktop Action buttons --}}
-                        <div class="flex gap-3 w-full">
+                        {{-- Action buttons --}}
+                        <div class="flex flex-col sm:flex-row gap-3 w-full">
                             <a href="{{ $whatsappBuy }}" data-cta="comprar-whatsapp" data-product-id="{{ $product->id }}" target="_blank" rel="noopener noreferrer" class="flex-1 flex items-center justify-center gap-2 py-3.5 bg-[#0EB45D] hover:bg-[#0aa550] text-white rounded-[10px] font-bold text-[15px] transition-all no-underline shadow-sm">
                                 <i class="fa-brands fa-whatsapp text-xl"></i> Contactar
                             </a>
@@ -338,8 +224,8 @@
 
                     </div>
                 @else
-                    {{-- Desktop Action buttons (no price for upcoming / agotado) --}}
-                    <div class="hidden lg:flex flex-col items-center gap-2.5 mb-3.5">
+                    {{-- Action buttons (no price for upcoming / agotado) --}}
+                    <div class="flex flex-col items-center gap-2.5 mb-3.5">
                         <div class="flex flex-col gap-2 w-full">
                             <a href="{{ $whatsappBuy }}" data-cta="ver-disponibilidad" data-product-id="{{ $product->id }}" target="_blank" rel="noopener noreferrer" class="flex-1 flex items-center justify-center gap-1 py-2 bg-[#00C4FF] hover:bg-[#00a3d6] text-white rounded-xl font-extrabold uppercase tracking-tight text-xs transition-all hover:-translate-y-0.5 active:scale-95 no-underline shadow-sm hover:shadow-md">
                                 <i class="fa-solid fa-circle-info text-base"></i> Ver disponibilidad
@@ -352,8 +238,8 @@
                 @endif
 
                 {{-- Especificaciones (siempre visible) --}}
-                <div class="hidden lg:block w-full mb-3.5 mt-1">
-                    <div class="grid grid-cols-2 gap-x-6 gap-y-5">
+                <div class="w-full mb-3.5 mt-1">
+                    <div class="grid grid-cols-2 gap-x-4 lg:gap-x-6 gap-y-4 lg:gap-y-5">
                         <div class="flex items-center gap-3">
                             <div class="flex-shrink-0 w-11 h-11 rounded-[10px] bg-[#EEF3FA] dark:bg-gray-800 flex items-center justify-center text-[#14325E] dark:text-gray-300">
                                 <i class="fa-solid fa-venus-mars text-base"></i>
@@ -426,9 +312,9 @@
             </div>
         </div>
 
-        {{-- Desktop: También te puede interesar (ancho completo, estilo mockup) --}}
+        {{-- También te puede interesar (ancho completo) --}}
         @if($relatedProducts->count() > 0)
-        <div class="hidden lg:block mt-12">
+        <div class="mt-8 lg:mt-12">
             <div class="flex items-center justify-between mb-4">
                 <h2 class="text-lg font-black text-[#14325E] dark:text-white uppercase tracking-wide">También te puede interesar</h2>
                 <div class="flex gap-2">
@@ -440,9 +326,9 @@
                     </button>
                 </div>
             </div>
-            <div id="related-slider" class="flex gap-4 overflow-x-auto pb-1 snap-x snap-mandatory scrollbar-hide" style="scroll-behavior: smooth;">
+            <div id="related-slider" class="flex gap-3 lg:gap-4 overflow-x-auto pb-1 snap-x snap-mandatory scrollbar-hide" style="scroll-behavior: smooth;">
                 @foreach($relatedProducts as $related)
-                <div class="flex-shrink-0 w-48 snap-start">
+                <div class="flex-shrink-0 w-40 sm:w-44 lg:w-48 snap-start">
                     <x-product-card-related :product="$related" />
                 </div>
                 @endforeach
@@ -454,38 +340,23 @@
     {{-- Vistos Recientemente --}}
     @if($recentlyViewed->count() > 0)
     <div class="max-w-7xl mx-auto px-4 mt-5 mb-8">
-        {{-- Mobile: Vistos Recientemente slider --}}
-        <div class="lg:hidden">
-            <h3 class="text-sm font-black text-gray-600 dark:text-gray-500 uppercase tracking-widest mb-3 px-1">Vistos Recientemente</h3>
-            <div id="mobile-recently-viewed-slider" class="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1 scrollbar-hide">
-                @foreach($recentlyViewed as $recent)
-                <div class="flex-shrink-0 w-32 snap-start">
-                    <x-product-card-related :product="$recent" />
-                </div>
-                @endforeach
+        <div class="flex items-center justify-between mb-3 lg:mb-4">
+            <h2 class="text-sm lg:text-xl font-black text-gray-600 dark:text-gray-400 lg:text-gray-900 lg:dark:text-white uppercase tracking-widest lg:tracking-tight px-1 lg:px-0">Vistos Recientemente</h2>
+            <div class="hidden sm:flex gap-1.5">
+                <button type="button" onclick="scrollRecentlyViewed(-1)" aria-label="Anterior" class="w-8 h-8 flex items-center justify-center rounded-full border border-gray-200 dark:border-gray-600 text-gray-400 hover:text-[#00C4FF] hover:border-[#00C4FF] transition-colors">
+                    <i class="fa-solid fa-chevron-left text-xs"></i>
+                </button>
+                <button type="button" onclick="scrollRecentlyViewed(1)" aria-label="Siguiente" class="w-8 h-8 flex items-center justify-center rounded-full border border-gray-200 dark:border-gray-600 text-gray-400 hover:text-[#00C4FF] hover:border-[#00C4FF] transition-colors">
+                    <i class="fa-solid fa-chevron-right text-xs"></i>
+                </button>
             </div>
         </div>
-
-        {{-- Desktop: Vistos Recientemente slider --}}
-        <div class="hidden lg:block">
-            <div class="flex items-center justify-between mb-4">
-                <h2 class="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight">Vistos Recientemente</h2>
-                <div class="flex gap-1.5">
-                    <button type="button" onclick="scrollRecentlyViewed(-1)" aria-label="Anterior" class="w-8 h-8 flex items-center justify-center rounded-full border border-gray-200 dark:border-gray-600 text-gray-400 hover:text-[#00C4FF] hover:border-[#00C4FF] transition-colors">
-                        <i class="fa-solid fa-chevron-left text-xs"></i>
-                    </button>
-                    <button type="button" onclick="scrollRecentlyViewed(1)" aria-label="Siguiente" class="w-8 h-8 flex items-center justify-center rounded-full border border-gray-200 dark:border-gray-600 text-gray-400 hover:text-[#00C4FF] hover:border-[#00C4FF] transition-colors">
-                        <i class="fa-solid fa-chevron-right text-xs"></i>
-                    </button>
-                </div>
+        <div id="recently-viewed-slider" class="flex gap-2 lg:gap-3 overflow-x-auto pb-2 lg:pb-1 -mx-1 px-1 lg:mx-0 lg:px-0 snap-x snap-mandatory scrollbar-hide" style="scroll-behavior: smooth;">
+            @foreach($recentlyViewed as $recent)
+            <div class="flex-shrink-0 w-32 sm:w-40 snap-start">
+                <x-product-card-related :product="$recent" />
             </div>
-            <div id="recently-viewed-slider" class="flex gap-3 overflow-x-auto pb-1 snap-x snap-mandatory scrollbar-hide" style="scroll-behavior: smooth;">
-                @foreach($recentlyViewed as $recent)
-                <div class="flex-shrink-0 w-40 snap-start">
-                    <x-product-card-related :product="$recent" />
-                </div>
-                @endforeach
-            </div>
+            @endforeach
         </div>
     </div>
     @endif
@@ -643,28 +514,4 @@
     </script>
     @endpush
 
-    {{-- Spacer para que la barra fija no tape el contenido --}}
-    <div class="h-[72px] lg:hidden" aria-hidden="true"></div>
-
-    {{-- Mobile: Floating action bar (fixed bottom) --}}
-    <div class="lg:hidden fixed bottom-0 left-0 right-0 z-100 bg-white dark:bg-[#0a0f1c] border-t border-gray-200 dark:border-white/10 px-3 py-2.5 flex gap-2.5" style="padding-bottom: calc(0.625rem + env(safe-area-inset-bottom));">
-        @if(!$isAgotado && !$isUpcoming && ($product->stock ?? 0) > 0)
-            @if($inCart)
-            <a href="{{ route('cart.show') }}" class="flex-1 flex items-center justify-center gap-1.5 py-3 bg-gray-900 dark:bg-gray-800 hover:bg-gray-800 dark:hover:bg-gray-700 text-white rounded-xl font-extrabold uppercase tracking-tight text-[12px] leading-none transition-all hover:-translate-y-0.5 active:scale-95 no-underline shadow-sm">
-                <i class="fa-solid fa-cart-shopping text-base"></i> Ver Carrito
-            </a>
-            @else
-            <button type="button" data-cta="comprar-ahora" data-product-id="{{ $product->id }}" onclick="addToCart({{ $product->id }}, this)" class="flex-1 flex items-center justify-center gap-1.5 py-3 bg-[#00C4FF] hover:bg-[#00b0e6] text-[#0a0f1c] rounded-xl font-extrabold uppercase tracking-tight text-[12px] leading-none transition-all hover:-translate-y-0.5 active:scale-95 shadow-sm">
-                <i class="fa-solid fa-bag-shopping text-base"></i> Comprar
-            </button>
-            @endif
-        @else
-            <a href="{{ $whatsappBuy }}" data-cta="ver-disponibilidad" data-product-id="{{ $product->id }}" target="_blank" rel="noopener noreferrer" class="flex-1 flex items-center justify-center gap-1.5 py-3 bg-[#00C4FF] hover:bg-[#00b0e6] text-[#0a0f1c] rounded-xl font-extrabold uppercase tracking-tight text-[12px] leading-none transition-all hover:-translate-y-0.5 active:scale-95 no-underline shadow-sm">
-                <i class="fa-solid fa-circle-info text-base"></i> Disponible
-            </a>
-        @endif
-        <a href="{{ $whatsappBuy }}" data-cta="comprar-whatsapp" data-product-id="{{ $product->id }}" data-conversion="whatsapp-comprar" target="_blank" rel="noopener noreferrer" class="flex-1 flex items-center justify-center gap-1.5 py-3 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-xl font-extrabold uppercase tracking-tight text-[12px] leading-none transition-all hover:-translate-y-0.5 active:scale-95 no-underline shadow-sm">
-            <i class="fa-brands fa-whatsapp text-lg"></i> Contactar
-        </a>
-    </div>
 </x-app-layout>
