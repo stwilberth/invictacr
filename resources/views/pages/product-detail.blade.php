@@ -161,9 +161,6 @@
                         <h1 class="flex-1 text-lg sm:text-2xl lg:text-[28px] xl:text-[32px] font-black text-[#14325E] dark:text-white tracking-tight leading-[1.1] uppercase">
                             {{ $displayTitle }}
                         </h1>
-                        <button type="button" onclick="openShareModal()" aria-label="Compartir" class="flex-shrink-0 w-9 h-9 lg:w-10 lg:h-10 flex items-center justify-center rounded-full border border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-300 hover:text-[#00C4FF] hover:border-[#00C4FF] transition-colors" title="Compartir">
-                            <i class="fa-solid fa-share-nodes text-sm"></i>
-                        </button>
                     </div>
                     <div class="flex items-center justify-center md:justify-start gap-3">
                         @if($isUpcoming)
@@ -189,7 +186,8 @@
                 @elseif(!$isUpcoming)
                     {{-- Price & Action Buttons --}}
                     <div class="flex flex-col items-start gap-4 mb-5">
-                        <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                        <div class="flex flex-wrap items-center gap-x-3 gap-y-2">
+                            <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
                             <span class="text-2xl md:text-[40px] leading-none font-black text-[#0A7CFF] tracking-tight">₡{{ number_format($priceAfterDiscount, 0) }}</span>
                             <span class="text-sm font-bold text-gray-400">+ IVA</span>
                             @if(($product->descuento ?? 0) > 0)
@@ -198,6 +196,10 @@
                                 <span class="bg-red-500 text-white text-[11px] font-black px-2.5 py-1 rounded-lg shadow-sm">-{{ $product->descuento }}% OFF</span>
                             </div>
                             @endif
+                            </div>
+                            <button type="button" onclick="openShareModal()" aria-label="Compartir" class="ml-auto flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-full border border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-300 hover:text-[#00C4FF] hover:border-[#00C4FF] transition-colors" title="Compartir">
+                                <i class="fa-solid fa-share-nodes text-sm"></i>
+                            </button>
                         </div>
 
                         {{-- Action buttons --}}
