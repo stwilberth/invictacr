@@ -49,7 +49,7 @@
         this.currentIndex = (this.currentIndex + 1) % this.totalSlides;
     }
 }'>
-    <div class="relative overflow-hidden group/image w-full aspect-[4/3] rounded-xl bg-[#F1F5FA] dark:bg-gray-900"
+    <div class="relative overflow-hidden group/image w-full aspect-[4/3] rounded-xl bg-white dark:bg-gray-900"
         @touchstart="onTouchStart($event)" @touchend="onTouchEnd($event)">
         <div class="absolute inset-0 flex" :style="`transform: translateX(-${currentIndex * 100}%); transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);`">
             @foreach($galleryItems as $idx => $item)
