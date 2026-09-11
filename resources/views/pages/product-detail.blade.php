@@ -281,7 +281,7 @@
                         </div>
                         <div class="flex items-center gap-3">
                             <div class="flex-shrink-0 w-10 h-10 md:w-11 md:h-11 rounded-[10px] bg-[#EEF3FA] dark:bg-gray-800 flex items-center justify-center text-[#14325E] dark:text-gray-300">
-                                <i class="fa-solid fa-water text-base"></i>
+                                <i class="fa-solid fa-clock text-base"></i>
                             </div>
                             <div>
                                 <p class="text-[11px] text-gray-400 font-semibold uppercase tracking-wide">Colección</p>
