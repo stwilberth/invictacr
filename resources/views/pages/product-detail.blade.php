@@ -96,6 +96,7 @@
         $priceAfterDiscount = $product->price_after_discount;
         $apartadoMinimo = round((float) ($priceAfterDiscount ?? $product->precio_venta ?? 0) * 0.2, -3);
         $whatsappBuy = 'https://wa.me/50686711422?text=' . urlencode("¡Hola! Me interesa el reloj Invicta {$product->modelo}");
+        $whatsappApartado = 'https://wa.me/50686711422?text=' . urlencode("¡Hola! Quiero apartar el reloj Invicta {$product->modelo}");
         $shareLinkFor = fn(string $source): string => url()->current() . '?utm_source=' . $source . '&utm_medium=compartir&utm_campaign=ficha_producto';
         $shareUrl = urlencode($shareLinkFor('whatsapp'));
         $shareTitle = urlencode("¡Mira este reloj Invicta!: {$product->title}");
@@ -235,7 +236,7 @@
                     </div>
                     @endif
                     <div class="mt-2.5">
-                        <x-product-benefits :apartadoMinimo="$apartadoMinimo" />
+                        <x-product-benefits :apartadoMinimo="$apartadoMinimo" :apartadoWhatsapp="$whatsappApartado" />
                     </div>
 
                     {{-- Métodos de pago aceptados --}}
