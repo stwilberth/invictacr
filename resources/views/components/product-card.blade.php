@@ -20,29 +20,7 @@
     }
     $cardTitle .= ' ' . ($model !== '' ? $model : 'Reloj');
 
-    // "Datos del reloj" (specs cortos que caben en la tarjeta)
-    $specs = [];
-    $mov = trim(mb_strtolower((string) ($product->tipo_movimiento ?? ''), 'UTF-8'));
-    if (in_array($mov, ['automatico', 'automático', 'automatic', 'mecanico'], true)) {
-        $specs[] = 'Movimiento automático';
-    } elseif (in_array($mov, ['cuarzo', 'solar'], true)) {
-        $specs[] = $mov === 'solar' ? 'Movimiento solar' : 'Movimiento de cuarzo';
-    }
     $sizeDigits = trim((string) preg_replace('/[^0-9.,]/', '', (string) ($product->size ?? '')));
-    if ($sizeDigits !== '' && (float) $sizeDigits > 0) {
-        $specs[] = 'Caja ' . $sizeDigits . ' mm';
-    }
-    $brazalete = trim((string) ($product->brazalete ?? ''));
-    if ($brazalete !== '' && $brazalete !== 'Otros') {
-        $specs[] = 'Correa ' . $brazalete;
-    } elseif (($caja = trim((string) ($product->caja ?? ''))) !== '' && $caja !== 'Otros') {
-        $specs[] = 'Caja ' . $caja;
-    }
-    $water = trim((string) ($product->resistencia_agua ?? ''));
-    if ($water !== '') {
-        $waterDigits = preg_replace('/[^0-9]/', '', $water);
-        $specs[] = 'Resistencia al agua ' . ($waterDigits !== '' ? $waterDigits : $water) . ' M';
-    }
 
     // Género y tamaño para el card de /relojes (visible en mobile y desktop)
     $generoLabel = trim((string) ($product->genero ?? ''));
@@ -101,17 +79,6 @@
         <p class="mt-1 w-full text-center text-[10px] md:text-[11px] font-semibold text-slate-500 dark:text-slate-400 leading-snug">
             {{ $generoLabel }}@if($sizeLabel !== '') • {{ $sizeLabel }}@endif
         </p>
-
-        @if(!empty($specs))
-        <div class="mt-2 hidden md:grid grid-cols-2 gap-x-2 gap-y-1 justify-items-start text-left">
-            @foreach($specs as $spec)
-            <span class="inline-flex w-full items-start gap-1.5 min-w-0 text-left text-[11px] md:text-[11px] font-semibold leading-snug text-slate-500 dark:text-slate-400">
-                <i class="fa-solid fa-circle text-[#00C4FF]/60 text-[3px] mt-1 shrink-0"></i>
-                <span class="leading-snug">{{ $spec }}</span>
-            </span>
-            @endforeach
-        </div>
-        @endif
 
         <div class="mt-2 md:mt-4 text-center">
             @if($product->proximo || $product->precio_venta <= 0)
