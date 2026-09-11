@@ -321,11 +321,11 @@
                             </a>
                             @if(!$isAgotado && !$isUpcoming && ($product->stock ?? 0) > 0)
                                 @if($inCart)
-                                <a href="{{ route('cart.show') }}" class="flex-1 flex items-center justify-center gap-2 py-3.5 bg-[#0A2342] hover:bg-[#132e57] text-white rounded-[10px] font-bold text-[15px] transition-all shadow-sm">
+                                <a href="{{ route('cart.show') }}" class="flex-1 flex items-center justify-center gap-2 py-3.5 bg-[#0A7CFF] hover:bg-[#0869D6] text-white rounded-[10px] font-bold text-[15px] transition-all shadow-sm">
                                     <i class="fa-solid fa-cart-shopping text-lg"></i> Ver Carrito
                                 </a>
                                 @else
-                                <button type="button" data-cta="comprar-ahora" data-product-id="{{ $product->id }}" onclick="addToCart({{ $product->id }}, this)" class="flex-1 flex items-center justify-center gap-2 py-3.5 bg-[#0A2342] hover:bg-[#132e57] text-white rounded-[10px] font-bold text-[15px] transition-all shadow-sm">
+                                <button type="button" data-cta="comprar-ahora" data-product-id="{{ $product->id }}" onclick="addToCart({{ $product->id }}, this)" class="flex-1 flex items-center justify-center gap-2 py-3.5 bg-[#0A7CFF] hover:bg-[#0869D6] text-white rounded-[10px] font-bold text-[15px] transition-all shadow-sm">
                                     <i class="fa-solid fa-cart-shopping text-lg"></i> Comprar ahora
                                 </button>
                                 @endif

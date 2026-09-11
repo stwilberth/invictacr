@@ -10,15 +10,15 @@
     }
 @endphp
 
-<nav class="bg-[#0a0f1c] shadow-lg w-full z-[60] print:hidden border-b border-white/5"
+<nav class="bg-[#0A2342] shadow-lg w-full z-[60] print:hidden border-b border-white/10"
      x-data="navbarState()"
      x-init="init()">
     <div class="mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between h-14 md:h-20 items-center">
+        <div class="flex justify-between h-14 md:h-[100px] items-center">
             <div class="flex-shrink-0 flex items-center mr-2 md:mr-8">
                 <div class="flex flex-col justify-center items-center leading-tight">
                     <a href="/" class="group">
-                        <p class="text-base md:text-xl font-bold tracking-wider text-white/80 group-hover:text-white transition-colors">Invicta<span class="text-[#00C4FF]">CostaRica</span>.com</p>
+                        <p class="text-base md:text-2xl font-bold tracking-wider text-white/80 group-hover:text-white transition-colors">Invicta<span class="text-[#00C4FF]">CostaRica</span>.com</p>
                     </a>
                     <a href="https://wa.me/50686711422" target="_blank" rel="noopener noreferrer" class="text-sm md:text-base text-white/50 hover:text-white flex items-center gap-1 transition-colors">
                         <i class="fa-brands fa-whatsapp text-[#25D366] text-base md:text-lg"></i>
@@ -169,7 +169,7 @@
          x-transition:leave="transition ease-in duration-200"
          x-transition:leave-start="opacity-100"
          x-transition:leave-end="opacity-0"
-         class="md:hidden fixed inset-0 bg-[#0a0f1c] z-40 overflow-y-auto"
+         class="md:hidden fixed inset-0 bg-[#0A2342] z-40 overflow-y-auto"
          style="display: none;">
         <div class="min-h-screen flex flex-col pt-4 pb-6">
             <div class="flex items-center justify-between px-4 py-3 border-b border-white/10">
