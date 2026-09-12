@@ -13,9 +13,12 @@
         <span class="flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 text-xs font-semibold text-gray-700 dark:text-gray-300" title="Transferencia">
             <i class="fa-solid fa-building-columns text-sm text-[#0A7CFF]"></i> Transferencia
         </span>
+        {{-- Oculto temporalmente: mostrar cuando se active Tasa Cero BAC --}}
+        @if(false)
         <span class="col-span-2 md:col-span-4 flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 text-xs font-semibold text-gray-700 dark:text-gray-300" title="Tasa Cero BAC Credomatic">
             <img src="{{ asset('images/payments/tasa-cero-bac.png') }}" alt="Tasa Cero BAC Credomatic" class="h-6 w-auto" loading="lazy" />
             <span>Pagá en cuotas con tarjetas BAC</span>
         </span>
+        @endif
     </div>
 </div>
