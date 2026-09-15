@@ -17,12 +17,14 @@ Schedule::command('sync:all-analytics', ['--days' => 1])
     ->withoutOverlapping()
     ->appendOutputTo(storage_path('logs/sync-analytics-cron.log'));
 
-// Publica en Facebook los relojes pendientes al azar (foto + texto + enlace).
-// Ajustá --limit con el número de publicaciones diarias deseadas.
-// OJO: el servidor corre en UTC; se fija la zona horaria para que salga
-// a las 9:00am de Costa Rica (antes salía a las 3:00am y no lo veía nadie).
-Schedule::command('campaigns:publish-facebook', ['--limit' => 3])
-    ->dailyAt('09:00')
-    ->timezone('America/Costa_Rica')
-    ->withoutOverlapping()
-    ->appendOutputTo(storage_path('logs/facebook-publish-cron.log'));
+// Publica en Facebook los relojes pendientes (foto del canva + texto + enlace).
+// 3 al día, uno en cada hora pico de Costa Rica. Cada publicado se marca en
+// DownloadHistory y sale automáticamente de la lista de pendientes.
+// OJO: el servidor corre en UTC; se fija la zona horaria para horas locales.
+foreach (['08:00', '12:00', '18:00'] as $horaPico) {
+    Schedule::command('campaigns:publish-facebook', ['--limit' => 1])
+        ->dailyAt($horaPico)
+        ->timezone('America/Costa_Rica')
+        ->withoutOverlapping()
+        ->appendOutputTo(storage_path('logs/facebook-publish-cron.log'));
+}
