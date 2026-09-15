@@ -19,7 +19,10 @@ Schedule::command('sync:all-analytics', ['--days' => 1])
 
 // Publica en Facebook los relojes pendientes al azar (foto + texto + enlace).
 // Ajustá --limit con el número de publicaciones diarias deseadas.
+// OJO: el servidor corre en UTC; se fija la zona horaria para que salga
+// a las 9:00am de Costa Rica (antes salía a las 3:00am y no lo veía nadie).
 Schedule::command('campaigns:publish-facebook', ['--limit' => 3])
     ->dailyAt('09:00')
+    ->timezone('America/Costa_Rica')
     ->withoutOverlapping()
     ->appendOutputTo(storage_path('logs/facebook-publish-cron.log'));

@@ -182,31 +182,73 @@ class FacebookBusinessService
                 return null;
             }
 
-            $postId = $response->json('id');
-            if (!$postId) {
-                return null;
-            }
-
-            FacebookPost::updateOrCreate(
-                ['post_id' => $postId],
-                [
-                    'message' => $message,
-                    'link' => $link,
-                    'media_type' => 'photo',
-                    'posted_at' => now(),
-                    'likes' => 0,
-                    'comments' => 0,
-                    'shares' => 0,
-                    'reach' => 0,
-                    'impressions' => 0,
-                    'raw_data' => $response->json(),
-                ]
-            );
-
-            return $postId;
+            return $this->recordPost($response->json('id'), $message, $link, $response->json());
         } catch (\Exception $e) {
             report($e);
             return null;
         }
+    }
+
+    /**
+     * Publica una imagen ya generada (bytes, ej.: el PNG del canva de campaña
+     * de AdImageController) subiendola directo a Facebook por multipart.
+     * Así no depende de una URL pública ni de la consistencia de R2.
+     *
+     * @return string|null id del post creado, o null si falla.
+     */
+    public function publishPhotoContents(string $imageBytes, string $message, ?string $link = null, string $filename = 'anuncio.png'): ?string
+    {
+        if (!$this->isConfigured()) {
+            return null;
+        }
+
+        $pageToken = $this->getPageToken();
+        if (!$pageToken) {
+            Log::error('Facebook publish failed: no page token.');
+            return null;
+        }
+
+        try {
+            $response = Http::attach('source', $imageBytes, $filename)
+                ->post("https://graph.facebook.com/{$this->apiVersion}/{$this->pageId}/photos", [
+                    'message' => $message,
+                    'access_token' => $pageToken,
+                ]);
+
+            if (!$response->successful()) {
+                Log::error('Facebook publish failed: ' . $response->body());
+                return null;
+            }
+
+            return $this->recordPost($response->json('id'), $message, $link, $response->json());
+        } catch (\Exception $e) {
+            report($e);
+            return null;
+        }
+    }
+
+    private function recordPost(?string $postId, string $message, ?string $link, mixed $raw): ?string
+    {
+        if (!$postId) {
+            return null;
+        }
+
+        FacebookPost::updateOrCreate(
+            ['post_id' => $postId],
+            [
+                'message' => $message,
+                'link' => $link,
+                'media_type' => 'photo',
+                'posted_at' => now(),
+                'likes' => 0,
+                'comments' => 0,
+                'shares' => 0,
+                'reach' => 0,
+                'impressions' => 0,
+                'raw_data' => $raw,
+            ]
+        );
+
+        return $postId;
     }
 }

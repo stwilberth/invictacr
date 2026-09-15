@@ -12,23 +12,41 @@ class AdImageController extends Controller
     private const FONT_BOLD = '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf';
     private const FONT_REGULAR = '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf';
 
-    public function generate(Product $product): string
+    private const THEMES = [
+        // Mismo azul del canva manual (default en el JS).
+        'blue' => [
+            'dark' => [0x0b, 0x24, 0x47],
+            'light' => [0x1a, 0x5f, 0xb4],
+            'cream' => [0xea, 0xf2, 0xfb],
+            'text' => [0x2b, 0x2b, 0x2b],
+        ],
+        'gold' => [
+            'dark' => [0x8a, 0x5a, 0x00],
+            'light' => [0xe6, 0xb8, 0x00],
+            'cream' => [0xfd, 0xf6, 0xe3],
+            'text' => [0x2b, 0x2b, 0x2b],
+        ],
+    ];
+
+    public function generate(Product $product, string $theme = 'blue'): string
     {
-        return $this->render($product);
+        return $this->render($product, self::THEMES[$theme] ?? self::THEMES['blue']);
     }
 
-    private function render(Product $product): string
+    private function render(Product $product, array $t): string
     {
         $img = imagecreatetruecolor(self::W, self::H);
 
-        $goldDark = imagecolorallocate($img, 0x8a, 0x5a, 0x00);
-        $goldLight = imagecolorallocate($img, 0xe6, 0xb8, 0x00);
-        $cream = imagecolorallocate($img, 0xfd, 0xf6, 0xe3);
+        $themeDark = imagecolorallocate($img, $t['dark'][0], $t['dark'][1], $t['dark'][2]);
+        $themeLight = imagecolorallocate($img, $t['light'][0], $t['light'][1], $t['light'][2]);
+        $cream = imagecolorallocate($img, $t['cream'][0], $t['cream'][1], $t['cream'][2]);
         $white = imagecolorallocate($img, 0xff, 0xff, 0xff);
         $darkText = imagecolorallocate($img, 0x1c, 0x1c, 0x1e);
+        $tagGold = imagecolorallocate($img, 0xe6, 0xb8, 0x00);
+        $specText = imagecolorallocate($img, $t['text'][0], $t['text'][1], $t['text'][2]);
         $badgeRed = imagecolorallocate($img, 0xc0, 0x21, 0x2b);
 
-        // Fondo: lado izquierdo gradiente dorado, lado derecho crema (split diagonal)
+        // Fondo: lado izquierdo gradiente del tema, lado derecho crema (split diagonal)
         $splitX = self::W * 0.5;
         $offsetTop = 120;
         $offsetBottom = -120;
@@ -36,16 +54,16 @@ class AdImageController extends Controller
         // Relleno base con crema (lado derecho)
         imagefilledrectangle($img, 0, 0, self::W, self::H, $cream);
 
-        // Lado izquierdo: gradiente dorado con borde diagonal
+        // Lado izquierdo: gradiente con borde diagonal
         for ($y = 0; $y < self::H; $y++) {
-            $t = $y / self::H;
-            $r = (int) (0x8a + (0xe6 - 0x8a) * $t);
-            $g = (int) (0x5a + (0xb8 - 0x5a) * $t);
-            $b = 0;
+            $tY = $y / self::H;
+            $r = (int) ($t['dark'][0] + ($t['light'][0] - $t['dark'][0]) * $tY);
+            $g = (int) ($t['dark'][1] + ($t['light'][1] - $t['dark'][1]) * $tY);
+            $b = (int) ($t['dark'][2] + ($t['light'][2] - $t['dark'][2]) * $tY);
             $color = imagecolorallocate($img, $r, $g, $b);
 
             // Calcular el borde diagonal en este Y
-            $splitAtY = $splitX + $offsetTop + (($offsetBottom - $offsetTop) * $t);
+            $splitAtY = $splitX + $offsetTop + (($offsetBottom - $offsetTop) * $tY);
             for ($x = 0; $x < (int) $splitAtY; $x++) {
                 if ($x < self::W) {
                     imagesetpixel($img, $x, $y, $color);
@@ -58,7 +76,7 @@ class AdImageController extends Controller
         $cy = self::H * 0.48;
         $r = 450;
         imagefilledellipse($img, (int) $cx, (int) $cy, $r * 2, $r * 2, $white);
-        imageellipse($img, (int) $cx, (int) $cy, $r * 2, $r * 2, $goldDark);
+        imageellipse($img, (int) $cx, (int) $cy, $r * 2, $r * 2, $themeDark);
 
         // Cargar imagen del producto
         $productImage = $this->loadProductImage($product);
@@ -109,7 +127,7 @@ class AdImageController extends Controller
 
         $specY = $cy - ((count($specs) - 1) * 35) - 30 + 500;
         foreach ($specs as $i => $spec) {
-            $this->drawRightText($img, $spec, 32, (int) ($specY + $i * 70), $darkText, self::FONT_REGULAR);
+            $this->drawRightText($img, $spec, 32, (int) ($specY + $i * 70), $specText, self::FONT_REGULAR);
         }
 
         // Bloque de precio: badge rojo con pestaña dorada sobre el borde superior
@@ -127,7 +145,7 @@ class AdImageController extends Controller
         $tagX = (int) ($badgeX + ($badgeW - $tagW) / 2);
         $tagY = (int) ($badgeY - $tagH / 2);
 
-        $this->roundRect($img, $tagX, $tagY, $tagW, $tagH, (int) ($tagH / 2), $goldLight);
+        $this->roundRect($img, $tagX, $tagY, $tagW, $tagH, (int) ($tagH / 2), $tagGold);
         $this->drawCenteredText($img, 'ENVÍO GRATIS', 20, $this->vCenterY($tagY, $tagH, 20, self::FONT_BOLD, 'ENVÍO GRATIS'), $darkText, self::FONT_BOLD, $tagX + $tagW / 2);
 
         // Precio (auto-reducir si no cabe)
@@ -190,7 +208,8 @@ class AdImageController extends Controller
         $sh = imagesy($source);
         if ($sw <= 0 || $sh <= 0) return null;
 
-        $scale = max($size / $sw, $size / $sh);
+        // Contain: el reloj completo debe verse dentro del círculo, sin recortes.
+        $scale = min($size / $sw, $size / $sh);
         $dw = (int) ($sw * $scale);
         $dh = (int) ($sh * $scale);
         $resized = imagecreatetruecolor($dw, $dh);
@@ -236,8 +255,6 @@ class AdImageController extends Controller
 
     private function drawText($img, string $text, int $size, int $y, $color, string $font): void
     {
-        $shadowColor = imagecolorallocate($img, 0, 0, 0);
-        imagettftext($img, $size, 0, 62, $y + 3, $shadowColor, $font, $text);
         imagettftext($img, $size, 0, 60, $y, $color, $font, $text);
     }
 
@@ -246,8 +263,6 @@ class AdImageController extends Controller
         $box = imagettfbbox($size, 0, $font, $text);
         $textWidth = $box[2] - $box[0];
         $x = self::W - 35 - $textWidth;
-        $shadowColor = imagecolorallocate($img, 0, 0, 0);
-        imagettftext($img, $size, 0, $x + 3, $y + 3, $shadowColor, $font, $text);
         imagettftext($img, $size, 0, $x, $y, $color, $font, $text);
     }
 
@@ -256,8 +271,6 @@ class AdImageController extends Controller
         $box = imagettfbbox($size, 0, $font, $text);
         $textWidth = $box[2] - $box[0];
         $x = $centerX !== null ? $centerX - $textWidth / 2 : (self::W - $textWidth) / 2;
-        $shadowColor = imagecolorallocate($img, 0, 0, 0);
-        imagettftext($img, $size, 0, (int) ($x + 3), $y + 3, $shadowColor, $font, $text);
         imagettftext($img, $size, 0, (int) $x, $y, $color, $font, $text);
     }
 

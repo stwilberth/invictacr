@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Http\Controllers\AdImageController;
 use App\Models\DownloadHistory;
 use App\Models\Product;
 use App\Services\CatalogService;
@@ -44,7 +45,15 @@ class PublishFacebookPending extends Command
             try {
                 $message = $this->buildMessage($product);
 
-                $postId = $service->publishPhotoPost($product->imagen, $message, $this->productUrl($product));
+                // Imagen diseñada del canva de campaña (1080x1350 con precio),
+                // subida directo a Facebook por multipart.
+                try {
+                    $png = (new AdImageController())->generate($product);
+                    $postId = $service->publishPhotoContents($png, $message, $this->productUrl($product), $product->modelo . '.png');
+                } catch (\Throwable $e) {
+                    Log::warning("Ad image generate failed for {$product->modelo}, usando foto del producto: " . $e->getMessage());
+                    $postId = $service->publishPhotoPost($product->imagen, $message, $this->productUrl($product));
+                }
 
                 if (!$postId) {
                     $this->error("No se pudo publicar {$product->modelo} a Facebook.");
