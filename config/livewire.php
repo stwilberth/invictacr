@@ -130,7 +130,7 @@ return [
 
     'temporary_file_upload' => [
         'disk' => env('LIVEWIRE_TEMPORARY_FILE_UPLOAD_DISK'), // Example: 'local', 's3'             | Default: 'default'
-        'rules' => ['required', 'file', 'mimetypes:video/mp4,video/quicktime,video/webm,video/x-m4v,video/3gpp', 'max:51200'], // Hasta 50MB como en ReviewVideos
+        'rules' => null, // Default Livewire: ['required', 'file', 'max:12288]. NO restringir por tipo aquí: es global y rompería las subidas de imágenes (cada componente valida lo suyo).
         'directory' => null,                                  // Example: 'tmp'                     | Default: 'livewire-tmp'
         'middleware' => null,                                 // Example: 'throttle:5,1'            | Default: 'throttle:60,1'
         'preview_mimes' => [                                  // Supported file types for temporary pre-signed file URLs...

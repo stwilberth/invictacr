@@ -320,8 +320,9 @@ class CatalogService
             'name_asc' => ['title', 'asc'],
             'name_desc' => ['title', 'desc'],
             'newest' => ['created_at', 'desc'],
-            // Sin orden elegido: primero los más vistos
-            default => ['vistas', 'desc'],
+            'most_viewed' => ['vistas', 'desc'],
+            // Sin orden elegido: primero los más nuevos
+            default => ['created_at', 'desc'],
         };
 
         $callback = function (Product $p) use ($field) {

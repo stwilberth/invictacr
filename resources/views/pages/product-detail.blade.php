@@ -178,10 +178,7 @@
                 {{-- Agotado / Próximo State --}}
                 @if($isAgotado && !$isUpcoming)
                 <div class="bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/50 rounded-2xl p-3 mt-2 text-center">
-                    <h3 class="text-lg font-bold text-red-700 dark:text-red-400 mb-1 leading-tight">Agotado</h3>
-                    <a href="{{ $whatsappBuy }}" data-cta="ver-disponibilidad" data-product-id="{{ $product->id }}" target="_blank" rel="noopener noreferrer" class="mt-2 inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[#00C4FF] hover:bg-[#00a3d6] text-white rounded-xl font-extrabold uppercase tracking-tight text-xs transition-all hover:-translate-y-0.5 active:scale-95 no-underline shadow-sm hover:shadow-md">
-                        <i class="fa-solid fa-circle-info"></i> Ver disponibilidad
-                    </a>
+                    <h3 class="text-lg font-bold text-red-700 dark:text-red-400 leading-tight">Agotado</h3>
                 </div>
                 @elseif(!$isUpcoming)
                     {{-- Price & Action Buttons --}}
@@ -258,7 +255,7 @@
                             </div>
                             <div>
                                 <p class="text-[11px] text-gray-400 font-semibold uppercase tracking-wide">Tamaño de caja</p>
-                                <p class="text-[13px] md:text-sm font-bold text-[#14325E] dark:text-white">{{ $size ? $size . '.0mm' : 'N/A' }}</p>
+                                <p class="text-[13px] md:text-sm font-bold text-[#14325E] dark:text-white">{{ $size ? $size . 'mm' : 'N/A' }}</p>
                             </div>
                         </div>
                         <div class="flex items-center gap-3">

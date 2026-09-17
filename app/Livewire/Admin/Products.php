@@ -35,6 +35,11 @@ class Products extends Component
         }
     }
 
+    public function applySearch()
+    {
+        $this->resetPage();
+    }
+
     public function sortBy($field)
     {
         if ($this->sortField === $field) {
@@ -88,7 +93,11 @@ class Products extends Component
         $query = Product::query();
 
         if ($this->search) {
-            $query->where("modelo", "like", "%{$this->search}%");
+            $term = trim($this->search);
+            $query->where(function ($q) use ($term) {
+                $q->where("modelo", "like", "%{$term}%")
+                    ->orWhere("title", "like", "%{$term}%");
+            });
         }
 
         if ($this->filterGender) {
@@ -121,10 +130,14 @@ class Products extends Component
             $query->whereRaw("size + 0 = ?", [$this->filterTamano]);
         }
 
-        if ($this->filterStock === "in") {
-            $query->where("stock", ">", 0);
-        } elseif ($this->filterStock === "out") {
-            $query->where("stock", 0);
+        // Al buscar por modelo/título se ignoran los filtros de stock y activo:
+        // la búsqueda debe encontrar el producto aunque esté agotado o inactivo.
+        if (!$this->search) {
+            if ($this->filterStock === "in") {
+                $query->where("stock", ">", 0);
+            } elseif ($this->filterStock === "out") {
+                $query->where("stock", 0);
+            }
         }
 
         if ($this->filterActivo === "yes") {

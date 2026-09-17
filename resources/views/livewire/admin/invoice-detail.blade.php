@@ -110,12 +110,10 @@
             <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-5 overflow-x-auto">
                 <h3 class="text-sm font-bold uppercase tracking-wider text-gray-500 mb-4">Abonos</h3>
                 @if($invoice->abonos->count() > 0)
-                <table class="w-full text-sm">
-                    <thead>
-                        <tr class="text-xs text-gray-500 border-b border-gray-200 dark:border-white/10">
-                            <th class="text-left py-2">Fecha</th>
+                <table class="w-full text-sm hidden md:table">
                             <th class="text-right py-2">Monto</th>
                             <th class="text-left py-2">Nota</th>
+                            <th class="text-center py-2">Comprobante</th>
                             <th class="text-right py-2"></th>
                         </tr>
                     </thead>
@@ -125,6 +123,20 @@
                             <td class="py-2 text-xs">{{ $abono->date?->format('d/m/Y H:i') ?? '-' }}</td>
                             <td class="py-2 text-right font-medium text-green-600">₡{{ number_format($abono->amount, 0) }}</td>
                             <td class="py-2 text-xs text-gray-500">{{ $abono->note ?? '-' }}</td>
+                            <td class="py-2 text-center">
+                                @if($abono->comprobante_url)
+                                <a href="{{ $abono->comprobante_url }}" target="_blank" rel="noopener" title="Ver comprobante">
+                                    <img src="{{ $abono->comprobante_url }}" alt="Comprobante" class="w-10 h-10 object-cover rounded-lg border border-gray-200 dark:border-white/10 hover:opacity-80 transition-opacity inline-block" loading="lazy" />
+                                </a>
+                                @else
+                                <form action="{{ route('admin.invoices.abonos.receipt', [$invoice->id, $abono->id]) }}" method="POST" enctype="multipart/form-data" class="flex items-center justify-center gap-1">
+                                    @csrf
+                                    <input type="file" name="receipt" accept="image/*" required class="text-[10px] text-gray-500 max-w-28 file:mr-1 file:py-1 file:px-2 file:rounded-lg file:border-0 file:text-[10px] file:font-bold file:bg-green-600 file:text-white hover:file:bg-green-700" />
+                                    <button type="submit" class="text-[10px] font-bold text-green-600 hover:text-green-700 whitespace-nowrap">Subir</button>
+                                </form>
+                                @error('receipt', 'abono' . $abono->id) <span class="text-red-500 text-[10px] block">{{ $message }}</span> @enderror
+                                @endif
+                            </td>
                             <td class="py-2 text-right">
                                 <button wire:click="deleteAbono({{ $abono->id }})" wire:confirm="¿Eliminar este abono?" class="text-red-500 hover:text-red-700 text-xs">Eliminar</button>
                             </td>
@@ -135,43 +147,97 @@
                         <tr class="font-bold">
                             <td class="pt-3 text-xs text-gray-500">Total abonado</td>
                             <td class="pt-3 text-right text-green-600">₡{{ number_format($invoice->abonos->sum('amount'), 0) }}</td>
-                            <td colspan="2"></td>
+                            <td colspan="3"></td>
                         </tr>
                         @php $saldo = $invoice->total - $invoice->abonos->sum('amount'); @endphp
                         @if($saldo > 0)
                         <tr class="font-bold">
                             <td class="text-xs text-red-500">Saldo pendiente</td>
                             <td class="text-right text-red-500">₡{{ number_format($saldo, 0) }}</td>
-                            <td colspan="2"></td>
+                            <td colspan="3"></td>
                         </tr>
                         @endif
                     </tfoot>
                 </table>
+
+                {{-- Tarjetas para móvil --}}
+                <div class="md:hidden space-y-3">
+                    @foreach($invoice->abonos as $abono)
+                    <div class="rounded-xl border border-gray-200 dark:border-white/10 p-3">
+                        <div class="flex items-center gap-3">
+                            @if($abono->comprobante_url)
+                            <a href="{{ $abono->comprobante_url }}" target="_blank" rel="noopener" title="Ver comprobante" class="flex-shrink-0">
+                                <img src="{{ $abono->comprobante_url }}" alt="Comprobante" class="w-16 h-16 object-cover rounded-xl border border-gray-200 dark:border-white/10" loading="lazy" />
+                            </a>
+                            @else
+                            <span class="flex-shrink-0 w-16 h-16 flex items-center justify-center rounded-xl bg-gray-100 dark:bg-white/5 text-gray-300 dark:text-gray-600 text-xl font-black">?</span>
+                            @endif
+                            <div class="flex-1 min-w-0">
+                                <p class="font-bold text-green-600 leading-tight">₡{{ number_format($abono->amount, 0) }}</p>
+                                <p class="text-[11px] text-gray-500 leading-snug">{{ $abono->date?->format('d/m/Y H:i') ?? '-' }}</p>
+                                @if($abono->note)
+                                <p class="text-[11px] text-gray-500 leading-snug truncate">{{ $abono->note }}</p>
+                                @endif
+                            </div>
+                            <button wire:click="deleteAbono({{ $abono->id }})" wire:confirm="¿Eliminar este abono?" class="flex-shrink-0 text-red-500 hover:text-red-700 text-xs font-bold px-2 py-1">Eliminar</button>
+                        </div>
+                        @if(!$abono->comprobante_url)
+                        <form action="{{ route('admin.invoices.abonos.receipt', [$invoice->id, $abono->id]) }}" method="POST" enctype="multipart/form-data" class="mt-2 flex gap-2">
+                            @csrf
+                            <input type="file" name="receipt" accept="image/*" required class="flex-1 min-w-0 text-xs text-gray-500 file:mr-2 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-green-600 file:text-white" />
+                            <button type="submit" class="flex-shrink-0 px-4 py-2 text-xs bg-green-600 text-white rounded-xl font-bold">Subir</button>
+                        </form>
+                        @error('receipt', 'abono' . $abono->id) <span class="text-red-500 text-[11px] block mt-1">{{ $message }}</span> @enderror
+                        @endif
+                    </div>
+                    @endforeach
+                    <div class="rounded-xl bg-gray-50 dark:bg-white/5 px-4 py-3 space-y-1">
+                        <div class="flex justify-between text-sm font-bold">
+                            <span class="text-xs text-gray-500">Total abonado</span>
+                            <span class="text-green-600">₡{{ number_format($invoice->abonos->sum('amount'), 0) }}</span>
+                        </div>
+                        @php $saldo = $invoice->total - $invoice->abonos->sum('amount'); @endphp
+                        @if($saldo > 0)
+                        <div class="flex justify-between text-sm font-bold">
+                            <span class="text-xs text-red-500">Saldo pendiente</span>
+                            <span class="text-red-500">₡{{ number_format($saldo, 0) }}</span>
+                        </div>
+                        @endif
+                    </div>
+                </div>
                 @else
                     <p class="text-sm text-gray-500">Sin abonos registrados.</p>
                 @endif
                 
                 <div class="border-t border-gray-200 dark:border-white/10 pt-4 mt-4">
                     <h4 class="text-xs font-bold uppercase tracking-wider text-gray-500 mb-3">Agregar abono</h4>
-                    <div class="flex gap-2 items-end flex-wrap">
+                    <form action="{{ route('admin.invoices.abonos.store', $invoice->id) }}" method="POST" enctype="multipart/form-data" class="flex gap-2 items-end flex-wrap">
+                        @csrf
                         <div>
                             <label class="text-xs text-gray-500 block mb-1">Monto</label>
-                            <input wire:model="newAbonoAmount" type="number" step="0.01" class="bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2 text-sm w-32" />
-                            @error('newAbonoAmount') <span class="text-red-500 text-xs block">{{ $message }}</span> @enderror
+                            <input name="amount" type="number" step="0.01" value="{{ old('amount') }}" class="bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2 text-sm w-32" />
+                            @error('amount') <span class="text-red-500 text-xs block">{{ $message }}</span> @enderror
                         </div>
                         <div>
                             <label class="text-xs text-gray-500 block mb-1">Fecha</label>
-                            <input wire:model="newAbonoDate" type="datetime-local" class="bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2 text-sm" />
+                            <input name="date" type="datetime-local" value="{{ old('date') }}" class="bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2 text-sm" />
                         </div>
                         <div>
                             <label class="text-xs text-gray-500 block mb-1">Nota</label>
-                            <input wire:model="newAbonoNote" type="text" placeholder="ej: primer abono" class="bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2 text-sm w-48" />
+                            <input name="note" type="text" placeholder="ej: primer abono" value="{{ old('note') }}" class="bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2 text-sm w-48" />
                         </div>
-                        <button wire:click="addAbono" class="px-4 py-2 text-sm bg-green-600 text-white rounded-xl hover:bg-green-700 font-bold">Agregar</button>
-                    </div>
+                        <div>
+                            <label class="text-xs text-gray-500 block mb-1">Comprobante (imagen)</label>
+                            <input name="receipt" type="file" accept="image/*" class="bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2 text-sm max-w-52 text-xs text-gray-500 file:mr-2 file:py-1 file:px-2 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-green-600 file:text-white hover:file:bg-green-700" />
+                            @error('receipt') <span class="text-red-500 text-xs block">{{ $message }}</span> @enderror
+                        </div>
+                        <button type="submit" class="px-4 py-2 text-sm bg-green-600 text-white rounded-xl hover:bg-green-700 font-bold">Agregar</button>
+                    </form>
                 </div>
             </div>
             @endif
+
+            @include('livewire.admin.invoice-receipts')
         </div>
 
         {{-- Columna derecha: montos y estados (solo lectura) --}}
@@ -424,12 +490,10 @@
                 <h3 class="text-sm font-bold uppercase tracking-wider text-gray-500">Abonos</h3>
 
                 @if($invoice->abonos->count() > 0)
-                <table class="w-full text-sm">
-                    <thead>
-                        <tr class="text-xs text-gray-500 border-b border-gray-200 dark:border-white/10">
-                            <th class="text-left py-2">Fecha</th>
+                <table class="w-full text-sm hidden md:table">
                             <th class="text-right py-2">Monto</th>
                             <th class="text-left py-2">Nota</th>
+                            <th class="text-center py-2">Comprobante</th>
                             <th class="text-right py-2"></th>
                         </tr>
                     </thead>
@@ -439,6 +503,20 @@
                             <td class="py-2 text-xs">{{ $abono->date?->format('d/m/Y H:i') ?? '-' }}</td>
                             <td class="py-2 text-right font-medium text-green-600">₡{{ number_format($abono->amount, 0) }}</td>
                             <td class="py-2 text-xs text-gray-500">{{ $abono->note ?? '-' }}</td>
+                            <td class="py-2 text-center">
+                                @if($abono->comprobante_url)
+                                <a href="{{ $abono->comprobante_url }}" target="_blank" rel="noopener" title="Ver comprobante">
+                                    <img src="{{ $abono->comprobante_url }}" alt="Comprobante" class="w-10 h-10 object-cover rounded-lg border border-gray-200 dark:border-white/10 hover:opacity-80 transition-opacity inline-block" loading="lazy" />
+                                </a>
+                                @else
+                                <form action="{{ route('admin.invoices.abonos.receipt', [$invoice->id, $abono->id]) }}" method="POST" enctype="multipart/form-data" class="flex items-center justify-center gap-1">
+                                    @csrf
+                                    <input type="file" name="receipt" accept="image/*" required class="text-[10px] text-gray-500 max-w-28 file:mr-1 file:py-1 file:px-2 file:rounded-lg file:border-0 file:text-[10px] file:font-bold file:bg-green-600 file:text-white hover:file:bg-green-700" />
+                                    <button type="submit" class="text-[10px] font-bold text-green-600 hover:text-green-700 whitespace-nowrap">Subir</button>
+                                </form>
+                                @error('receipt', 'abono' . $abono->id) <span class="text-red-500 text-[10px] block">{{ $message }}</span> @enderror
+                                @endif
+                            </td>
                             <td class="py-2 text-right">
                                 <button wire:click="deleteAbono({{ $abono->id }})" wire:confirm="¿Eliminar este abono?" class="text-red-500 hover:text-red-700 text-xs">Eliminar</button>
                             </td>
@@ -449,43 +527,97 @@
                         <tr class="font-bold">
                             <td class="pt-3 text-xs text-gray-500">Total abonado</td>
                             <td class="pt-3 text-right text-green-600">₡{{ number_format($invoice->abonos->sum('amount'), 0) }}</td>
-                            <td colspan="2"></td>
+                            <td colspan="3"></td>
                         </tr>
                         @php $saldo = $invoice->total - $invoice->abonos->sum('amount'); @endphp
                         @if($saldo > 0)
                         <tr class="font-bold">
                             <td class="text-xs text-red-500">Saldo pendiente</td>
                             <td class="text-right text-red-500">₡{{ number_format($saldo, 0) }}</td>
-                            <td colspan="2"></td>
+                            <td colspan="3"></td>
                         </tr>
                         @endif
                     </tfoot>
                 </table>
+
+                {{-- Tarjetas para móvil --}}
+                <div class="md:hidden space-y-3">
+                    @foreach($invoice->abonos as $abono)
+                    <div class="rounded-xl border border-gray-200 dark:border-white/10 p-3">
+                        <div class="flex items-center gap-3">
+                            @if($abono->comprobante_url)
+                            <a href="{{ $abono->comprobante_url }}" target="_blank" rel="noopener" title="Ver comprobante" class="flex-shrink-0">
+                                <img src="{{ $abono->comprobante_url }}" alt="Comprobante" class="w-16 h-16 object-cover rounded-xl border border-gray-200 dark:border-white/10" loading="lazy" />
+                            </a>
+                            @else
+                            <span class="flex-shrink-0 w-16 h-16 flex items-center justify-center rounded-xl bg-gray-100 dark:bg-white/5 text-gray-300 dark:text-gray-600 text-xl font-black">?</span>
+                            @endif
+                            <div class="flex-1 min-w-0">
+                                <p class="font-bold text-green-600 leading-tight">₡{{ number_format($abono->amount, 0) }}</p>
+                                <p class="text-[11px] text-gray-500 leading-snug">{{ $abono->date?->format('d/m/Y H:i') ?? '-' }}</p>
+                                @if($abono->note)
+                                <p class="text-[11px] text-gray-500 leading-snug truncate">{{ $abono->note }}</p>
+                                @endif
+                            </div>
+                            <button wire:click="deleteAbono({{ $abono->id }})" wire:confirm="¿Eliminar este abono?" class="flex-shrink-0 text-red-500 hover:text-red-700 text-xs font-bold px-2 py-1">Eliminar</button>
+                        </div>
+                        @if(!$abono->comprobante_url)
+                        <form action="{{ route('admin.invoices.abonos.receipt', [$invoice->id, $abono->id]) }}" method="POST" enctype="multipart/form-data" class="mt-2 flex gap-2">
+                            @csrf
+                            <input type="file" name="receipt" accept="image/*" required class="flex-1 min-w-0 text-xs text-gray-500 file:mr-2 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-green-600 file:text-white" />
+                            <button type="submit" class="flex-shrink-0 px-4 py-2 text-xs bg-green-600 text-white rounded-xl font-bold">Subir</button>
+                        </form>
+                        @error('receipt', 'abono' . $abono->id) <span class="text-red-500 text-[11px] block mt-1">{{ $message }}</span> @enderror
+                        @endif
+                    </div>
+                    @endforeach
+                    <div class="rounded-xl bg-gray-50 dark:bg-white/5 px-4 py-3 space-y-1">
+                        <div class="flex justify-between text-sm font-bold">
+                            <span class="text-xs text-gray-500">Total abonado</span>
+                            <span class="text-green-600">₡{{ number_format($invoice->abonos->sum('amount'), 0) }}</span>
+                        </div>
+                        @php $saldo = $invoice->total - $invoice->abonos->sum('amount'); @endphp
+                        @if($saldo > 0)
+                        <div class="flex justify-between text-sm font-bold">
+                            <span class="text-xs text-red-500">Saldo pendiente</span>
+                            <span class="text-red-500">₡{{ number_format($saldo, 0) }}</span>
+                        </div>
+                        @endif
+                    </div>
+                </div>
                 @else
                     <p class="text-sm text-gray-500">Sin abonos registrados.</p>
                 @endif
 
                 <div class="border-t border-gray-200 dark:border-white/10 pt-4">
                     <h4 class="text-xs font-bold uppercase tracking-wider text-gray-500 mb-3">Agregar abono</h4>
-                    <div class="flex gap-2 items-end flex-wrap">
+                    <form action="{{ route('admin.invoices.abonos.store', $invoice->id) }}" method="POST" enctype="multipart/form-data" class="flex gap-2 items-end flex-wrap">
+                        @csrf
                         <div>
                             <label class="text-xs text-gray-500 block mb-1">Monto</label>
-                            <input wire:model="newAbonoAmount" type="number" step="0.01" class="bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2 text-sm w-32" />
-                            @error('newAbonoAmount') <span class="text-red-500 text-xs block">{{ $message }}</span> @enderror
+                            <input name="amount" type="number" step="0.01" value="{{ old('amount') }}" class="bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2 text-sm w-32" />
+                            @error('amount') <span class="text-red-500 text-xs block">{{ $message }}</span> @enderror
                         </div>
                         <div>
                             <label class="text-xs text-gray-500 block mb-1">Fecha</label>
-                            <input wire:model="newAbonoDate" type="datetime-local" class="bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2 text-sm" />
+                            <input name="date" type="datetime-local" value="{{ old('date') }}" class="bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2 text-sm" />
                         </div>
                         <div>
                             <label class="text-xs text-gray-500 block mb-1">Nota</label>
-                            <input wire:model="newAbonoNote" type="text" placeholder="ej: primer abono" class="bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2 text-sm w-48" />
+                            <input name="note" type="text" placeholder="ej: primer abono" value="{{ old('note') }}" class="bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2 text-sm w-48" />
                         </div>
-                        <button wire:click="addAbono" class="px-4 py-2 text-sm bg-green-600 text-white rounded-xl hover:bg-green-700 font-bold">Agregar</button>
-                    </div>
+                        <div>
+                            <label class="text-xs text-gray-500 block mb-1">Comprobante (imagen)</label>
+                            <input name="receipt" type="file" accept="image/*" class="bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2 text-sm max-w-52 text-xs text-gray-500 file:mr-2 file:py-1 file:px-2 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-green-600 file:text-white hover:file:bg-green-700" />
+                            @error('receipt') <span class="text-red-500 text-xs block">{{ $message }}</span> @enderror
+                        </div>
+                        <button type="submit" class="px-4 py-2 text-sm bg-green-600 text-white rounded-xl hover:bg-green-700 font-bold">Agregar</button>
+                    </form>
                 </div>
             </div>
             @endif
+
+            @include('livewire.admin.invoice-receipts')
         </div>
 
         {{-- Columna derecha: montos y estados --}}

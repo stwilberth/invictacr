@@ -96,4 +96,12 @@ return [
         'cdn_url' => env('VARIEDADESCR_CDN_URL', 'https://cdn.variedadescr.com'),
     ],
 
+    'ai_gateway' => [
+        'account_id' => env('AI_GATEWAY_ACCOUNT_ID', 'fef68f2ef09a1b432764edcf35b21cc5'),
+        'gateway_id' => env('AI_GATEWAY_ID', 'wilberth-free'),
+        'token' => env('AI_GATEWAY_TOKEN'),
+        'voice' => env('NARRATION_VOICE_ID', '9XaoraKgpXhItOQktYsV'),
+        'timeout' => (int) env('NARRATION_TIMEOUT', 60),
+    ],
+
 ];

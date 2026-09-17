@@ -160,8 +160,8 @@ class AdImageController extends Controller
         }
         $this->drawCenteredText($img, $price, $priceSize, $this->vCenterY($badgeY, $badgeH, $priceSize, self::FONT_BOLD, $price), $white, self::FONT_BOLD, $badgeX + $badgeW / 2);
 
-        // WhatsApp (más pequeño y con icono)
-        $this->drawRightText($img, '8671-1422', 32, 70, $darkText, self::FONT_BOLD);
+        // WhatsApp con icono (igual que el canva manual: círculo verde + número)
+        $this->drawWhatsApp($img, '8671-1422', $darkText);
 
         // Website
         $this->drawRightText($img, 'invictaCostaRica.com', 38, self::H - 40, $darkText, self::FONT_BOLD);
@@ -264,6 +264,92 @@ class AdImageController extends Controller
         $textWidth = $box[2] - $box[0];
         $x = self::W - 35 - $textWidth;
         imagettftext($img, $size, 0, $x, $y, $color, $font, $text);
+    }
+
+    /**
+     * Número de WhatsApp con el logo real (public/images/whatsapp-icon.png,
+     * rasterizado desde whatsapp.svg que usa el canva manual), recortado en
+     * círculo igual que el canva manual de campañas. Si el PNG falta, usa un
+     * círculo verde dibujado como respaldo.
+     */
+    private function drawWhatsApp($img, string $text, $color): void
+    {
+        $size = 32;
+        $box = imagettfbbox($size, 0, self::FONT_BOLD, $text);
+        $textWidth = $box[2] - $box[0];
+        $rightX = self::W - 35;
+        $baseline = 70;
+        $x = (int) ($rightX - $textWidth);
+        imagettftext($img, $size, 0, $x, $baseline, $color, self::FONT_BOLD, $text);
+
+        $gap = 20;
+        $r = 28;
+        $cx = (int) ($x - $gap - $r);
+        // Centro óptico del texto (baseline menos ~mitad de altura de mayúsculas).
+        $cy = $baseline - 11;
+
+        if ($this->drawWhatsAppIcon($img, $cx, $cy, $r)) {
+            return;
+        }
+
+        // Respaldo sin asset: círculo verde + auricular.
+        $green = imagecolorallocate($img, 0x25, 0xD3, 0x66);
+        $white = imagecolorallocate($img, 0xff, 0xff, 0xff);
+        imagefilledellipse($img, $cx, $cy, $r * 2, $r * 2, $green);
+
+        $glyph = '✆';
+        $gSize = 30;
+        $gbox = imagettfbbox($gSize, 0, self::FONT_REGULAR, $glyph);
+        $gw = $gbox[2] - $gbox[0];
+        $gh = $gbox[1] - $gbox[7];
+        $gx = (int) ($cx - $gw / 2 - $gbox[0]);
+        $gy = (int) ($cy + $gh / 2);
+        imagettftext($img, $gSize, 0, $gx, $gy, $white, self::FONT_REGULAR, $glyph);
+    }
+
+    /**
+     * Pega el logo de WhatsApp recortado en círculo de radio $r centrado en
+     * ($cx, $cy). Devuelve false si el asset no se pudo cargar.
+     */
+    private function drawWhatsAppIcon($img, int $cx, int $cy, int $r): bool
+    {
+        $src = @imagecreatefrompng(public_path('images/whatsapp-icon.png'));
+        if ($src === false) {
+            return false;
+        }
+
+        // Escalar de más y recortar al círculo (igual que el clip del canva
+        // manual: el icono se dibuja a 2.5x dentro del círculo).
+        $cell = $r * 2;
+        $big = (int) ($cell * 1.25);
+        $tmp = imagecreatetruecolor($big, $big);
+        imagealphablending($tmp, false);
+        imagesavealpha($tmp, true);
+        $transparent = imagecolorallocatealpha($tmp, 0, 0, 0, 127);
+        imagefill($tmp, 0, 0, $transparent);
+        imagecopyresampled($tmp, $src, 0, 0, 0, 0, $big, $big, imagesx($src), imagesy($src));
+        imagedestroy($src);
+
+        // Recorte circular.
+        $c = $big / 2;
+        $r2 = ($cell / 2) * ($cell / 2);
+        for ($px = 0; $px < $big; $px++) {
+            for ($py = 0; $py < $big; $py++) {
+                $dx = ($px + 0.5) - $c;
+                $dy = ($py + 0.5) - $c;
+                if ($dx * $dx + $dy * $dy > $r2) {
+                    imagesetpixel($tmp, $px, $py, $transparent);
+                }
+            }
+        }
+
+        imagealphablending($img, true);
+        $dx = (int) ($cx - $c);
+        $dy = (int) ($cy - $c);
+        imagecopy($img, $tmp, $dx, $dy, 0, 0, $big, $big);
+        imagedestroy($tmp);
+
+        return true;
     }
 
     private function drawCenteredText($img, string $text, int $size, int $y, $color, string $font, ?int $centerX = null): void

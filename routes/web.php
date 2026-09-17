@@ -85,12 +85,17 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::get('/invoices', \App\Livewire\Admin\Invoices::class)->name('invoices');
     Route::get('/invoices/create', \App\Livewire\Admin\InvoiceCreate::class)->name('invoices.create');
     Route::get('/invoices/{id}', \App\Livewire\Admin\InvoiceDetail::class)->name('invoices.detail');
+    Route::post('/invoices/{invoice}/abonos', [\App\Http\Controllers\Admin\InvoiceReceiptController::class, 'storeAbono'])->name('invoices.abonos.store');
+    Route::post('/invoices/{invoice}/abonos/{abono}/receipt', [\App\Http\Controllers\Admin\InvoiceReceiptController::class, 'storeAbonoReceipt'])->name('invoices.abonos.receipt');
+    Route::post('/invoices/{invoice}/receipts', [\App\Http\Controllers\Admin\InvoiceReceiptController::class, 'storeReceipts'])->name('invoices.receipts.store');
     Route::get('/clients', \App\Livewire\Admin\Clients::class)->name('clients');
     Route::get('/users', \App\Livewire\Admin\Users::class)->name('users');
     Route::get('/subscribers', \App\Livewire\Admin\Subscribers::class)->name('subscribers');
     Route::get('/expenses', \App\Livewire\Admin\Expenses::class)->name('expenses');
     Route::get('/marketing', \App\Livewire\Admin\Marketing::class)->name('marketing');
     Route::get('/campaigns', \App\Livewire\Admin\Campaigns::class)->name('campaigns');
+    Route::post('/narrations', [\App\Http\Controllers\Admin\NarrationController::class, 'store'])->name('narrations.store');
+    Route::get('/narrations/latest/{product}', [\App\Http\Controllers\Admin\NarrationController::class, 'latest'])->name('narrations.latest');
     Route::get('/upcoming', \App\Livewire\Admin\Upcoming::class)->name('upcoming');
     Route::get('/sync', \App\Livewire\Admin\SyncManager::class)->name('sync');
     Route::get('/search-logs', \App\Livewire\Admin\SearchLogs::class)->name('search-logs');

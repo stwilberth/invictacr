@@ -44,6 +44,11 @@ class Invoice extends Model
         return $this->hasMany(Abono::class);
     }
 
+    public function receipts()
+    {
+        return $this->hasMany(InvoiceReceipt::class);
+    }
+
     /**
      * Generate a unique invoice number with collision protection.
      */

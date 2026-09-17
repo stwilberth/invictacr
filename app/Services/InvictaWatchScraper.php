@@ -52,9 +52,13 @@ class InvictaWatchScraper
 
         $title = $this->cleanTitle($product["name"] ?? "");
         $descripcion = $product["description"] ?? "";
-        $imageUrl = $product["tile_image"] ?? ($product["images"][0]["urlsBySize"]["l"] ?? "");
+        // Se prefiere la variante grande (l ≈ 607px) sobre el tile/m (≈ 334px):
+        // en desktop la galería se muestra a ~700px y la mediana se ve borrosa.
+        $imageUrl = ($product["images"][0]["urlsBySize"]["l"] ?? null)
+            ?: ($product["tile_image"] ?? "");
 
-        $imagePath = $this->downloadImage($modelo, $imageUrl);
+        $download = $this->downloadImage($modelo, $imageUrl);
+        $imagePath = $download["path"];
 
         $band = $specs["Band"] ?? [];
         $case = $specs["Case and Dial"] ?? [];
@@ -75,6 +79,7 @@ class InvictaWatchScraper
             "descripcion" => $descripcion,
             "imagen_url" => $imageUrl,
             "imagen_local" => $imagePath,
+            "imagen_contents" => $download["contents"],
             "coleccion" => $product["collection_name"] ?? null,
             "genero" => $this->detectGender($title, $descripcion, $product["gender"] ?? null),
             "color" => $color,
@@ -193,7 +198,13 @@ class InvictaWatchScraper
         $cleaned = preg_replace('/[^0-9.,]/', '', trim($value));
         $cleaned = str_replace(',', '.', $cleaned);
         $cleaned = preg_replace('/\.(?=.*\.)/', '', $cleaned);
-        return trim($cleaned) !== '' ? $cleaned : null;
+        if (trim($cleaned) === '' || !is_numeric($cleaned)) {
+            return null;
+        }
+        // Sin ".0": 40.0 → 40 (se normaliza a nivel de dato, no de vista)
+        $num = (float) $cleaned;
+
+        return $num == (int) $num ? (string) (int) $num : rtrim(rtrim($cleaned, '0'), '.');
     }
 
     private function cleanTitle(string $name): string
@@ -302,7 +313,7 @@ class InvictaWatchScraper
         return null;
     }
 
-    private function downloadImage(string $modelo, string $imageUrl): ?string
+    private function downloadImage(string $modelo, string $imageUrl): array
     {
         $urlsToTry = [];
 
@@ -310,8 +321,8 @@ class InvictaWatchScraper
             $urlsToTry[] = $imageUrl;
         }
 
-        // Fallback: patrón de storage del sitio.
-        $urlsToTry[] = self::CDN_URL . "/{$modelo}/catalogshot_m.webp";
+        // Fallback: patrón de storage del sitio (variante grande).
+        $urlsToTry[] = self::CDN_URL . "/{$modelo}/catalogshot_l.webp";
 
         foreach ($urlsToTry as $url) {
             try {
@@ -323,19 +334,24 @@ class InvictaWatchScraper
                     continue;
                 }
 
+                $body = $response->body();
+                if (strlen($body) < 1024) {
+                    continue;
+                }
+
                 $ext = $this->detectExtension($response->header("Content-Type"), $url);
                 $filename = "{$modelo}.{$ext}";
                 $path = "relojes/{$filename}";
 
-                Storage::disk('r2')->put($path, $response->body(), 'public');
+                Storage::disk('r2')->put($path, $body, 'public');
 
-                return "/storage/{$path}";
+                return ["path" => "/storage/{$path}", "contents" => $body];
             } catch (\Exception $e) {
                 continue;
             }
         }
 
-        return null;
+        return ["path" => null, "contents" => null];
     }
 
     private function detectExtension(?string $contentType, string $url): string

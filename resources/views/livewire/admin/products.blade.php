@@ -10,7 +10,11 @@
 @endphp
 <div x-data="columnManager()" x-init="init()">
     <div class="flex flex-wrap gap-2 items-center justify-center sm:justify-center mb-3">
-        <input wire:model.live="search" type="text" placeholder="Buscar..." class="flex-1 min-w-[140px] sm:flex-none sm:w-36 bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-lg px-3 py-1.5 text-xs" />
+        <input wire:model="search" wire:keydown.enter="applySearch" type="text" placeholder="Buscar modelo o título..." class="flex-1 min-w-[140px] sm:flex-none sm:w-36 bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-lg px-3 py-1.5 text-xs" />
+        <button wire:click="applySearch" class="bg-[#00C4FF] hover:bg-[#00a3d6] text-[#0a0f1c] rounded-lg px-3 py-1.5 text-xs font-bold transition-all flex items-center gap-1.5">
+            <i class="fa-solid fa-search"></i>
+            Buscar
+        </button>
 
         <button @click="filtersOpen = !filtersOpen" class="bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-lg px-3 py-1.5 text-xs font-bold text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-all flex items-center gap-1.5">
             <i class="fa-solid fa-filter"></i>

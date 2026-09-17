@@ -4,7 +4,9 @@ namespace App\Livewire\Admin;
 
 use App\Models\Invoice;
 use App\Models\Abono;
+use App\Models\InvoiceReceipt;
 use App\Models\Product;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 
 class InvoiceDetail extends Component
@@ -21,7 +23,6 @@ class InvoiceDetail extends Component
     public $estimated_utility, $cedula, $issued_at;
     public $issued_date;
 
-    public $newAbonoAmount, $newAbonoNote, $newAbonoDate;
 
     protected function rules()
     {
@@ -47,9 +48,6 @@ class InvoiceDetail extends Component
             'issued_date' => 'nullable|date',
             'estimated_utility' => 'nullable|numeric|min:0',
             'cedula' => 'nullable|string|max:255',
-            'newAbonoAmount' => 'nullable|numeric|min:1',
-            'newAbonoNote' => 'nullable|string|max:255',
-            'newAbonoDate' => 'nullable|date',
         ];
     }
 
@@ -61,7 +59,7 @@ class InvoiceDetail extends Component
 
     public function loadInvoice()
     {
-        $this->invoice = Invoice::with(['items.product', 'abonos'])->findOrFail($this->invoiceId);
+        $this->invoice = Invoice::with(['items.product', 'abonos', 'receipts'])->findOrFail($this->invoiceId);
 
         $this->client_name = $this->invoice->client_name;
         $this->client_email = $this->invoice->client_email;
@@ -132,39 +130,50 @@ class InvoiceDetail extends Component
         $this->loadInvoice();
     }
 
-    public function addAbono()
-    {
-        $this->validate([
-            'newAbonoAmount' => 'required|numeric|min:1',
-            'newAbonoNote' => 'nullable|string|max:255',
-            'newAbonoDate' => 'nullable|date',
-        ]);
-
-        Abono::create([
-            'invoice_id' => $this->invoice->id,
-            'amount' => $this->newAbonoAmount,
-            'note' => $this->newAbonoNote,
-            'date' => $this->newAbonoDate ?: now(),
-        ]);
-
-        $this->newAbonoAmount = null;
-        $this->newAbonoNote = null;
-        $this->newAbonoDate = null;
-
-        $this->loadInvoice();
-        session()->flash('message', 'Abono agregado.');
-    }
-
     public function deleteAbono($abonoId)
     {
-        Abono::findOrFail($abonoId)->delete();
+        $abono = Abono::findOrFail($abonoId);
+        $this->deleteR2File($abono->comprobante_path);
+        $abono->delete();
         $this->loadInvoice();
         session()->flash('message', 'Abono eliminado.');
     }
 
+    public function deleteReceipt($receiptId)
+    {
+        $receipt = InvoiceReceipt::where('invoice_id', $this->invoice->id)->findOrFail($receiptId);
+        $this->deleteR2File($receipt->path);
+        $receipt->delete();
+        $this->loadInvoice();
+        session()->flash('message', 'Comprobante eliminado.');
+    }
+
+    private function deleteR2File(?string $path): void
+    {
+        if (!$path) {
+            return;
+        }
+        try {
+            // En BD se guarda "/storage/..." pero la llave R2 es sin ese prefijo
+            $key = preg_replace('#^/?storage/#', '', $path);
+            if ($key && Storage::disk('r2')->exists($key)) {
+                Storage::disk('r2')->delete($key);
+            }
+        } catch (\Throwable $e) {
+            // No bloquear por un archivo que ya no existe
+        }
+    }
+
     public function delete()
     {
+        foreach ($this->invoice->abonos as $abono) {
+            $this->deleteR2File($abono->comprobante_path);
+        }
+        foreach ($this->invoice->receipts as $receipt) {
+            $this->deleteR2File($receipt->path);
+        }
         $this->invoice->items()->delete();
+        $this->invoice->receipts()->delete();
         $this->invoice->abonos()->delete();
         $this->invoice->delete();
 

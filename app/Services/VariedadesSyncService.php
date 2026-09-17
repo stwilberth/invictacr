@@ -124,7 +124,7 @@ class VariedadesSyncService
                         Product::forgetAllCache($product->id);
 
                         if (!empty($iwData['imagen_local'])) {
-                            $this->optimizeProductImages($product);
+                            $this->optimizeProductImages($product, $iwData['imagen_contents'] ?? null);
                         }
 
                         $activatedCount++;
@@ -256,7 +256,7 @@ class VariedadesSyncService
                         "bloqueado" => false,
                         "vistas" => 0,
                         "activo" => true,
-                        "imagen" => $iwData['imagen_local'] ?? self::CDN_BASE_URL . "/{$modelKey}/catalogshot_m.webp",
+                        "imagen" => $iwData['imagen_local'] ?? self::CDN_BASE_URL . "/{$modelKey}/catalogshot_l.webp",
                     ]);
                     $createdCount++;
                     $createdModels[] = $modelKey;
@@ -264,7 +264,7 @@ class VariedadesSyncService
                     $this->notifyWaitlist($product, $waitlistNotifiedCount, $waitlistNotifiedModels, $log, $items);
 
                     if (!empty($iwData['imagen_local'])) {
-                        $this->optimizeProductImages($product);
+                        $this->optimizeProductImages($product, $iwData['imagen_contents'] ?? null);
                     }
                 }
             }
@@ -432,10 +432,14 @@ class VariedadesSyncService
         return $body["data"];
     }
 
-    private function optimizeProductImages(Product $product): void
+    private function optimizeProductImages(Product $product, ?string $freshContents = null): void
     {
         try {
-            app(ImageOptimizerService::class)->optimizeProduct($product);
+            if ($freshContents) {
+                app(ImageOptimizerService::class)->optimizeProductFromContents($product, $freshContents);
+            } else {
+                app(ImageOptimizerService::class)->optimizeProduct($product);
+            }
         } catch (\Throwable $e) {
             // Si falla la optimización no detenemos el sync;
             // el producto quedará como pendiente en admin/optimize-images

@@ -147,14 +147,117 @@ class ImageOptimizerService
                 return $result;
             }
 
-            // Descargar imagen de R2 a temporal
+            // Descargar imagen de R2 a temporal.
+            // OJO: R2 es eventualmente consistente en sobrescrituras: un GET
+            // inmediato tras un PUT puede devolver la versión vieja. Se reintenta
+            // hasta que el tamaño coincida con el HEAD fresco (sin caché de listado).
             $tempPath = storage_path("app/temp/" . basename($sourcePath));
             $tempDir = dirname($tempPath);
             if (!is_dir($tempDir)) {
                 mkdir($tempDir, 0777, true);
             }
-            
-            file_put_contents($tempPath, $r2->get($sourcePath));
+
+            $contents = null;
+            for ($attempt = 0; $attempt < 6; $attempt++) {
+                try {
+                    $expectedSize = $r2->size($sourcePath);
+                } catch (\Throwable $e) {
+                    $expectedSize = null;
+                }
+                try {
+                    $candidate = $r2->get($sourcePath);
+                } catch (\Throwable $e) {
+                    $candidate = null;
+                }
+                if ($candidate !== null && ($expectedSize === null || strlen($candidate) === (int) $expectedSize)) {
+                    $contents = $candidate;
+                    break;
+                }
+                $contents = $candidate;
+                if ($attempt < 5) {
+                    sleep(2);
+                }
+            }
+
+            if ($contents === null) {
+                $result['error'] = 'No se pudo descargar la imagen de R2';
+                return $result;
+            }
+
+            file_put_contents($tempPath, $contents);
+
+            return $this->optimizeFromLocalFile($product, $tempPath);
+        } catch (\Exception $e) {
+            $result['error'] = $e->getMessage();
+        }
+
+        return $result;
+    }
+
+    /**
+     * Genera thumb/medium/large a partir de bytes recién descargados (sin
+     * pasar por R2). Preferible tras un scrape: evita leer una versión vieja
+     * por la consistencia eventual de R2 en sobrescrituras.
+     */
+    public function optimizeProductFromContents(Product $product, string $contents): array
+    {
+        $result = [
+            'success' => false,
+            'modelo' => $product->modelo,
+            'error' => null,
+            'thumb' => false,
+            'medium' => false,
+            'large' => false,
+            'thumb_size' => 0,
+            'medium_size' => 0,
+            'large_size' => 0,
+            'original_size' => strlen($contents),
+        ];
+
+        try {
+            $modelo = $this->getModelo($product);
+            if (!$modelo) {
+                $result['error'] = 'No se pudo determinar el modelo';
+                return $result;
+            }
+
+            $tempPath = storage_path("app/temp/{$modelo}_src_" . uniqid() . ".webp");
+            $tempDir = dirname($tempPath);
+            if (!is_dir($tempDir)) {
+                mkdir($tempDir, 0777, true);
+            }
+            file_put_contents($tempPath, $contents);
+
+            $core = $this->optimizeFromLocalFile($product, $tempPath);
+            @unlink($tempPath);
+
+            return array_merge($result, $core, ['original_size' => strlen($contents)]);
+        } catch (\Exception $e) {
+            $result['error'] = $e->getMessage();
+        }
+
+        return $result;
+    }
+
+    /**
+     * Núcleo: genera los 3 tamaños en R2 desde un archivo local ya validado.
+     */
+    private function optimizeFromLocalFile(Product $product, string $tempPath): array
+    {
+        $result = [
+            'success' => false,
+            'modelo' => $product->modelo,
+            'error' => null,
+            'thumb' => false,
+            'medium' => false,
+            'large' => false,
+            'thumb_size' => 0,
+            'medium_size' => 0,
+            'large_size' => 0,
+        ];
+
+        try {
+            $r2 = Storage::disk('r2');
 
             if (!file_exists($tempPath)) {
                 $result['error'] = 'No se pudo descargar la imagen de R2';

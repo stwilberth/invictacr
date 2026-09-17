@@ -160,6 +160,79 @@
 {{ $generatedContent['cta'] ? $generatedContent['cta'] : '' }}
                                 </textarea>
                                 <button onclick="var t=document.getElementById('ad-textarea');t.select();t.setSelectionRange(0,99999);document.execCommand?document.execCommand('copy'):navigator.clipboard?.writeText(t.value);this.innerHTML='<i class=&quot;fa-solid fa-check&quot;></i> ¡Copiado!';setTimeout(()=>this.innerHTML='<i class=&quot;fa-solid fa-copy&quot;></i> Copiar texto',1500)" class="mt-2 w-full sm:hidden bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-xl py-2.5 text-xs font-bold flex items-center justify-center gap-1.5"><i class="fa-solid fa-copy"></i> Copiar texto</button>
+
+                                {{-- Narración para video (TTS vía AI Gateway) --}}
+                                <div class="mt-2 border-t border-gray-100 dark:border-white/5 pt-2">
+                                    <form id="narration-form" method="POST" action="{{ route('admin.narrations.store') }}">
+                                        @csrf
+                                        <input type="hidden" name="product_id" value="{{ $product->id ?? '' }}" />
+                                        <input type="hidden" name="headline" value="{{ $generatedContent['headline'] ?? '' }}" />
+                                        <input type="hidden" name="body" value="{{ $generatedContent['body'] ?? '' }}" />
+                                        <button type="submit" id="narration-btn"
+                                            class="w-full px-4 py-3 sm:py-2.5 rounded-xl bg-[#7c3aed] hover:brightness-110 active:scale-[0.98] text-white font-black uppercase tracking-tight text-xs sm:text-[11px] transition-all flex items-center justify-center gap-2 shadow-sm disabled:opacity-50">
+                                            <i class="fa-solid fa-microphone"></i> <span>Generar narración para video</span>
+                                        </button>
+                                    </form>
+                                    <p id="narration-status" class="hidden text-xs text-gray-500 mt-2 text-center"></p>
+                                    <audio id="narration-player" controls preload="none" class="hidden w-full mt-2"></audio>
+                                    <a id="narration-download" href="#" download class="hidden mt-2 w-full bg-gray-100 dark:bg-white/10 rounded-xl py-2 text-xs font-bold flex items-center justify-center gap-1.5"><i class="fa-solid fa-download"></i> Descargar MP3 para el video</a>
+                                    <script>
+                                    (function () {
+                                        var form = document.getElementById('narration-form');
+                                        if (!form || form.dataset.bound) return;
+                                        form.dataset.bound = '1';
+                                        var btn = document.getElementById('narration-btn');
+                                        var status = document.getElementById('narration-status');
+                                        var player = document.getElementById('narration-player');
+                                        var dl = document.getElementById('narration-download');
+                                        // Si ya hay narración guardada, mostrarla
+                                        var pid = form.querySelector('input[name=product_id]').value;
+                                        if (pid) {
+                                            fetch('/admin/narrations/latest/' + pid, { headers: { 'Accept': 'application/json' } })
+                                                .then(function (r) { return r.json(); })
+                                                .then(function (d) {
+                                                    if (d.audio_url) {
+                                                        player.src = d.audio_url;
+                                                        player.classList.remove('hidden');
+                                                        dl.href = d.audio_url;
+                                                        dl.classList.remove('hidden');
+                                                        status.textContent = 'Narración existente (' + (d.created_at || '') + '). Generá otra si querés actualizarla.';
+                                                        status.classList.remove('hidden');
+                                                    }
+                                                }).catch(function () {});
+                                        }
+                                        form.addEventListener('submit', function (e) {
+                                            e.preventDefault();
+                                            btn.disabled = true;
+                                            btn.querySelector('span').textContent = 'Generando voz… (10-30s)';
+                                            status.textContent = 'Generando narración con IA… no cerrés la página.';
+                                            status.classList.remove('hidden');
+                                            fetch(form.action, {
+                                                method: 'POST',
+                                                body: new FormData(form),
+                                                headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+                                            })
+                                            .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+                                            .then(function (res) {
+                                                if (!res.ok) throw new Error((res.d && res.d.error) || 'Error generando');
+                                                player.src = res.d.audio_url;
+                                                player.classList.remove('hidden');
+                                                player.play().catch(function () {});
+                                                dl.href = res.d.audio_url;
+                                                dl.classList.remove('hidden');
+                                                status.textContent = '¡Narración lista! Escuchala y descargala para el video.';
+                                            })
+                                            .catch(function (err) {
+                                                status.textContent = 'Falló: ' + err.message;
+                                            })
+                                            .finally(function () {
+                                                btn.disabled = false;
+                                                btn.querySelector('span').textContent = 'Generar narración para video';
+                                            });
+                                        });
+                                    })();
+                                    </script>
+                                </div>
                             </div>
                         @endif
 

@@ -78,7 +78,11 @@ class FixVariedadesImages extends Command
 
                     $product->update($updates);
 
-                    $optimizer->optimizeProduct($product);
+                    if (!empty($data["imagen_contents"])) {
+                        $optimizer->optimizeProductFromContents($product, $data["imagen_contents"]);
+                    } else {
+                        $optimizer->optimizeProduct($product);
+                    }
                 }
 
                 $updated++;
