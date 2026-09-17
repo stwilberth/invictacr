@@ -110,7 +110,11 @@
             <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-5 overflow-x-auto">
                 <h3 class="text-sm font-bold uppercase tracking-wider text-gray-500 mb-4">Abonos</h3>
                 @if($invoice->abonos->count() > 0)
-                <table class="w-full text-sm hidden md:table">
+                <div class="hidden md:block overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="text-xs text-gray-500 border-b border-gray-200 dark:border-white/10">
+                            <th class="text-left py-2">Fecha</th>
                             <th class="text-right py-2">Monto</th>
                             <th class="text-left py-2">Nota</th>
                             <th class="text-center py-2">Comprobante</th>
@@ -171,6 +175,7 @@
                         @endif
                     </tfoot>
                 </table>
+                </div>
 
                 {{-- Tarjetas para móvil --}}
                 <div class="md:hidden space-y-3">
@@ -512,7 +517,11 @@
                 <h3 class="text-sm font-bold uppercase tracking-wider text-gray-500">Abonos</h3>
 
                 @if($invoice->abonos->count() > 0)
-                <table class="w-full text-sm hidden md:table">
+                <div class="hidden md:block overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="text-xs text-gray-500 border-b border-gray-200 dark:border-white/10">
+                            <th class="text-left py-2">Fecha</th>
                             <th class="text-right py-2">Monto</th>
                             <th class="text-left py-2">Nota</th>
                             <th class="text-center py-2">Comprobante</th>
@@ -573,6 +582,7 @@
                         @endif
                     </tfoot>
                 </table>
+                </div>
 
                 {{-- Tarjetas para móvil --}}
                 <div class="md:hidden space-y-3">
