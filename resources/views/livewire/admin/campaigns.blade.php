@@ -1,4 +1,5 @@
 <div>
+    <h2 class="text-xl font-black mb-4">Campañas</h2>
     <div class="flex gap-2 mb-4 sm:mb-6 overflow-x-auto scrollbar-none pb-1 -mx-6 px-6 sm:mx-0 sm:px-0 sm:flex-wrap snap-x snap-mandatory">
         <button wire:click="$set('activeTab', 'create')"
             class="px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 whitespace-nowrap shrink-0 snap-start

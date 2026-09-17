@@ -227,12 +227,19 @@ class PayPalController extends Controller
 
             $total = $subtotal - $discount;
 
+            $fullAddress = implode(', ', array_filter([
+                $data['address'] ?? null,
+                $data['distrito'] ?? null,
+                $data['canton'] ?? null,
+                $data['province'] ?? null,
+            ]));
+
             $client = Client::firstOrCreate(
                 ['email' => $data['email']],
                 [
                     'name' => $data['name'],
                     'phone' => $data['phone'],
-                    'address' => "{$data['address']}, {$data['canton']}, {$data['province']}",
+                    'address' => $fullAddress,
                 ]
             );
 
@@ -244,7 +251,7 @@ class PayPalController extends Controller
                 'client_name' => $data['name'],
                 'client_email' => $data['email'],
                 'client_phone' => $data['phone'],
-                'customer_address' => "{$data['address']}, {$data['canton']}, {$data['province']}",
+                'customer_address' => $fullAddress,
                 'subtotal' => $subtotal,
                 'discount' => $discount,
                 'total' => $total,

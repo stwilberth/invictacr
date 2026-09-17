@@ -1,4 +1,5 @@
 <div>
+    <h2 class="text-xl font-black mb-4">Backups de Base de Datos</h2>
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <div>
             <p class="text-sm text-gray-500 dark:text-gray-400">Crea y descarga copias de seguridad de la base de datos.</p>

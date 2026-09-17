@@ -186,7 +186,7 @@
                     <div class="flex flex-col items-start gap-4 mb-5">
                         <div class="flex items-center justify-between gap-2 w-full">
                             <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1 min-w-0">
-                            <span class="text-2xl md:text-[40px] leading-none font-black text-[#0A7CFF] tracking-tight">₡{{ number_format($priceAfterDiscount, 0) }}</span>
+                            <span class="text-2xl md:text-[40px] leading-none font-black text-red-600 dark:text-red-500 tracking-tight">₡{{ number_format($priceAfterDiscount, 0) }}</span>
                             <span class="text-sm font-bold text-gray-400 ml-2">IVA incluido</span>
                             @if(($product->descuento ?? 0) > 0)
                             <div class="flex items-center gap-2">
@@ -204,16 +204,16 @@
                         <div class="flex flex-row gap-3 w-full">
                             @if(!$isAgotado && !$isUpcoming && ($product->stock ?? 0) > 0)
                                 @if($inCart)
-                                <a href="{{ route('cart.show') }}" class="flex-1 flex items-center justify-center gap-2 py-3 md:py-3.5 bg-[#0A7CFF] hover:bg-[#0869D6] text-white rounded-[10px] font-bold text-sm md:text-[15px] transition-all shadow-sm">
+                                <a href="{{ route('cart.show') }}" class="flex-1 flex items-center justify-center gap-2 py-3 md:py-3.5 bg-[#B3E9FF] hover:bg-[#8FDDFF] text-[#0a0f1c] rounded-none font-bold text-[15px] md:text-base transition-all shadow-sm">
                                     <i class="fa-solid fa-cart-shopping text-lg"></i> Ver Carrito
                                 </a>
                                 @else
-                                <button type="button" data-cta="comprar-ahora" data-product-id="{{ $product->id }}" onclick="addToCart({{ $product->id }}, this)" class="flex-1 flex items-center justify-center gap-2 py-3 md:py-3.5 bg-[#0A7CFF] hover:bg-[#0869D6] text-white rounded-[10px] font-bold text-sm md:text-[15px] transition-all shadow-sm">
+                                <button type="button" data-cta="comprar-ahora" data-product-id="{{ $product->id }}" onclick="addToCart({{ $product->id }}, this)" class="flex-1 flex items-center justify-center gap-2 py-3 md:py-3.5 bg-[#B3E9FF] hover:bg-[#8FDDFF] text-[#0a0f1c] rounded-none font-bold text-[15px] md:text-base transition-all shadow-sm">
                                     <i class="fa-solid fa-cart-shopping text-lg"></i> Comprar
                                 </button>
                                 @endif
                             @endif
-                            <a href="{{ $whatsappBuy }}" data-cta="comprar-whatsapp" data-product-id="{{ $product->id }}" target="_blank" rel="noopener noreferrer" class="flex-1 flex items-center justify-center gap-2 py-3 md:py-3.5 bg-[#0EB45D] hover:bg-[#0aa550] text-white rounded-[10px] font-bold text-sm md:text-[15px] transition-all no-underline shadow-sm">
+                            <a href="{{ $whatsappBuy }}" data-cta="comprar-whatsapp" data-product-id="{{ $product->id }}" target="_blank" rel="noopener noreferrer" class="flex-1 flex items-center justify-center gap-2 py-3 md:py-3.5 bg-[#0EB45D] hover:bg-[#0aa550] text-white rounded-none font-bold text-[15px] md:text-base transition-all no-underline shadow-sm">
                                 <i class="fa-brands fa-whatsapp text-xl"></i> Contactar
                             </a>
                         </div>
@@ -228,10 +228,10 @@
                     {{-- Action buttons (no price for upcoming / agotado) --}}
                     <div class="flex flex-col items-center gap-2.5 mb-3.5">
                         <div class="flex flex-col gap-2 w-full">
-                            <a href="{{ $whatsappBuy }}" data-cta="ver-disponibilidad" data-product-id="{{ $product->id }}" target="_blank" rel="noopener noreferrer" class="flex-1 flex items-center justify-center gap-1 py-2 bg-[#00C4FF] hover:bg-[#00a3d6] text-white rounded-xl font-extrabold uppercase tracking-tight text-xs transition-all hover:-translate-y-0.5 active:scale-95 no-underline shadow-sm hover:shadow-md">
+                            <a href="{{ $whatsappBuy }}" data-cta="ver-disponibilidad" data-product-id="{{ $product->id }}" target="_blank" rel="noopener noreferrer" class="flex-1 flex items-center justify-center gap-1 py-2 bg-[#00C4FF] hover:bg-[#00a3d6] text-white rounded-none font-extrabold uppercase tracking-tight text-xs transition-all hover:-translate-y-0.5 active:scale-95 no-underline shadow-sm hover:shadow-md">
                                 <i class="fa-solid fa-circle-info text-base"></i> Ver disponibilidad
                             </a>
-                            <a href="{{ $whatsappBuy }}" data-cta="comprar-whatsapp" data-product-id="{{ $product->id }}" target="_blank" rel="noopener noreferrer" class="flex-1 flex items-center justify-center gap-1 py-2 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-xl font-extrabold uppercase tracking-tight text-xs transition-all hover:-translate-y-0.5 active:scale-95 no-underline shadow-sm hover:shadow-md">
+                            <a href="{{ $whatsappBuy }}" data-cta="comprar-whatsapp" data-product-id="{{ $product->id }}" target="_blank" rel="noopener noreferrer" class="flex-1 flex items-center justify-center gap-1 py-2 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-none font-extrabold uppercase tracking-tight text-xs transition-all hover:-translate-y-0.5 active:scale-95 no-underline shadow-sm hover:shadow-md">
                                 <i class="fa-brands fa-whatsapp text-base"></i> Contactar
                             </a>
                         </div>

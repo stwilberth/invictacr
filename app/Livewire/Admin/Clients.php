@@ -12,7 +12,7 @@ class Clients extends Component
     use WithPagination;
 
     public $search = '';
-    public $name, $email, $phone, $address, $notes;
+    public $name, $email, $phone, $address, $province, $canton, $distrito, $notes;
     public $editingClientId = null;
     public $showForm = false;
     public $extractedCount = 0;
@@ -53,7 +53,7 @@ class Clients extends Component
 
     public function create()
     {
-        $this->reset(['name', 'email', 'phone', 'address', 'notes', 'editingClientId']);
+        $this->reset(['name', 'email', 'phone', 'address', 'province', 'canton', 'distrito', 'notes', 'editingClientId']);
         $this->showForm = true;
     }
 
@@ -65,15 +65,23 @@ class Clients extends Component
         $this->email = $client->email;
         $this->phone = $client->phone;
         $this->address = $client->address;
+        $this->province = $client->province;
+        $this->canton = $client->canton;
+        $this->distrito = $client->distrito;
         $this->notes = $client->notes;
         $this->showForm = true;
     }
 
     public function save()
     {
-        $this->validate(['name' => 'required|string|max:255']);
+        $this->validate([
+            'name' => 'required|string|max:255',
+            'province' => 'nullable|string|max:100',
+            'canton' => 'nullable|string|max:100',
+            'distrito' => 'nullable|string|max:100',
+        ]);
 
-        $data = ['name' => $this->name, 'email' => $this->email, 'phone' => $this->phone, 'address' => $this->address, 'notes' => $this->notes];
+        $data = ['name' => $this->name, 'email' => $this->email, 'phone' => $this->phone, 'address' => $this->address, 'province' => $this->province ?: null, 'canton' => $this->canton ?: null, 'distrito' => $this->distrito ?: null, 'notes' => $this->notes];
 
         if ($this->editingClientId) {
             Client::findOrFail($this->editingClientId)->update($data);
@@ -82,7 +90,7 @@ class Clients extends Component
         }
 
         $this->showForm = false;
-        $this->reset(['name', 'email', 'phone', 'address', 'notes', 'editingClientId']);
+        $this->reset(['name', 'email', 'phone', 'address', 'province', 'canton', 'distrito', 'notes', 'editingClientId']);
     }
 
     public function exportVcf()
@@ -120,8 +128,12 @@ class Clients extends Component
         if ($client->email) {
             $lines[] = 'EMAIL;TYPE=INTERNET:' . $this->vcardEscape($client->email);
         }
-        if ($client->address) {
-            $lines[] = 'ADR;TYPE=HOME:;;' . $this->vcardEscape($client->address) . ';;;;';
+        if ($client->address || $client->distrito || $client->canton || $client->province) {
+            $locality = implode(', ', array_filter([$client->distrito, $client->canton]));
+            $lines[] = 'ADR;TYPE=HOME:;;' . $this->vcardEscape($client->address)
+                . ';' . $this->vcardEscape($locality ?: null)
+                . ';' . $this->vcardEscape($client->province)
+                . ';;Costa Rica';
         }
         if ($client->notes) {
             $lines[] = 'NOTE:' . $this->vcardEscape($client->notes);
@@ -153,6 +165,6 @@ class Clients extends Component
         }
         $clients = $query->latest()->paginate(20);
         return view('livewire.admin.clients', compact('clients'))
-            ->layout('components.admin-layout');
+            ->layout('components.admin-layout', ['title' => 'Clientes']);
     }
 }

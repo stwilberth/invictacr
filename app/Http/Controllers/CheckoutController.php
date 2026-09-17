@@ -46,6 +46,7 @@ class CheckoutController extends Controller
             'address' => 'required|string|max:500',
             'province' => 'required|string|max:100',
             'canton' => 'required|string|max:100',
+            'distrito' => 'required|string|max:100',
             'payment_method' => 'required|in:paypal,sinpe,transferencia,contra_entrega',
             'notes' => 'nullable|string|max:500',
         ]);
@@ -64,7 +65,7 @@ class CheckoutController extends Controller
         }
 
         if ($request->payment_method === 'contra_entrega') {
-            $address = strtolower($request->address . ' ' . $request->canton . ' ' . $request->province);
+            $address = strtolower($request->address . ' ' . $request->distrito . ' ' . $request->canton . ' ' . $request->province);
             $gamProvinces = ['san jos', 'cartago', 'heredia', 'alajuela'];
             $isGam = false;
             foreach ($gamProvinces as $p) {
@@ -80,7 +81,7 @@ class CheckoutController extends Controller
 
         if ($request->payment_method === 'paypal') {
             $request->session()->put('checkout_data', $request->only([
-                'name', 'email', 'phone', 'address', 'province', 'canton', 'notes', 'payment_method',
+                'name', 'email', 'phone', 'address', 'province', 'canton', 'distrito', 'notes', 'payment_method',
             ]));
             return redirect()->route('paypal.create');
         }
@@ -126,12 +127,19 @@ class CheckoutController extends Controller
 
             $total = $subtotal - $discount;
 
+            $fullAddress = implode(', ', array_filter([
+                $request->address,
+                $request->distrito ?? null,
+                $request->canton,
+                $request->province,
+            ]));
+
             $client = Client::firstOrCreate(
                 ['email' => $request->email],
                 [
                     'name' => $request->name,
                     'phone' => $request->phone,
-                    'address' => "{$request->address}, {$request->canton}, {$request->province}",
+                    'address' => $fullAddress,
                 ]
             );
 
@@ -159,7 +167,7 @@ class CheckoutController extends Controller
                 'client_name' => $request->name,
                 'client_email' => $request->email,
                 'client_phone' => $request->phone,
-                'customer_address' => "{$request->address}, {$request->canton}, {$request->province}",
+                'customer_address' => $fullAddress,
                 'subtotal' => $subtotal,
                 'discount' => $discount,
                 'total' => $total,

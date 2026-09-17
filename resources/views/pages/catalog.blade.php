@@ -48,19 +48,19 @@
             <div class="flex flex-col md:flex-row gap-8 pb-12" x-data="{ filterOpen: false, searchOpen: false }">
 
                 {{-- Mobile: Filtros + ordenar (flotante al hacer scroll) --}}
-                <div class="sticky top-2 z-30 md:hidden">
+                <div class="sticky top-0 z-30 md:hidden -mx-4 px-4 py-3 bg-white/80 dark:bg-[#0a0f1c]/80 backdrop-blur-md border-b border-gray-200/70 dark:border-white/10">
                     <div class="catalog-toolbar flex items-center gap-1.5">
-                        <button @click="filterOpen = true" class="flex-1 min-w-0 flex items-center justify-center gap-1.5 bg-[#59D9FF] hover:bg-[#39CEFF] text-[#0a0f1c] rounded-xl px-2 py-2.5 font-black text-xs uppercase tracking-wider active:scale-95 transition-all shadow-sm hover:shadow">
+                        <button @click="filterOpen = true" class="flex-1 min-w-0 flex items-center justify-center gap-1.5 bg-[#14325E] hover:bg-[#0A2342] text-white dark:border dark:border-white/20 rounded-none px-2 py-2.5 font-black text-xs uppercase tracking-wider active:scale-95 transition-all shadow-sm hover:shadow">
                             Filtrar
                         </button>
-                        <button @click="searchOpen = true" class="flex-1 min-w-0 flex items-center justify-center gap-1.5 bg-[#59D9FF] hover:bg-[#39CEFF] text-[#0a0f1c] rounded-xl px-2 py-2.5 font-black text-xs uppercase tracking-wider active:scale-95 transition-all shadow-sm hover:shadow">
+                        <button @click="searchOpen = true" class="flex-1 min-w-0 flex items-center justify-center gap-1.5 bg-[#14325E] hover:bg-[#0A2342] text-white dark:border dark:border-white/20 rounded-none px-2 py-2.5 font-black text-xs uppercase tracking-wider active:scale-95 transition-all shadow-sm hover:shadow">
                             Buscar
                         </button>
-                        <div class="flex-1 min-w-0 flex items-center justify-center gap-1.5 bg-[#59D9FF] rounded-xl px-2 py-2.5 shadow-sm">
+                        <div class="flex-1 min-w-0 flex items-center justify-center gap-1.5 bg-[#14325E] dark:border dark:border-white/20 rounded-none px-2 py-2.5 shadow-sm">
                             <select
                                 id="catalog-sort-mobile"
                                 onchange="window.CatalogManager && window.CatalogManager.setFilter('sort', this.value)"
-                                class="min-w-0 bg-transparent text-[#0a0f1c] appearance-none -webkit-appearance-none uppercase text-xs font-black text-center focus:outline-none transition-all"
+                                class="min-w-0 bg-transparent text-white appearance-none -webkit-appearance-none uppercase text-xs font-black text-center focus:outline-none transition-all"
                             >
                                 <option value="" {{ (!request('sort') || request('sort') === 'newest') ? 'selected' : '' }}>Más nuevos</option>
                                 <option value="most_viewed" {{ request('sort') === 'most_viewed' ? 'selected' : '' }}>Más vistos</option>
@@ -86,10 +86,10 @@
                     x-effect="searchOpen && $nextTick(() => $refs.searchInput && $refs.searchInput.focus())"
                     style="display:none;"
                 >
-                    <div class="w-full max-w-xl bg-white dark:bg-[#0f172a] rounded-2xl shadow-2xl border border-gray-100 dark:border-white/10 overflow-hidden" @click.stop>
+                    <div class="w-full max-w-xl bg-white dark:bg-[#0f172a] rounded-none shadow-2xl border border-gray-100 dark:border-white/10 overflow-hidden" @click.stop>
                         <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-white/10">
                             <span class="text-sm font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300">Buscar reloj</span>
-                            <button @click="searchOpen = false" aria-label="Cerrar" class="text-gray-400 hover:text-white p-1.5 rounded-lg hover:bg-white/10 transition-colors">
+                            <button @click="searchOpen = false" aria-label="Cerrar" class="text-gray-400 hover:text-white p-1.5 rounded-none hover:bg-white/10 transition-colors">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                             </button>
                         </div>
@@ -102,7 +102,7 @@
                                         type="text"
                                         value="{{ $searchQuery ?? request('q') }}"
                                         placeholder="Escribí un modelo o colección..."
-                                        class="w-full px-4 py-3 bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-[#00C4FF]/50 focus:ring-2 focus:ring-[#00C4FF]/20 transition-all text-sm pr-10"
+                                        class="w-full px-4 py-3 bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-none text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-[#00C4FF]/50 focus:ring-2 focus:ring-[#00C4FF]/20 transition-all text-sm pr-10"
                                         autocomplete="off"
                                     />
                                     <button type="button" id="catalog-search-clear" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors" style="{{ ($searchQuery ?? request('q')) ? '' : 'display:none' }}">
@@ -112,7 +112,7 @@
                                 <button
                                     type="button"
                                     id="catalog-search-btn"
-                                    class="px-5 py-3 bg-[#00C4FF] hover:bg-[#00a0cc] text-white font-bold uppercase tracking-wider rounded-xl transition-all active:scale-95 text-sm flex items-center gap-1.5"
+                                    class="px-5 py-3 bg-[#14325E] hover:bg-[#0A2342] text-white dark:border dark:border-white/20 font-bold uppercase tracking-wider rounded-none transition-all active:scale-95 text-sm flex items-center gap-1.5"
                                 >
                                     <i class="fa-solid fa-search"></i>
                                     <span class="hidden sm:inline">Buscar</span>
@@ -145,15 +145,15 @@
                     <div id="catalog-results-info"></div>
 
                     {{-- Ordenar (desktop, flotante) --}}
-                    <div class="catalog-toolbar hidden md:flex md:sticky md:top-2 z-20 items-center justify-center gap-2 my-4">
-                        <button @click="filterOpen = true" class="shrink-0 inline-flex items-center justify-center gap-1.5 bg-[#59D9FF] hover:bg-[#39CEFF] rounded-xl px-2.5 py-2.5 text-xs font-black uppercase tracking-wider text-[#0a0f1c] active:scale-95 transition-all shadow-sm hover:shadow">
+                    <div class="catalog-toolbar hidden md:flex md:sticky md:top-0 z-20 items-center justify-center gap-2 mb-4 -mx-4 px-4 py-3 bg-white/80 dark:bg-[#0a0f1c]/80 backdrop-blur-md border-b border-gray-200/70 dark:border-white/10">
+                        <button @click="filterOpen = true" class="shrink-0 inline-flex items-center justify-center gap-1.5 bg-[#14325E] hover:bg-[#0A2342] rounded-none px-2.5 py-2.5 text-xs font-black uppercase tracking-wider text-white dark:border dark:border-white/20 active:scale-95 transition-all shadow-sm hover:shadow">
                             Filtrar
                         </button>
-                        <div class="shrink-0 flex items-center justify-center gap-1.5 bg-[#59D9FF] rounded-xl px-2.5 py-2.5 shadow-sm">
+                        <div class="shrink-0 flex items-center justify-center gap-1.5 bg-[#14325E] dark:border dark:border-white/20 rounded-none px-2.5 py-2.5 shadow-sm">
                             <select
                                 id="catalog-sort"
                                 onchange="window.CatalogManager && window.CatalogManager.setFilter('sort', this.value)"
-                                class="min-w-0 bg-transparent text-[#0a0f1c] appearance-none -webkit-appearance-none uppercase text-xs font-black text-center focus:outline-none transition-all"
+                                class="min-w-0 bg-transparent text-white appearance-none -webkit-appearance-none uppercase text-xs font-black text-center focus:outline-none transition-all"
                             >
                                 <option value="" {{ (!request('sort') || request('sort') === 'newest') ? 'selected' : '' }}>Más nuevos</option>
                                 <option value="most_viewed" {{ request('sort') === 'most_viewed' ? 'selected' : '' }}>Más vistos</option>
@@ -161,7 +161,7 @@
                                 <option value="price_desc" {{ request('sort') === 'price_desc' ? 'selected' : '' }}>Precio: mayor a menor</option>
                             </select>
                         </div>
-                        <button @click="searchOpen = true" class="shrink-0 inline-flex items-center justify-center gap-1.5 bg-[#59D9FF] hover:bg-[#39CEFF] rounded-xl px-2.5 py-2.5 text-xs font-black uppercase tracking-wider text-[#0a0f1c] active:scale-95 transition-all shadow-sm hover:shadow">
+                        <button @click="searchOpen = true" class="shrink-0 inline-flex items-center justify-center gap-1.5 bg-[#14325E] hover:bg-[#0A2342] rounded-none px-2.5 py-2.5 text-xs font-black uppercase tracking-wider text-white dark:border dark:border-white/20 active:scale-95 transition-all shadow-sm hover:shadow">
                             Buscar
                         </button>
                     </div>

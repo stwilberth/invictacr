@@ -1,4 +1,5 @@
 <div>
+    <h2 class="text-xl font-black mb-4">Clientes</h2>
     <div class="flex flex-wrap gap-2 items-center justify-between mb-6">
         <input wire:model.live="search" type="text" placeholder="Buscar clientes..." class="flex-1 min-w-[140px] bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2 text-sm w-full sm:w-80" />
         <div class="flex flex-wrap gap-2 w-full sm:w-auto">
@@ -53,6 +54,23 @@
                 <input wire:model="address" type="text" class="w-full bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm" />
             </div>
             <div>
+                <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Provincia</label>
+                <select wire:model="province" class="w-full bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm">
+                    <option value="">Seleccionar...</option>
+                    @foreach(['San José', 'Alajuela', 'Cartago', 'Heredia', 'Guanacaste', 'Puntarenas', 'Limón'] as $prov)
+                        <option value="{{ $prov }}">{{ $prov }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Cantón</label>
+                <input wire:model="canton" type="text" placeholder="Ej: Escazú, Santa Ana..." class="w-full bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm" />
+            </div>
+            <div>
+                <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Distrito</label>
+                <input wire:model="distrito" type="text" placeholder="Ej: Carmen, Merced, Puerto Jiménez..." class="w-full bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm" />
+            </div>
+            <div>
                 <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Notas</label>
                 <textarea wire:model="notes" rows="1" class="w-full bg-gray-50 dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm"></textarea>
             </div>
@@ -71,6 +89,7 @@
                     <th class="text-left px-4 py-3">Nombre</th>
                     <th class="text-left px-4 py-3">Email</th>
                     <th class="text-left px-4 py-3">Teléfono</th>
+                    <th class="text-left px-4 py-3">Ubicación</th>
                     <th class="text-right px-4 py-3">Acciones</th>
                 </tr>
             </thead>
@@ -80,6 +99,7 @@
                     <td class="px-4 py-3 font-bold text-gray-900 dark:text-white">{{ $client->name }}</td>
                     <td class="px-4 py-3 text-gray-600 dark:text-gray-400">{{ $client->email }}</td>
                     <td class="px-4 py-3 text-gray-600 dark:text-gray-400">{{ $client->phone }}</td>
+                    <td class="px-4 py-3 text-gray-600 dark:text-gray-400 max-w-[220px] truncate" title="{{ implode(', ', array_filter([$client->address, $client->distrito, $client->canton, $client->province])) }}">{{ implode(', ', array_filter([$client->address, $client->distrito, $client->canton, $client->province])) }}</td>
                     <td class="px-4 py-3 text-right">
                         <button wire:click="edit({{ $client->id }})" class="text-[#00C4FF] hover:underline text-xs font-bold">Editar</button>
                     </td>

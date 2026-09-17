@@ -882,6 +882,6 @@ class ProductForm extends Component
         return view(
             "livewire.admin.product-form",
             compact("colecciones", "colores", "brazaletes", "cajas"),
-        )->layout("components.admin-layout");
+        )->layout("components.admin-layout", ["title" => $this->productId ? "Editar Producto" : "Nuevo Producto"]);
     }
 }

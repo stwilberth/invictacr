@@ -1,4 +1,5 @@
 <div>
+    <h2 class="text-xl font-black mb-4">Próximos</h2>
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-5">
             <h2 class="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider mb-3">Importar modelos</h2>

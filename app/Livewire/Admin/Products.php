@@ -212,6 +212,6 @@ class Products extends Component
         return view(
             "livewire.admin.products",
             compact("products", "colecciones", "colores", "brazaletes", "resistencias", "tamanios", "optimizationStatus"),
-        )->layout("components.admin-layout");
+        )->layout("components.admin-layout", ["title" => "Productos"]);
     }
 }

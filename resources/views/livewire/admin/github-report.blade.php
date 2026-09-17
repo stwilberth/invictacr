@@ -1,4 +1,5 @@
 <div>
+    <h2 class="text-xl font-black mb-4">Reporte GitHub</h2>
     <div class="flex justify-between items-center mb-6">
         <div class="flex items-center gap-4">
             <select wire:model="branch" wire:change="loadData" class="bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2 text-sm font-bold text-gray-700 dark:text-gray-300">

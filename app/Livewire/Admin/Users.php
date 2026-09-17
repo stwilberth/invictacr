@@ -59,6 +59,6 @@ class Users extends Component
         $totalVerified = User::whereNotNull('email_verified_at')->count();
 
         return view('livewire.admin.users', compact('users', 'totalUsers', 'totalAdmins', 'totalVerified'))
-            ->layout('components.admin-layout');
+            ->layout('components.admin-layout', ['title' => 'Usuarios']);
     }
 }

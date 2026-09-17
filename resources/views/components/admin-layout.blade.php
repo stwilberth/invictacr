@@ -59,6 +59,9 @@
                 <a href="{{ route('admin.campaigns') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors {{ request()->routeIs('admin.campaigns') ? 'bg-[#00C4FF]/10 text-[#00C4FF]' : 'text-white/70 hover:text-white hover:bg-white/5' }}">
                     <i class="fa-solid fa-rectangle-ad w-5"></i> Campañas
                 </a>
+                <a href="{{ route('admin.historias') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors {{ request()->routeIs('admin.historias*') ? 'bg-[#00C4FF]/10 text-[#00C4FF]' : 'text-white/70 hover:text-white hover:bg-white/5' }}">
+                    <i class="fa-solid fa-mobile-screen w-5"></i> Historias
+                </a>
                 <a href="{{ route('admin.subscribers') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors {{ request()->routeIs('admin.subscribers') ? 'bg-[#00C4FF]/10 text-[#00C4FF]' : 'text-white/70 hover:text-white hover:bg-white/5' }}">
                     <i class="fa-solid fa-envelope w-5"></i> Suscriptores
                 </a>
@@ -105,7 +108,6 @@
                     <button @click="sidebarOpen = true" class="md:hidden text-gray-600 dark:text-gray-300 text-xl">
                         <i class="fa-solid fa-bars"></i>
                     </button>
-                    <h1 class="text-lg font-black text-gray-900 dark:text-white uppercase tracking-tight">{{ $title ?? 'Admin' }}</h1>
                 </div>
                 <div class="flex items-center gap-4">
                     <button @click="dark = !dark" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-white text-lg transition-colors" title="Cambiar modo">
@@ -190,6 +192,9 @@
                     </a>
                     <a href="{{ route('admin.campaigns') }}" @click="sidebarOpen = false" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors {{ request()->routeIs('admin.campaigns') ? 'bg-[#00C4FF]/10 text-[#00C4FF]' : 'text-white/70 hover:text-white hover:bg-white/5' }}">
                         <i class="fa-solid fa-rectangle-ad w-5"></i> Campañas
+                    </a>
+                    <a href="{{ route('admin.historias') }}" @click="sidebarOpen = false" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors {{ request()->routeIs('admin.historias*') ? 'bg-[#00C4FF]/10 text-[#00C4FF]' : 'text-white/70 hover:text-white hover:bg-white/5' }}">
+                        <i class="fa-solid fa-mobile-screen w-5"></i> Historias
                     </a>
                     <a href="{{ route('admin.subscribers') }}" @click="sidebarOpen = false" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors {{ request()->routeIs('admin.subscribers') ? 'bg-[#00C4FF]/10 text-[#00C4FF]' : 'text-white/70 hover:text-white hover:bg-white/5' }}">
                         <i class="fa-solid fa-envelope w-5"></i> Suscriptores

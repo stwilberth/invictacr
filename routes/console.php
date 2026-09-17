@@ -28,3 +28,24 @@ foreach (['08:00', '12:00', '18:00'] as $horaPico) {
         ->withoutOverlapping()
         ->appendOutputTo(storage_path('logs/facebook-publish-cron.log'));
 }
+
+// Historias de Facebook con el arte vertical 1080x1920 (sin caption ni enlace:
+// todo va quemado en la imagen). 3 al día, 30 min después del post del feed en
+// cada hora pico. Se registran en StoryHistory para no repetir modelos.
+foreach (['08:30', '12:30', '18:30'] as $horaPico) {
+    Schedule::command('campaigns:publish-story', ['--limit' => 3, '--channel' => 'facebook'])
+        ->dailyAt($horaPico)
+        ->timezone('America/Costa_Rica')
+        ->withoutOverlapping()
+        ->appendOutputTo(storage_path('logs/facebook-story-cron.log'));
+}
+
+// Historias de Instagram con el mismo arte vertical (la API exige URL pública:
+// se sube el PNG a R2). Mismos horarios pico. Requiere IG_ACCOUNT_ID.
+foreach (['08:30', '12:30', '18:30'] as $horaPico) {
+    Schedule::command('campaigns:publish-story', ['--limit' => 3, '--channel' => 'instagram'])
+        ->dailyAt($horaPico)
+        ->timezone('America/Costa_Rica')
+        ->withoutOverlapping()
+        ->appendOutputTo(storage_path('logs/instagram-story-cron.log'));
+}

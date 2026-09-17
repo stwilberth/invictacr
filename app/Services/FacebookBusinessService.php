@@ -227,7 +227,56 @@ class FacebookBusinessService
         }
     }
 
-    private function recordPost(?string $postId, string $message, ?string $link, mixed $raw): ?string
+    /**
+     * Publica una historia (story) con imagen en la página de Facebook.
+     * Flujo en 2 pasos: subir la foto sin publicar y luego publicarla como
+     * historia con /photo_stories. La API de historias no acepta caption ni
+     * enlace, así que toda la info debe ir quemada en la imagen.
+     *
+     * @return string|null id de la historia creada, o null si falla.
+     */
+    public function publishPhotoStory(string $imageBytes, string $filename = 'historia.png'): ?string
+    {
+        if (!$this->isConfigured()) {
+            return null;
+        }
+
+        $pageToken = $this->getPageToken();
+        if (!$pageToken) {
+            Log::error('Facebook story failed: no page token.');
+            return null;
+        }
+
+        try {
+            $upload = Http::attach('source', $imageBytes, $filename)
+                ->post("https://graph.facebook.com/{$this->apiVersion}/{$this->pageId}/photos", [
+                    'published' => 'false',
+                    'access_token' => $pageToken,
+                ]);
+
+            if (!$upload->successful() || !$upload->json('id')) {
+                Log::error('Facebook story upload failed: ' . $upload->body());
+                return null;
+            }
+
+            $story = Http::post("https://graph.facebook.com/{$this->apiVersion}/{$this->pageId}/photo_stories", [
+                'photo_id' => $upload->json('id'),
+                'access_token' => $pageToken,
+            ]);
+
+            if (!$story->successful()) {
+                Log::error('Facebook story publish failed: ' . $story->body());
+                return null;
+            }
+
+            return $this->recordPost($story->json('id') ?? $upload->json('id'), '', null, $story->json(), 'story');
+        } catch (\Exception $e) {
+            report($e);
+            return null;
+        }
+    }
+
+    private function recordPost(?string $postId, string $message, ?string $link, mixed $raw, string $mediaType = 'photo'): ?string
     {
         if (!$postId) {
             return null;
@@ -238,7 +287,7 @@ class FacebookBusinessService
             [
                 'message' => $message,
                 'link' => $link,
-                'media_type' => 'photo',
+                'media_type' => $mediaType,
                 'posted_at' => now(),
                 'likes' => 0,
                 'comments' => 0,

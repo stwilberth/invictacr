@@ -1,4 +1,5 @@
 <div>
+    <h2 class="text-xl font-black mb-4">Gastos</h2>
     <div class="flex justify-between items-center mb-6">
         <div class="text-sm text-gray-500 dark:text-gray-400">
             Total gastos: <span class="font-black text-gray-900 dark:text-white text-lg">₡{{ number_format($total, 0) }}</span>

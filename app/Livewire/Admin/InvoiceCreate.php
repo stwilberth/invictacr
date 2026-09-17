@@ -12,6 +12,9 @@ class InvoiceCreate extends Component
     public $client_email = '';
     public $client_phone = '';
     public $customer_address = '';
+    public $province = '';
+    public $canton = '';
+    public $distrito = '';
     public $cedula = '';
     public $clientSearch = '';
     public $subtotal = 0;
@@ -41,6 +44,9 @@ class InvoiceCreate extends Component
             'client_email' => 'nullable|email|max:255',
             'client_phone' => 'nullable|string|max:255',
             'customer_address' => 'nullable|string',
+            'province' => 'nullable|string|max:100',
+            'canton' => 'nullable|string|max:100',
+            'distrito' => 'nullable|string|max:100',
             'cedula' => 'nullable|string|max:255',
             'subtotal' => 'required|numeric|min:0',
             'discount' => 'required|numeric|min:0',
@@ -183,12 +189,19 @@ class InvoiceCreate extends Component
         $autoUtility = $this->computeEstimatedUtility();
         $estimatedUtility = $autoUtility !== null ? $autoUtility : ($this->estimated_utility ?: null);
 
+        $fullAddress = implode(', ', array_filter([
+            trim((string) $this->customer_address) ?: null,
+            trim((string) $this->distrito) ?: null,
+            trim((string) $this->canton) ?: null,
+            trim((string) $this->province) ?: null,
+        ]));
+
         $invoice = Invoice::create([
             'invoice_number' => $invoiceNumber,
             'client_name' => $this->client_name,
             'client_email' => $this->client_email ?: null,
             'client_phone' => $this->client_phone ?: null,
-            'customer_address' => $this->customer_address ?: null,
+            'customer_address' => $fullAddress ?: null,
             'cedula' => $this->cedula ?: null,
             'subtotal' => $this->subtotal,
             'discount' => $this->discount,

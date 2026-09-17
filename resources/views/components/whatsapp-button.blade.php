@@ -6,36 +6,8 @@
 <a href="{{ $whatsappLink }}"
    target="_blank"
    rel="noopener noreferrer"
-   class="fixed bottom-4 right-4 md:bottom-6 md:right-6 z-50 flex items-center justify-center w-12 h-12 md:w-16 md:h-16 bg-[#25D366] text-white rounded-full shadow-[0_10px_25px_rgba(37,211,102,0.4)] transition-all duration-300 hover:scale-110 active:scale-95 group no-underline"
-   aria-label="Contactar por WhatsApp"
-   x-data="whatsappState()"
-   x-init="init()">
-    <div class="absolute inset-0 rounded-full bg-[#25D366] animate-ping opacity-20 group-hover:opacity-40 transition-opacity"></div>
-    <i class="fab fa-whatsapp text-xl md:text-3xl relative z-10"></i>
-
-    {{-- <span id="whatsapp-tooltip"
-          class="absolute right-full mr-4 px-4 py-2 bg-neutral-900 text-white text-xs font-bold rounded-lg opacity-0 transition-all duration-500 whitespace-nowrap pointer-events-none shadow-xl border border-white/10 uppercase tracking-widest translate-x-2"
-          :class="{ 'opacity-100 translate-x-0': showTooltip, 'opacity-0 translate-x-2': !showTooltip }">
-        ¿Necesitas ayuda?
-    </span> --}}
+   class="fixed bottom-4 right-4 md:bottom-6 md:right-6 z-50 flex items-center gap-3 bg-[#25D366] hover:bg-[#1fb857] rounded-full px-5 md:px-6 py-3 md:py-3.5 shadow-[0_10px_25px_rgba(0,0,0,0.35)] transition-all duration-300 hover:scale-105 active:scale-95 no-underline animate-bounce-slow"
+   aria-label="Contactar por WhatsApp">
+    <i class="fab fa-whatsapp text-2xl md:text-3xl text-white"></i>
+    <span class="text-sm md:text-base font-black uppercase tracking-wide text-white">Contactar</span>
 </a>
-
-@push('scripts')
-<script>
-    function whatsappState() {
-        return {
-            showTooltip: false,
-            init() {
-                setTimeout(() => {
-                    this.showTooltip = true;
-                    setTimeout(() => { this.showTooltip = false; }, 4000);
-                }, 2000);
-                setInterval(() => {
-                    this.showTooltip = true;
-                    setTimeout(() => { this.showTooltip = false; }, 4000);
-                }, 10000);
-            }
-        }
-    }
-</script>
-@endpush

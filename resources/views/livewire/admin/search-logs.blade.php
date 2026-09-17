@@ -1,4 +1,5 @@
 <div>
+    <h2 class="text-xl font-black mb-4">Búsquedas</h2>
     {{-- Stats Cards --}}
     <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
         <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-4">

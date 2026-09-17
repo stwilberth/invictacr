@@ -99,7 +99,7 @@ class Invoices extends Component
         }
 
         return view('livewire.admin.invoices', compact('invoices', 'totals', 'productByModelo'))
-            ->layout('components.admin-layout');
+            ->layout('components.admin-layout', ['title' => 'Facturas']);
     }
 
     public function resetFilters()

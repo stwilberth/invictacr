@@ -16,6 +16,7 @@ class InvoiceDetail extends Component
     public $editing = false;
 
     public $client_name, $client_email, $client_phone, $customer_address;
+    public $province = '', $canton = '', $distrito = '';
     public $subtotal, $discount, $shipping, $shipping_cost, $total;
     public $status, $shipping_status, $notes;
     public $delivery_date, $delivery_time_start, $delivery_time_end;
@@ -31,6 +32,9 @@ class InvoiceDetail extends Component
             'client_email' => 'nullable|email|max:255',
             'client_phone' => 'nullable|string|max:255',
             'customer_address' => 'nullable|string',
+            'province' => 'nullable|string|max:100',
+            'canton' => 'nullable|string|max:100',
+            'distrito' => 'nullable|string|max:100',
             'subtotal' => 'required|numeric|min:0',
             'discount' => 'required|numeric|min:0',
             'shipping' => 'required|numeric|min:0',
@@ -65,6 +69,9 @@ class InvoiceDetail extends Component
         $this->client_email = $this->invoice->client_email;
         $this->client_phone = $this->invoice->client_phone;
         $this->customer_address = $this->invoice->customer_address;
+        $this->province = '';
+        $this->canton = '';
+        $this->distrito = '';
         $this->subtotal = $this->invoice->subtotal;
         $this->discount = $this->invoice->discount;
         $this->shipping = $this->invoice->shipping;
@@ -88,11 +95,22 @@ class InvoiceDetail extends Component
     {
         $this->validate();
 
+        // Si se llenó provincia/cantón/distrito, se anexan a la dirección;
+        // si están vacíos se conserva la dirección tal cual.
+        $extras = array_filter([
+            trim((string) $this->distrito) ?: null,
+            trim((string) $this->canton) ?: null,
+            trim((string) $this->province) ?: null,
+        ]);
+        $fullAddress = $extras
+            ? implode(', ', array_filter([trim((string) $this->customer_address) ?: null, ...$extras]))
+            : $this->customer_address;
+
         $this->invoice->update([
             'client_name' => $this->client_name,
             'client_email' => $this->client_email,
             'client_phone' => $this->client_phone,
-            'customer_address' => $this->customer_address,
+            'customer_address' => $fullAddress,
             'subtotal' => $this->subtotal,
             'discount' => $this->discount,
             'shipping' => $this->shipping,

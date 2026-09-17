@@ -1,4 +1,5 @@
 <div>
+    <h2 class="text-xl font-black mb-4">{{ $productId ? 'Editar Producto' : 'Nuevo Producto' }}</h2>
     <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-6">
         <form wire:submit="save" class="space-y-6">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">

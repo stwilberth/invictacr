@@ -71,6 +71,6 @@ class Expenses extends Component
         $categories = Expense::distinct()->pluck('category')->filter();
 
         return view('livewire.admin.expenses', compact('expenses', 'total', 'categories'))
-            ->layout('components.admin-layout');
+            ->layout('components.admin-layout', ['title' => 'Gastos']);
     }
 }

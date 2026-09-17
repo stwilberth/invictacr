@@ -76,6 +76,12 @@
                                     @error('canton')<p class="text-xs text-red-500 mt-1">{{ $message }}</p>@enderror
                                 </div>
                                 <div class="md:col-span-2">
+                                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">Distrito *</label>
+                                    <input type="text" name="distrito" value="{{ old('distrito', $user->distrito ?? '') }}" required placeholder="Ej: Carmen, Merced, Puerto Jiménez..."
+                                           class="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-gray-600 rounded-xl text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-[#00C4FF] focus:ring-1 focus:ring-[#00C4FF] transition-all">
+                                    @error('distrito')<p class="text-xs text-red-500 mt-1">{{ $message }}</p>@enderror
+                                </div>
+                                <div class="md:col-span-2">
                                     <label class="block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">Notas (opcional)</label>
                                     <textarea name="notes" rows="2" placeholder="Instrucciones de entrega, referencias..."
                                               class="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-gray-600 rounded-xl text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-[#00C4FF] focus:ring-1 focus:ring-[#00C4FF] transition-all resize-none">{{ old('notes') }}</textarea>

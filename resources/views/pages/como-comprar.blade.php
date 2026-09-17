@@ -134,7 +134,7 @@
 
             <!-- CTA Section -->
             <div class="mt-24 text-center bg-gradient-to-r from-blue-600 to-blue-800 p-12 rounded-[3rem] shadow-2xl">
-                <h2 class="text-3xl md:text-4xl font-black uppercase italic text-white mb-4">¿Listo para estrenar?</h2>
+                <h2 class="text-3xl md:text-4xl font-black uppercase text-white mb-4">¿Listo para estrenar?</h2>
                 <p class="text-white/80 mb-8 max-w-lg mx-auto leading-relaxed">Explora nuestra colección y encuentra el Invicta que mejor se adapta a tu estilo. ¡Envío gratis a todo Costa Rica!</p>
                 <a href="/relojes" class="inline-flex items-center gap-2 bg-white text-blue-600 px-8 py-4 rounded-full font-black uppercase tracking-tighter hover:bg-gray-100 transition-all transform hover:scale-105 shadow-lg">
                     Ver Catálogo Completo

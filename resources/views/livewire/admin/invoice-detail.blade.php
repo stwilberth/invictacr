@@ -478,6 +478,23 @@
                         <label class="text-xs text-gray-500 block mb-1">Dirección</label>
                         <input wire:model="customer_address" type="text" class="w-full bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2 text-sm" />
                     </div>
+                    <div>
+                        <label class="text-xs text-gray-500 block mb-1">Provincia</label>
+                        <select wire:model="province" class="w-full bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2 text-sm">
+                            <option value="">Seleccionar...</option>
+                            @foreach(['San José', 'Alajuela', 'Cartago', 'Heredia', 'Guanacaste', 'Puntarenas', 'Limón'] as $prov)
+                                <option value="{{ $prov }}">{{ $prov }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-xs text-gray-500 block mb-1">Cantón</label>
+                        <input wire:model="canton" type="text" class="w-full bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2 text-sm" placeholder="Ej: Escazú, Santa Ana..." />
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="text-xs text-gray-500 block mb-1">Distrito</label>
+                        <input wire:model="distrito" type="text" class="w-full bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2 text-sm" placeholder="Ej: Carmen, Merced, Puerto Jiménez..." />
+                    </div>
                 </div>
             </div>
 

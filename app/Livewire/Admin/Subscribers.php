@@ -54,6 +54,6 @@ class Subscribers extends Component
         $inactiveCount = $total - $activeCount;
 
         return view('livewire.admin.subscribers', compact('subscribers', 'total', 'activeCount', 'inactiveCount'))
-            ->layout('components.admin-layout');
+            ->layout('components.admin-layout', ['title' => 'Suscriptores']);
     }
 }

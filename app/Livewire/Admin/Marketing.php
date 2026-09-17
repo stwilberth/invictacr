@@ -44,6 +44,6 @@ class Marketing extends Component
         $completedTasks = $tasks->where('status', 'completed');
 
         return view('livewire.admin.marketing', compact('tasks', 'pendingTasks', 'completedTasks'))
-            ->layout('components.admin-layout');
+            ->layout('components.admin-layout', ['title' => 'Marketing']);
     }
 }

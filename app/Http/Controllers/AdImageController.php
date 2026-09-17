@@ -9,6 +9,8 @@ class AdImageController extends Controller
 {
     private const W = 1080;
     private const H = 1350;
+    private const SW = 1080;
+    private const SH = 1920;
     private const FONT_BOLD = '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf';
     private const FONT_REGULAR = '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf';
 
@@ -31,6 +33,163 @@ class AdImageController extends Controller
     public function generate(Product $product, string $theme = 'blue'): string
     {
         return $this->render($product, self::THEMES[$theme] ?? self::THEMES['blue']);
+    }
+
+    public function generateStory(Product $product, string $theme = 'blue'): string
+    {
+        return $this->renderStory($product, self::THEMES[$theme] ?? self::THEMES['blue']);
+    }
+
+    /**
+     * Arte vertical 1080x1920 para historias de Facebook. Mismo lenguaje del
+     * canva de feed pero centrado y con zonas seguras arriba/abajo para la
+     * interfaz de historias. Todo el texto va quemado en la imagen porque la
+     * API de historias no acepta caption ni enlace.
+     */
+    private function renderStory(Product $product, array $t): string
+    {
+        $img = imagecreatetruecolor(self::SW, self::SH);
+
+        $themeDark = imagecolorallocate($img, $t['dark'][0], $t['dark'][1], $t['dark'][2]);
+        $cream = imagecolorallocate($img, $t['cream'][0], $t['cream'][1], $t['cream'][2]);
+        $white = imagecolorallocate($img, 0xff, 0xff, 0xff);
+        $darkText = imagecolorallocate($img, 0x1c, 0x1c, 0x1e);
+        $tagGold = imagecolorallocate($img, 0xe6, 0xb8, 0x00);
+        $specText = imagecolorallocate($img, $t['text'][0], $t['text'][1], $t['text'][2]);
+        $badgeRed = imagecolorallocate($img, 0xc0, 0x21, 0x2b);
+        $cx = self::SW / 2;
+
+        // Fondo: base crema + gradiente diagonal a la izquierda (como el feed).
+        imagefilledrectangle($img, 0, 0, self::SW, self::SH, $cream);
+        $splitX = self::SW * 0.5;
+        for ($y = 0; $y < self::SH; $y++) {
+            $tY = $y / self::SH;
+            $r = (int) ($t['dark'][0] + ($t['light'][0] - $t['dark'][0]) * $tY);
+            $g = (int) ($t['dark'][1] + ($t['light'][1] - $t['dark'][1]) * $tY);
+            $b = (int) ($t['dark'][2] + ($t['light'][2] - $t['dark'][2]) * $tY);
+            $color = imagecolorallocate($img, $r, $g, $b);
+            $splitAtY = $splitX + 180 - (360 * $tY);
+            for ($x = 0; $x < (int) $splitAtY; $x++) {
+                if ($x < self::SW) {
+                    imagesetpixel($img, $x, $y, $color);
+                }
+            }
+        }
+
+        // Título centrado (auto-reducir si no cabe).
+        $title = 'INVICTA ' . strtoupper($product->coleccion ?? $product->modelo ?? '');
+        $titleSize = 68;
+        $maxTitleWidth = self::SW - 140;
+        $titleBox = imagettfbbox($titleSize, 0, self::FONT_BOLD, $title);
+        while (($titleBox[2] - $titleBox[0]) > $maxTitleWidth && $titleSize > 34) {
+            $titleSize -= 4;
+            $titleBox = imagettfbbox($titleSize, 0, self::FONT_BOLD, $title);
+        }
+        $titleY = 250;
+        $inkShadow = [0x0b, 0x24, 0x47];
+        $this->drawCenteredTextAt($img, $title, $titleSize, $titleY, $white, self::FONT_BOLD, self::SW, $inkShadow);
+
+        // Modelo.
+        $modelCode = $product->codigo_comercial ?? $product->modelo;
+        $this->drawCenteredTextAt($img, $modelCode, 34, $titleY + $titleSize + 34, $white, self::FONT_REGULAR, self::SW, $inkShadow);
+
+        // WhatsApp centrado (CTA principal arriba del reloj).
+        $this->drawWhatsAppCentered($img, '8671-1422', 468, $white, self::SW);
+
+        // Círculo central con el reloj.
+        $cy = 900;
+        $cr = 380;
+        imagefilledellipse($img, (int) $cx, $cy, $cr * 2, $cr * 2, $white);
+        imageellipse($img, (int) $cx, $cy, $cr * 2, $cr * 2, $themeDark);
+
+        $productImage = $this->loadProductImage($product);
+        if ($productImage !== null) {
+            $inner = (int) ($cr * 1.8);
+            $circle = $this->copyIntoCircle($productImage, $inner);
+            if ($circle !== null) {
+                imagecopy($img, $circle, (int) ($cx - $inner / 2), (int) ($cy - $inner / 2), 0, 0, $inner, $inner);
+                imagedestroy($circle);
+            }
+            imagedestroy($productImage);
+        }
+
+        // Especificaciones en 2 líneas centradas.
+        $size = $product->size ? preg_replace('/\s*mm$/i', '', $product->size) . ' mm' : null;
+        $agua = $product->resistencia_agua ? $product->resistencia_agua . ' m' : null;
+        $line1 = implode('  ·  ', array_filter([$size, $agua]));
+        $mov = $product->tipo_movimiento ? ucfirst($product->tipo_movimiento) : null;
+        $line2 = implode('  ·  ', array_filter([$mov, $product->brazalete]));
+        $specLines = array_values(array_filter([$line1, $line2]));
+        $specY = 1360;
+        foreach ($specLines as $i => $spec) {
+            $this->drawCenteredTextAt($img, $spec, 34, (int) ($specY + $i * 62), $white, self::FONT_REGULAR, self::SW, $inkShadow);
+        }
+        $afterSpecs = $specY + (count($specLines) - 1) * 62;
+
+        // Pestaña dorada ENVÍO GRATIS + badge rojo con precio, centrados.
+        $tagW = 360;
+        $tagH = 50;
+        $tagY = (int) ($afterSpecs + 44);
+        $this->roundRect($img, (int) ($cx - $tagW / 2), $tagY, $tagW, $tagH, (int) ($tagH / 2), $tagGold);
+        $this->drawCenteredTextAt($img, 'ENVÍO GRATIS', 22, $this->vCenterY($tagY, $tagH, 22, self::FONT_BOLD, 'ENVÍO GRATIS'), $darkText, self::FONT_BOLD, self::SW);
+
+        $badgeW = 640;
+        $badgeH = 165;
+        $badgeY = $tagY + $tagH + 28;
+        $this->roundRect($img, (int) ($cx - $badgeW / 2), $badgeY, $badgeW, $badgeH, (int) ($badgeH / 2), $badgeRed);
+
+        $price = '₡' . number_format((float) $product->precio_final, 0);
+        $priceSize = 88;
+        $priceBox = imagettfbbox($priceSize, 0, self::FONT_BOLD, $price);
+        while (($priceBox[2] - $priceBox[0]) > $badgeW - 70 && $priceSize > 48) {
+            $priceSize -= 4;
+            $priceBox = imagettfbbox($priceSize, 0, self::FONT_BOLD, $price);
+        }
+        $this->drawCenteredTextAt($img, $price, $priceSize, $this->vCenterY($badgeY, $badgeH, $priceSize, self::FONT_BOLD, $price), $white, self::FONT_BOLD, self::SW);
+
+        // Sitio web centrado al pie (sobre la zona segura inferior).
+        $this->drawCenteredTextAt($img, 'invictaCostaRica.com', 34, $badgeY + $badgeH + 70, $white, self::FONT_BOLD, self::SW, $inkShadow);
+
+        ob_start();
+        imagepng($img, null, 8);
+        $data = ob_get_clean();
+        imagedestroy($img);
+
+        return $data;
+    }
+
+    private function drawCenteredTextAt($img, string $text, int $size, int $y, $color, string $font, int $width, ?array $shadow = null): void
+    {
+        $box = imagettfbbox($size, 0, $font, $text);
+        $x = (int) (($width - ($box[2] - $box[0])) / 2 - $box[0]);
+        if ($shadow !== null) {
+            $sh = imagecolorallocate($img, $shadow[0], $shadow[1], $shadow[2]);
+            imagettftext($img, $size, 0, $x + 3, $y + 3, $sh, $font, $text);
+        }
+        imagettftext($img, $size, 0, $x, $y, $color, $font, $text);
+    }
+
+    private function drawWhatsAppCentered($img, string $text, int $baselineY, $textColor, int $width): void
+    {
+        $size = 40;
+        $box = imagettfbbox($size, 0, self::FONT_BOLD, $text);
+        $textWidth = $box[2] - $box[0];
+        $gap = 22;
+        $r = 32;
+        $totalW = $r * 2 + $gap + $textWidth;
+        $startX = (int) (($width - $totalW) / 2);
+
+        $cxc = $startX + $r;
+        $cyc = $baselineY - 14;
+        if (!$this->drawWhatsAppIcon($img, $cxc, $cyc, $r)) {
+            $green = imagecolorallocate($img, 0x25, 0xD3, 0x66);
+            imagefilledellipse($img, $cxc, $cyc, $r * 2, $r * 2, $green);
+        }
+
+        $tx = (int) ($startX + $r * 2 + $gap - $box[0]);
+        $sh = imagecolorallocate($img, 0x0b, 0x24, 0x47);
+        imagettftext($img, $size, 0, $tx + 3, $baselineY + 3, $sh, self::FONT_BOLD, $text);
+        imagettftext($img, $size, 0, $tx, $baselineY, $textColor, self::FONT_BOLD, $text);
     }
 
     private function render(Product $product, array $t): string

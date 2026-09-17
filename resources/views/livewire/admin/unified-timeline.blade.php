@@ -1,4 +1,5 @@
 <div>
+    <h2 class="text-xl font-black mb-4">Timeline Unificado</h2>
     <div class="flex flex-wrap justify-between items-center gap-3 mb-6">
         <div class="flex flex-wrap gap-2">
             <button wire:click="$set('period', '7d')" class="px-4 py-2 rounded-xl text-sm font-bold transition-colors {{ $period === '7d' ? 'bg-[#00C4FF] text-white' : 'bg-white dark:bg-[#0f172a] text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-white/10' }}">7 días</button>

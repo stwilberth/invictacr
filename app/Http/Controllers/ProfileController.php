@@ -31,6 +31,7 @@ class ProfileController extends Controller
             'address' => ['nullable', 'string', 'max:500'],
             'province' => ['nullable', 'string', 'max:100'],
             'canton' => ['nullable', 'string', 'max:100'],
+            'distrito' => ['nullable', 'string', 'max:100'],
             'current_password' => ['required_with:password', 'current_password'],
             'password' => ['nullable', 'confirmed', Password::min(8)],
         ]);
@@ -41,6 +42,7 @@ class ProfileController extends Controller
         $user->address = $validated['address'] ?? $user->address;
         $user->province = $validated['province'] ?? $user->province;
         $user->canton = $validated['canton'] ?? $user->canton;
+        $user->distrito = $validated['distrito'] ?? $user->distrito;
 
         if (!empty($validated['password'])) {
             $user->password = Hash::make($validated['password']);

@@ -1,4 +1,5 @@
 <div>
+    <h2 class="text-xl font-black mb-4">Videos de Reseñas</h2>
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
         <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-4">
             <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider font-bold">Total</p>

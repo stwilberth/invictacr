@@ -288,6 +288,6 @@ class Upcoming extends Component
         $products = $query->latest()->paginate(20);
 
         return view('livewire.admin.upcoming', compact('products'))
-            ->layout('components.admin-layout');
+            ->layout('components.admin-layout', ['title' => 'Próximos']);
     }
 }

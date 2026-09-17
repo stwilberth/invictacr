@@ -71,6 +71,10 @@ return [
         'ad_account_id' => env('FB_AD_ACCOUNT_ID'),
     ],
 
+    'instagram' => [
+        'account_id' => env('IG_ACCOUNT_ID'),
+    ],
+
     'github' => [
         'token' => env('GITHUB_TOKEN'),
         'owner' => env('GITHUB_OWNER'),
