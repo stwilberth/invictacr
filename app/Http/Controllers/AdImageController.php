@@ -149,7 +149,7 @@ class AdImageController extends Controller
         $this->drawCenteredText($img, 'ENVÍO GRATIS', 20, $this->vCenterY($tagY, $tagH, 20, self::FONT_BOLD, 'ENVÍO GRATIS'), $darkText, self::FONT_BOLD, $tagX + $tagW / 2);
 
         // Precio (auto-reducir si no cabe)
-        $price = '₡' . number_format((float) $product->price_after_discount, 0);
+        $price = '₡' . number_format((float) $product->precio_final, 0);
         $priceSize = 64;
         $priceBox = imagettfbbox($priceSize, 0, self::FONT_BOLD, $price);
         $priceWidth = $priceBox[2] - $priceBox[0];

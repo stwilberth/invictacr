@@ -23,7 +23,7 @@ class MetaApiController extends Controller
         $xml .= '<title>Invicta Costa Rica</title><link>' . config('app.url') . '</link>';
 
         foreach ($products as $product) {
-            $price = $product->precio_venta * (1 - ($product->descuento ?? 0) / 100);
+            $price = $product->precio_final;
             $xml .= '<item>';
             $xml .= "<g:id>{$product->modelo}</g:id>";
             $xml .= "<g:title>Reloj Invicta {$product->modelo}</g:title>";

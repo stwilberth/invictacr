@@ -41,11 +41,7 @@ class CatalogController extends Controller
                 $modelo = preg_replace('/^invicta-/i', '', $product->modelo ?? '');
                 $id = $modelo !== '' ? $modelo : $product->slug;
                 $stock = (int) $product->stock;
-                $precioVenta = (float) $product->precio_venta;
-                $descuento = (int) ($product->descuento ?? 0);
-                $precioFinal = $descuento > 0
-                    ? $precioVenta * (1 - $descuento / 100)
-                    : $precioVenta;
+                $precioFinal = $product->precio_final;
 
                 $nombre = mb_substr($product->display_title, 0, 200);
 
@@ -156,7 +152,7 @@ class CatalogController extends Controller
                 $modelo = preg_replace('/^invicta-/i', '', $product->modelo ?? '');
                 $slug = $product->slug;
                 $stock = (int) $product->stock;
-                $precioVenta = (float) $product->precio_venta;
+                $precioFinal = $product->precio_final;
 
                 $coleccion = $product->coleccion ? trim($product->coleccion) : '';
                 $coleccionLabel = $coleccion && strtolower($coleccion) !== 'otros'
@@ -177,7 +173,7 @@ class CatalogController extends Controller
                 $gender = mb_strtolower($product->genero ?? 'unisex');
                 $productUrl = "{$baseUrl}/relojes/{$slug}";
                 $availability = $stock > 0 && ($product->disponibilidad ?? 'disponible') !== 'agotado' ? 'in stock' : 'out of stock';
-                $price = number_format($precioVenta, 2, '.', '') . ' CRC';
+                $price = number_format($precioFinal, 2, '.', '') . ' CRC';
 
                 $xmlItems .= '
         <item>

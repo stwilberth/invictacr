@@ -86,7 +86,7 @@ class InvoiceCreate extends Component
         $product = \App\Models\Product::findOrFail($id);
         $this->newItemName = $product->title;
         $this->newItemModel = $product->modelo;
-        $this->newItemPrice = $product->precio_venta;
+        $this->newItemPrice = $product->precio_final;
         $this->newItemCost = $product->precio_costo;
         $this->productSearch = '';
     }

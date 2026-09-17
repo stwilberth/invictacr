@@ -43,7 +43,7 @@ class MarketingApiController extends Controller
         $request->validate(['producto_id' => 'required|exists:products,id']);
         $product = Product::findOrFail($request->producto_id);
 
-        $price = $product->precio_venta * (1 - ($product->descuento ?? 0) / 100);
+        $price = $product->precio_final;
 
         return response()->json([
             'title' => "🔥 Reloj Invicta {$product->modelo} - ¡Original!",

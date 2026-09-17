@@ -4,7 +4,8 @@
     $productUrl = route('products.show', [
         'slug' => $product->slug,
     ]);
-    $priceAfterDiscount = $product->precio_venta * (1 - ($product->descuento ?? 0) / 100);
+    $priceAfterDiscount = $product->precio_final;
+    $priceBaseFinal = \App\Models\Product::precioConIva($product->precio_venta ?? 0);
     $genderLabel = match (strtolower($product->genero ?? '')) {
         'hombre' => 'Hombre',
         'mujer' => 'Mujer',
@@ -45,11 +46,10 @@
             <div class="flex flex-col">
                 <span class="text-sm sm:text-base font-black text-white">
                     ₡{{ number_format($priceAfterDiscount, 0) }}
-                    <span class="text-[9px] sm:text-[10px] font-bold text-white/60">+ IVA</span>
                 </span>
                 @if(($product->descuento ?? 0) > 0)
                     <span class="text-[9px] sm:text-[10px] font-bold text-white/40 line-through">
-                        ₡{{ number_format($product->precio_venta, 0) }}
+                        ₡{{ number_format($priceBaseFinal, 0) }}
                     </span>
                 @endif
             </div>

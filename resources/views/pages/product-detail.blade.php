@@ -17,7 +17,7 @@
     // Para JSON-LD Product schema Google prefiere la foto real del producto (no video thumb ni OG wrapper)
     $schemaImage = collect($galleryItemsForLcp)->firstWhere('type', 'image')['url'] ?? $lcpImageUrl ?: $ogImage;
 
-    $priceFmt = '₡' . number_format((float) ($product->price_after_discount ?? $product->precio_venta ?? 0), 0);
+    $priceFmt = '₡' . number_format((float) ($product->precio_final ?? 0), 0);
     $descParts = array_filter([
         $product->coleccion && strtolower($product->coleccion) !== 'otros' ? $product->coleccion : null,
         $product->size ? $size . ' mm' : null,
@@ -28,7 +28,7 @@
         ?: ('Reloj Invicta ' . ($descParts ? implode(' · ', $descParts) . ' ' : '') . ($isUpcomingForSeo ? '— Próximamente. ' : '— ' . $priceFmt . '. ') . 'Envío gratis en GAM. Pago contra entrega. WhatsApp +506 8671-1422.');
 
     $productName = 'Reloj Invicta ' . ($product->coleccion && strtolower($product->coleccion) !== 'otros' ? $product->coleccion . ' ' : '') . ($product->genero && strtolower($product->genero) !== 'unisex' ? 'para ' . $product->genero . ' ' : '') . '(' . $product->modelo . ')';
-    $price = $product->price_after_discount ?? $product->precio_venta ?? 0;
+    $price = $product->precio_final ?? 0;
     $availability = ($product->stock ?? 0) > 0 && ($product->disponibilidad ?? 'disponible') !== 'agotado' ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock';
 @endphp
 @push('json-ld')
@@ -93,8 +93,9 @@
         $isAgotado = ($product->stock ?? 0) <= 0 || ($product->disponibilidad ?? 'disponible') === 'agotado';
         $isUpcoming = $product->proximo || $product->precio_venta <= 0;
         $isUpcomingYAgotado = $isUpcoming && $isAgotado;
-        $priceAfterDiscount = $product->price_after_discount;
-        $apartadoMinimo = round((float) ($priceAfterDiscount ?? $product->precio_venta ?? 0) * 0.2, -3);
+        $priceAfterDiscount = $product->precio_final;
+        $priceBaseFinal = \App\Models\Product::precioConIva($product->precio_venta ?? 0);
+        $apartadoMinimo = (float) $priceAfterDiscount > 0 ? round($priceAfterDiscount * 0.2, -3) : 0;
         $whatsappBuy = 'https://wa.me/50686711422?text=' . urlencode("¡Hola! Me interesa el reloj Invicta {$product->modelo}");
         $whatsappApartado = 'https://wa.me/50686711422?text=' . urlencode("¡Hola! Quiero apartar el reloj Invicta {$product->modelo}");
         $shareLinkFor = fn(string $source): string => url()->current() . '?utm_source=' . $source . '&utm_medium=compartir&utm_campaign=ficha_producto';
@@ -186,10 +187,10 @@
                         <div class="flex items-center justify-between gap-2 w-full">
                             <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1 min-w-0">
                             <span class="text-2xl md:text-[40px] leading-none font-black text-[#0A7CFF] tracking-tight">₡{{ number_format($priceAfterDiscount, 0) }}</span>
-                            <span class="text-sm font-bold text-gray-400 ml-2">+ IVA</span>
+                            <span class="text-sm font-bold text-gray-400 ml-2">IVA incluido</span>
                             @if(($product->descuento ?? 0) > 0)
                             <div class="flex items-center gap-2">
-                                <span class="text-sm text-gray-400 line-through font-medium">₡{{ number_format($product->precio_venta, 0) }}</span>
+                                <span class="text-sm text-gray-400 line-through font-medium">₡{{ number_format($priceBaseFinal, 0) }}</span>
                                 <span class="bg-red-500 text-white text-[11px] font-black px-2.5 py-1 rounded-lg shadow-sm">-{{ $product->descuento }}% OFF</span>
                             </div>
                             @endif
@@ -407,7 +408,7 @@
     <script>
         var pixelModel = "{{ $product->modelo }}";
         var pixelTitle = "{{ $product->title }}";
-        var pixelPrice = {{ $product->precio_venta }};
+        var pixelPrice = {{ $product->precio_final }};
         window.invictaProductId = {{ $product->id }};
 
         if (typeof fbq !== "undefined") {

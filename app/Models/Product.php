@@ -124,6 +124,43 @@ class Product extends Model
         return $this->precio_venta;
     }
 
+    /**
+     * Precio final que paga el cliente: base neta + 13% IVA,
+     * redondeado hacia arriba a múltiplos de 500 colones.
+     *
+     * La BD guarda precios netos (precio_venta); el impuesto
+     * se aplica solo al mostrar/cobrar. Ver config pricing.iva_percent.
+     *
+     * @return int Múltiplo de 500 (0 si la base no es positiva).
+     */
+    public static function precioConIva(int|float|string $montoNeto): int
+    {
+        $base = trim((string) $montoNeto);
+        if ($base === '' || !is_numeric($base) || (float) $base <= 0) {
+            return 0;
+        }
+
+        $iva = (float) config('pricing.iva_percent', 13);
+        $gross = bcmul($base, bcadd('1', bcdiv((string) $iva, '100', 6), 6), 6);
+        $div = bcdiv($gross, '500', 6);
+
+        // ceil exacto con BCMath (bcadd con escala 0 trunca).
+        $entero = bcadd($div, '0', 0);
+        if (bccomp($div, $entero, 6) > 0) {
+            $entero = bcadd($entero, '1', 0);
+        }
+
+        return (int) bcmul($entero, '500', 0);
+    }
+
+    /**
+     * Precio final unitario con descuento aplicado + IVA + redondeo a 500.
+     */
+    public function getPrecioFinalAttribute(): int
+    {
+        return static::precioConIva($this->price_after_discount ?? $this->precio_venta ?? 0);
+    }
+
     public function getIsUpcomingAttribute()
     {
         return $this->proximo;

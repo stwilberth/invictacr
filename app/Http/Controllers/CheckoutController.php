@@ -111,12 +111,11 @@ class CheckoutController extends Controller
 
             foreach ($cart->items as $item) {
                 $product = $item->product;
-                $lineSubtotal = $product->precio_venta * $item->quantity;
-                $lineDiscount = $product->descuento > 0
-                    ? $lineSubtotal * ($product->descuento / 100)
-                    : 0;
-                $subtotal += $lineSubtotal;
-                $discount += $lineDiscount;
+                // Precios finales con IVA (base redondeada vs. con descuento).
+                $lineBase = \App\Models\Product::precioConIva($product->precio_venta) * $item->quantity;
+                $lineFinal = $product->precio_final * $item->quantity;
+                $subtotal += $lineBase;
+                $discount += $lineBase - $lineFinal;
 
                 if ($product->precio_costo !== null && $product->precio_costo !== '') {
                     $totalCost += $product->precio_costo * $item->quantity;
@@ -175,7 +174,7 @@ class CheckoutController extends Controller
 
             foreach ($cart->items as $item) {
                 $product = $item->product;
-                $lineSubtotal = $product->precio_venta * $item->quantity;
+                $lineFinal = $product->precio_final * $item->quantity;
 
                 InvoiceItem::create([
                     'invoice_id' => $invoice->id,
@@ -183,9 +182,9 @@ class CheckoutController extends Controller
                     'product_name' => $product->title,
                     'product_model' => $product->modelo,
                     'quantity' => $item->quantity,
-                    'unit_price' => $product->precio_venta,
+                    'unit_price' => $product->precio_final,
                     'unit_cost' => $product->precio_costo,
-                    'subtotal' => $lineSubtotal,
+                    'subtotal' => $lineFinal,
                 ]);
 
                 $newStock = $product->stock - $item->quantity;

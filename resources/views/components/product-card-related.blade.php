@@ -1,7 +1,8 @@
 @props(['product'])
 @php
     $productUrl = route('products.show', ['slug' => $product->slug]);
-    $priceAfterDiscount = $product->precio_venta * (1 - ($product->descuento ?? 0) / 100);
+    $priceAfterDiscount = $product->precio_final;
+    $priceBaseFinal = \App\Models\Product::precioConIva($product->precio_venta ?? 0);
     $model = preg_replace('/^invicta-/i', '', $product->modelo ?? '');
     $cdnBase = 'https://cdn.invictacostarica.com';
 
@@ -70,10 +71,9 @@
                 <div class="flex flex-col items-center w-full">
                     <div class="flex items-baseline gap-1 md:gap-2 justify-center">
                         @if(($product->descuento ?? 0) > 0)
-                            <span class="text-[10px] text-slate-400 dark:text-slate-500 line-through">₡{{ number_format($product->precio_venta, 0) }}</span>
+                            <span class="text-[10px] text-slate-400 dark:text-slate-500 line-through">₡{{ number_format($priceBaseFinal, 0) }}</span>
                         @endif
                         <span class="text-sm font-bold text-red-600 dark:text-red-500 tracking-tighter">₡{{ number_format($priceAfterDiscount, 0) }}</span>
-                        <span class="text-[9px] font-bold text-slate-400 dark:text-slate-500">+ IVA</span>
                     </div>
                 </div>
             @else

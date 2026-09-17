@@ -2,7 +2,8 @@
 @php
     $productUrl = route('products.show', ['slug' => $product->slug]);
     $whatsappLink = 'https://wa.me/50686711422?text=' . urlencode("Hola, me interesa el reloj Invicta {$product->modelo}: " . url($productUrl));
-    $priceAfterDiscount = $product->precio_venta * (1 - ($product->descuento ?? 0) / 100);
+    $priceAfterDiscount = $product->precio_final;
+    $priceBaseFinal = \App\Models\Product::precioConIva($product->precio_venta ?? 0);
     $apartadoMinimo = (float) $priceAfterDiscount > 0 ? round($priceAfterDiscount * 0.2, -3) : 0;
     $model = preg_replace('/^invicta-/i', '', $product->modelo ?? '');
     $cdnBase = 'https://cdn.invictacostarica.com';
@@ -85,7 +86,6 @@
                 <span class="text-[9px] md:text-xs font-bold px-2 py-1 bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 rounded-md uppercase tracking-wide">Próximamente</span>
             @elseif($product->precio_venta > 0)
                 <span class="text-base md:text-xl font-black text-red-600 dark:text-red-500 tracking-tighter">₡{{ number_format($priceAfterDiscount, 0) }}</span>
-                <span class="text-[10px] md:text-xs font-bold text-gray-400 dark:text-gray-500">+ IVA</span>
             @else
                 <span class="text-[9px] md:text-xs font-bold px-2 py-1 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-md uppercase tracking-wide">Agotado</span>
             @endif

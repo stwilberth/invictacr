@@ -109,7 +109,7 @@
                                 <span class="text-base font-bold text-gray-900 dark:text-white">Total</span>
                                 <div class="text-right">
                                     <span class="text-xl font-black text-red-600 dark:text-red-400">₡{{ number_format($cart->total, 0) }}</span>
-                                    <p class="text-[10px] font-medium text-gray-400 dark:text-gray-500 leading-none">IVA incluido • Envío gratis</p>
+                                    <p class="text-[10px] font-medium text-gray-400 dark:text-gray-500 leading-none">Envío gratis</p>
                                 </div>
                             </div>
                         </div>

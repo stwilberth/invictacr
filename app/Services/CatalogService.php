@@ -298,13 +298,19 @@ class CatalogService
         $minVal = trim($min) === '' ? null : (float) $min;
         $maxVal = trim($max) === '' ? null : (float) $max;
 
-        return $products->filter(function (Product $p) use ($minVal, $maxVal) {
+        // El usuario filtra por precio final (con IVA); la BD guarda netos.
+        // Conversión inversa aproximada (el redondeo a 500 introduce ±500 de tolerancia).
+        $ivaFactor = 1 + ((float) config('pricing.iva_percent', 13) / 100);
+        $netMin = $minVal !== null ? max(0, ($minVal - 500) / $ivaFactor) : null;
+        $netMax = $maxVal !== null ? $maxVal / $ivaFactor : null;
+
+        return $products->filter(function (Product $p) use ($netMin, $netMax) {
             $price = (float) $p->precio_venta;
 
-            if ($minVal !== null && $price < $minVal) {
+            if ($netMin !== null && $price < $netMin) {
                 return false;
             }
-            if ($maxVal !== null && $price > $maxVal) {
+            if ($netMax !== null && $price > $netMax) {
                 return false;
             }
 

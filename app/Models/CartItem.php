@@ -21,14 +21,7 @@ class CartItem extends Model
 
     public function getLineTotalAttribute(): float
     {
-        $product = $this->product;
-        if (!$product) return 0;
-
-        $price = $product->descuento > 0
-            ? $product->precio_venta * (1 - $product->descuento / 100)
-            : $product->precio_venta;
-
-        return $price * $this->quantity;
+        return $this->unit_price * $this->quantity;
     }
 
     public function getUnitPriceAttribute(): float
@@ -36,8 +29,7 @@ class CartItem extends Model
         $product = $this->product;
         if (!$product) return 0;
 
-        return $product->descuento > 0
-            ? $product->precio_venta * (1 - $product->descuento / 100)
-            : $product->precio_venta;
+        // Precio final con IVA incluido (13% + redondeo a 500).
+        return $product->precio_final;
     }
 }
