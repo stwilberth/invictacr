@@ -116,15 +116,17 @@
     </table>
     @php
         $totalAbonado = $invoice->abonos->sum('amount');
-        $saldo = $invoice->total - $totalAbonado;
+        $saldo = round($invoice->total - $totalAbonado, 2);
     @endphp
     <table width="100%" cellpadding="0" cellspacing="0">
         <tr>
             <td width="60%">&nbsp;</td>
             <td width="40%" align="right" style="padding: 5px 10px;">
                 <span style="font-size: 10px; color: #555; font-weight: bold;">Total Abonado: CRC {{ number_format($totalAbonado, 0) }}</span><br/>
-                @if($saldo > 0)
+                @if($saldo > 0.009)
                     <span style="font-size: 10px; color: #e63946; font-weight: bold;">Saldo Pendiente: CRC {{ number_format($saldo, 0) }}</span>
+                @elseif($saldo < -0.009)
+                    <span style="font-size: 10px; color: #b45309; font-weight: bold;">Sobrepago: CRC {{ number_format(abs($saldo), 0) }}</span>
                 @else
                     <span style="font-size: 10px; color: #2a9d8f; font-weight: bold;">Pagado</span>
                 @endif

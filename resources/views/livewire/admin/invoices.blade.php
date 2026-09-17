@@ -20,7 +20,7 @@
             <div class="text-xs text-gray-500 uppercase tracking-wider font-bold">Total Vendido</div>
             <div class="text-2xl font-black text-green-600 dark:text-green-400 mt-1">₡{{ number_format($totals->totalAmount, 0) }}</div>
         </div>
-        @if($filterStatus === 'apartado')
+        @if($filterStatus === 'apartado' || $filterAbonos === 'con_abonos')
         <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-4">
             <div class="text-xs text-gray-500 uppercase tracking-wider font-bold">Total Abonado</div>
             <div class="text-2xl font-black text-green-500 mt-1">₡{{ number_format($totals->totalAbonado, 0) }}</div>
@@ -112,7 +112,7 @@
                     'cancelado' => 'Cancelado',
                 ];
                 $totalAbonos = $invoice->abonos->sum('amount');
-                $saldo = $invoice->total - $totalAbonos;
+                $saldo = round($invoice->total - $totalAbonos, 2);
             @endphp
             <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-4">
                 <div class="flex justify-between items-start gap-2 mb-2">
@@ -159,8 +159,12 @@
                 @if($totalAbonos > 0)
                     <div class="border-t border-gray-100 dark:border-white/5 pt-2 text-xs">
                         <span class="text-gray-500">Abonos: ₡{{ number_format($totalAbonos, 0) }}</span>
-                        @if($saldo > 0)
+                        @if($saldo > 0.009)
                             <span class="text-red-500 font-bold block">Saldo: ₡{{ number_format($saldo, 0) }}</span>
+                        @elseif($saldo < -0.009)
+                            <span class="text-amber-600 font-bold block">Sobrepago: ₡{{ number_format(abs($saldo), 0) }}</span>
+                        @else
+                            <span class="text-green-600 font-bold block">Pagado</span>
                         @endif
                     </div>
                 @endif
@@ -258,12 +262,16 @@
                     <td class="px-4 py-3 text-right text-gray-600 dark:text-gray-400 text-xs">
                         @php
                             $totalAbonos = $invoice->abonos->sum('amount');
-                            $saldo = $invoice->total - $totalAbonos;
+                            $saldo = round($invoice->total - $totalAbonos, 2);
                         @endphp
                         @if($totalAbonos > 0)
                             <div>₡{{ number_format($totalAbonos, 0) }}</div>
-                            @if($saldo > 0)
+                            @if($saldo > 0.009)
                                 <div class="text-red-500 font-bold">Saldo: ₡{{ number_format($saldo, 0) }}</div>
+                            @elseif($saldo < -0.009)
+                                <div class="text-amber-600 font-bold">Sobrepago: ₡{{ number_format(abs($saldo), 0) }}</div>
+                            @else
+                                <div class="text-green-600 font-bold">Pagado</div>
                             @endif
                         @else
                             -

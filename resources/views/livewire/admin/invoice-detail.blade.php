@@ -149,11 +149,23 @@
                             <td class="pt-3 text-right text-green-600">₡{{ number_format($invoice->abonos->sum('amount'), 0) }}</td>
                             <td colspan="3"></td>
                         </tr>
-                        @php $saldo = $invoice->total - $invoice->abonos->sum('amount'); @endphp
-                        @if($saldo > 0)
+                        @php $saldo = round($invoice->total - $invoice->abonos->sum('amount'), 2); @endphp
+                        @if($saldo > 0.009)
                         <tr class="font-bold">
                             <td class="text-xs text-red-500">Saldo pendiente</td>
                             <td class="text-right text-red-500">₡{{ number_format($saldo, 0) }}</td>
+                            <td colspan="3"></td>
+                        </tr>
+                        @elseif($saldo < -0.009)
+                        <tr class="font-bold">
+                            <td class="text-xs text-amber-600">Sobrepago</td>
+                            <td class="text-right text-amber-600">₡{{ number_format(abs($saldo), 0) }} de más</td>
+                            <td colspan="3"></td>
+                        </tr>
+                        @else
+                        <tr class="font-bold">
+                            <td class="text-xs text-green-600">Estado</td>
+                            <td class="text-right text-green-600">Pagado</td>
                             <td colspan="3"></td>
                         </tr>
                         @endif
@@ -196,11 +208,21 @@
                             <span class="text-xs text-gray-500">Total abonado</span>
                             <span class="text-green-600">₡{{ number_format($invoice->abonos->sum('amount'), 0) }}</span>
                         </div>
-                        @php $saldo = $invoice->total - $invoice->abonos->sum('amount'); @endphp
-                        @if($saldo > 0)
+                        @php $saldo = round($invoice->total - $invoice->abonos->sum('amount'), 2); @endphp
+                        @if($saldo > 0.009)
                         <div class="flex justify-between text-sm font-bold">
                             <span class="text-xs text-red-500">Saldo pendiente</span>
                             <span class="text-red-500">₡{{ number_format($saldo, 0) }}</span>
+                        </div>
+                        @elseif($saldo < -0.009)
+                        <div class="flex justify-between text-sm font-bold">
+                            <span class="text-xs text-amber-600">Sobrepago</span>
+                            <span class="text-amber-600">₡{{ number_format(abs($saldo), 0) }} de más</span>
+                        </div>
+                        @else
+                        <div class="flex justify-between text-sm font-bold">
+                            <span class="text-xs text-green-600">Estado</span>
+                            <span class="text-green-600">Pagado</span>
                         </div>
                         @endif
                     </div>
@@ -529,11 +551,23 @@
                             <td class="pt-3 text-right text-green-600">₡{{ number_format($invoice->abonos->sum('amount'), 0) }}</td>
                             <td colspan="3"></td>
                         </tr>
-                        @php $saldo = $invoice->total - $invoice->abonos->sum('amount'); @endphp
-                        @if($saldo > 0)
+                        @php $saldo = round($invoice->total - $invoice->abonos->sum('amount'), 2); @endphp
+                        @if($saldo > 0.009)
                         <tr class="font-bold">
                             <td class="text-xs text-red-500">Saldo pendiente</td>
                             <td class="text-right text-red-500">₡{{ number_format($saldo, 0) }}</td>
+                            <td colspan="3"></td>
+                        </tr>
+                        @elseif($saldo < -0.009)
+                        <tr class="font-bold">
+                            <td class="text-xs text-amber-600">Sobrepago</td>
+                            <td class="text-right text-amber-600">₡{{ number_format(abs($saldo), 0) }} de más</td>
+                            <td colspan="3"></td>
+                        </tr>
+                        @else
+                        <tr class="font-bold">
+                            <td class="text-xs text-green-600">Estado</td>
+                            <td class="text-right text-green-600">Pagado</td>
                             <td colspan="3"></td>
                         </tr>
                         @endif
@@ -576,11 +610,21 @@
                             <span class="text-xs text-gray-500">Total abonado</span>
                             <span class="text-green-600">₡{{ number_format($invoice->abonos->sum('amount'), 0) }}</span>
                         </div>
-                        @php $saldo = $invoice->total - $invoice->abonos->sum('amount'); @endphp
-                        @if($saldo > 0)
+                        @php $saldo = round($invoice->total - $invoice->abonos->sum('amount'), 2); @endphp
+                        @if($saldo > 0.009)
                         <div class="flex justify-between text-sm font-bold">
                             <span class="text-xs text-red-500">Saldo pendiente</span>
                             <span class="text-red-500">₡{{ number_format($saldo, 0) }}</span>
+                        </div>
+                        @elseif($saldo < -0.009)
+                        <div class="flex justify-between text-sm font-bold">
+                            <span class="text-xs text-amber-600">Sobrepago</span>
+                            <span class="text-amber-600">₡{{ number_format(abs($saldo), 0) }} de más</span>
+                        </div>
+                        @else
+                        <div class="flex justify-between text-sm font-bold">
+                            <span class="text-xs text-green-600">Estado</span>
+                            <span class="text-green-600">Pagado</span>
                         </div>
                         @endif
                     </div>

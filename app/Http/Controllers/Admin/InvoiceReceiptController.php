@@ -25,6 +25,21 @@ class InvoiceReceiptController extends Controller
             'receipt' => 'nullable|image|mimes:jpeg,png,webp,gif|max:10240',
         ]);
 
+        $totalAbonado = (float) $invoice->abonos()->sum('amount');
+        $saldo = round((float) $invoice->total - $totalAbonado, 2);
+
+        if ($saldo <= 0) {
+            return redirect()->route('admin.invoices.detail', $invoice->id)
+                ->withErrors(['amount' => 'Esta factura ya está pagada. No se pueden agregar más abonos.'])
+                ->withInput();
+        }
+
+        if (round((float) $data['amount'], 2) > $saldo) {
+            return redirect()->route('admin.invoices.detail', $invoice->id)
+                ->withErrors(['amount' => 'El monto supera el saldo pendiente de ₡' . number_format($saldo, 0) . '.'])
+                ->withInput();
+        }
+
         $abono = Abono::create([
             'invoice_id' => $invoice->id,
             'amount' => $data['amount'],
@@ -37,7 +52,7 @@ class InvoiceReceiptController extends Controller
         }
 
         return redirect()->route('admin.invoices.detail', $invoice->id)
-            ->with('message', 'Abono agregado.');
+            ->with('message', 'Abono agregado. Abonos: ' . $invoice->abonos->pluck('amount')->sum());
     }
 
     /**
