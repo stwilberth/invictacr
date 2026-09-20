@@ -114,6 +114,10 @@ class Product extends Model
 
         // Cambia la versión del catálogo: invalida la lista base y todos los grids cacheados
         cache()->increment('product:catalog:version');
+        // Las señales de Destacados (ventas/intención) se recalculan solas por TTL;
+        // aquí solo se invalidan si cambió el catálogo (nuevo/agotado) para
+        // refrescar el bonus de novedad y la penalización de stock.
+        cache()->forget('product:featured:signals:v1');
     }
 
     public function getPriceAfterDiscountAttribute()

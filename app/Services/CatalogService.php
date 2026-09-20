@@ -320,6 +320,14 @@ class CatalogService
 
     private function applyOrdering(Collection $products, string $sort): Collection
     {
+        // Orden "Destacados": vitrina merchandeada (ventas + intención +
+        // interés + novedad ponderada). Es el default por marketing: los
+        // best-sellers que ya convierten van arriba, no las novedades sin
+        // validar ni el precio más bajo (que ancla barato).
+        if ($sort === '' || $sort === 'featured') {
+            return $this->applyFeaturedOrdering($products);
+        }
+
         [$field, $dir] = match ($sort) {
             'price_asc' => ['precio_venta', 'asc'],
             'price_desc' => ['precio_venta', 'desc'],
@@ -327,7 +335,6 @@ class CatalogService
             'name_desc' => ['title', 'desc'],
             'newest' => ['created_at', 'desc'],
             'most_viewed' => ['vistas', 'desc'],
-            // Sin orden elegido: primero los más nuevos
             default => ['created_at', 'desc'],
         };
 
@@ -352,6 +359,142 @@ class CatalogService
         $upcoming = $sorted->filter(fn (Product $p) => (bool) $p->proximo)->values();
 
         return $available->concat($upcoming);
+    }
+
+    /**
+     * Orden "Destacados" (default de /relojes por marketing).
+     *
+     * Score determinista (sin azar, estable para SEO) que combina:
+     *  - Ventas reales (invoice_items, excluye facturas anuladas): peso mayor.
+     *  - Intención reciente 90d (visitor_events whatsapp_click/add_to_cart).
+     *  - Interés acumulado (vistas, en log para no dominar).
+     *  - Merchandising: con descuento, con video, novedad ponderada.
+     *  - Penaliza agotados/sin precio para que no ocupen la vitrina.
+     *
+     * Los "próximos" siempre van al final (igual que el resto de órdenes).
+     */
+    private function applyFeaturedOrdering(Collection $products): Collection
+    {
+        $signals = $this->featuredSignals();
+
+        $scored = $products->map(function (Product $p) use ($signals) {
+            $id = (int) $p->id;
+
+            $sold = (int) ($signals['sold'][$id] ?? 0);
+            $whatsapp = (int) ($signals['whatsapp'][$id] ?? 0);
+            $cart = (int) ($signals['cart'][$id] ?? 0);
+            $views = (int) ($p->vistas ?? 0);
+
+            $score = min($sold, 20) * 10
+                + min($whatsapp, 30) * 5
+                + min($cart, 30) * 3
+                + log10($views + 1) * 20;
+
+            if ((int) ($p->descuento ?? 0) > 0) {
+                $score += 15;
+            }
+            if (! empty($p->video_uid)) {
+                $score += 10;
+            }
+
+            // Novedad ponderada: inyecta 2-3 nuevos al top sin dominarlo.
+            try {
+                $created = $p->created_at ? \Carbon\Carbon::parse($p->created_at) : null;
+                if ($created) {
+                    $days = $created->diffInDays(now());
+                    if ($days <= 30) {
+                        $score += 25;
+                    } elseif ($days <= 60) {
+                        $score += 12;
+                    }
+                }
+            } catch (\Throwable $e) {
+                //
+            }
+
+            // Agotados/sin precio no deben ocupar la vitrina (en búsquedas
+            // pueden aparecer, pero al fondo del grupo disponible).
+            if ((int) ($p->stock ?? 0) <= 0 || (float) ($p->precio_venta ?? 0) <= 0) {
+                $score -= 500;
+            }
+
+            return ['product' => $p, 'score' => $score];
+        });
+
+        // Score desc, desempate: más nuevos primero, luego id (estable/SEO).
+        $sorted = $scored->sort(function ($a, $b) {
+            if ($a['score'] !== $b['score']) {
+                return $b['score'] <=> $a['score'];
+            }
+            $ca = (string) ($a['product']->created_at ?? '');
+            $cb = (string) ($b['product']->created_at ?? '');
+            if ($ca !== $cb) {
+                return $cb <=> $ca;
+            }
+
+            return (int) $b['product']->id <=> (int) $a['product']->id;
+        })->map(fn ($row) => $row['product'])->values();
+
+        $available = $sorted->filter(fn (Product $p) => ! (bool) $p->proximo)->values();
+        $upcoming = $sorted->filter(fn (Product $p) => (bool) $p->proximo)->values();
+
+        return $available->concat($upcoming);
+    }
+
+    /**
+     * Señales agregadas para Destacados, cacheadas 6h. Falla en vacío
+     * (el orden degrada a vistas+novedad) para nunca romper el catálogo.
+     *
+     * @return array{sold: array<int,int>, whatsapp: array<int,int>, cart: array<int,int>}
+     */
+    private function featuredSignals(): array
+    {
+        try {
+            return cache()->remember('product:featured:signals:v1', now()->addHours(6), function () {
+                $sold = [];
+                try {
+                    $rows = \Illuminate\Support\Facades\DB::table('invoice_items')
+                        ->join('invoices', 'invoices.id', '=', 'invoice_items.invoice_id')
+                        ->where('invoices.status', '!=', 'cancelled')
+                        ->whereNotNull('invoice_items.product_id')
+                        ->groupBy('invoice_items.product_id')
+                        ->selectRaw('invoice_items.product_id as product_id, SUM(invoice_items.quantity) as qty')
+                        ->get();
+                    foreach ($rows as $row) {
+                        $sold[(int) $row->product_id] = (int) $row->qty;
+                    }
+                } catch (\Throwable $e) {
+                    //
+                }
+
+                $whatsapp = [];
+                $cart = [];
+                try {
+                    $since = now()->subDays(90);
+                    $rows = \Illuminate\Support\Facades\DB::table('visitor_events')
+                        ->whereIn('type', ['whatsapp_click', 'add_to_cart'])
+                        ->where('created_at', '>=', $since)
+                        ->whereNotNull('product_id')
+                        ->groupBy('product_id', 'type')
+                        ->selectRaw('product_id, type, COUNT(*) as c')
+                        ->get();
+                    foreach ($rows as $row) {
+                        $pid = (int) $row->product_id;
+                        if ($row->type === 'whatsapp_click') {
+                            $whatsapp[$pid] = (int) $row->c;
+                        } elseif ($row->type === 'add_to_cart') {
+                            $cart[$pid] = (int) $row->c;
+                        }
+                    }
+                } catch (\Throwable $e) {
+                    //
+                }
+
+                return ['sold' => $sold, 'whatsapp' => $whatsapp, 'cart' => $cart];
+            });
+        } catch (\Throwable $e) {
+            return ['sold' => [], 'whatsapp' => [], 'cart' => []];
+        }
     }
 
     private function tokenize(string $text): array

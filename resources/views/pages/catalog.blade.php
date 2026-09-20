@@ -62,7 +62,8 @@
                                 onchange="window.CatalogManager && window.CatalogManager.setFilter('sort', this.value)"
                                 class="min-w-0 bg-transparent text-white appearance-none -webkit-appearance-none uppercase text-xs font-black text-center focus:outline-none transition-all"
                             >
-                                <option value="" {{ (!request('sort') || request('sort') === 'newest') ? 'selected' : '' }}>Más nuevos</option>
+                                <option value="" {{ (!request('sort') || request('sort') === 'featured') ? 'selected' : '' }}>Destacados</option>
+                                <option value="newest" {{ request('sort') === 'newest' ? 'selected' : '' }}>Más nuevos</option>
                                 <option value="most_viewed" {{ request('sort') === 'most_viewed' ? 'selected' : '' }}>Más vistos</option>
                                 <option value="price_asc" {{ request('sort') === 'price_asc' ? 'selected' : '' }}>Precio: menor a mayor</option>
                                 <option value="price_desc" {{ request('sort') === 'price_desc' ? 'selected' : '' }}>Precio: mayor a menor</option>
@@ -155,7 +156,8 @@
                                 onchange="window.CatalogManager && window.CatalogManager.setFilter('sort', this.value)"
                                 class="min-w-0 bg-transparent text-white appearance-none -webkit-appearance-none uppercase text-xs font-black text-center focus:outline-none transition-all"
                             >
-                                <option value="" {{ (!request('sort') || request('sort') === 'newest') ? 'selected' : '' }}>Más nuevos</option>
+                                <option value="" {{ (!request('sort') || request('sort') === 'featured') ? 'selected' : '' }}>Destacados</option>
+                                <option value="newest" {{ request('sort') === 'newest' ? 'selected' : '' }}>Más nuevos</option>
                                 <option value="most_viewed" {{ request('sort') === 'most_viewed' ? 'selected' : '' }}>Más vistos</option>
                                 <option value="price_asc" {{ request('sort') === 'price_asc' ? 'selected' : '' }}>Precio: menor a mayor</option>
                                 <option value="price_desc" {{ request('sort') === 'price_desc' ? 'selected' : '' }}>Precio: mayor a menor</option>
@@ -252,6 +254,7 @@
 
             var state = {
                 abortController: null,
+                moreController: null,
                 searchTimer: null,
                 filters: {},
                 total: 0,
@@ -367,6 +370,11 @@
             function applyFilters(filters, pushHistory) {
                 if (state.abortController) state.abortController.abort();
                 state.abortController = new AbortController();
+                // Un "cargar más" en vuelo queda obsoleto con los filtros
+                // nuevos: cancelarlo y liberar el flag para que el spinner
+                // del sentinel no se quede pegado.
+                if (state.moreController) state.moreController.abort();
+                state.loadingMore = false;
                 var gen = ++state.gen;
 
                 state.filters = filters || {};
@@ -474,21 +482,24 @@
                 var gen = state.gen;
                 updateSentinelUI(true);
 
-                if (state.abortController) state.abortController.abort();
-                state.abortController = new AbortController();
+                // Controlador propio (no comparte el de filtros): si el
+                // usuario cambia un filtro a mitad de carga, esa respuesta
+                // se descarta por generación sin dejar la ruedita pegada.
+                if (state.moreController) state.moreController.abort();
+                state.moreController = new AbortController();
 
                 var fetchUrl = buildFetchURL(state.filters);
                 fetchUrl.searchParams.set('offset', String(state.loaded));
                 fetchUrl.searchParams.set('limit', String(state.pageSize));
 
-                fetch(fetchUrl.toString(), { signal: state.abortController.signal })
+                fetch(fetchUrl.toString(), { signal: state.moreController.signal })
                     .then(function(res) {
                         if (!res.ok) throw new Error('Fetch failed');
                         return res.json();
                     })
                     .then(function(data) {
-                        if (gen !== state.gen) return;
                         state.loadingMore = false;
+                        if (gen !== state.gen) return;
 
                         if (data.html && els.grid) {
                             els.grid.insertAdjacentHTML('beforeend', data.html);
@@ -509,9 +520,12 @@
                         });
                     })
                     .catch(function(e) {
+                        // Siempre liberar el flag: si queda en true el
+                        // sentinel cree que sigue cargando y el texto
+                        // "Cargando más relojes…" se queda pegado.
+                        state.loadingMore = false;
                         if (e.name === 'AbortError') return;
                         if (gen !== state.gen) return;
-                        state.loadingMore = false;
                         updateSentinelUI(false);
                     });
             }
