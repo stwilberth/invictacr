@@ -10,11 +10,30 @@ class StoryArt extends Component
 {
     use WithPagination;
 
+    public $channelFilter = '';
+    public $sortBy = 'latest';
+
     public function render()
     {
-        $stories = StoryHistory::with('product')->latest()->paginate(12);
+        $query = StoryHistory::with('product');
 
-        return view('livewire.admin.story-art', compact('stories'))
+        if ($this->channelFilter) {
+            $query->where('channel', $this->channelFilter);
+        }
+
+        $query->orderBy($this->sortBy === 'views' ? 'views' : 'created_at', 'desc');
+
+        $totals = (object) [
+            'total' => StoryHistory::count(),
+            'facebook' => StoryHistory::where('channel', 'facebook')->count(),
+            'instagram' => StoryHistory::where('channel', 'instagram')->count(),
+            'views' => StoryHistory::sum('views'),
+            'impressions' => StoryHistory::sum('impressions'),
+        ];
+
+        $stories = $query->paginate(12);
+
+        return view('livewire.admin.story-art', compact('stories', 'totals'))
             ->layout('components.admin-layout', ['title' => 'Historias']);
     }
 }

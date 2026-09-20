@@ -49,3 +49,12 @@ foreach (['08:30', '12:30', '18:30'] as $horaPico) {
         ->withoutOverlapping()
         ->appendOutputTo(storage_path('logs/instagram-story-cron.log'));
 }
+
+// Sincroniza vistas/alcance de las historias publicadas en FB e IG.
+// Corre 1h después de la última tanda de publicaciones para dar tiempo
+// a que la API tenga datos. Sin --hours trae las últimas 24h.
+Schedule::command('campaigns:fetch-story-insights')
+    ->dailyAt('20:00')
+    ->timezone('America/Costa_Rica')
+    ->withoutOverlapping()
+    ->appendOutputTo(storage_path('logs/story-insights-cron.log'));

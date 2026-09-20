@@ -237,6 +237,7 @@
         {{ $slot }}
     </main>
 
+    <x-promo-anillo />
     <x-footer />
     @unless($hideWhatsApp ?? false)
         <x-whatsapp-button />

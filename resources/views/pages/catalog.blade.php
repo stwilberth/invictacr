@@ -9,7 +9,7 @@
     $firstPage = $products->take($pageSize);
 @endphp
 
-<x-app-layout :title="'Relojes Invicta ' . ($gender ? ucfirst($gender) : 'Originales')" :description="'Explora nuestra colección de relojes Invicta ' . ($gender ? 'para ' . $gender : 'originales') . '. Envío gratis en GAM.'">
+<x-app-layout :title="'Relojes Invicta ' . ($gender ? ucfirst($gender) . ' ' : 'Originales ') . 'en Costa Rica | Envío Gratis'" :titleSuffix="false" :description="'Explora nuestra colección de relojes Invicta ' . ($gender ? 'para ' . $gender : 'originales') . '. Envío gratis en GAM.'">
     @push('json-ld')
     <script type="application/ld+json">
     {
@@ -36,14 +36,10 @@
     <div class="bg-white dark:bg-[#0a0f1c]">
         <div class="max-w-7xl mx-auto px-4 pt-6 md:pt-12">
             <x-page-title
-                :title="'Relojes Invicta'"
+                :title="'Relojes Invicta Originales'"
                 :subtitle="''"
             />
-
-            <div class="text-center -mt-4 mb-4 space-y-0.5">
-                <p class="text-xs md:text-sm font-semibold text-emerald-600 dark:text-emerald-400 leading-tight">Envío gratis</p>
-                <p class="text-xs md:text-sm font-semibold text-slate-500 dark:text-slate-400 leading-tight">Pago contra entrega en el GAM</p>
-            </div>
+            <h2 class="text-center text-xs md:text-sm font-bold text-slate-600 dark:text-slate-300 tracking-wide -mt-2 mb-2 px-4 leading-relaxed">Importados de USA · Garantía de 6 Meses<br>Tienda Independiente</h2>
 
             <div class="flex flex-col md:flex-row gap-8 pb-12" x-data="{ filterOpen: false, searchOpen: false }">
 

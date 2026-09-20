@@ -18,7 +18,7 @@
             <div class="flex-shrink-0 flex items-center mr-2 md:mr-8">
                 <div class="flex flex-col justify-center items-center leading-tight">
                     <a href="/" class="group">
-                        <p class="text-base md:text-2xl font-bold tracking-wider text-white transition-colors">Invicta<span class="text-[#00C4FF]">CostaRica</span>.com</p>
+                        <p class="text-base md:text-2xl font-bold tracking-wider text-white transition-colors">Relojes Invicta <span class="text-[#00C4FF]">Costa Rica</span></p>
                     </a>
                     <a href="https://wa.me/50686711422" target="_blank" rel="noopener noreferrer" class="text-sm md:text-base text-white hover:text-white flex items-center gap-1 transition-colors">
                         <i class="fa-brands fa-whatsapp text-[#25D366] text-base md:text-lg"></i>
@@ -142,7 +142,7 @@
             <div class="md:hidden flex items-center gap-1">
                 <a href="{{ route('cart.show') }}" class="relative text-white p-2 hover:bg-white/5 rounded-lg transition-colors" title="Carrito">
                     <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg" aria-label="Carrito">
-                        <path d="M3 3h2l1 3h11l2 6H7" />
+                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
                         <circle cx="9" cy="21" r="1" />
                         <circle cx="20" cy="21" r="1" />
                     </svg>

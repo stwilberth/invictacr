@@ -29,6 +29,50 @@ class InstagramService
      *
      * @return string|null id del medio publicado, o null si falla.
      */
+    public function fetchStoryInsights(string $storyId): array
+    {
+        $default = ['views' => 0, 'impressions' => 0, 'reach' => 0, 'replies' => 0];
+
+        if (!$this->isConfigured()) {
+            return $default;
+        }
+
+        try {
+            $response = Http::get("https://graph.facebook.com/{$this->apiVersion}/{$storyId}/insights", [
+                'metric' => 'impressions,reach,replies',
+                'access_token' => $this->accessToken,
+            ]);
+
+            if (!$response->successful()) {
+                $error = $response->json('error.message', '');
+                if (str_contains($error, 'permission')) {
+                    Log::warning("Instagram insights: falta permiso 'instagram_manage_insights'. {$error}");
+                } else {
+                    Log::info("Instagram story insights no disponibles para {$storyId}: {$error}");
+                }
+                return $default;
+            }
+
+            $insights = $default;
+
+            foreach ($response->json('data', []) as $metric) {
+                $name = $metric['name'];
+                $value = $metric['values'][0]['value'] ?? 0;
+
+                if ($name === 'impressions') $insights['impressions'] = (int) $value;
+                if ($name === 'reach') $insights['reach'] = (int) $value;
+                if ($name === 'replies') $insights['replies'] = (int) $value;
+            }
+
+            $insights['views'] = $insights['reach'];
+
+            return $insights;
+        } catch (\Exception $e) {
+            report($e);
+            return $default;
+        }
+    }
+
     public function publishStory(string $imageUrl): ?string
     {
         if (!$this->isConfigured()) {

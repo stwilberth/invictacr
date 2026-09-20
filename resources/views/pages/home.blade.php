@@ -36,11 +36,11 @@
                     </div>
                 </form>
             </div>
-            <div class="max-w-xl mx-auto mt-3 flex flex-wrap justify-center gap-2">
-                <a href="/relojes" class="px-3 py-1.5 bg-[#00C4FF]/20 hover:bg-[#00C4FF]/30 text-white border border-[#00C4FF]/40 hover:border-[#00C4FF]/60 rounded-full text-[11px] sm:text-xs font-semibold transition-all">Relojes</a>
+            <div class="max-w-xl mx-auto mt-4 flex flex-wrap justify-center gap-2.5">
+                <a href="/relojes" class="px-4 py-2 bg-[#00C4FF] hover:bg-[#00a8dd] text-white border border-[#00C4FF] rounded-full text-xs sm:text-sm font-bold transition-all shadow-lg shadow-[#00C4FF]/30">Relojes</a>
                 @if(!empty($topSearches))
                 @foreach($topSearches as $search)
-                <a href="/relojes?q={{ urlencode($search) }}" class="px-3 py-1.5 bg-white/10 hover:bg-[#00C4FF]/20 text-gray-300 hover:text-white border border-white/10 hover:border-[#00C4FF]/40 rounded-full text-[11px] sm:text-xs font-semibold transition-all">{{ $search }}</a>
+                <a href="/relojes?q={{ urlencode($search) }}" class="px-4 py-2 bg-white/15 hover:bg-[#00C4FF] text-white border border-white/40 hover:border-[#00C4FF] rounded-full text-xs sm:text-sm font-bold transition-all">{{ $search }}</a>
                 @endforeach
                 @endif
             </div>

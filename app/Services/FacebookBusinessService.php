@@ -235,6 +235,50 @@ class FacebookBusinessService
      *
      * @return string|null id de la historia creada, o null si falla.
      */
+    public function fetchStoryInsights(string $storyId): array
+    {
+        $default = ['views' => 0, 'impressions' => 0, 'reach' => 0, 'replies' => 0];
+
+        if (!$this->isConfigured()) {
+            return $default;
+        }
+
+        $pageToken = $this->getPageToken();
+        if (!$pageToken) {
+            return $default;
+        }
+
+        try {
+            $response = Http::get("https://graph.facebook.com/{$this->apiVersion}/{$storyId}/insights", [
+                'metric' => 'post_impressions_unique,post_impressions,post_engaged_users',
+                'access_token' => $pageToken,
+            ]);
+
+            if (!$response->successful()) {
+                Log::info("Facebook story insights no disponibles para {$storyId}: " . $response->body());
+                return $default;
+            }
+
+            $insights = $default;
+
+            foreach ($response->json('data', []) as $metric) {
+                $name = $metric['name'];
+                $value = $metric['values'][0]['value'] ?? 0;
+
+                if ($name === 'post_impressions_unique') {
+                    $insights['reach'] = (int) $value;
+                    $insights['views'] = (int) $value;
+                }
+                if ($name === 'post_impressions') $insights['impressions'] = (int) $value;
+            }
+
+            return $insights;
+        } catch (\Exception $e) {
+            report($e);
+            return $default;
+        }
+    }
+
     public function publishPhotoStory(string $imageBytes, string $filename = 'historia.png'): ?string
     {
         if (!$this->isConfigured()) {
