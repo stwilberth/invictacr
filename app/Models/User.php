@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'password', 'phone', 'is_admin', 'address', 'province', 'canton', 'distrito'])]
+#[Fillable(['name', 'email', 'password', 'phone', 'is_admin', 'role', 'address', 'province', 'canton', 'distrito'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -29,5 +29,10 @@ class User extends Authenticatable
             'password' => 'hashed',
             'is_admin' => 'boolean',
         ];
+    }
+
+    public function isMessenger(): bool
+    {
+        return $this->role === 'mensajero';
     }
 }

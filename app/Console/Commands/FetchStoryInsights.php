@@ -37,19 +37,35 @@ class FetchStoryInsights extends Command
                 continue;
             }
 
-            $insights = $service->fetchStoryInsights($story->story_id);
+            // Facebook: los insights se consultan por post_id, no por media_id.
+            // Si falta, se intenta resolver contra las historias vigentes (24h).
+            $insightId = $story->story_id;
+            if ($story->channel === 'facebook') {
+                if (empty($story->post_id) && $story->story_id) {
+                    $resolved = $fb->resolveStoryPostId($story->story_id);
+                    if ($resolved) {
+                        $story->update(['post_id' => $resolved]);
+                        $story->refresh();
+                    }
+                }
+                $insightId = $story->post_id ?: $story->story_id;
+            }
+
+            $insights = $service->fetchStoryInsights($insightId);
 
             $story->update([
                 'views' => $insights['views'],
                 'impressions' => $insights['impressions'],
                 'reach' => $insights['reach'],
                 'replies' => $insights['replies'],
+                'reactions' => $insights['reactions'] ?? 0,
+                'shares' => $insights['shares'] ?? 0,
             ]);
 
-            if ($insights['views'] === 0 && $insights['impressions'] === 0) {
+            if ($insights['views'] === 0 && $insights['impressions'] === 0 && ($insights['reactions'] ?? 0) === 0) {
                 $this->warn("  {$story->model_code} ({$story->channel}): sin datos de insights aún");
             } else {
-                $this->line("  {$story->model_code} ({$story->channel}): {$insights['views']} vistas, {$insights['impressions']} impresiones");
+                $this->line("  {$story->model_code} ({$story->channel}): {$insights['views']} vistas, {$insights['replies']} respuestas, " . ($insights['reactions'] ?? 0) . " reacciones");
             }
             $updated++;
         }

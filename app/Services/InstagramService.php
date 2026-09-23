@@ -31,40 +31,44 @@ class InstagramService
      */
     public function fetchStoryInsights(string $storyId): array
     {
-        $default = ['views' => 0, 'impressions' => 0, 'reach' => 0, 'replies' => 0];
+        // En stories de IG las "reacciones" (likes rápidos) cuentan como replies.
+        $default = ['views' => 0, 'impressions' => 0, 'reach' => 0, 'replies' => 0, 'reactions' => 0, 'shares' => 0];
 
         if (!$this->isConfigured()) {
             return $default;
         }
 
         try {
-            $response = Http::get("https://graph.facebook.com/{$this->apiVersion}/{$storyId}/insights", [
-                'metric' => 'impressions,reach,replies',
-                'access_token' => $this->accessToken,
-            ]);
-
-            if (!$response->successful()) {
-                $error = $response->json('error.message', '');
-                if (str_contains($error, 'permission')) {
-                    Log::warning("Instagram insights: falta permiso 'instagram_manage_insights'. {$error}");
-                } else {
-                    Log::info("Instagram story insights no disponibles para {$storyId}: {$error}");
-                }
-                return $default;
-            }
-
+            // impressions está deprecated desde jul-2024 y removido en abr-2025;
+            // para stories vigentes (<24h) usar views/reach/replies.
+            // Se pide una métrica por request para aislar errores de permiso.
             $insights = $default;
 
-            foreach ($response->json('data', []) as $metric) {
-                $name = $metric['name'];
-                $value = $metric['values'][0]['value'] ?? 0;
+            foreach (['views' => 'views', 'reach' => 'reach', 'replies' => 'replies'] as $metric => $field) {
+                $response = Http::get("https://graph.facebook.com/{$this->apiVersion}/{$storyId}/insights", [
+                    'metric' => $metric,
+                    'access_token' => $this->accessToken,
+                ]);
 
-                if ($name === 'impressions') $insights['impressions'] = (int) $value;
-                if ($name === 'reach') $insights['reach'] = (int) $value;
-                if ($name === 'replies') $insights['replies'] = (int) $value;
+                if (!$response->successful()) {
+                    $error = $response->json('error.message', '');
+                    if (str_contains($error, 'permission')) {
+                        Log::warning("Instagram insights: falta permiso 'instagram_manage_insights'. {$error}");
+                    } else {
+                        Log::info("Instagram story insights '{$metric}' no disponibles para {$storyId}: {$error}");
+                    }
+                    continue;
+                }
+
+                foreach ($response->json('data', []) as $row) {
+                    $value = $row['values'][0]['value'] ?? 0;
+                    $insights[$field] += is_array($value) ? (int) array_sum($value) : (int) $value;
+                }
             }
 
-            $insights['views'] = $insights['reach'];
+            $insights['impressions'] = $insights['views'];
+            // Las reacciones rápidas de IG llegan como replies (DMs).
+            $insights['reactions'] = $insights['replies'];
 
             return $insights;
         } catch (\Exception $e) {

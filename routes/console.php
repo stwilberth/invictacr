@@ -50,11 +50,18 @@ foreach (['08:30', '12:30', '18:30'] as $horaPico) {
         ->appendOutputTo(storage_path('logs/instagram-story-cron.log'));
 }
 
-// Sincroniza vistas/alcance de las historias publicadas en FB e IG.
-// Corre 1h después de la última tanda de publicaciones para dar tiempo
-// a que la API tenga datos. Sin --hours trae las últimas 24h.
+// Sincroniza vistas/alcance/reacciones de las historias publicadas en FB e IG.
+// Las historias expiran a las 24h y la API deja de devolver datos, así que
+// corre cada hora (ventana 24h) para no perder ninguna tanda.
 Schedule::command('campaigns:fetch-story-insights')
-    ->dailyAt('20:00')
-    ->timezone('America/Costa_Rica')
+    ->hourly()
     ->withoutOverlapping()
     ->appendOutputTo(storage_path('logs/story-insights-cron.log'));
+
+// Verifica salud de APIs externas cada 6 horas. Genera alertas en el dashboard
+// si Google Analytics, Google Ads, Meta Ads o Search Console no han sincronizado
+// en más de 3 días. Envía webhook si está configurado (ALERTS_WEBHOOK_URL).
+Schedule::command('app:check-api-health', ['--threshold' => 3])
+    ->everySixHours()
+    ->withoutOverlapping()
+    ->appendOutputTo(storage_path('logs/check-api-health-cron.log'));

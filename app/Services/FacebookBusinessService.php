@@ -228,16 +228,18 @@ class FacebookBusinessService
     }
 
     /**
-     * Publica una historia (story) con imagen en la página de Facebook.
-     * Flujo en 2 pasos: subir la foto sin publicar y luego publicarla como
-     * historia con /photo_stories. La API de historias no acepta caption ni
-     * enlace, así que toda la info debe ir quemada en la imagen.
+     * Insights de una historia de Facebook.
      *
-     * @return string|null id de la historia creada, o null si falla.
+     * La API de stories NO acepta métricas de posts (post_impressions_*):
+     * hay que consultar el post_id (no el media_id) con las métricas de
+     * Stories Insights: impresiones, respuestas, reacciones lightweight
+     * (likes de la historia) y compartidos.
+     *
+     * @param string $postId post_id de la historia (columna post_id).
      */
-    public function fetchStoryInsights(string $storyId): array
+    public function fetchStoryInsights(string $postId): array
     {
-        $default = ['views' => 0, 'impressions' => 0, 'reach' => 0, 'replies' => 0];
+        $default = ['views' => 0, 'impressions' => 0, 'reach' => 0, 'replies' => 0, 'reactions' => 0, 'shares' => 0];
 
         if (!$this->isConfigured()) {
             return $default;
@@ -249,28 +251,36 @@ class FacebookBusinessService
         }
 
         try {
-            $response = Http::get("https://graph.facebook.com/{$this->apiVersion}/{$storyId}/insights", [
-                'metric' => 'post_impressions_unique,post_impressions,post_engaged_users',
-                'access_token' => $pageToken,
-            ]);
-
-            if (!$response->successful()) {
-                Log::info("Facebook story insights no disponibles para {$storyId}: " . $response->body());
-                return $default;
-            }
-
             $insights = $default;
 
-            foreach ($response->json('data', []) as $metric) {
-                $name = $metric['name'];
-                $value = $metric['values'][0]['value'] ?? 0;
+            // Una métrica por request: en lote la API devuelve error (#1).
+            $map = [
+                'PAGE_STORY_IMPRESSIONS_BY_STORY_ID' => 'impressions',
+                'PAGE_STORY_IMPRESSIONS_BY_STORY_ID_UNIQUE' => 'reach',
+                'PAGES_FB_STORY_REPLIES' => 'replies',
+                'PAGES_FB_STORY_THREAD_LIGHTWEIGHT_REACTIONS' => 'reactions',
+                'PAGES_FB_STORY_SHARES' => 'shares',
+            ];
 
-                if ($name === 'post_impressions_unique') {
-                    $insights['reach'] = (int) $value;
-                    $insights['views'] = (int) $value;
+            foreach ($map as $metric => $field) {
+                $response = Http::get("https://graph.facebook.com/{$this->apiVersion}/{$postId}/insights", [
+                    'metric' => $metric,
+                    'access_token' => $pageToken,
+                ]);
+
+                if (!$response->successful()) {
+                    Log::info("Facebook story insights '{$metric}' no disponible para {$postId}: " . $response->body());
+                    continue;
                 }
-                if ($name === 'post_impressions') $insights['impressions'] = (int) $value;
+
+                foreach ($response->json('data', []) as $row) {
+                    $value = $row['values'][0]['value'] ?? 0;
+                    $insights[$field] += is_array($value) ? (int) array_sum($value) : (int) $value;
+                }
             }
+
+            // Vistas = alcance único (las stories no tienen "vistas" como tal).
+            $insights['views'] = $insights['reach'];
 
             return $insights;
         } catch (\Exception $e) {
@@ -279,7 +289,46 @@ class FacebookBusinessService
         }
     }
 
-    public function publishPhotoStory(string $imageBytes, string $filename = 'historia.png'): ?string
+    /**
+     * Resuelve el post_id de una historia a partir de su media_id
+     * usando el listado /{page-id}/stories (las historias expiran a las 24h,
+     * así que solo funciona para historias vigentes).
+     */
+    public function resolveStoryPostId(string $mediaId): ?string
+    {
+        if (!$this->isConfigured()) return null;
+
+        $pageToken = $this->getPageToken();
+        if (!$pageToken) return null;
+
+        try {
+            $response = Http::get("https://graph.facebook.com/{$this->apiVersion}/{$this->pageId}/stories", [
+                'access_token' => $pageToken,
+            ]);
+
+            if (!$response->successful()) return null;
+
+            foreach ($response->json('data', []) as $story) {
+                if (($story['media_id'] ?? null) === $mediaId && !empty($story['post_id'])) {
+                    return $story['post_id'];
+                }
+            }
+        } catch (\Exception $e) {
+            report($e);
+        }
+
+        return null;
+    }
+
+    /**
+     * Publica una historia (story) con imagen en la página de Facebook.
+     * Flujo en 2 pasos: subir la foto sin publicar y luego publicarla como
+     * historia con /photo_stories. La API de historias no acepta caption ni
+     * enlace, así que toda la info debe ir quemada en la imagen.
+     *
+     * @return array|null ['post_id' => ..., 'media_id' => ...] o null si falla.
+     */
+    public function publishPhotoStory(string $imageBytes, string $filename = 'historia.png'): ?array
     {
         if (!$this->isConfigured()) {
             return null;
@@ -303,8 +352,10 @@ class FacebookBusinessService
                 return null;
             }
 
+            $mediaId = $upload->json('id');
+
             $story = Http::post("https://graph.facebook.com/{$this->apiVersion}/{$this->pageId}/photo_stories", [
-                'photo_id' => $upload->json('id'),
+                'photo_id' => $mediaId,
                 'access_token' => $pageToken,
             ]);
 
@@ -313,7 +364,12 @@ class FacebookBusinessService
                 return null;
             }
 
-            return $this->recordPost($story->json('id') ?? $upload->json('id'), '', null, $story->json(), 'story');
+            // /photo_stories devuelve post_id (para insights) además del id del medio.
+            $postId = $story->json('post_id') ?? $story->json('id');
+
+            $this->recordPost($postId ?? $mediaId, '', null, $story->json(), 'story');
+
+            return ['post_id' => $postId, 'media_id' => $mediaId];
         } catch (\Exception $e) {
             report($e);
             return null;

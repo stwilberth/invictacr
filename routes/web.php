@@ -99,7 +99,6 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::post('/narrations', [\App\Http\Controllers\Admin\NarrationController::class, 'store'])->name('narrations.store');
     Route::get('/narrations/latest/{product}', [\App\Http\Controllers\Admin\NarrationController::class, 'latest'])->name('narrations.latest');
     Route::get('/upcoming', \App\Livewire\Admin\Upcoming::class)->name('upcoming');
-    Route::get('/sync', \App\Livewire\Admin\SyncManager::class)->name('sync');
     Route::get('/search-logs', \App\Livewire\Admin\SearchLogs::class)->name('search-logs');
     Route::get('/conversion', \App\Livewire\Admin\ConversionReport::class)->name('conversion');
     Route::get('/optimize-images',  \App\Livewire\Admin\OptimizeImages::class)->name('optimize-images');
@@ -109,6 +108,10 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::get('/timeline',         \App\Livewire\Admin\UnifiedTimeline::class)->name('timeline');
     Route::get('/ceo-advisor',      \App\Livewire\Admin\CeoAdvisor::class)->name('ceo-advisor');
     Route::get('/github', \App\Livewire\Admin\GitHubReport::class)->name('github');
+});
+
+Route::prefix('admin')->name('admin.')->middleware(['auth', \App\Http\Middleware\MessengerAccessMiddleware::class])->group(function () {
+    Route::get('/messenger', \App\Livewire\Admin\Messenger::class)->name('messenger');
 });
 
 require __DIR__ . '/auth.php';

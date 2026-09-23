@@ -1,4 +1,4 @@
-{{-- Promo Anillo Gratis +90k: banner + popup + burbuja círculo --}}
+{{-- Promo Anillo cortesía: banner + popup + burbuja círculo --}}
 {{-- Banner (componente reutilizable, también se muestra bajo el navbar) --}}
 <x-promo-anillo-banner />
 
@@ -9,9 +9,9 @@
             class="absolute top-3 right-3 z-10 w-8 h-8 flex items-center justify-center bg-white/10 hover:bg-white/20 text-white rounded-full transition-all">
             <i class="fa-solid fa-minus text-xs"></i>
         </button>
-        <a href="/relojes?precio_min=90000&amp;sort=price_asc" onclick="minimizePromoAnillo()" class="block">
+        <a href="/relojes?coleccion=Mini" onclick="minimizePromoAnillo()" class="block">
             <img src="{{ asset('images/promos/anillo-gratis-90k.jpg') }}"
-                 alt="Anillo gratis por compra mayor a ₡90.000 - Invicta Costa Rica"
+                 alt="Recibe un anillo de cortesía con la compra de tu reloj - Invicta Costa Rica"
                  class="w-full h-auto"
                  onerror="this.style.display='none';document.getElementById('promoAnilloFallback').style.display='block'" />
             {{-- Diseño HTML (se ve mientras no subas el JPG) --}}
@@ -22,20 +22,17 @@
                 <span class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-yellow-400 text-gray-900 shadow-lg shadow-yellow-400/30 mb-3">
                     <i class="fa-solid fa-gift text-2xl"></i>
                 </span>
-                <p class="text-yellow-400 font-black text-4xl uppercase leading-[0.95] tracking-tight">Anillo<br><span class="text-white">gratis</span></p>
-                <p class="text-gray-300 text-[11px] font-bold uppercase tracking-widest mt-2">En compras mayores a</p>
-                <p class="inline-block mt-1 px-4 py-1.5 bg-yellow-400 text-gray-900 font-black text-2xl rounded-lg -rotate-1">₡90.000</p>
+                <p class="text-yellow-400 font-black text-4xl uppercase leading-[0.95] tracking-tight">Anillo<br><span class="text-white">de cortesía</span></p>
+                <p class="text-gray-300 text-[11px] font-bold uppercase tracking-widest mt-2">Con la compra de tu reloj</p>
                 <div class="flex items-center justify-center gap-3 mt-4 text-[10px] font-bold text-gray-300 uppercase">
-                    <span><i class="fa-solid fa-truck-fast text-emerald-400 mr-1"></i>Envío gratis</span>
-                    <span class="text-gray-600">|</span>
                     <span><i class="fa-solid fa-shield-heart text-yellow-400 mr-1"></i>Garantía 6 meses</span>
                 </div>
                 <p class="text-gray-500 text-[10px] mt-2">No aplica para apartados · Pago contra entrega</p>
             </div>
         </a>
-        <a href="/relojes?precio_min=90000&amp;sort=price_asc" onclick="minimizePromoAnillo()"
+        <a href="/relojes?coleccion=Mini" onclick="minimizePromoAnillo()"
            class="flex items-center justify-center gap-2 bg-yellow-400 hover:bg-yellow-300 text-gray-900 font-black uppercase tracking-wide text-sm py-3.5 transition-colors">
-            Ver relojes <i class="fa-solid fa-arrow-right text-xs"></i>
+            Ver anillos <i class="fa-solid fa-arrow-right text-xs"></i>
         </a>
     </div>
 </div>
@@ -87,7 +84,7 @@
         el.classList.add('flex');
         document.body.style.overflow = 'hidden';
         requestAnimationFrame(function () { el.classList.add('active'); });
-        if (typeof fbq !== 'undefined') { try { fbq('track', 'ViewContent', { content_name: 'Promo Anillo Gratis' }); } catch (e) {} }
+        if (typeof fbq !== 'undefined') { try { fbq('track', 'ViewContent', { content_name: 'Promo Anillo Cortesía' }); } catch (e) {} }
     };
     window.closePromoAnillo = function () { window.minimizePromoAnillo(); };
     window.minimizePromoAnillo = function () {

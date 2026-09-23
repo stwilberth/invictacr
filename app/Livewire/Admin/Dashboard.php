@@ -3,15 +3,19 @@
 namespace App\Livewire\Admin;
 
 use App\Models\AiCeoRecommendation;
+use App\Models\Alert;
 use App\Models\ExternalFactor;
 use App\Models\FacebookAdReport;
 use App\Models\GoogleAdsReport;
 use App\Models\GoogleAnalyticsReport;
 use App\Models\Invoice;
+use App\Models\InvoiceItem;
 use App\Models\Product;
 use App\Models\SearchConsoleReport;
 use App\Models\User;
 use App\Models\VisitorEvent;
+use App\Models\WaitlistEntry;
+use App\Models\WaitlistNotification;
 use Livewire\Component;
 
 class Dashboard extends Component
@@ -44,15 +48,36 @@ class Dashboard extends Component
 
     public bool $syncing = false;
 
+    // Servidor
     public array $serverStats = [];
     public array $serverPeak = [];
     public array $serverSeries = [];
     public bool $serverMetricsAvailable = false;
+    public array $serverPhpFallback = [];
 
+    // Logs de aplicación
+    public array $appErrors = [];
+
+    // Inventario y envíos
+    public array $inventorySummary = [];
+    public array $shippingSummary = [];
+
+    // Lista de espera - conversión
+    public array $waitlistConversion = [];
+
+    // Alertas de API
+    public array $activeAlerts = [];
+
+    // CEO
     public ?array $topCeoRecommendation = null;
+
+    // Sync health
     public ?int $daysSinceLastGaSync = null;
     public ?int $daysSinceLastAdsSync = null;
+    public ?int $daysSinceLastFbSync = null;
+    public ?int $daysSinceLastScSync = null;
 
+    // Connection tests
     public ?array $gaConnectionTest = null;
     public ?array $adsConnectionTest = null;
     public ?array $scConnectionTest = null;
@@ -64,17 +89,204 @@ class Dashboard extends Component
         $this->loadWaitlist();
         $this->loadAnalytics();
         $this->loadServerStats();
+        $this->loadAppErrors();
+        $this->loadInventorySummary();
+        $this->loadShippingSummary();
+        $this->loadWaitlistConversion();
+        $this->loadActiveAlerts();
         $this->loadTopCeoRecommendation();
         $this->loadSyncHealth();
     }
+
+    // ───────────────────────────────────────────────
+    // 4. Alertas de API
+    // ───────────────────────────────────────────────
+
+    protected function loadActiveAlerts(): void
+    {
+        $this->activeAlerts = Alert::active()
+            ->latest()
+            ->get()
+            ->map(fn(Alert $a) => [
+                'id' => $a->id,
+                'type' => $a->type,
+                'title' => $a->title,
+                'message' => $a->message,
+                'level' => $a->level,
+                'context' => $a->context,
+                'created_at' => $a->created_at->diffForHumans(),
+            ])
+            ->toArray();
+    }
+
+    public function resolverAlerta(int $id): void
+    {
+        Alert::find($id)?->resolve();
+        $this->loadActiveAlerts();
+    }
+
+    public function resolverTodasAlertas(): void
+    {
+        Alert::active()->update(['resolved_at' => now()]);
+        $this->loadActiveAlerts();
+    }
+
+    // ───────────────────────────────────────────────
+    // 3. Conversión de lista de espera
+    // ───────────────────────────────────────────────
+
+    protected function loadWaitlistConversion(): void
+    {
+        $totalEntries = WaitlistEntry::count();
+        $notifiedEntries = WaitlistEntry::whereIn('estado', [WaitlistEntry::ESTADO_NOTIFICADO, WaitlistEntry::ESTADO_CONTACTADO])->count();
+
+        $modelos = WaitlistEntry::whereNotNull('modelo')
+            ->pluck('modelo')
+            ->unique()
+            ->values()
+            ->toArray();
+
+        $purchasedCount = 0;
+        if (!empty($modelos)) {
+            $purchasedCount = InvoiceItem::whereIn('product_model', $modelos)
+                ->whereHas('invoice', fn($q) => $q->where('status', '!=', 'cancelled'))
+                ->distinct('product_model')
+                ->count();
+        }
+
+        $avgWaitDays = WaitlistEntry::whereNotNull('notified_at')
+            ->selectRaw('AVG(DATEDIFF(notified_at, created_at)) as avg_days')
+            ->value('avg_days');
+
+        $convertedToInvoice = 0;
+        $entryModelos = WaitlistEntry::whereNotNull('modelo')
+            ->where('estado', '!=', WaitlistEntry::ESTADO_DESCARTADO)
+            ->pluck('modelo')
+            ->toArray();
+
+        if (!empty($entryModelos)) {
+            $convertedToInvoice = InvoiceItem::whereIn('product_model', $entryModelos)
+                ->whereHas('invoice', fn($q) => $q->where('status', '!=', 'cancelled'))
+                ->distinct('product_model')
+                ->count();
+        }
+
+        $this->waitlistConversion = [
+            'total_entries' => $totalEntries,
+            'notified' => $notifiedEntries,
+            'models_with_purchase' => $convertedToInvoice,
+            'unique_models_requested' => count($modelos),
+            'conversion_rate' => $totalEntries > 0
+                ? round(($convertedToInvoice / $totalEntries) * 100, 1)
+                : 0,
+            'avg_wait_days' => $avgWaitDays !== null ? round((float) $avgWaitDays, 1) : null,
+        ];
+    }
+
+    // ───────────────────────────────────────────────
+    // 2. Inventario y envíos
+    // ───────────────────────────────────────────────
+
+    protected function loadInventorySummary(): void
+    {
+        $products = Product::selectRaw('
+                COUNT(*) as total_models,
+                SUM(CASE WHEN stock > 0 AND (disponibilidad IS NULL OR disponibilidad != "agotado") THEN 1 ELSE 0 END) as in_stock,
+                SUM(CASE WHEN stock <= 0 OR disponibilidad = "agotado" THEN 1 ELSE 0 END) as agotados,
+                COALESCE(SUM(precio_costo * stock), 0) as total_cost_value,
+                COALESCE(SUM(precio_venta * stock), 0) as total_sale_value
+            ')
+            ->where('activo', true)
+            ->first();
+
+        $costValue = (float) ($products->total_cost_value ?? 0);
+        $saleValue = (float) ($products->total_sale_value ?? 0);
+
+        $this->inventorySummary = [
+            'total_models' => (int) ($products->total_models ?? 0),
+            'in_stock' => (int) ($products->in_stock ?? 0),
+            'agotados' => (int) ($products->agotados ?? 0),
+            'total_cost_value' => $costValue,
+            'total_sale_value' => $saleValue,
+            'potential_margin' => $saleValue > 0
+                ? round((($saleValue - $costValue) / $saleValue) * 100, 1)
+                : 0,
+        ];
+    }
+
+    protected function loadShippingSummary(): void
+    {
+        [$start, $end] = $this->getDateRange();
+
+        $invoices = Invoice::whereBetween('created_at', [$start, $end])
+            ->where('status', '!=', 'cancelled')
+            ->get();
+
+        $totalShipping = $invoices->sum('shipping');
+        $totalShippingCost = $invoices->sum('shipping_cost');
+        $totalSubtotal = $invoices->sum('subtotal');
+        $totalDiscount = $invoices->sum('discount');
+        $invoiceCount = $invoices->count();
+
+        $grossMargin = 0;
+        $netMargin = 0;
+        if ($totalSubtotal > 0) {
+            $grossMargin = $totalSubtotal * 0.30;
+            $netMargin = $grossMargin - $totalDiscount + $totalShipping - $totalShippingCost;
+        }
+
+        $this->shippingSummary = [
+            'total_shipping_charged' => $totalShipping,
+            'total_shipping_cost' => $totalShippingCost,
+            'shipping_margin' => $totalShipping - $totalShippingCost,
+            'invoice_count' => $invoiceCount,
+            'total_subtotal' => $totalSubtotal,
+            'total_discount' => $totalDiscount,
+            'estimated_gross_margin' => $grossMargin,
+            'estimated_net_margin' => $netMargin,
+            'avg_shipping_per_invoice' => $invoiceCount > 0 ? $totalShipping / $invoiceCount : 0,
+            'avg_shipping_cost_per_invoice' => $invoiceCount > 0 ? $totalShippingCost / $invoiceCount : 0,
+        ];
+    }
+
+    // ───────────────────────────────────────────────
+    // 1. Servidor y logs
+    // ───────────────────────────────────────────────
+
+    protected function loadServerStats(): void
+    {
+        $service = app(\App\Services\ServerMetricsService::class);
+        $this->serverMetricsAvailable = $service->available();
+
+        if ($this->serverMetricsAvailable) {
+            $this->serverStats = $service->current();
+            $this->serverPeak = $service->peak(604800);
+            $this->serverSeries = $service->series(86400, 48);
+        } else {
+            $this->serverPhpFallback = $service->phpFallback();
+        }
+    }
+
+    protected function loadAppErrors(): void
+    {
+        $this->appErrors = app(\App\Services\ApplicationErrorService::class)->getLast24hErrors();
+    }
+
+    // ───────────────────────────────────────────────
+    // Sync health (ampliada)
+    // ───────────────────────────────────────────────
 
     protected function loadSyncHealth(): void
     {
         $lastGa = GoogleAnalyticsReport::max('report_date');
         $lastAds = GoogleAdsReport::max('report_date');
+        $lastFb = FacebookAdReport::max('report_date');
+        $lastSc = SearchConsoleReport::max('report_date');
 
         $this->daysSinceLastGaSync = $lastGa ? (int) round(now()->diffInDays(\Carbon\Carbon::parse($lastGa), true)) : null;
         $this->daysSinceLastAdsSync = $lastAds ? (int) round(now()->diffInDays(\Carbon\Carbon::parse($lastAds), true)) : null;
+        $this->daysSinceLastFbSync = $lastFb ? (int) round(now()->diffInDays(\Carbon\Carbon::parse($lastFb), true)) : null;
+        $this->daysSinceLastScSync = $lastSc ? (int) round(now()->diffInDays(\Carbon\Carbon::parse($lastSc), true)) : null;
     }
 
     protected function loadTopCeoRecommendation(): void
@@ -99,22 +311,10 @@ class Dashboard extends Component
         }
     }
 
-    protected function loadServerStats(): void
-    {
-        $service = app(\App\Services\ServerMetricsService::class);
-        $this->serverMetricsAvailable = $service->available();
-        if (!$this->serverMetricsAvailable) {
-            return;
-        }
-
-        $this->serverStats = $service->current();
-        $this->serverPeak = $service->peak(604800);
-        $this->serverSeries = $service->series(86400, 48);
-    }
-
     public function updatedPeriod(): void
     {
         $this->loadAnalytics();
+        $this->loadShippingSummary();
     }
 
     protected function getDateRange(): array
@@ -164,8 +364,8 @@ class Dashboard extends Component
 
     protected function loadWaitlist(): void
     {
-        $this->waitlistPendientes = \App\Models\WaitlistEntry::where('estado', \App\Models\WaitlistEntry::ESTADO_PENDIENTE)->count();
-        $this->waitlistResumen = \App\Models\WaitlistEntry::latest()
+        $this->waitlistPendientes = WaitlistEntry::where('estado', WaitlistEntry::ESTADO_PENDIENTE)->count();
+        $this->waitlistResumen = WaitlistEntry::latest()
             ->take(5)
             ->get(['id', 'nombre', 'telefono', 'modelo', 'estado', 'created_at'])
             ->map(fn($e) => [
@@ -175,8 +375,8 @@ class Dashboard extends Component
                 'estado' => $e->estado,
             ])
             ->toArray();
-        $this->waitlistUnread = \App\Models\WaitlistNotification::whereNull('leida_at')->count();
-        $this->waitlistNotifications = \App\Models\WaitlistNotification::latest()
+        $this->waitlistUnread = WaitlistNotification::whereNull('leida_at')->count();
+        $this->waitlistNotifications = WaitlistNotification::latest()
             ->take(5)
             ->get(['id', 'titulo', 'mensaje', 'leida_at', 'created_at'])
             ->map(fn($n) => [
@@ -190,7 +390,7 @@ class Dashboard extends Component
 
     public function marcarWaitlistLeida(int $id): void
     {
-        \App\Models\WaitlistNotification::where('id', $id)->whereNull('leida_at')->update(['leida_at' => now()]);
+        WaitlistNotification::where('id', $id)->whereNull('leida_at')->update(['leida_at' => now()]);
         $this->loadWaitlist();
     }
 
@@ -339,16 +539,40 @@ class Dashboard extends Component
             ])->toArray(),
         ];
 
-        // Campañas Meta Ads
-        $fbAds = FacebookAdReport::whereBetween('report_date', [$start, $end])->get();
+        // Campañas Meta Ads (con métricas enriquecidas)
+        $fbAds = FacebookAdReport::whereBetween('report_date', [$start, $end])
+            ->where('level', 'campaign')
+            ->get();
+        $fbAdsAll = FacebookAdReport::whereBetween('report_date', [$start, $end])->get();
+
+        $totalConversions = $fbAdsAll->sum('conversions');
+        $totalConversionValue = $fbAdsAll->sum('conversion_value');
+        $totalSpend = $fbAds->sum('spend');
+
         $this->fbAdsPerformance = [
             'total_clicks' => $fbAds->sum('clicks'),
-            'total_spend' => $fbAds->sum('spend'),
+            'total_spend' => $totalSpend,
+            'total_impressions' => $fbAds->sum('impressions'),
+            'total_reach' => $fbAds->sum('reach'),
+            'total_conversions' => $totalConversions,
+            'total_conversion_value' => $totalConversionValue,
+            'roas' => $totalSpend > 0 ? round($totalConversionValue / $totalSpend, 2) : 0,
+            'avg_cpa' => $totalConversions > 0 ? round($totalSpend / $totalConversions, 2) : 0,
+            'avg_cpc' => $fbAds->avg('cpc'),
+            'avg_cpm' => $fbAds->avg('cpm'),
+            'avg_ctr' => $fbAds->avg('ctr'),
             'by_campaign' => $fbAds->groupBy('campaign_name')->map(fn($group) => [
                 'impressions' => $group->sum('impressions'),
                 'clicks' => $group->sum('clicks'),
                 'spend' => $group->sum('spend'),
                 'reach' => $group->sum('reach'),
+                'conversions' => $group->sum('conversions'),
+                'conversion_value' => $group->sum('conversion_value'),
+                'roas' => $group->sum('spend') > 0 ? round($group->sum('conversion_value') / $group->sum('spend'), 2) : 0,
+                'cpa' => $group->sum('conversions') > 0 ? round($group->sum('spend') / $group->sum('conversions'), 2) : 0,
+                'objective' => $group->first()['campaign_objective'] ?? null,
+                'status' => $group->first()['campaign_status'] ?? null,
+                'frequency' => $group->avg('frequency'),
             ])->toArray(),
         ];
 
@@ -448,6 +672,10 @@ class Dashboard extends Component
             $this->loadAdminData();
             $this->loadWaitlist();
             $this->loadAnalytics();
+            $this->loadInventorySummary();
+            $this->loadShippingSummary();
+            $this->loadWaitlistConversion();
+            $this->loadSyncHealth();
             session()->flash('message', "Datos sincronizados para los últimos {$days} días.");
         } catch (\Exception $e) {
             session()->flash('error', 'Error al sincronizar: ' . $e->getMessage());
@@ -497,9 +725,12 @@ class Dashboard extends Component
             '365d' => 365,
             default => 30,
         };
-        \Illuminate\Support\Facades\Artisan::call('sync:facebook-ads', ['--days' => $days]);
+
+        $service = app(\App\Services\FacebookAdsService::class);
+        $service->syncDailyAllLevels(now());
+
         $this->loadAnalytics();
-        session()->flash('message', 'Meta Ads sincronizado.');
+        session()->flash('message', 'Meta Ads sincronizado (campañas + conjuntos + anuncios).');
     }
 
     public function syncGoogleAnalytics(): void

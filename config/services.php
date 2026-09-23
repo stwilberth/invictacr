@@ -108,4 +108,17 @@ return [
         'timeout' => (int) env('NARRATION_TIMEOUT', 60),
     ],
 
+    'alerts' => [
+        'webhook_url' => env('ALERTS_WEBHOOK_URL', ''),
+    ],
+
+    'gemini' => [
+        'key' => env('GEMINI_API_KEY'),
+        'model' => env('GEMINI_IMAGE_MODEL', 'gemini-2.5-flash-image'),
+        'timeout' => (int) env('GEMINI_TIMEOUT', 180),
+        'max_attempts' => (int) env('GEMINI_MAX_ATTEMPTS', 3),
+        'enhance_stories' => filter_var(env('GEMINI_ENHANCE_STORIES', true), FILTER_VALIDATE_BOOLEAN),
+        'enhance_feed' => filter_var(env('GEMINI_ENHANCE_FEED', false), FILTER_VALIDATE_BOOLEAN),
+    ],
+
 ];

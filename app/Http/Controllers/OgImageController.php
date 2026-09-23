@@ -83,15 +83,17 @@ class OgImageController extends Controller
 
     public function product(string $slug): Response
     {
-        $cacheKey = 'og_product_' . $slug;
+        // v2: JPEG liviano (<300KB) para que WhatsApp muestre la vista previa.
+        // La v1 era PNG de ~600KB y WhatsApp la descartaba en silencio.
+        $cacheKey = 'og_product_jpg_' . $slug;
 
-        $png = Cache::remember($cacheKey, now()->addDays(7), function () use ($slug) {
+        $jpg = Cache::remember($cacheKey, now()->addDays(7), function () use ($slug) {
             $product = Product::where('slug', $slug)->where('activo', true)->first();
             return $this->render($product);
         });
 
-        return response($png, 200, [
-            'Content-Type' => 'image/png',
+        return response($jpg, 200, [
+            'Content-Type' => 'image/jpeg',
             'Cache-Control' => 'public, max-age=604800, immutable',
         ]);
     }
@@ -140,7 +142,7 @@ class OgImageController extends Controller
         }
 
         ob_start();
-        imagepng($img, null, 8);
+        imagejpeg($img, null, 82);
         $data = ob_get_clean();
         imagedestroy($img);
 

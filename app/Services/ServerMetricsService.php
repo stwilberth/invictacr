@@ -64,6 +64,36 @@ class ServerMetricsService
         ];
     }
 
+    public function phpFallback(): array
+    {
+        $cores = $this->getCores();
+        $load = sys_getloadavg();
+        $memUsed = memory_get_usage(true);
+        $memPeak = memory_get_peak_usage(true);
+        $memLimit = $this->getMemoryLimitBytes();
+        $diskFree = disk_free_space('/');
+        $diskTotal = disk_total_space('/');
+        $uptime = $this->getUptimeSeconds();
+
+        return [
+            'cpu_pct' => round(($load[0] / max($cores, 1)) * 100, 1),
+            'load1' => round($load[0], 2),
+            'load5' => round($load[1], 2),
+            'load15' => round($load[2], 2),
+            'ram_used_mib' => round($memUsed / 1048576, 0),
+            'ram_total_mib' => $memLimit > 0 ? round($memLimit / 1048576, 0) : round($memUsed / 1048576 * 2, 0),
+            'ram_pct' => $memLimit > 0 ? round(($memUsed / $memLimit) * 100, 1) : 0,
+            'ram_peak_mib' => round($memPeak / 1048576, 0),
+            'disk_free_gb' => round($diskFree / 1073741824, 1),
+            'disk_total_gb' => round($diskTotal / 1073741824, 1),
+            'disk_pct' => $diskTotal > 0 ? round((($diskTotal - $diskFree) / $diskTotal) * 100, 1) : 0,
+            'php_version' => PHP_VERSION,
+            'laravel_version' => app()->version(),
+            'cores' => $cores,
+            'uptime' => $uptime,
+        ];
+    }
+
     public function peak(int $seconds = 604800): array
     {
         $cores = $this->getCores();
@@ -202,5 +232,30 @@ class ServerMetricsService
         } catch (\Throwable $e) {
             return [];
         }
+    }
+
+    private function getMemoryLimitBytes(): int
+    {
+        $val = ini_get('memory_limit');
+        if ($val === false || $val === '-1') {
+            return -1;
+        }
+        $unit = strtolower(substr($val, -1));
+        $num = (int) substr($val, 0, -1);
+        return match ($unit) {
+            'g' => $num * 1073741824,
+            'm' => $num * 1048576,
+            'k' => $num * 1024,
+            default => (int) $val,
+        };
+    }
+
+    private function getUptimeSeconds(): int
+    {
+        $uptime = @file_get_contents('/proc/uptime');
+        if ($uptime !== false) {
+            return (int) explode(' ', trim($uptime))[0];
+        }
+        return 0;
     }
 }

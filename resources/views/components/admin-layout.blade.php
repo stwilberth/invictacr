@@ -16,6 +16,11 @@
                 <a href="/admin/dashboard" class="text-lg font-black text-[#00C4FF] uppercase tracking-tight">Invicta Admin</a>
             </div>
             <nav class="p-4 space-y-1">
+                @if(auth()->user()->isMessenger() && !auth()->user()->is_admin)
+                <a href="{{ route('admin.messenger') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm bg-[#00C4FF]/10 text-[#00C4FF]">
+                    <i class="fa-solid fa-motorcycle w-5"></i> Mensajero
+                </a>
+                @else
                 <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors {{ request()->routeIs('admin.dashboard') ? 'bg-[#00C4FF]/10 text-[#00C4FF]' : 'text-white/70 hover:text-white hover:bg-white/5' }}">
                     <i class="fa-solid fa-chart-simple w-5"></i> Dashboard
                 </a>
@@ -41,6 +46,9 @@
                 </a>
                 <a href="{{ route('admin.invoices') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors {{ request()->routeIs('admin.invoices') ? 'bg-[#00C4FF]/10 text-[#00C4FF]' : 'text-white/70 hover:text-white hover:bg-white/5' }}">
                     <i class="fa-solid fa-file-invoice w-5"></i> Facturas
+                </a>
+                <a href="{{ route('admin.messenger') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors {{ request()->routeIs('admin.messenger') ? 'bg-[#00C4FF]/10 text-[#00C4FF]' : 'text-white/70 hover:text-white hover:bg-white/5' }}">
+                    <i class="fa-solid fa-motorcycle w-5"></i> Mensajero
                 </a>
                 <a href="{{ route('admin.clients') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors {{ request()->routeIs('admin.clients') ? 'bg-[#00C4FF]/10 text-[#00C4FF]' : 'text-white/70 hover:text-white hover:bg-white/5' }}">
                     <i class="fa-solid fa-users w-5"></i> Clientes
@@ -85,9 +93,6 @@
                 <a href="{{ route('admin.users') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors {{ request()->routeIs('admin.users') ? 'bg-[#00C4FF]/10 text-[#00C4FF]' : 'text-white/70 hover:text-white hover:bg-white/5' }}">
                     <i class="fa-solid fa-user-gear w-5"></i> Usuarios
                 </a>
-                <a href="{{ route('admin.sync') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors {{ request()->routeIs('admin.sync') ? 'bg-[#00C4FF]/10 text-[#00C4FF]' : 'text-white/70 hover:text-white hover:bg-white/5' }}">
-                    <i class="fa-solid fa-arrows-rotate w-5"></i> Sincronizar
-                </a>
                 <a href="{{ route('admin.optimize-images') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors {{ request()->routeIs('admin.optimize-images') ? 'bg-[#00C4FF]/10 text-[#00C4FF]' : 'text-white/70 hover:text-white hover:bg-white/5' }}">
                     <i class="fa-solid fa-image w-5"></i> Optimizar Imágenes
                 </a>
@@ -99,6 +104,7 @@
                 <a href="/" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-white/50 hover:text-white hover:bg-white/5 transition-colors">
                     <i class="fa-solid fa-arrow-left w-5"></i> Volver al sitio
                 </a>
+                @endif
             </nav>
         </aside>
 
@@ -151,6 +157,11 @@
                     </button>
                 </div>
                 <nav class="p-4 space-y-1">
+                    @if(auth()->user()->isMessenger() && !auth()->user()->is_admin)
+                    <a href="{{ route('admin.messenger') }}" @click="sidebarOpen = false" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm bg-[#00C4FF]/10 text-[#00C4FF]">
+                        <i class="fa-solid fa-motorcycle w-5"></i> Mensajero
+                    </a>
+                    @else
                     <a href="{{ route('admin.dashboard') }}" @click="sidebarOpen = false" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors {{ request()->routeIs('admin.dashboard') ? 'bg-[#00C4FF]/10 text-[#00C4FF]' : 'text-white/70 hover:text-white hover:bg-white/5' }}">
                         <i class="fa-solid fa-chart-simple w-5"></i> Dashboard
                     </a>
@@ -175,6 +186,9 @@
                     </a>
                     <a href="{{ route('admin.invoices') }}" @click="sidebarOpen = false" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors {{ request()->routeIs('admin.invoices') ? 'bg-[#00C4FF]/10 text-[#00C4FF]' : 'text-white/70 hover:text-white hover:bg-white/5' }}">
                         <i class="fa-solid fa-file-invoice w-5"></i> Facturas
+                    </a>
+                    <a href="{{ route('admin.messenger') }}" @click="sidebarOpen = false" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors {{ request()->routeIs('admin.messenger') ? 'bg-[#00C4FF]/10 text-[#00C4FF]' : 'text-white/70 hover:text-white hover:bg-white/5' }}">
+                        <i class="fa-solid fa-motorcycle w-5"></i> Mensajero
                     </a>
                     <a href="{{ route('admin.clients') }}" @click="sidebarOpen = false" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors {{ request()->routeIs('admin.clients') ? 'bg-[#00C4FF]/10 text-[#00C4FF]' : 'text-white/70 hover:text-white hover:bg-white/5' }}">
                         <i class="fa-solid fa-users w-5"></i> Clientes
@@ -219,9 +233,6 @@
                     <a href="{{ route('admin.users') }}" @click="sidebarOpen = false" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors {{ request()->routeIs('admin.users') ? 'bg-[#00C4FF]/10 text-[#00C4FF]' : 'text-white/70 hover:text-white hover:bg-white/5' }}">
                         <i class="fa-solid fa-user-gear w-5"></i> Usuarios
                     </a>
-                    <a href="{{ route('admin.sync') }}" @click="sidebarOpen = false" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors {{ request()->routeIs('admin.sync') ? 'bg-[#00C4FF]/10 text-[#00C4FF]' : 'text-white/70 hover:text-white hover:bg-white/5' }}">
-                        <i class="fa-solid fa-arrows-rotate w-5"></i> Sincronizar
-                    </a>
                     <a href="{{ route('admin.optimize-images') }}" @click="sidebarOpen = false" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors {{ request()->routeIs('admin.optimize-images') ? 'bg-[#00C4FF]/10 text-[#00C4FF]' : 'text-white/70 hover:text-white hover:bg-white/5' }}">
                         <i class="fa-solid fa-image w-5"></i> Optimizar Imágenes
                     </a>
@@ -233,6 +244,7 @@
                     <a href="/" @click="sidebarOpen = false" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-white/50 hover:text-white hover:bg-white/5 transition-colors">
                         <i class="fa-solid fa-arrow-left w-5"></i> Volver al sitio
                     </a>
+                    @endif
                 </nav>
             </aside>
         </div>

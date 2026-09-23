@@ -25,6 +25,11 @@
     <meta property="og:site_name" content="Invicta Costa Rica" />
     <meta property="og:locale" content="es_CR" />
     <meta property="og:image" content="{{ $ogImage ?? route('og.brand') }}" />
+    @if(str_contains($ogImage ?? '', '/og/product/'))
+    <meta property="og:image:type" content="image/jpeg" />
+    @else
+    <meta property="og:image:type" content="image/png" />
+    @endif
     <meta property="og:image:width" content="1080" />
     <meta property="og:image:height" content="1080" />
     <meta property="og:image:alt" content="{{ $ogImageAlt ?? ($title ?? 'Invicta Costa Rica') }}" />

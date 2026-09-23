@@ -86,7 +86,10 @@ class Invoices extends Component
             'totalAmount' => (clone $totalsQuery)->sum('total'),
             'totalDiscount' => (clone $totalsQuery)->sum('discount'),
             'totalShipping' => (clone $totalsQuery)->sum('shipping'),
-            'totalUtility' => (clone $totalsQuery)->sum('estimated_utility'),
+            // La utilidad solo cuenta lo realmente vendido: los apartados aún
+            // no están cobrados y los eliminados no venden. Al completarse un
+            // apartado pasa a facturado y ahí sí suma.
+            'totalUtility' => (clone $totalsQuery)->where('status', 'facturado')->sum('estimated_utility'),
         ];
         $totals->average = $totals->count > 0 ? $totals->totalAmount / $totals->count : 0;
 

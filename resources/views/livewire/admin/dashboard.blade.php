@@ -30,6 +30,26 @@
         </div>
         @endif
 
+        {{-- Tarjetas de conversión de lista de espera --}}
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-2 mb-4">
+            <div class="bg-gray-50 dark:bg-white/5 rounded-xl p-3">
+                <p class="text-[10px] text-gray-500 uppercase tracking-wider">Solicitudes</p>
+                <p class="text-lg font-black text-gray-900 dark:text-white">{{ number_format($waitlistConversion['total_entries'] ?? 0) }}</p>
+            </div>
+            <div class="bg-gray-50 dark:bg-white/5 rounded-xl p-3">
+                <p class="text-[10px] text-gray-500 uppercase tracking-wider">Conversión a compra</p>
+                <p class="text-lg font-black text-emerald-500">{{ number_format($waitlistConversion['conversion_rate'] ?? 0) }}%</p>
+            </div>
+            <div class="bg-gray-50 dark:bg-white/5 rounded-xl p-3">
+                <p class="text-[10px] text-gray-500 uppercase tracking-wider">Modelos comprados</p>
+                <p class="text-lg font-black text-[#00C4FF]">{{ number_format($waitlistConversion['models_with_purchase'] ?? 0) }}</p>
+            </div>
+            <div class="bg-gray-50 dark:bg-white/5 rounded-xl p-3">
+                <p class="text-[10px] text-gray-500 uppercase tracking-wider">Espera promedio</p>
+                <p class="text-lg font-black text-amber-500">{{ $waitlistConversion['avg_wait_days'] !== null ? number_format($waitlistConversion['avg_wait_days'], 1) . ' días' : '—' }}</p>
+            </div>
+        </div>
+
         @if(count($waitlistResumen) > 0)
         <div class="overflow-x-auto">
             <table class="w-full text-sm">
@@ -80,19 +100,51 @@
         </div>
     </div>
 
-    @if(($daysSinceLastGaSync !== null && $daysSinceLastGaSync > 2) || ($daysSinceLastAdsSync !== null && $daysSinceLastAdsSync > 2))
-    <div class="mb-6 p-3 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 flex items-center gap-3 text-sm">
-        <i class="fa-solid fa-triangle-exclamation text-red-500"></i>
-        <p class="text-red-700 dark:text-red-400">
-            <span class="font-black">Datos desactualizados:</span>
-            @if($daysSinceLastGaSync !== null && $daysSinceLastGaSync > 2)
-                Google Analytics no sincroniza hace {{ $daysSinceLastGaSync }} días.
-            @endif
-            @if($daysSinceLastAdsSync !== null && $daysSinceLastAdsSync > 2)
-                Google Ads no sincroniza hace {{ $daysSinceLastAdsSync }} días.
-            @endif
-            Las métricas de tráfico/publicidad de este período pueden no ser confiables — no es necesariamente una caída real.
-        </p>
+    @if(count($activeAlerts) > 0)
+    <div class="mb-6 space-y-2">
+        <div class="flex items-center justify-between">
+            <h3 class="text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                <i class="fa-solid fa-bell text-amber-500 mr-1"></i> Alertas del sistema
+            </h3>
+            <button wire:click="resolverTodasAlertas" class="text-[10px] font-extrabold uppercase text-amber-600 dark:text-amber-400 hover:underline">Resolver todas</button>
+        </div>
+        @foreach($activeAlerts as $alert)
+        <div class="flex items-start gap-3 p-3 rounded-xl {{ $alert['level'] === 'critical' ? 'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30' : 'bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/30' }}">
+            <i class="fa-solid {{ $alert['level'] === 'critical' ? 'fa-circle-exclamation text-red-500' : 'fa-triangle-exclamation text-amber-500' }} mt-0.5"></i>
+            <div class="flex-1 min-w-0">
+                <p class="text-xs font-bold {{ $alert['level'] === 'critical' ? 'text-red-700 dark:text-red-400' : 'text-amber-700 dark:text-amber-400' }}">{{ $alert['title'] }}</p>
+                @if($alert['message'])
+                <p class="text-xs {{ $alert['level'] === 'critical' ? 'text-red-600/70 dark:text-red-400/70' : 'text-amber-600/70 dark:text-amber-400/70' }}">{{ $alert['message'] }}</p>
+                @endif
+                <p class="text-[10px] text-gray-400 mt-0.5">{{ $alert['created_at'] }}</p>
+            </div>
+            <button wire:click="resolverAlerta({{ $alert['id'] }})" class="shrink-0 text-[10px] font-extrabold uppercase {{ $alert['level'] === 'critical' ? 'text-red-600 dark:text-red-400' : 'text-amber-600 dark:text-amber-400' }} hover:underline">Resolver</button>
+        </div>
+        @endforeach
+    </div>
+    @endif
+
+    @if(($daysSinceLastGaSync !== null && $daysSinceLastGaSync > 2) || ($daysSinceLastAdsSync !== null && $daysSinceLastAdsSync > 2) || ($daysSinceLastFbSync !== null && $daysSinceLastFbSync > 2) || ($daysSinceLastScSync !== null && $daysSinceLastScSync > 2))
+    <div class="mb-6 p-3 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 flex items-start gap-3 text-sm">
+        <i class="fa-solid fa-triangle-exclamation text-red-500 mt-0.5"></i>
+        <div class="flex-1">
+            <p class="text-red-700 dark:text-red-400 font-black">Datos desactualizados:</p>
+            <ul class="mt-1 space-y-0.5 text-xs text-red-600/80 dark:text-red-400/80">
+                @if($daysSinceLastGaSync !== null && $daysSinceLastGaSync > 2)
+                <li>• Google Analytics: {{ $daysSinceLastGaSync }} días sin sincronizar</li>
+                @endif
+                @if($daysSinceLastAdsSync !== null && $daysSinceLastAdsSync > 2)
+                <li>• Google Ads: {{ $daysSinceLastAdsSync }} días sin sincronizar</li>
+                @endif
+                @if($daysSinceLastFbSync !== null && $daysSinceLastFbSync > 2)
+                <li>• Meta Ads: {{ $daysSinceLastFbSync }} días sin sincronizar</li>
+                @endif
+                @if($daysSinceLastScSync !== null && $daysSinceLastScSync > 2)
+                <li>• Search Console: {{ $daysSinceLastScSync }} días sin sincronizar</li>
+                @endif
+            </ul>
+            <p class="text-xs text-red-600/60 dark:text-red-400/60 mt-1">Las métricas pueden no ser confiables — no es necesariamente una caída real.</p>
+        </div>
     </div>
     @endif
 
@@ -199,53 +251,120 @@
         </div>
     </div>
 
-    <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-6 mb-10">
-        <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
-            <h2 class="font-black text-gray-900 dark:text-white uppercase tracking-wider text-sm">Servidor</h2>
-            <span class="text-xs font-bold px-2 py-1 rounded {{ $serverMetricsAvailable ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400' }}">{{ $serverMetricsAvailable ? 'netdata activo' : 'netdata no disponible' }}</span>
-        </div>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
+        {{-- Servidor --}}
+        <div class="lg:col-span-2 bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-6">
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+                <h2 class="font-black text-gray-900 dark:text-white uppercase tracking-wider text-sm">Servidor</h2>
+                <span class="text-xs font-bold px-2 py-1 rounded {{ $serverMetricsAvailable ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400' }}">
+                    {{ $serverMetricsAvailable ? 'netdata' : 'fallback PHP' }}
+                </span>
+            </div>
 
-        @if($serverMetricsAvailable)
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
-            <div class="bg-gray-50 dark:bg-white/5 rounded-xl p-4">
-                <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">CPU ahora</p>
-                <p class="text-xl font-black text-[#00C4FF]">{{ $serverStats['cpu_pct'] ?? 0 }}%</p>
-                <div class="mt-2 h-1.5 bg-gray-200 dark:bg-white/10 rounded-full overflow-hidden">
-                    <div class="h-full bg-[#00C4FF] rounded-full" style="width: {{ min($serverStats['cpu_pct'] ?? 0, 100) }}%"></div>
+            @php $s = $serverMetricsAvailable ? $serverStats : $serverPhpFallback; @endphp
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
+                <div class="bg-gray-50 dark:bg-white/5 rounded-xl p-4">
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">{{ $serverMetricsAvailable ? 'CPU ahora' : 'CPU (load)' }}</p>
+                    <p class="text-xl font-black text-[#00C4FF]">{{ $s['cpu_pct'] ?? 0 }}%</p>
+                    @if(!$serverMetricsAvailable)
+                    <p class="text-[10px] text-gray-400 mt-0.5">load: {{ $s['load1'] ?? 0 }} / {{ $s['load5'] ?? 0 }}</p>
+                    @endif
+                    <div class="mt-2 h-1.5 bg-gray-200 dark:bg-white/10 rounded-full overflow-hidden">
+                        <div class="h-full bg-[#00C4FF] rounded-full" style="width: {{ min($s['cpu_pct'] ?? 0, 100) }}%"></div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 dark:bg-white/5 rounded-xl p-4">
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">RAM ahora</p>
+                    <p class="text-xl font-black text-gray-900 dark:text-white">{{ $s['ram_pct'] ?? 0 }}%</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ number_format($s['ram_used_mib'] ?? 0) }} / {{ number_format($s['ram_total_mib'] ?? 0) }} MiB</p>
+                    <div class="mt-2 h-1.5 bg-gray-200 dark:bg-white/10 rounded-full overflow-hidden">
+                        <div class="h-full {{ ($s['ram_pct'] ?? 0) > 90 ? 'bg-red-500' : 'bg-emerald-500' }} rounded-full" style="width: {{ min($s['ram_pct'] ?? 0, 100) }}%"></div>
+                    </div>
+                </div>
+                @if($serverMetricsAvailable)
+                <div class="bg-gray-50 dark:bg-white/5 rounded-xl p-4">
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Pico CPU (7d)</p>
+                    <p class="text-xl font-black text-amber-500">{{ $serverPeak['cpu_pct'] !== null ? $serverPeak['cpu_pct'] . '%' : '—' }}</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Load: {{ number_format($s['load1'] ?? 0, 2) }} / {{ number_format($s['load5'] ?? 0, 2) }}</p>
+                </div>
+                <div class="bg-gray-50 dark:bg-white/5 rounded-xl p-4">
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Pico RAM (7d)</p>
+                    <p class="text-xl font-black text-emerald-500">{{ $serverPeak['ram_used_mib'] !== null ? number_format($serverPeak['ram_used_mib']) . ' MiB' : '—' }}</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ $s['cores'] ?? 0 }} cores · uptime {{ gmdate('d\d H\h', (int) ($s['uptime'] ?? 0)) }}</p>
+                </div>
+                @else
+                <div class="bg-gray-50 dark:bg-white/5 rounded-xl p-4">
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">PHP</p>
+                    <p class="text-lg font-black text-gray-900 dark:text-white">{{ $s['php_version'] ?? '—' }}</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Laravel {{ $s['laravel_version'] ?? '—' }}</p>
+                </div>
+                <div class="bg-gray-50 dark:bg-white/5 rounded-xl p-4">
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Disco</p>
+                    <p class="text-xl font-black text-indigo-500">{{ $s['disk_pct'] ?? 0 }}%</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ number_format($s['disk_free_gb'] ?? 0, 1) }} / {{ number_format($s['disk_total_gb'] ?? 0, 1) }} GB libres</p>
+                    <div class="mt-2 h-1.5 bg-gray-200 dark:bg-white/10 rounded-full overflow-hidden">
+                        <div class="h-full {{ ($s['disk_pct'] ?? 0) > 90 ? 'bg-red-500' : 'bg-indigo-500' }} rounded-full" style="width: {{ min($s['disk_pct'] ?? 0, 100) }}%"></div>
+                    </div>
+                </div>
+                @endif
+            </div>
+
+            @if($serverMetricsAvailable)
+            <div wire:ignore>
+                <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                    <p class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Últimas 24 horas</p>
+                    <a href="http://127.0.0.1:19999" target="_blank" rel="noopener noreferrer" class="text-xs font-bold text-[#00C4FF] hover:underline">Panel completo netdata <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i></a>
+                </div>
+                <div style="position:relative;height:200px">
+                    <canvas id="serverChart" style="height:100%"></canvas>
                 </div>
             </div>
-            <div class="bg-gray-50 dark:bg-white/5 rounded-xl p-4">
-                <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">RAM ahora</p>
-                <p class="text-xl font-black text-gray-900 dark:text-white">{{ $serverStats['ram_pct'] ?? 0 }}%</p>
-                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ number_format($serverStats['ram_used_mib'] ?? 0) }} / {{ number_format($serverStats['ram_total_mib'] ?? 0) }} MiB</p>
-                <div class="mt-2 h-1.5 bg-gray-200 dark:bg-white/10 rounded-full overflow-hidden">
-                    <div class="h-full {{ ($serverStats['ram_pct'] ?? 0) > 90 ? 'bg-red-500' : 'bg-emerald-500' }} rounded-full" style="width: {{ min($serverStats['ram_pct'] ?? 0, 100) }}%"></div>
-                </div>
-            </div>
-            <div class="bg-gray-50 dark:bg-white/5 rounded-xl p-4">
-                <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Pico CPU (7d)</p>
-                <p class="text-xl font-black text-amber-500">{{ $serverPeak['cpu_pct'] !== null ? $serverPeak['cpu_pct'] . '%' : '—' }}</p>
-                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Load: {{ number_format($serverStats['load1'] ?? 0, 2) }} / {{ number_format($serverStats['load5'] ?? 0, 2) }}</p>
-            </div>
-            <div class="bg-gray-50 dark:bg-white/5 rounded-xl p-4">
-                <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Pico RAM (7d)</p>
-                <p class="text-xl font-black text-emerald-500">{{ $serverPeak['ram_used_mib'] !== null ? number_format($serverPeak['ram_used_mib']) . ' MiB' : '—' }}</p>
-                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ $serverStats['cores'] ?? 0 }} cores · uptime {{ gmdate('d\d H\h', (int) ($serverStats['uptime'] ?? 0)) }}</p>
-            </div>
-        </div>
-
-        <div wire:ignore>
+            @else
             <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
-                <p class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Últimas 24 horas</p>
-                <a href="http://127.0.0.1:19999" target="_blank" rel="noopener noreferrer" class="text-xs font-bold text-[#00C4FF] hover:underline">Panel completo netdata <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i></a>
+                <p class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">PHP nativo (Netdata no disponible)</p>
             </div>
-            <div style="position:relative;height:200px">
-                <canvas id="serverChart" style="height:100%"></canvas>
-            </div>
+            @endif
         </div>
-        @else
-        <p class="text-sm text-gray-500">No se puede conectar con netdata. Verificar que el servicio esté instalado y activo en el puerto 19999.</p>
-        @endif
+
+        {{-- Últimos errores de aplicación --}}
+        <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="font-black text-gray-900 dark:text-white uppercase tracking-wider text-sm">
+                    <i class="fa-solid fa-bug text-red-500 mr-1"></i> Errores (24h)
+                </h2>
+                <span class="text-xs font-bold px-2 py-1 rounded {{ ($appErrors['count'] ?? 0) > 0 ? 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400' : 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400' }}">
+                    {{ $appErrors['count'] ?? 0 }} errores
+                </span>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 mb-4">
+                <div class="bg-gray-50 dark:bg-white/5 rounded-xl p-3 text-center">
+                    <p class="text-xs text-gray-500 uppercase tracking-wider">Total</p>
+                    <p class="text-xl font-black text-red-500">{{ number_format($appErrors['count'] ?? 0) }}</p>
+                </div>
+                <div class="bg-gray-50 dark:bg-white/5 rounded-xl p-3 text-center">
+                    <p class="text-xs text-gray-500 uppercase tracking-wider">Críticos</p>
+                    <p class="text-xl font-black text-rose-600">{{ number_format($appErrors['critical_count'] ?? 0) }}</p>
+                </div>
+            </div>
+
+            @if(count($appErrors['recent'] ?? []) > 0)
+            <h3 class="font-bold text-[10px] text-gray-500 uppercase tracking-wider mb-2">Últimos errores</h3>
+            <div class="space-y-1.5 max-h-48 overflow-y-auto">
+                @foreach($appErrors['recent'] as $err)
+                <div class="p-2 rounded-lg {{ $err['is_critical'] ? 'bg-red-50 dark:bg-red-900/20' : 'bg-gray-50 dark:bg-white/5' }}">
+                    <p class="text-[10px] font-bold {{ $err['is_critical'] ? 'text-red-600 dark:text-red-400' : 'text-gray-900 dark:text-white' }} truncate">{{ $err['message'] }}</p>
+                    <p class="text-[9px] text-gray-400 mt-0.5">{{ $err['time'] }}</p>
+                </div>
+                @endforeach
+            </div>
+            @else
+            <div class="text-center py-6">
+                <i class="fa-solid fa-circle-check text-emerald-400 text-2xl mb-2"></i>
+                <p class="text-xs text-gray-500">Sin errores en las últimas 24 horas</p>
+            </div>
+            @endif
+        </div>
     </div>
 
     {{-- ==================== MÉTRICAS DE NEGOCIO (ANALYTICS) ==================== --}}
@@ -343,6 +462,103 @@
             <div class="mt-3 pt-3 border-t border-gray-100 dark:border-white/5 flex flex-wrap gap-4 text-xs text-gray-500">
                 <span>₡{{ number_format(($adsPerformance['total_cost'] ?? 0) + ($fbAdsPerformance['total_spend'] ?? 0)) }} gastado</span>
                 <span>{{ number_format(($adsPerformance['total_clicks'] ?? 0) + ($fbAdsPerformance['total_clicks'] ?? 0)) }} clics</span>
+            </div>
+        </div>
+    </div>
+
+    {{-- ==================== SINCRONIZACIÓN VARIEDADESCR ==================== --}}
+    <livewire:admin.sync-manager />
+
+    {{-- ==================== INVENTARIO Y ENVÍOS ==================== --}}
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        {{-- Inventario --}}
+        <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="font-black text-gray-900 dark:text-white uppercase tracking-wider text-sm">
+                    <i class="fa-solid fa-warehouse text-indigo-500 mr-1"></i> Inventario
+                </h2>
+                <a href="{{ route('admin.products') }}" class="text-xs font-extrabold uppercase text-[#00C4FF] hover:underline">Gestionar <i class="fa-solid fa-arrow-right text-[10px]"></i></a>
+            </div>
+            <div class="grid grid-cols-2 gap-3 mb-4">
+                <div class="bg-gray-50 dark:bg-white/5 rounded-xl p-3">
+                    <p class="text-[10px] text-gray-500 uppercase tracking-wider">Total modelos</p>
+                    <p class="text-xl font-black text-gray-900 dark:text-white">{{ number_format($inventorySummary['total_models'] ?? 0) }}</p>
+                </div>
+                <div class="bg-gray-50 dark:bg-white/5 rounded-xl p-3">
+                    <p class="text-[10px] text-gray-500 uppercase tracking-wider">En stock / Agotados</p>
+                    <p class="text-xl font-black">
+                        <span class="text-emerald-500">{{ number_format($inventorySummary['in_stock'] ?? 0) }}</span>
+                        <span class="text-gray-400">/</span>
+                        <span class="text-red-500">{{ number_format($inventorySummary['agotados'] ?? 0) }}</span>
+                    </p>
+                </div>
+            </div>
+            <div class="space-y-3">
+                <div>
+                    <div class="flex justify-between text-xs mb-1">
+                        <span class="text-gray-500">Valor en costo</span>
+                        <span class="font-bold text-gray-900 dark:text-white">₡{{ number_format($inventorySummary['total_cost_value'] ?? 0) }}</span>
+                    </div>
+                    <div class="flex justify-between text-xs">
+                        <span class="text-gray-500">Valor estimado venta</span>
+                        <span class="font-bold text-[#00C4FF]">₡{{ number_format($inventorySummary['total_sale_value'] ?? 0) }}</span>
+                    </div>
+                </div>
+                <div class="pt-2 border-t border-gray-100 dark:border-white/5">
+                    <div class="flex justify-between text-xs">
+                        <span class="text-gray-500">Margen potencial</span>
+                        <span class="font-bold text-emerald-500">{{ $inventorySummary['potential_margin'] ?? 0 }}%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- Costos de envío / márgenes --}}
+        <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="font-black text-gray-900 dark:text-white uppercase tracking-wider text-sm">
+                    <i class="fa-solid fa-truck text-amber-500 mr-1"></i> Envíos y márgenes ({{ $period }})
+                </h2>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+                <div class="bg-gray-50 dark:bg-white/5 rounded-xl p-3">
+                    <p class="text-[10px] text-gray-500 uppercase tracking-wider">Cobrado envíos</p>
+                    <p class="text-lg font-black text-gray-900 dark:text-white">₡{{ number_format($shippingSummary['total_shipping_charged'] ?? 0) }}</p>
+                </div>
+                <div class="bg-gray-50 dark:bg-white/5 rounded-xl p-3">
+                    <p class="text-[10px] text-gray-500 uppercase tracking-wider">Costo envíos</p>
+                    <p class="text-lg font-black text-red-500">₡{{ number_format($shippingSummary['total_shipping_cost'] ?? 0) }}</p>
+                </div>
+                <div class="bg-gray-50 dark:bg-white/5 rounded-xl p-3">
+                    <p class="text-[10px] text-gray-500 uppercase tracking-wider">Margen envío</p>
+                    <p class="text-lg font-black {{ ($shippingSummary['shipping_margin'] ?? 0) >= 0 ? 'text-emerald-500' : 'text-red-500' }}">
+                        ₡{{ number_format($shippingSummary['shipping_margin'] ?? 0) }}
+                    </p>
+                </div>
+                <div class="bg-gray-50 dark:bg-white/5 rounded-xl p-3">
+                    <p class="text-[10px] text-gray-500 uppercase tracking-wider">Facturas período</p>
+                    <p class="text-lg font-black text-gray-900 dark:text-white">{{ number_format($shippingSummary['invoice_count'] ?? 0) }}</p>
+                </div>
+            </div>
+            <div class="space-y-2 text-xs">
+                <div class="flex justify-between">
+                    <span class="text-gray-500">Margen bruto estimado (30%)</span>
+                    <span class="font-bold text-gray-900 dark:text-white">₡{{ number_format($shippingSummary['estimated_gross_margin'] ?? 0) }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-500">Descuentos otorgados</span>
+                    <span class="font-bold text-amber-600">-₡{{ number_format($shippingSummary['total_discount'] ?? 0) }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-500">Neto envío (cobrado - costo)</span>
+                    <span class="font-bold {{ ($shippingSummary['shipping_margin'] ?? 0) >= 0 ? 'text-emerald-500' : 'text-red-500' }}">
+                        ₡{{ number_format($shippingSummary['shipping_margin'] ?? 0) }}
+                    </span>
+                </div>
+                <div class="flex justify-between pt-2 border-t border-gray-100 dark:border-white/5">
+                    <span class="font-bold text-gray-700 dark:text-gray-300">Margen neto real</span>
+                    <span class="font-bold text-emerald-500">₡{{ number_format($shippingSummary['estimated_net_margin'] ?? 0) }}</span>
+                </div>
             </div>
         </div>
     </div>
@@ -556,7 +772,9 @@
 
         <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-6">
             <div class="flex items-center justify-between mb-4">
-                <h2 class="font-black text-gray-900 dark:text-white uppercase tracking-wider text-sm">Meta Ads</h2>
+                <h2 class="font-black text-gray-900 dark:text-white uppercase tracking-wider text-sm">
+                    <i class="fa-brands fa-facebook text-blue-500 mr-1"></i> Meta Ads
+                </h2>
                 <div class="flex items-center gap-2">
                     <button wire:click="testFbConnection" wire:loading.attr="disabled" class="text-[10px] font-bold px-2 py-1 rounded-lg border border-gray-200 dark:border-white/10 text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors disabled:opacity-50">
                         <span wire:loading.remove wire:target="testFbConnection">Probar conexion</span>
@@ -574,15 +792,51 @@
             </div>
             @endif
             @if(count($fbAdsPerformance['by_campaign'] ?? []) > 0)
+            {{-- KPI compactos --}}
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4">
+                <div class="bg-gray-50 dark:bg-white/5 rounded-xl p-2 text-center">
+                    <p class="text-[10px] text-gray-500">Gasto</p>
+                    <p class="text-sm font-black text-gray-900 dark:text-white">₡{{ number_format($fbAdsPerformance['total_spend'] ?? 0, 0) }}</p>
+                </div>
+                <div class="bg-gray-50 dark:bg-white/5 rounded-xl p-2 text-center">
+                    <p class="text-[10px] text-gray-500">ROAS</p>
+                    <p class="text-sm font-black {{ ($fbAdsPerformance['roas'] ?? 0) >= 1 ? 'text-emerald-500' : 'text-red-500' }}">{{ number_format($fbAdsPerformance['roas'] ?? 0, 2) }}x</p>
+                </div>
+                <div class="bg-gray-50 dark:bg-white/5 rounded-xl p-2 text-center">
+                    <p class="text-[10px] text-gray-500">Conversiones</p>
+                    <p class="text-sm font-black text-[#00C4FF]">{{ number_format($fbAdsPerformance['total_conversions'] ?? 0) }}</p>
+                </div>
+                <div class="bg-gray-50 dark:bg-white/5 rounded-xl p-2 text-center">
+                    <p class="text-[10px] text-gray-500">CPA</p>
+                    <p class="text-sm font-black text-amber-500">₡{{ number_format($fbAdsPerformance['avg_cpa'] ?? 0, 0) }}</p>
+                </div>
+            </div>
+            {{-- Campañas --}}
             <div class="space-y-3">
                 @foreach($fbAdsPerformance['by_campaign'] as $name => $campaign)
                 <div class="border-b border-gray-100 dark:border-white/5 pb-3 last:border-0 last:pb-0">
-                    <p class="font-bold text-sm text-gray-900 dark:text-white truncate">{{ $name }}</p>
+                    <div class="flex items-center gap-2 mb-1">
+                        <p class="font-bold text-sm text-gray-900 dark:text-white truncate">{{ $name }}</p>
+                        @if($campaign['status'])
+                        <span class="shrink-0 text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded {{ $campaign['status'] === 'ACTIVE' ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400' : ($campaign['status'] === 'PAUSED' ? 'bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400' : 'bg-gray-100 text-gray-500 dark:bg-white/5') }}">
+                            {{ $campaign['status'] }}
+                        </span>
+                        @endif
+                        @if($campaign['objective'])
+                        <span class="shrink-0 text-[9px] font-bold px-1.5 py-0.5 rounded bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">{{ $campaign['objective'] }}</span>
+                        @endif
+                    </div>
                     <div class="flex flex-wrap gap-x-4 gap-y-1 mt-1 text-xs text-gray-500">
                         <span>{{ number_format($campaign['impressions']) }} imp.</span>
                         <span>{{ number_format($campaign['clicks']) }} clics</span>
                         <span>₡{{ number_format($campaign['spend'], 0) }}</span>
                         <span>{{ number_format($campaign['reach']) }} alcance</span>
+                        <span>frec {{ number_format($campaign['frequency'] ?? 0, 1) }}</span>
+                        @if(($campaign['conversions'] ?? 0) > 0)
+                        <span class="font-bold text-emerald-600 dark:text-emerald-400">{{ number_format($campaign['conversions']) }} conv.</span>
+                        <span class="font-bold {{ ($campaign['roas'] ?? 0) >= 1 ? 'text-emerald-500' : 'text-red-500' }}">ROAS {{ number_format($campaign['roas'] ?? 0, 2) }}x</span>
+                        <span>CPA ₡{{ number_format($campaign['cpa'] ?? 0, 0) }}</span>
+                        @endif
                     </div>
                 </div>
                 @endforeach

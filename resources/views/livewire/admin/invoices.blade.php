@@ -35,7 +35,7 @@
             <div class="text-2xl font-black text-red-500 mt-1">-₡{{ number_format($totals->totalDiscount, 0) }}</div>
         </div>
         <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-gray-200 dark:border-white/5 p-4">
-            <div class="text-xs text-gray-500 uppercase tracking-wider font-bold">Utilidad</div>
+            <div class="text-xs text-gray-500 uppercase tracking-wider font-bold">Utilidad <span class="normal-case font-medium">(solo facturado)</span></div>
             <div class="text-2xl font-black text-[#00C4FF] mt-1">₡{{ number_format($totals->totalUtility, 0) }}</div>
         </div>
     </div>

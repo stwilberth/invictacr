@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Http\Controllers\AdImageController;
 use App\Models\Product;
 use App\Models\StoryHistory;
+use App\Services\AdCreativeService;
 use App\Services\CatalogService;
 use App\Services\FacebookBusinessService;
 use App\Services\InstagramService;
@@ -18,7 +19,7 @@ class PublishStoryPending extends Command
 
     protected $description = 'Publica historias en Facebook/Instagram con el arte vertical 1080x1920';
 
-    public function handle(FacebookBusinessService $fb, InstagramService $ig): int
+    public function handle(FacebookBusinessService $fb, InstagramService $ig, AdCreativeService $creative): int
     {
         $channel = strtolower((string) $this->option('channel'));
         if (!in_array($channel, ['facebook', 'instagram', 'both'], true)) {
@@ -77,8 +78,27 @@ class PublishStoryPending extends Command
                 try {
                     $png = (new AdImageController())->generateStory($product);
 
+                    // Mejora premium con Gemini (con verificación; si falla se usa el original).
+                    if (config('services.gemini.enhance_stories') && $creative->isConfigured()) {
+                        try {
+                            $enhanced = $creative->enhance($product, $png, 'story');
+                            if ($enhanced !== null) {
+                                $png = $enhanced;
+                                $this->info("  Arte mejorado con Gemini para {$product->modelo}.");
+                            }
+                        } catch (\Throwable $e) {
+                            Log::warning("Gemini enhance falló para {$product->modelo} (story), usando original: " . $e->getMessage());
+                        }
+                    }
+
                     if ($ch === 'facebook') {
-                        $storyId = $fb->publishPhotoStory($png, $product->modelo . '-story.png');
+                        $result = $fb->publishPhotoStory($png, $product->modelo . '-story.png');
+                        if (!$result) {
+                            $this->error("No se pudo publicar la historia de {$product->modelo} en {$ch}.");
+                            continue;
+                        }
+                        $storyId = $result['media_id'];
+                        $postId = $result['post_id'];
                     } else {
                         $url = $this->uploadStoryImage($png, $product);
                         if (!$url) {
@@ -86,6 +106,7 @@ class PublishStoryPending extends Command
                             continue;
                         }
                         $storyId = $ig->publishStory($url);
+                        $postId = null;
                     }
 
                     if (!$storyId) {
@@ -97,6 +118,7 @@ class PublishStoryPending extends Command
                         'product_id' => $product->id,
                         'model_code' => $product->modelo,
                         'story_id' => $storyId,
+                        'post_id' => $postId,
                         'channel' => $ch,
                         'text_content' => 'INVICTA ' . strtoupper($product->coleccion ?? $product->modelo ?? ''),
                     ]);

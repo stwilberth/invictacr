@@ -29,6 +29,8 @@ class StoryArt extends Component
             'instagram' => StoryHistory::where('channel', 'instagram')->count(),
             'views' => StoryHistory::sum('views'),
             'impressions' => StoryHistory::sum('impressions'),
+            'reactions' => StoryHistory::sum('reactions'),
+            'replies' => StoryHistory::sum('replies'),
         ];
 
         $stories = $query->paginate(12);

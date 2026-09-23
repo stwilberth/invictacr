@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Http\Controllers\AdImageController;
 use App\Models\DownloadHistory;
 use App\Models\Product;
+use App\Services\AdCreativeService;
 use App\Services\CatalogService;
 use App\Services\FacebookBusinessService;
 use Illuminate\Console\Command;
@@ -16,7 +17,7 @@ class PublishFacebookPending extends Command
 
     protected $description = 'Publica en Facebook los relojes pendientes (no descendidos/publicados) al azar';
 
-    public function handle(FacebookBusinessService $service): int
+    public function handle(FacebookBusinessService $service, AdCreativeService $creative): int
     {
         if (!$service->isConfigured()) {
             $this->warn('Facebook no está configurado. Revisá META_ACCESS_TOKEN y META_PAGE_ID.');
@@ -49,6 +50,20 @@ class PublishFacebookPending extends Command
                 // subida directo a Facebook por multipart.
                 try {
                     $png = (new AdImageController())->generate($product);
+
+                    // Mejora premium con Gemini (con verificación; si falla se usa el original).
+                    if (config('services.gemini.enhance_feed') && $creative->isConfigured()) {
+                        try {
+                            $enhanced = $creative->enhance($product, $png, 'feed');
+                            if ($enhanced !== null) {
+                                $png = $enhanced;
+                                $this->info("  Arte mejorado con Gemini para {$product->modelo}.");
+                            }
+                        } catch (\Throwable $e) {
+                            Log::warning("Gemini enhance falló para {$product->modelo} (feed), usando original: " . $e->getMessage());
+                        }
+                    }
+
                     $postId = $service->publishPhotoContents($png, $message, $this->productUrl($product), $product->modelo . '.png');
                 } catch (\Throwable $e) {
                     Log::warning("Ad image generate failed for {$product->modelo}, usando foto del producto: " . $e->getMessage());

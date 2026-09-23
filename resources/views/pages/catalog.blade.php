@@ -56,14 +56,16 @@
                             <select
                                 id="catalog-sort-mobile"
                                 onchange="window.CatalogManager && window.CatalogManager.setFilter('sort', this.value)"
-                                class="min-w-0 bg-transparent text-white appearance-none -webkit-appearance-none uppercase text-xs font-black text-center focus:outline-none transition-all"
+                                class="min-w-0 bg-transparent text-white appearance-none -webkit-appearance-none uppercase text-xs font-black text-center focus:outline-none transition-all pr-4 [&>option]:bg-white [&>option]:text-gray-900"
+                                style="background-image: none;"
                             >
-                                <option value="" {{ (!request('sort') || request('sort') === 'featured') ? 'selected' : '' }}>Destacados</option>
-                                <option value="newest" {{ request('sort') === 'newest' ? 'selected' : '' }}>Más nuevos</option>
-                                <option value="most_viewed" {{ request('sort') === 'most_viewed' ? 'selected' : '' }}>Más vistos</option>
-                                <option value="price_asc" {{ request('sort') === 'price_asc' ? 'selected' : '' }}>Precio: menor a mayor</option>
-                                <option value="price_desc" {{ request('sort') === 'price_desc' ? 'selected' : '' }}>Precio: mayor a menor</option>
+                                <option value="" {{ (!request('sort') || request('sort') === 'featured') ? 'selected' : '' }} class="bg-white text-gray-900">Destacados</option>
+                                <option value="newest" {{ request('sort') === 'newest' ? 'selected' : '' }} class="bg-white text-gray-900">Más nuevos</option>
+                                <option value="most_viewed" {{ request('sort') === 'most_viewed' ? 'selected' : '' }} class="bg-white text-gray-900">Más vistos</option>
+                                <option value="price_asc" {{ request('sort') === 'price_asc' ? 'selected' : '' }} class="bg-white text-gray-900">Precio: menor a mayor</option>
+                                <option value="price_desc" {{ request('sort') === 'price_desc' ? 'selected' : '' }} class="bg-white text-gray-900">Precio: mayor a menor</option>
                             </select>
+                            <i class="fa-solid fa-chevron-down text-white text-[10px] -ml-3 pointer-events-none"></i>
                         </div>
                     </div>
                 </div>
@@ -150,14 +152,16 @@
                             <select
                                 id="catalog-sort"
                                 onchange="window.CatalogManager && window.CatalogManager.setFilter('sort', this.value)"
-                                class="min-w-0 bg-transparent text-white appearance-none -webkit-appearance-none uppercase text-xs font-black text-center focus:outline-none transition-all"
+                                class="min-w-0 bg-transparent text-white appearance-none -webkit-appearance-none uppercase text-xs font-black text-center focus:outline-none transition-all pr-4 [&>option]:bg-white [&>option]:text-gray-900"
+                                style="background-image: none;"
                             >
-                                <option value="" {{ (!request('sort') || request('sort') === 'featured') ? 'selected' : '' }}>Destacados</option>
-                                <option value="newest" {{ request('sort') === 'newest' ? 'selected' : '' }}>Más nuevos</option>
-                                <option value="most_viewed" {{ request('sort') === 'most_viewed' ? 'selected' : '' }}>Más vistos</option>
-                                <option value="price_asc" {{ request('sort') === 'price_asc' ? 'selected' : '' }}>Precio: menor a mayor</option>
-                                <option value="price_desc" {{ request('sort') === 'price_desc' ? 'selected' : '' }}>Precio: mayor a menor</option>
+                                <option value="" {{ (!request('sort') || request('sort') === 'featured') ? 'selected' : '' }} class="bg-white text-gray-900">Destacados</option>
+                                <option value="newest" {{ request('sort') === 'newest' ? 'selected' : '' }} class="bg-white text-gray-900">Más nuevos</option>
+                                <option value="most_viewed" {{ request('sort') === 'most_viewed' ? 'selected' : '' }} class="bg-white text-gray-900">Más vistos</option>
+                                <option value="price_asc" {{ request('sort') === 'price_asc' ? 'selected' : '' }} class="bg-white text-gray-900">Precio: menor a mayor</option>
+                                <option value="price_desc" {{ request('sort') === 'price_desc' ? 'selected' : '' }} class="bg-white text-gray-900">Precio: mayor a menor</option>
                             </select>
+                            <i class="fa-solid fa-chevron-down text-white text-[10px] -ml-3 pointer-events-none"></i>
                         </div>
                         <button @click="searchOpen = true" class="shrink-0 inline-flex items-center justify-center gap-1.5 bg-[#14325E] hover:bg-[#0A2342] rounded-none px-2.5 py-2.5 text-xs font-black uppercase tracking-wider text-white dark:border dark:border-white/20 active:scale-95 transition-all shadow-sm hover:shadow">
                             Buscar
@@ -233,6 +237,16 @@
     </div>
 
     @push('scripts')
+    <style>
+        /* Native <option> dropdown must stay readable: the <select> itself is
+           white-on-navy, but the opened list is system-white, so options
+           need explicit dark-on-white (fixes blank/white dropdown bug). */
+        #catalog-sort option,
+        #catalog-sort-mobile option {
+            background-color: #ffffff;
+            color: #111827;
+        }
+    </style>
     <script>
         /**
          * CatalogManager — Single Source of Truth for search, filters & scroll infinito.
