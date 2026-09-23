@@ -413,15 +413,15 @@
         var pixelPrice = {{ $product->precio_final }};
         window.invictaProductId = {{ $product->id }};
 
-        if (typeof fbq !== "undefined") {
-            fbq("track", "ViewContent", {
-                content_ids: [pixelModel],
-                content_name: pixelTitle,
-                content_type: "product",
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push({
+            event: "view_item",
+            eventModel: {
+                currency: "CRC",
                 value: pixelPrice,
-                currency: "CRC"
-            });
-        }
+                items: [{ item_id: pixelModel, item_name: pixelTitle }]
+            }
+        });
     </script>
 
     @push('scripts')

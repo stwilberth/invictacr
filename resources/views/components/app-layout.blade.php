@@ -57,18 +57,6 @@
         window.dataLayer = window.dataLayer || [];
         window.dataLayer.push({'gtm.start': new Date().getTime(), event: 'gtm.js'});
 
-        !(function (f, b, e, v, n) {
-            if (f.fbq) return;
-            n = f.fbq = function () {
-                n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments);
-            };
-            if (!f._fbq) f._fbq = n;
-            n.push = n; n.loaded = !0; n.version = "2.0"; n.queue = [];
-        })(window, document, "script");
-        fbq("init", "1666700714574473");
-        fbq("init", "1052127637662654");
-        fbq("track", "PageView");
-
         (function () {
             var loaded = false;
             function loadTrackers() {
@@ -78,10 +66,6 @@
                 g.async = true;
                 g.src = "https://www.googletagmanager.com/gtm.js?id=GTM-MFKHNJ9V";
                 document.head.appendChild(g);
-                var fb = document.createElement("script");
-                fb.async = true;
-                fb.src = "https://connect.facebook.net/en_US/fbevents.js";
-                document.head.appendChild(fb);
                 ["scroll", "click", "touchstart", "keydown", "mousemove"].forEach(function (ev) {
                     window.removeEventListener(ev, loadTrackers, { passive: true });
                 });
@@ -98,8 +82,7 @@
     </script>
     <noscript>
         <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MFKHNJ9V" height="0" width="0" style="display:none;visibility:hidden"></iframe>
-        <img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=1666700714574473&ev=PageView&noscript=1" />
-        <img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=1052127637662654&ev=PageView&noscript=1" />
+        <img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=598963306401170&ev=PageView&noscript=1" />
     </noscript>
 
     <script>
@@ -109,24 +92,15 @@
             var productModel = typeof pixelModel !== "undefined" ? pixelModel : "";
             var productTitle = typeof pixelTitle !== "undefined" ? pixelTitle : "";
             var productPrice = typeof pixelPrice !== "undefined" ? pixelPrice : 0;
-            if (typeof fbq !== "undefined") {
-                fbq("track", "Contact", {
-                    content_ids: productModel ? [productModel] : [],
-                    content_name: productTitle || document.title,
-                    content_type: "product",
-                    value: productPrice,
+            window.dataLayer.push({
+                event: "contacto_whatsapp",
+                eventModel: {
                     currency: "CRC",
-                    event_url: window.location.href,
-                });
-                fbq("track", "Lead", {
-                    content_ids: productModel ? [productModel] : [],
-                    content_name: productTitle || document.title,
-                    content_type: "product",
                     value: productPrice,
-                    currency: "CRC",
-                    event_url: window.location.href,
-                });
-            }
+                    transaction_id: "",
+                    items: [{ item_id: productModel, item_name: productTitle }]
+                }
+            });
         });
     </script>
 
@@ -501,6 +475,14 @@
                 if (window.invictaTrack) {
                     window.invictaTrack('add_to_cart', { product_id: productId });
                 }
+                window.dataLayer.push({
+                    event: "add_to_cart",
+                    eventModel: {
+                        currency: "CRC",
+                        value: "",
+                        items: [{ item_id: productId }]
+                    }
+                });
                 if (btn) {
                     btn.innerHTML = '<i class="fa-solid fa-check text-[9px]"></i> Agregado';
                     btn.classList.remove('bg-[#00C4FF]', 'hover:bg-[#00a3d6]');

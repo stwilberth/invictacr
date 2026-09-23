@@ -1,4 +1,21 @@
 <x-app-layout title="Pedido Confirmado" :hideWhatsApp="true" noindex>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push({
+            event: "purchase",
+            eventModel: {
+                currency: "CRC",
+                value: {{ (float) $invoice->total }},
+                transaction_id: "{{ $invoice->invoice_number }}",
+                items: @json($invoice->items->map(fn ($i) => [
+                    'item_id' => $i->product_model,
+                    'item_name' => $i->product_name,
+                    'quantity' => (int) $i->quantity,
+                    'price' => (float) $i->unit_price,
+                ]))
+            }
+        });
+    </script>
     <section class="bg-white dark:bg-[#0a0f1c] pt-8 pb-16 md:pt-12 md:pb-24">
         <div class="max-w-3xl mx-auto px-4">
             {{-- Header --}}
