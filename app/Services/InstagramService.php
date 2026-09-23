@@ -24,6 +24,90 @@ class InstagramService
     }
 
     /**
+     * Perfil de la cuenta (seguidores, total de medios, foto).
+     */
+    public function fetchProfile(): ?array
+    {
+        if (!$this->isConfigured()) {
+            return null;
+        }
+
+        try {
+            $response = Http::get("https://graph.facebook.com/{$this->apiVersion}/{$this->igId}", [
+                'fields' => 'username,followers_count,media_count,profile_picture_url',
+                'access_token' => $this->accessToken,
+            ]);
+
+            return $response->successful() ? $response->json() : null;
+        } catch (\Exception $e) {
+            report($e);
+            return null;
+        }
+    }
+
+    /**
+     * Medios recientes con likes/comentarios y enlace público.
+     */
+    public function fetchRecentMedia(int $limit = 12): array
+    {
+        if (!$this->isConfigured()) {
+            return [];
+        }
+
+        try {
+            $response = Http::get("https://graph.facebook.com/{$this->apiVersion}/{$this->igId}/media", [
+                'fields' => 'id,caption,media_type,media_url,thumbnail_url,permalink,timestamp,like_count,comments_count',
+                'limit' => max(1, min(50, $limit)),
+                'access_token' => $this->accessToken,
+            ]);
+
+            return $response->successful() ? ($response->json('data', [])) : [];
+        } catch (\Exception $e) {
+            report($e);
+            return [];
+        }
+    }
+
+    /**
+     * Insights de un medio (alcance, vistas, guardados, compartidos).
+     * Se pide una métrica por request para aislar errores de permiso.
+     */
+    public function fetchMediaInsights(string $mediaId): array
+    {
+        $default = ['reach' => 0, 'views' => 0, 'likes' => 0, 'comments' => 0, 'saves' => 0, 'shares' => 0];
+
+        if (!$this->isConfigured()) {
+            return $default;
+        }
+
+        try {
+            $insights = $default;
+
+            foreach (['reach', 'views', 'likes', 'comments', 'saved', 'shares'] as $metric) {
+                $response = Http::get("https://graph.facebook.com/{$this->apiVersion}/{$mediaId}/insights", [
+                    'metric' => $metric,
+                    'access_token' => $this->accessToken,
+                ]);
+
+                if (!$response->successful()) {
+                    continue;
+                }
+
+                foreach ($response->json('data', []) as $row) {
+                    $value = $row['values'][0]['value'] ?? 0;
+                    $field = $metric === 'saved' ? 'saves' : $metric;
+                    $insights[$field] += is_array($value) ? (int) array_sum($value) : (int) $value;
+                }
+            }
+
+            return $insights;
+        } catch (\Exception $e) {
+            report($e);
+            return $default;
+        }
+    }
+
+    /**
      * Publica una historia en Instagram. La API exige URL pública (no bytes):
      * crea el contenedor, espera a que quede FINISHED y lo publica.
      *

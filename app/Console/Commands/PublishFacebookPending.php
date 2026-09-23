@@ -80,6 +80,8 @@ class PublishFacebookPending extends Command
                     'model_code' => $product->modelo,
                     'product_image' => $product->imagen,
                     'text_content' => $message,
+                    'post_id' => $postId,
+                    'channel' => 'facebook',
                 ]);
 
                 $this->info("Publicado {$product->modelo} (post {$postId}).");
@@ -117,6 +119,9 @@ class PublishFacebookPending extends Command
 
     private function productUrl(Product $product): string
     {
-        return route('products.show', ['slug' => $product->slug ?: $product->modelo]);
+        // UTM para medir tráfico y ventas de publicaciones orgánicas en GA4/Meta.
+        return route('products.show', ['slug' => $product->slug ?: $product->modelo])
+            . '?utm_source=facebook&utm_medium=organic_social&utm_campaign=auto_feed&utm_content='
+            . urlencode((string) ($product->modelo ?? ''));
     }
 }

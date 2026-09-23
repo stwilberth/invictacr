@@ -94,6 +94,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::get('/expenses', \App\Livewire\Admin\Expenses::class)->name('expenses');
     Route::get('/marketing', \App\Livewire\Admin\Marketing::class)->name('marketing');
     Route::get('/campaigns', \App\Livewire\Admin\Campaigns::class)->name('campaigns');
+    Route::get('/instagram', \App\Livewire\Admin\InstagramPanel::class)->name('instagram');
     Route::get('/historias', \App\Livewire\Admin\StoryArt::class)->name('historias');
     Route::get('/historias/{history}/png', [\App\Http\Controllers\Admin\StoryArtController::class, 'download'])->name('historias.png');
     Route::post('/narrations', [\App\Http\Controllers\Admin\NarrationController::class, 'store'])->name('narrations.store');
