@@ -17,36 +17,43 @@ class TrackVisitor
 
     public function handle(Request $request, Closure $next): Response
     {
-        $response = $next($request);
-
         if (!$this->shouldTrack($request)) {
-            return $response;
+            return $next($request);
         }
 
+        // Resolver ANTES de renderizar para que $visitorUuid esté
+        // disponible en las vistas (ej: código ref de WhatsApp).
         try {
             $visitor = $this->resolveVisitor($request);
 
             if ($visitor) {
                 View::share('visitorUuid', $visitor->uuid);
-
-                if (!$request->cookies->has(Visitor::COOKIE_NAME)) {
-                    $response->headers->setCookie(
-                        cookie(
-                            Visitor::COOKIE_NAME,
-                            $visitor->uuid,
-                            60 * 24 * 365 * 2, // 2 años
-                            '/',
-                            null,
-                            $request->isSecure(),
-                            true, // httpOnly
-                            false,
-                            'Lax'
-                        )
-                    );
-                }
             }
         } catch (\Throwable $e) {
             report($e);
+            $visitor = null;
+        }
+
+        $response = $next($request);
+
+        if ($visitor && !$request->cookies->has(Visitor::COOKIE_NAME)) {
+            try {
+                $response->headers->setCookie(
+                    cookie(
+                        Visitor::COOKIE_NAME,
+                        $visitor->uuid,
+                        60 * 24 * 365 * 2, // 2 años
+                        '/',
+                        null,
+                        $request->isSecure(),
+                        true, // httpOnly
+                        false,
+                        'Lax'
+                    )
+                );
+            } catch (\Throwable $e) {
+                report($e);
+            }
         }
 
         return $response;

@@ -7,6 +7,8 @@
     $pageSize = 24;
     $totalCount = $products->count();
     $firstPage = $products->take($pageSize);
+    $refCode = strtoupper(substr((string) ($visitorUuid ?? ''), -6));
+    $refSuffix = $refCode ? " (ref: {$refCode})" : '';
 @endphp
 
 <x-app-layout :title="'Relojes Invicta ' . ($gender ? ucfirst($gender) . ' ' : 'Originales ') . 'en Costa Rica | Envío Gratis'" :titleSuffix="false" :description="'Relojes Invicta ' . ($gender ? 'para ' . $gender : 'originales') . ' en Costa Rica: cientos de modelos 100% originales, envío gratis en GAM y pago contra entrega.'" :canonical="request()->filled('gender') && !request()->route('gender') ? url('/relojes') . '?gender=' . urlencode($gender) : null">
@@ -212,7 +214,7 @@
                                    class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 font-bold rounded-xl text-sm transition-all border border-gray-200 dark:border-gray-700">
                                     <i class="fa-solid fa-clock"></i> Ver todo el catálogo
                                 </a>
-                                <a href="https://wa.me/50686711422?text=Hola%2C%20busco%20un%20reloj%20Invicta"
+                                <a href="https://wa.me/50686711422?text={{ urlencode('Hola, busco un reloj Invicta' . ($refSuffix ?? '')) }}"
                                    target="_blank"
                                    class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-green-500 hover:bg-green-600 text-white font-bold rounded-xl text-sm transition-all shadow-lg shadow-green-500/20">
                                     <i class="fa-brands fa-whatsapp text-lg"></i> Escribinos por WhatsApp

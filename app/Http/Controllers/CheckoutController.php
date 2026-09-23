@@ -146,6 +146,7 @@ class CheckoutController extends Controller
             $invoiceNumber = Invoice::generateUniqueNumber();
 
             // Guardar datos de contacto en el perfil de visitante
+            $visitor = null;
             try {
                 $visitor = \App\Models\Visitor::currentFromRequest($request);
                 if ($visitor) {
@@ -164,6 +165,7 @@ class CheckoutController extends Controller
             $invoice = Invoice::create([
                 'invoice_number' => $invoiceNumber,
                 'client_id' => $client->id,
+                'visitor_id' => $visitor?->id,
                 'client_name' => $request->name,
                 'client_email' => $request->email,
                 'client_phone' => $request->phone,

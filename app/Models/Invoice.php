@@ -7,10 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 class Invoice extends Model
 {
     protected $fillable = [
-        'invoice_number', 'client_id', 'client_name', 'client_email',
-        'client_phone', 'customer_address', 'subtotal', 'discount',
+        'invoice_number', 'client_id', 'client_email',
+        'client_name', 'client_phone', 'customer_address', 'subtotal', 'discount',
         'shipping', 'shipping_cost', 'total', 'status', 'shipping_status',
-        'payment_method', 'paypal_transaction_id', 'source',
+        'payment_method', 'paypal_transaction_id', 'source', 'visitor_id',
         'notes', 'issued_at', 'delivery_date', 'delivery_time_start',
         'delivery_time_end', 'location', 'needs_bracelet_adjustment',
         'creation_date', 'estimated_utility', 'cedula', 'created_at',
@@ -32,6 +32,11 @@ class Invoice extends Model
     public function client()
     {
         return $this->belongsTo(Client::class);
+    }
+
+    public function visitor()
+    {
+        return $this->belongsTo(Visitor::class);
     }
 
     public function items()

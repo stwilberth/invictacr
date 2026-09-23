@@ -53,6 +53,18 @@
                         <label class="text-xs text-gray-500 block mb-1">Cédula</label>
                         <input wire:model="cedula" type="text" value="{{ $this->cedula }}" class="w-full bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2 text-sm" placeholder="Número de cédula" />
                     </div>
+                    <div>
+                        <label class="text-xs text-gray-500 block mb-1">Ref. WhatsApp <span class="text-gray-400 normal-case">(código del mensaje, ej: K4X9Z2)</span></label>
+                        <input wire:model="whatsapp_ref" type="text" value="{{ $this->whatsapp_ref }}" class="w-full bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2 text-sm uppercase placeholder-gray-400" placeholder="K4X9Z2" />
+                        @if($whatsapp_ref)
+                            @php $refVisitor = \App\Models\Visitor::findByRefCode($whatsapp_ref); @endphp
+                            @if($refVisitor)
+                                <p class="text-xs text-green-600 font-bold mt-1">✓ Visitante encontrado: {{ $refVisitor->device_type }} · {{ $refVisitor->visits_count }} visitas · llegó por {{ $refVisitor->utm_source ? $refVisitor->utm_source : ($refVisitor->referrer ? 'referencia' : 'directo') }}</p>
+                            @else
+                                <p class="text-xs text-amber-600 font-bold mt-1">Código no encontrado — la factura se creará sin atribución.</p>
+                            @endif
+                        @endif
+                    </div>
                     <div class="md:col-span-2">
                         <label class="text-xs text-gray-500 block mb-1">Dirección</label>
                         <input wire:model="customer_address" type="text" value="{{ $this->customer_address }}" class="w-full bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2 text-sm" placeholder="Dirección de entrega" />

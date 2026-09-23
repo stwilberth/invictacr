@@ -1,4 +1,8 @@
 <x-app-layout title="Relojes Invicta Originales en Costa Rica" description="Comprá relojes Invicta 100% originales en Costa Rica. Cientos de modelos, envío gratis en GAM, pago contra entrega y garantía real de 6 meses." hide-nav>
+    @php
+        $refCode = strtoupper(substr((string) ($visitorUuid ?? ''), -6));
+        $refSuffix = $refCode ? " (ref: {$refCode})" : '';
+    @endphp
     <!-- Search Bar Hero -->
     <section class="relative bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 overflow-hidden">
         <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wMyI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMiIvPjwvZz48L2c+PC9zdmc+')] opacity-40"></div>
@@ -242,7 +246,7 @@
         <div class="max-w-4xl mx-auto px-4 text-center text-white">
             <h2 class="text-xl font-bold mb-3">¡Escríbenos por WhatsApp!</h2>
             <p class="mb-4 text-white/90 text-sm">Te contactaremos con las mejores ofertas y novedades de relojes Invicta.</p>
-            <a href="https://wa.me/50686711422?text=Hola,%20me%20interesan%20las%20ofertas%20y%20novedades%20de%20relojes%20Invicta" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 bg-white text-green-700 font-bold px-6 py-3 rounded-lg hover:bg-gray-100 transition-all duration-300">
+            <a href="https://wa.me/50686711422?text={{ urlencode('Hola, me interesan las ofertas y novedades de relojes Invicta' . ($refSuffix ?? '')) }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 bg-white text-green-700 font-bold px-6 py-3 rounded-lg hover:bg-gray-100 transition-all duration-300">
                 <i class="fab fa-whatsapp text-lg"></i>
                 <span>Enviar mensaje</span>
             </a>

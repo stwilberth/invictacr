@@ -72,6 +72,19 @@
                         <p class="font-medium">{{ $invoice->customer_address }}</p>
                     </div>
                     @endif
+                    @if($invoice->visitor_id)
+                    <div class="col-span-2">
+                        <span class="text-gray-500 text-xs">Atribución</span>
+                        <p class="font-medium">
+                            <a href="{{ route('admin.visitors.detail', $invoice->visitor_id) }}" class="text-[#00C4FF] hover:underline">
+                                <i class="fa-solid fa-user-secret text-xs mr-1"></i> Ver visitante trackeado (ref: {{ $invoice->visitor->ref_code }})
+                            </a>
+                            @if($invoice->visitor?->utm_source)
+                                <span class="text-gray-400 text-xs ml-2">· origen: {{ $invoice->visitor->utm_source }}@if($invoice->visitor->utm_campaign) ({{ $invoice->visitor->utm_campaign }})@endif</span>
+                            @endif
+                        </p>
+                    </div>
+                    @endif
                 </div>
             </div>
 

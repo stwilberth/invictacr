@@ -159,6 +159,32 @@ class Visitor extends Model
         };
     }
 
+    /**
+     * Código corto de referencia para ventas por WhatsApp:
+     * últimos 6 caracteres del UUID, en mayúsculas.
+     */
+    public function getRefCodeAttribute(): string
+    {
+        return strtoupper(substr($this->uuid, -6));
+    }
+
+    /**
+     * Busca un visitante por su código de referencia de WhatsApp.
+     */
+    public static function findByRefCode(?string $code): ?self
+    {
+        $code = strtoupper(trim((string) $code));
+
+        if (strlen($code) < 4) {
+            return null;
+        }
+
+        return static::query()
+            ->whereRaw('UPPER(SUBSTRING(uuid, -6)) = ?', [$code])
+            ->latest('id')
+            ->first();
+    }
+
     public function getTotalTimeHumanAttribute(): string
     {
         $seconds = $this->total_time_seconds;

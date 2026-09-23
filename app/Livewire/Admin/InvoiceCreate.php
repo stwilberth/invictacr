@@ -11,6 +11,7 @@ class InvoiceCreate extends Component
     public $client_name = '';
     public $client_email = '';
     public $client_phone = '';
+    public $whatsapp_ref = '';
     public $customer_address = '';
     public $province = '';
     public $canton = '';
@@ -43,6 +44,7 @@ class InvoiceCreate extends Component
             'client_name' => 'required|string|max:255',
             'client_email' => 'nullable|email|max:255',
             'client_phone' => 'nullable|string|max:255',
+            'whatsapp_ref' => 'nullable|string|max:20',
             'customer_address' => 'nullable|string',
             'province' => 'nullable|string|max:100',
             'canton' => 'nullable|string|max:100',
@@ -196,11 +198,20 @@ class InvoiceCreate extends Component
             trim((string) $this->province) ?: null,
         ]));
 
+        // Asociación con visitante trackeado vía código de WhatsApp (ref: XXXXXX)
+        $visitor = \App\Models\Visitor::findByRefCode($this->whatsapp_ref);
+
+        if ($visitor && trim((string) $this->client_phone) !== '' && !$visitor->phone) {
+            $visitor->phone = trim((string) $this->client_phone);
+            $visitor->save();
+        }
+
         $invoice = Invoice::create([
             'invoice_number' => $invoiceNumber,
             'client_name' => $this->client_name,
             'client_email' => $this->client_email ?: null,
             'client_phone' => $this->client_phone ?: null,
+            'visitor_id' => $visitor?->id,
             'customer_address' => $fullAddress ?: null,
             'cedula' => $this->cedula ?: null,
             'subtotal' => $this->subtotal,

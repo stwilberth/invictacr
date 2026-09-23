@@ -98,8 +98,10 @@
         $priceAfterDiscount = $product->precio_final;
         $priceBaseFinal = \App\Models\Product::precioConIva($product->precio_venta ?? 0);
         $apartadoMinimo = (float) $priceAfterDiscount > 0 ? round($priceAfterDiscount * 0.2, -3) : 0;
-        $whatsappBuy = 'https://wa.me/50686711422?text=' . urlencode("¡Hola! Me interesa el reloj Invicta {$product->modelo}");
-        $whatsappApartado = 'https://wa.me/50686711422?text=' . urlencode("¡Hola! Quiero apartar el reloj Invicta {$product->modelo}");
+        $refCode = strtoupper(substr((string) ($visitorUuid ?? ''), -6));
+        $refSuffix = $refCode ? " (ref: {$refCode})" : '';
+        $whatsappBuy = 'https://wa.me/50686711422?text=' . urlencode("¡Hola! Me interesa el reloj Invicta {$product->modelo}{$refSuffix}");
+        $whatsappApartado = 'https://wa.me/50686711422?text=' . urlencode("¡Hola! Quiero apartar el reloj Invicta {$product->modelo}{$refSuffix}");
         $shareLinkFor = fn(string $source): string => url()->current() . '?utm_source=' . $source . '&utm_medium=compartir&utm_campaign=ficha_producto';
         $shareUrl = urlencode($shareLinkFor('whatsapp'));
         $shareTitle = urlencode("¡Mira este reloj Invicta!: {$product->title}");

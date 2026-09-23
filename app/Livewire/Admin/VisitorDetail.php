@@ -33,10 +33,11 @@ class VisitorDetail extends Component
             ->get()
             ->toArray();
 
-        // Facturas asociadas por user_id o email
+        // Facturas asociadas por visitor_id exacto, user_id, email o teléfono
         $emails = array_filter([$this->visitor->email, $this->visitor->user?->email]);
 
         $this->invoices = Invoice::query()
+            ->orWhere('visitor_id', $this->visitor->id)
             ->when($this->visitor->user_id, fn($q) => $q->orWhereHas('client', fn($c) => $c->where('email', $this->visitor->user->email ?? '')))
             ->when(!empty($emails), fn($q) => $q->orWhereIn('client_email', $emails))
             ->when($this->visitor->phone, fn($q) => $q->orWhere('client_phone', $this->visitor->phone))
