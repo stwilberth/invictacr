@@ -204,12 +204,13 @@ class FacebookAdsService
             $actions = $row['actions'] ?? [];
             $actionValues = $row['action_values'] ?? [];
 
-            // Extraer conversiones de compra/checkout/lead
+            // OJO: 'lead' genérico es rollup que YA incluye
+            // 'offsite_conversion.fb_pixel_lead' -> contar ambos duplica.
+            // Se usan solo variantes offsite (eventos reales del pixel).
             $conversionTypes = [
                 'purchase',
                 'add_to_cart',
                 'initiate_checkout',
-                'lead',
                 'complete_registration',
                 'subscribe',
                 'offsite_conversion.fb_pixel_purchase',
@@ -217,9 +218,14 @@ class FacebookAdsService
                 'offsite_conversion.fb_pixel_initiate_checkout',
                 'offsite_conversion.fb_pixel_lead',
             ];
+            // Meta ya reporta action_values en la moneda de la cuenta (USD),
+            // aunque el pixel envíe CRC. No convertir de nuevo.
             $valueTypes = [
                 'purchase',
                 'offsite_conversion.fb_pixel_purchase',
+                // El clic a WhatsApp dispara evento Lead con valor (precio del
+                // producto). Sin esto, conversion_value siempre era 0.
+                'offsite_conversion.fb_pixel_lead',
             ];
 
             $conversions = $this->extractActions($actions, $conversionTypes);

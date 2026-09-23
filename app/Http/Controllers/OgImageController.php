@@ -14,6 +14,18 @@ class OgImageController extends Controller
     private const FONT_BOLD = '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf';
     private const FONT_REGULAR = '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf';
 
+    /**
+     * Resuelve la ruta de la fuente con fallback a Arial en Windows (dev local),
+     * donde no existe /usr/share/fonts. Evita 500 en /og/*.png fuera de Linux.
+     */
+    private static function resolveFont(bool $bold): string
+    {
+        $path = $bold ? self::FONT_BOLD : self::FONT_REGULAR;
+        if (is_file($path)) return $path;
+        $fallback = $bold ? 'C:/Windows/Fonts/arialbd.ttf' : 'C:/Windows/Fonts/arial.ttf';
+        return is_file($fallback) ? $fallback : $path;
+    }
+
     public function brand(): Response
     {
         $png = Cache::remember('og_brand', now()->addDays(30), function () {
@@ -44,9 +56,9 @@ class OgImageController extends Controller
         $this->drawBrandClock($img, $white, $cyan);
 
         // Texto principal
-        $this->drawCentered($img, 'RELÓJES INVICTA', 64, 540, $white, self::FONT_BOLD);
-        $this->drawCentered($img, 'COSTA RICA', 46, 620, $cyan, self::FONT_BOLD);
-        $this->drawCentered($img, '100% Originales · Envío Gratis · Garantía 6 Meses', 26, 700, $muted, self::FONT_REGULAR);
+        $this->drawCentered($img, 'RELÓJES INVICTA', 64, 540, $white, self::resolveFont(true));
+        $this->drawCentered($img, 'COSTA RICA', 46, 620, $cyan, self::resolveFont(true));
+        $this->drawCentered($img, '100% Originales · Envío Gratis · Garantía 6 Meses', 26, 700, $muted, self::resolveFont(false));
 
         ob_start();
         imagepng($img, null, 8);
@@ -137,8 +149,8 @@ class OgImageController extends Controller
                 imagedestroy($productImage);
             }
         } else {
-            $this->drawCentered($img, 'Relojes originales', 56, 500, $darkText, self::FONT_BOLD);
-            $this->drawCentered($img, 'InvictaCostaRica.com', 28, 580, $muted, self::FONT_REGULAR);
+            $this->drawCentered($img, 'Relojes originales', 56, 500, $darkText, self::resolveFont(true));
+            $this->drawCentered($img, 'InvictaCostaRica.com', 28, 580, $muted, self::resolveFont(false));
         }
 
         ob_start();
@@ -260,7 +272,7 @@ class OgImageController extends Controller
 
     private function linesFor(string $text, int $maxWidth, int $fontSize): int
     {
-        $box = imagettfbbox($fontSize, 0, self::FONT_BOLD, $text);
+        $box = imagettfbbox($fontSize, 0, self::resolveFont(true), $text);
         $w = $box[2] - $box[0];
         if ($w <= $maxWidth) return 1;
         $words = explode(' ', $text);
@@ -268,7 +280,7 @@ class OgImageController extends Controller
         $current = '';
         foreach ($words as $word) {
             $candidate = $current === '' ? $word : $current . ' ' . $word;
-            $box = imagettfbbox($fontSize, 0, self::FONT_BOLD, $candidate);
+            $box = imagettfbbox($fontSize, 0, self::resolveFont(true), $candidate);
             if ($box[2] - $box[0] > $maxWidth && $current !== '') {
                 $lines++;
                 $current = $word;

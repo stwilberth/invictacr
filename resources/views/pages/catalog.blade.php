@@ -9,7 +9,7 @@
     $firstPage = $products->take($pageSize);
 @endphp
 
-<x-app-layout :title="'Relojes Invicta ' . ($gender ? ucfirst($gender) . ' ' : 'Originales ') . 'en Costa Rica | Envío Gratis'" :titleSuffix="false" :description="'Explora nuestra colección de relojes Invicta ' . ($gender ? 'para ' . $gender : 'originales') . '. Envío gratis en GAM.'">
+<x-app-layout :title="'Relojes Invicta ' . ($gender ? ucfirst($gender) . ' ' : 'Originales ') . 'en Costa Rica | Envío Gratis'" :titleSuffix="false" :description="'Relojes Invicta ' . ($gender ? 'para ' . $gender : 'originales') . ' en Costa Rica: cientos de modelos 100% originales, envío gratis en GAM y pago contra entrega.'" :canonical="request()->filled('gender') && !request()->route('gender') ? url('/relojes') . '?gender=' . urlencode($gender) : null">
     @push('json-ld')
     <script type="application/ld+json">
     {

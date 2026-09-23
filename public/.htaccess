@@ -5,6 +5,14 @@
 
     RewriteEngine On
 
+    # SEO: canonical único https://invictacostarica.com (solo dominio prod,
+    # no afecta dev local). Primero http->https, luego www->sin www.
+    RewriteCond %{HTTP_HOST} ^(www\.)?invictacostarica\.com$ [NC]
+    RewriteCond %{HTTPS} off
+    RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301,NE]
+    RewriteCond %{HTTP_HOST} ^www\.invictacostarica\.com$ [NC]
+    RewriteRule ^ https://invictacostarica.com%{REQUEST_URI} [L,R=301,NE]
+
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]

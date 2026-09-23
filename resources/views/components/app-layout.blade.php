@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="es" class="transition-colors duration-300" style="overflow-x: clip;">
 <head>
+    @php($canonicalUrl = $canonical ?? url()->current())
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="facebook-domain-verification" content="2rf7uymq80aja4vxcb6l7hmugbyouf" />
@@ -13,15 +14,15 @@
     @if(!empty($noindex))
     <meta name="robots" content="noindex, nofollow" />
     @endif
-    <link rel="canonical" href="{{ url()->current() }}" />
-    <link rel="alternate" hreflang="es-CR" href="{{ url()->current() }}" />
-    <link rel="alternate" hreflang="x-default" href="{{ url()->current() }}" />
+    <link rel="canonical" href="{{ $canonicalUrl }}" />
+    <link rel="alternate" hreflang="es-CR" href="{{ $canonicalUrl }}" />
+    <link rel="alternate" hreflang="x-default" href="{{ $canonicalUrl }}" />
     <link rel="sitemap" href="/sitemap.xml" />
 
     <meta property="og:title" content="{{ $title ?? '' }}{{ ($titleSuffix ?? true) ? ' | Invicta Costa Rica' : '' }}" />
     <meta property="og:description" content="{{ $description ?? 'Invicta Costa Rica - Relojes de alta calidad con los mejores precios. Pago contra entrega en GAM y envío gratis a todo el país.' }}" />
     <meta property="og:type" content="{{ $ogType ?? 'website' }}" />
-    <meta property="og:url" content="{{ url()->current() }}" />
+    <meta property="og:url" content="{{ $canonicalUrl }}" />
     <meta property="og:site_name" content="Invicta Costa Rica" />
     <meta property="og:locale" content="es_CR" />
     <meta property="og:image" content="{{ $ogImage ?? route('og.brand') }}" />

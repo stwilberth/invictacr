@@ -24,8 +24,10 @@
         $product->tipo_movimiento ? $product->tipo_movimiento : null,
     ]);
     $isUpcomingForSeo = ($product->proximo ?? false) || (float) ($product->precio_venta ?? 0) <= 0;
-    $seoDescription = $product->descripcion
+    $seoDescriptionRaw = $product->descripcion
         ?: ('Reloj Invicta ' . ($descParts ? implode(' · ', $descParts) . ' ' : '') . ($isUpcomingForSeo ? '— Próximamente. ' : '— ' . $priceFmt . '. ') . 'Envío gratis en GAM. Pago contra entrega. WhatsApp +506 8671-1422.');
+    // Meta description: máximo ~155 caracteres (Google trunca el resto en el SERP)
+    $seoDescription = \Illuminate\Support\Str::limit(trim(preg_replace('/\s+/', ' ', strip_tags($seoDescriptionRaw))), 155);
 
     $productName = 'Reloj Invicta ' . ($product->coleccion && strtolower($product->coleccion) !== 'otros' ? $product->coleccion . ' ' : '') . ($product->genero && strtolower($product->genero) !== 'unisex' ? 'para ' . $product->genero . ' ' : '') . '(' . $product->modelo . ')';
     $price = $product->precio_final ?? 0;
