@@ -84,7 +84,8 @@
         el.classList.add('flex');
         document.body.style.overflow = 'hidden';
         requestAnimationFrame(function () { el.classList.add('active'); });
-        if (typeof fbq !== 'undefined') { try { fbq('track', 'ViewContent', { content_name: 'Promo Anillo Cortesía' }); } catch (e) {} }
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push({ event: 'view_promo_anillo', eventModel: { currency: 'CRC', items: [{ item_name: 'Promo Anillo Cortesía' }] } });
     };
     window.closePromoAnillo = function () { window.minimizePromoAnillo(); };
     window.minimizePromoAnillo = function () {
