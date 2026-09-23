@@ -99,25 +99,13 @@
                     <span>Ver</span>
                 </a>
             @if((int) ($product->stock ?? 0) <= 0 || (($product->disponibilidad ?? '') === 'agotado'))
-                <div class="flex gap-1.5 md:gap-2">
-                    <span class="flex-1 inline-flex items-center justify-center px-2 py-2.5 md:py-3 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-none font-black uppercase tracking-wide text-[13px] md:text-sm leading-none border border-red-200 dark:border-red-800">Agotado</span>
-                    <a href="{{ $whatsappLink }}" target="_blank" rel="noopener noreferrer" aria-label="Consultar por WhatsApp {{ $cardTitle }}"
-                        class="w-11 md:w-12 shrink-0 inline-flex items-center justify-center bg-[#0EB45D] hover:bg-[#0aa550] text-white rounded-none transition-all">
-                        <i class="fa-brands fa-whatsapp text-lg"></i>
-                    </a>
-                </div>
+                <span class="w-full inline-flex items-center justify-center px-2 py-2.5 md:py-3 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-none font-black uppercase tracking-wide text-[13px] md:text-sm leading-none border border-red-200 dark:border-red-800">Agotado</span>
             @else
-                <div class="flex gap-1.5 md:gap-2">
-                    <button type="button" onclick="addToCart({{ $product->id }}, this)"
-                        class="flex-1 w-full inline-flex items-center justify-center gap-1.5 px-2 py-2.5 md:py-3 bg-[#B3E9FF] hover:bg-[#8FDDFF] text-[#0a0f1c] rounded-none font-black uppercase tracking-wide text-[13px] md:text-sm leading-none transition-all">
-                        <i class="fa-solid fa-cart-plus text-sm shrink-0"></i>
-                        <span>Comprar</span>
-                    </button>
-                    <a href="{{ $whatsappLink }}" target="_blank" rel="noopener noreferrer" aria-label="Comprar por WhatsApp {{ $cardTitle }}"
-                        class="w-11 md:w-12 shrink-0 inline-flex items-center justify-center bg-[#0EB45D] hover:bg-[#0aa550] text-white rounded-none transition-all">
-                        <i class="fa-brands fa-whatsapp text-lg"></i>
-                    </a>
-                </div>
+                <a href="{{ $whatsappLink }}" target="_blank" rel="noopener noreferrer" aria-label="Comprar por WhatsApp {{ $cardTitle }}"
+                    class="w-full inline-flex items-center justify-center gap-1.5 px-2 py-2.5 md:py-3 bg-[#B3E9FF] hover:bg-[#8FDDFF] text-[#0a0f1c] rounded-none font-black uppercase tracking-wide text-[13px] md:text-sm leading-none no-underline transition-all">
+                    <i class="fa-brands fa-whatsapp text-base shrink-0"></i>
+                    <span>Comprar</span>
+                </a>
             @endif
         </div>
     </div>
