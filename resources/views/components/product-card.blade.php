@@ -1,7 +1,9 @@
 @props(['product', 'priority' => false])
 @php
     $productUrl = route('products.show', ['slug' => $product->slug]);
-    $whatsappLink = 'https://wa.me/50686711422?text=' . urlencode("Hola, me interesa el reloj Invicta {$product->modelo}: " . url($productUrl));
+    $refCode = strtoupper(substr((string) ($visitorUuid ?? ''), -6));
+    $refUrl = url($productUrl) . ($refCode ? '?ref=' . $refCode : '');
+    $whatsappLink = 'https://wa.me/50686711422?text=' . urlencode("Hola, me interesa el reloj Invicta {$product->modelo}: {$refUrl}");
     $priceAfterDiscount = $product->precio_final;
     $priceBaseFinal = \App\Models\Product::precioConIva($product->precio_venta ?? 0);
     $apartadoMinimo = (float) $priceAfterDiscount > 0 ? round($priceAfterDiscount * 0.2, -3) : 0;
@@ -97,13 +99,25 @@
                     <span>Ver</span>
                 </a>
             @if((int) ($product->stock ?? 0) <= 0 || (($product->disponibilidad ?? '') === 'agotado'))
-                <span class="w-full inline-flex items-center justify-center px-2 py-2.5 md:py-3 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-none font-black uppercase tracking-wide text-[13px] md:text-sm leading-none border border-red-200 dark:border-red-800">Agotado</span>
+                <div class="flex gap-1.5 md:gap-2">
+                    <span class="flex-1 inline-flex items-center justify-center px-2 py-2.5 md:py-3 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-none font-black uppercase tracking-wide text-[13px] md:text-sm leading-none border border-red-200 dark:border-red-800">Agotado</span>
+                    <a href="{{ $whatsappLink }}" target="_blank" rel="noopener noreferrer" aria-label="Consultar por WhatsApp {{ $cardTitle }}"
+                        class="w-11 md:w-12 shrink-0 inline-flex items-center justify-center bg-[#0EB45D] hover:bg-[#0aa550] text-white rounded-none transition-all">
+                        <i class="fa-brands fa-whatsapp text-lg"></i>
+                    </a>
+                </div>
             @else
-            <button type="button" onclick="addToCart({{ $product->id }}, this)"
-                class="w-full inline-flex items-center justify-center gap-1.5 px-2 py-2.5 md:py-3 bg-[#B3E9FF] hover:bg-[#8FDDFF] text-[#0a0f1c] rounded-none font-black uppercase tracking-wide text-[13px] md:text-sm leading-none transition-all">
-                <i class="fa-solid fa-cart-plus text-sm shrink-0"></i>
-                <span>Comprar</span>
-            </button>
+                <div class="flex gap-1.5 md:gap-2">
+                    <button type="button" onclick="addToCart({{ $product->id }}, this)"
+                        class="flex-1 w-full inline-flex items-center justify-center gap-1.5 px-2 py-2.5 md:py-3 bg-[#B3E9FF] hover:bg-[#8FDDFF] text-[#0a0f1c] rounded-none font-black uppercase tracking-wide text-[13px] md:text-sm leading-none transition-all">
+                        <i class="fa-solid fa-cart-plus text-sm shrink-0"></i>
+                        <span>Comprar</span>
+                    </button>
+                    <a href="{{ $whatsappLink }}" target="_blank" rel="noopener noreferrer" aria-label="Comprar por WhatsApp {{ $cardTitle }}"
+                        class="w-11 md:w-12 shrink-0 inline-flex items-center justify-center bg-[#0EB45D] hover:bg-[#0aa550] text-white rounded-none transition-all">
+                        <i class="fa-brands fa-whatsapp text-lg"></i>
+                    </a>
+                </div>
             @endif
         </div>
     </div>

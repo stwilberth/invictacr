@@ -170,10 +170,23 @@ class Visitor extends Model
 
     /**
      * Busca un visitante por su código de referencia de WhatsApp.
+     * Acepta el código suelto (K4X9Z2) o una URL pegada del mensaje
+     * (https://invictacostarica.com/...?ref=K4X9Z2).
      */
     public static function findByRefCode(?string $code): ?self
     {
-        $code = strtoupper(trim((string) $code));
+        $code = trim((string) $code);
+
+        if ($code === '') {
+            return null;
+        }
+
+        // Extraer ?ref=XXX si pegaron la URL o el mensaje completo
+        if (preg_match('/[?&]ref=([A-Za-z0-9]{4,12})/', $code, $m)) {
+            $code = $m[1];
+        }
+
+        $code = strtoupper(trim($code));
 
         if (strlen($code) < 4) {
             return null;

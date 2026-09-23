@@ -54,7 +54,7 @@
                         <input wire:model="cedula" type="text" value="{{ $this->cedula }}" class="w-full bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2 text-sm" placeholder="Número de cédula" />
                     </div>
                     <div>
-                        <label class="text-xs text-gray-500 block mb-1">Ref. WhatsApp <span class="text-gray-400 normal-case">(código del mensaje, ej: K4X9Z2)</span></label>
+                        <label class="text-xs text-gray-500 block mb-1">Ref. WhatsApp <span class="text-gray-400 normal-case">(pega el enlace del mensaje o el código)</span></label>
                         <input wire:model="whatsapp_ref" type="text" value="{{ $this->whatsapp_ref }}" class="w-full bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2 text-sm uppercase placeholder-gray-400" placeholder="K4X9Z2" />
                         @if($whatsapp_ref)
                             @php $refVisitor = \App\Models\Visitor::findByRefCode($whatsapp_ref); @endphp
