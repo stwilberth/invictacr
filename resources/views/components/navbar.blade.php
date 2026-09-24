@@ -51,21 +51,6 @@
 
                 {{-- Carrito oculto: la compra ahora fluye por WhatsApp --}}
 
-                <button @click="toggleTheme"
-                        class="text-white hover:text-[#00C4FF] p-2 rounded-full transition-all duration-300 hover:bg-white/5"
-                        title="Cambiar tema">
-                    <template x-if="theme === 'light'">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-                        </svg>
-                    </template>
-                    <template x-if="theme === 'dark'">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-                        </svg>
-                    </template>
-                </button>
-
                 <div class="relative" x-data="{ open: false }" @click.away="open = false">
                     <button @click="open = !open"
                             class="text-white hover:text-white px-3 py-2 rounded-md text-sm lg:text-base font-black uppercase tracking-tighter transition-colors flex items-center gap-1">
@@ -90,39 +75,27 @@
                     </div>
                 </div>
 
+                <button @click="toggleTheme"
+                        class="text-white hover:text-[#00C4FF] p-2 rounded-full transition-all duration-300 hover:bg-white/5"
+                        title="Cambiar tema">
+                    <template x-if="theme === 'light'">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                        </svg>
+                    </template>
+                    <template x-if="theme === 'dark'">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                        </svg>
+                    </template>
+                </button>
+
                 @auth
-                    <div class="relative" x-data="{ open: false }" @click.away="open = false">
-                        <button @click="open = !open"
-                                class="text-white hover:text-[#00C4FF] px-3 py-2 rounded-md text-sm lg:text-base font-black uppercase tracking-tighter transition-colors flex items-center gap-1.5" title="Mi Cuenta">
-                            <i class="fa-solid fa-circle-user text-xs text-[#00C4FF]/70"></i>
-                            <span class="hidden xl:inline">Mi Cuenta</span>
-                            <svg class="w-3 h-3 opacity-50 transition-transform duration-300" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                            </svg>
-                        </button>
-                        <div x-show="open"
-                             x-transition:enter="transition ease-out duration-200"
-                             x-transition:enter-start="opacity-0 scale-95"
-                             x-transition:enter-end="opacity-100 scale-100"
-                             x-transition:leave="transition ease-in duration-150"
-                             x-transition:leave-start="opacity-100 scale-100"
-                             x-transition:leave-end="opacity-0 scale-95"
-                             class="absolute right-0 mt-2 w-48 bg-[#0f172a] border border-white/10 rounded-xl shadow-2xl py-2 z-50 overflow-hidden"
-                             style="display: none;">
-                            <a href="{{ route('dashboard') }}" class="block px-4 py-2 text-sm text-white hover:text-white hover:bg-white/5 transition-colors">Mi Cuenta</a>
-                            <a href="{{ route('profile.show') }}" class="block px-4 py-2 text-sm text-white hover:text-white hover:bg-white/5 transition-colors">Mi Perfil</a>
-                            <a href="{{ route('profile.show') }}#direccion" class="block px-4 py-2 text-sm text-white hover:text-white hover:bg-white/5 transition-colors">Mi Dirección</a>
-                            <a href="/mis-pedidos" class="block px-4 py-2 text-sm text-[#00C4FF] hover:bg-white/5 transition-colors font-bold">Mis Pedidos</a>
-                            <div class="border-t border-white/10 my-1"></div>
-                            <form method="POST" action="{{ route('logout') }}">
-                                @csrf
-                                <button type="submit" class="w-full text-left px-4 py-2 text-sm text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors flex items-center gap-2">
-                                    <i class="fa-solid fa-right-from-bracket"></i>
-                                    Cerrar Sesión
-                                </button>
-                            </form>
-                        </div>
-                    </div>
+                    <a href="{{ route('dashboard') }}"
+                            class="text-white hover:text-[#00C4FF] px-3 py-2 rounded-md text-sm lg:text-base font-black uppercase tracking-tighter transition-colors flex items-center gap-1.5" title="Mi Cuenta">
+                        <i class="fa-solid fa-circle-user text-xs text-[#00C4FF]/70"></i>
+                        <span class="hidden xl:inline">Mi Cuenta</span>
+                    </a>
                 @else
                     <a href="{{ route('login') }}" class="text-white hover:text-[#00C4FF] px-3 py-2 rounded-md text-sm lg:text-base font-black uppercase tracking-tighter transition-colors">
                         Iniciar Sesión
