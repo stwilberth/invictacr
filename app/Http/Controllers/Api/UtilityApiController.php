@@ -19,6 +19,9 @@ class UtilityApiController extends Controller
         $staticPages = [
             '/' => ['changefreq' => 'weekly', 'priority' => '1.0'],
             '/relojes' => ['changefreq' => 'daily', 'priority' => '0.9'],
+            '/relojes?gender=hombre' => ['changefreq' => 'daily', 'priority' => '0.9'],
+            '/relojes?gender=mujer' => ['changefreq' => 'daily', 'priority' => '0.9'],
+            '/relojes?gender=unisex' => ['changefreq' => 'weekly', 'priority' => '0.8'],
             '/como-comprar' => ['changefreq' => 'monthly', 'priority' => '0.7'],
             '/formas-pago' => ['changefreq' => 'monthly', 'priority' => '0.7'],
             '/informacion-de-envio' => ['changefreq' => 'monthly', 'priority' => '0.7'],

@@ -11,7 +11,7 @@
     $refUrl = url('/relojes') . ($refCode ? '?ref=' . $refCode : '');
 @endphp
 
-<x-app-layout :title="'Relojes Invicta ' . ($gender ? ucfirst($gender) . ' ' : 'Originales ') . 'en Costa Rica | Envío Gratis'" :titleSuffix="false" :description="'Relojes Invicta ' . ($gender ? 'para ' . $gender : 'originales') . ' en Costa Rica: cientos de modelos 100% originales, envío gratis en GAM y pago contra entrega.'" :canonical="request()->filled('gender') && !request()->route('gender') ? url('/relojes') . '?gender=' . urlencode($gender) : null">
+<x-app-layout :title="'Relojes Invicta ' . ($gender ? ucfirst($gender) . ' ' : 'Originales ') . 'en Costa Rica | Envío Gratis'" :titleSuffix="false" :description="'Relojes Invicta ' . ($gender ? 'para ' . $gender : 'originales') . ' en Costa Rica: cientos de modelos 100% originales, envío gratis en GAM y pago contra entrega.'" :canonical="request()->filled('gender') && !request()->route('gender') ? url('/relojes') . '?gender=' . urlencode($gender) : null" :noindex="$products->isEmpty()">
     @push('json-ld')
     <script type="application/ld+json">
     {
