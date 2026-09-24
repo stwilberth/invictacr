@@ -147,10 +147,10 @@
                             <span class="bg-red-500 text-white text-xs font-black px-3 py-1.5 rounded-lg shadow-sm">-{{ $product->descuento }}%</span>
                         </div>
                         @endif
-                        {{-- Badge 100% ORIGINAL (mockup style) --}}
+                        {{-- Badge ORIGINAL (mockup style) --}}
                         <div class="absolute top-2.5 left-2.5 z-30 sm:top-4 sm:left-4">
-                            <span class="flex items-center gap-1.5 sm:gap-2 bg-[#101828] text-white text-[11px] sm:text-xs font-extrabold px-3 py-1.5 sm:px-4 sm:py-2 rounded-full shadow-md">
-                                <i class="fa-solid fa-shield-halved text-xs sm:text-sm"></i> 100% ORIGINAL
+                            <span class="flex items-center gap-1.5 sm:gap-2 bg-gray-300 text-gray-900 text-[11px] sm:text-xs font-extrabold px-3 py-1.5 sm:px-4 sm:py-2 rounded-full shadow-md">
+                                <i class="fa-solid fa-shield-halved text-xs sm:text-sm"></i> ORIGINAL
                             </span>
                         </div>
                         <x-product-gallery :galleryItems="$galleryItems" :title="$displayTitle" />
@@ -189,12 +189,12 @@
                 @elseif(!$isUpcoming)
                     {{-- Price & Action Buttons --}}
                     <div class="flex flex-col items-start gap-2 mb-3">
-                        <div class="grid grid-cols-2 gap-3 w-full">
+                        <div class="grid grid-cols-2 gap-3 w-full items-stretch">
                         {{-- Precio + Comprar --}}
-                        <div class="{{ (float) ($apartadoMinimo ?? 0) > 0 ? '' : 'col-span-2' }}">
+                        <div class="{{ (float) ($apartadoMinimo ?? 0) > 0 ? '' : 'col-span-2' }} flex flex-col">
                             <div class="min-w-0 text-center">
                             <span class="text-2xl md:text-[40px] leading-none font-black text-red-600 dark:text-red-500 tracking-tight">₡{{ number_format($priceAfterDiscount, 0) }}</span>
-                             <span class="block text-sm font-bold text-gray-400 mt-1">Pago contra entrega</span>
+                             <span class="block text-sm font-bold text-gray-400 mt-1 mb-1">Pago contra entrega</span>
                             @if(($product->descuento ?? 0) > 0)
                             <div class="flex items-center justify-center gap-2 mt-1">
                                 <span class="text-sm text-gray-400 line-through font-medium">₡{{ number_format($priceBaseFinal, 0) }}</span>
@@ -202,27 +202,27 @@
                             </div>
                             @endif
                             </div>
-                             <a href="{{ $whatsappBuy }}" data-cta="comprar-whatsapp" data-product-id="{{ $product->id }}" target="_blank" rel="noopener noreferrer" class="w-full flex items-center justify-center gap-2 py-3 md:py-3.5 mt-1 bg-[#0EB45D] hover:bg-[#0aa550] text-white rounded-none font-bold text-[15px] md:text-base transition-all no-underline shadow-sm">
+                             <a href="{{ $whatsappBuy }}" data-cta="comprar-whatsapp" data-product-id="{{ $product->id }}" target="_blank" rel="noopener noreferrer" class="w-full flex items-center justify-center gap-2 py-3 md:py-3.5 mt-auto bg-[#0EB45D] hover:bg-[#0aa550] text-white rounded-none font-bold text-[15px] md:text-base transition-all no-underline shadow-sm">
                                 <i class="fa-brands fa-whatsapp text-xl"></i> Comprar
                             </a>
                         </div>
 
                         {{-- Apartado + Apartar --}}
                         @if((float) ($apartadoMinimo ?? 0) > 0)
-                        <div>
+                        <div class="flex flex-col">
                             <p class="text-center text-2xl md:text-[40px] leading-none font-black text-gray-600 dark:text-gray-300 tracking-tight">₡{{ number_format($cuotaQuincenal, 0) }}</p>
-                            <p class="text-center text-sm font-bold text-gray-400 mt-1">A tres quincenas</p>
-                             <a href="{{ $whatsappApartado }}" data-cta="apartar-whatsapp" data-product-id="{{ $product->id }}" target="_blank" rel="noopener noreferrer" class="w-full flex items-center justify-center gap-2 py-3 md:py-3.5 mt-1 bg-[#B3E9FF] hover:bg-[#8FDDFF] text-[#0a0f1c] rounded-none font-bold text-[15px] md:text-base transition-all no-underline shadow-sm">
+                            <p class="text-center text-sm font-bold text-gray-400 mt-1 mb-1">A tres quincenas</p>
+                             <a href="{{ $whatsappApartado }}" data-cta="apartar-whatsapp" data-product-id="{{ $product->id }}" target="_blank" rel="noopener noreferrer" class="w-full flex items-center justify-center gap-2 py-3 md:py-3.5 mt-auto bg-[#B3E9FF] hover:bg-[#8FDDFF] text-[#0a0f1c] rounded-none font-bold text-[15px] md:text-base transition-all no-underline shadow-sm">
                                 <i class="fa-brands fa-whatsapp text-xl"></i> Apartar
                             </a>
                         </div>
                         @endif
                         </div>
 
-                        {{-- Compartir centrado --}}
-                        <div class="flex justify-center w-full">
-                            <button type="button" onclick="openShareModal()" aria-label="Compartir" class="inline-flex items-center gap-1.5 h-9 px-6 rounded-full border border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-300 hover:text-[#00C4FF] hover:border-[#00C4FF] transition-colors text-xs font-bold uppercase tracking-wide" title="Compartir">
-                                <i class="fa-solid fa-share-nodes text-sm"></i> Compartir
+                        {{-- Compartir a la derecha --}}
+                        <div class="flex justify-end w-full">
+                            <button type="button" onclick="openShareModal()" aria-label="Compartir" class="inline-flex items-center gap-1.5 bg-[#101828] text-white text-[11px] font-extrabold uppercase tracking-wide px-4 py-2 rounded-full shadow-md hover:opacity-90 transition-all" title="Compartir">
+                                <i class="fa-solid fa-share-nodes text-xs"></i> Compartir
                             </button>
                         </div>
 
