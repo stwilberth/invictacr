@@ -46,7 +46,7 @@ class PublishStoryPending extends Command
                 continue;
             }
 
-            $storiedIds = StoryHistory::where('channel', $ch)->pluck('product_id')->flip();
+            $storiedIds = StoryHistory::where('channel', $ch)->pluck('product_id')->filter()->flip();
 
             if ($this->option('product')) {
                 $code = preg_replace('/^invicta-/i', '', trim((string) $this->option('product')));

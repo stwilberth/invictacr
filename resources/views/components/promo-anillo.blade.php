@@ -10,12 +10,16 @@
             <i class="fa-solid fa-minus text-xs"></i>
         </button>
         <a href="/relojes?coleccion=Mini" onclick="minimizePromoAnillo()" class="block">
+            @if(file_exists(public_path('images/promos/anillo-gratis-90k.jpg')))
             <img src="{{ asset('images/promos/anillo-gratis-90k.jpg') }}"
                  alt="Recibe un anillo de cortesía con la compra de tu reloj - Invicta Costa Rica"
                  class="w-full h-auto"
                  onerror="this.style.display='none';document.getElementById('promoAnilloFallback').style.display='block'" />
             {{-- Diseño HTML (se ve mientras no subas el JPG) --}}
             <div id="promoAnilloFallback" style="display:none" class="px-6 pt-7 pb-6 text-center relative overflow-hidden">
+            @else
+            <div id="promoAnilloFallback" class="px-6 pt-7 pb-6 text-center relative overflow-hidden">
+            @endif
                 <div class="absolute -top-10 -right-10 w-36 h-36 bg-yellow-400/15 rounded-full blur-2xl"></div>
                 <div class="absolute -bottom-12 -left-10 w-36 h-36 bg-blue-500/20 rounded-full blur-2xl"></div>
                 <p class="text-[10px] font-black tracking-[0.3em] text-gray-400 uppercase mb-2">Invicta · Relojes originales</p>

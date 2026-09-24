@@ -368,7 +368,7 @@ class Campaigns extends Component
         }
 
         if ($this->productFilter === 'pending') {
-            $downloadedIds = DownloadHistory::pluck('product_id')->flip();
+            $downloadedIds = DownloadHistory::pluck('product_id')->filter()->flip();
             $products = $products->filter(fn (Product $p) => ! $downloadedIds->has($p->id))->values();
         }
 

@@ -20,7 +20,7 @@ class GenerateNarrations extends Command
     public function handle(NarrationService $service): int
     {
         $limit = (int) $this->option('limit');
-        $narratedIds = Narration::pluck('product_id')->flip();
+        $narratedIds = Narration::pluck('product_id')->filter()->flip();
 
         $products = Product::where('stock', '>', 0)
             ->where('precio_venta', '>', 0)

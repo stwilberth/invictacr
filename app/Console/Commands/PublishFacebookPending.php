@@ -26,7 +26,7 @@ class PublishFacebookPending extends Command
 
         $limit = max(1, (int) $this->option('limit'));
 
-        $downloadedIds = DownloadHistory::pluck('product_id')->flip();
+        $downloadedIds = DownloadHistory::pluck('product_id')->filter()->flip();
 
         $pending = (new CatalogService())->baseProducts()
             ->filter(fn (Product $p) => (float) $p->precio_venta > 0 && (int) $p->stock > 0)
