@@ -153,6 +153,12 @@
                                 <i class="fa-solid fa-shield-halved text-xs sm:text-sm"></i> ORIGINAL
                             </span>
                         </div>
+                        {{-- Compartir sobre la imagen --}}
+                        <div class="absolute bottom-2.5 left-2.5 z-30 sm:bottom-4 sm:left-4">
+                            <button type="button" onclick="openShareModal()" aria-label="Compartir" class="inline-flex items-center gap-1.5 h-9 px-6 rounded-full bg-white/90 border border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-300 hover:text-[#00C4FF] hover:border-[#00C4FF] transition-colors text-xs font-bold uppercase tracking-wide shadow-md" title="Compartir">
+                                <i class="fa-solid fa-share-nodes text-sm"></i> Compartir
+                            </button>
+                        </div>
                         <x-product-gallery :galleryItems="$galleryItems" :title="$displayTitle" />
                     </div>
                 </div>
@@ -217,13 +223,6 @@
                             </a>
                         </div>
                         @endif
-                        </div>
-
-                        {{-- Compartir a la derecha --}}
-                        <div class="flex justify-end w-full">
-                            <button type="button" onclick="openShareModal()" aria-label="Compartir" class="inline-flex items-center gap-1.5 bg-[#101828] text-white text-[11px] font-extrabold uppercase tracking-wide px-4 py-2 rounded-full shadow-md hover:opacity-90 transition-all" title="Compartir">
-                                <i class="fa-solid fa-share-nodes text-xs"></i> Compartir
-                            </button>
                         </div>
 
                         <x-product-benefits :apartadoMinimo="$apartadoMinimo" :apartadoWhatsapp="$whatsappApartado" />
