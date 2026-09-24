@@ -188,7 +188,7 @@
                 </div>
                 @elseif(!$isUpcoming)
                     {{-- Price & Action Buttons --}}
-                    <div class="flex flex-col items-start gap-2 mb-5">
+                    <div class="flex flex-col items-start gap-2 mb-3">
                         <div class="grid grid-cols-2 gap-3 w-full">
                         {{-- Precio + Comprar --}}
                         <div class="{{ (float) ($apartadoMinimo ?? 0) > 0 ? '' : 'col-span-2' }}">
@@ -202,7 +202,7 @@
                             </div>
                             @endif
                             </div>
-                             <a href="{{ $whatsappBuy }}" data-cta="comprar-whatsapp" data-product-id="{{ $product->id }}" target="_blank" rel="noopener noreferrer" class="w-full flex items-center justify-center gap-2 py-3 md:py-3.5 mt-2 bg-[#0EB45D] hover:bg-[#0aa550] text-white rounded-none font-bold text-[15px] md:text-base transition-all no-underline shadow-sm">
+                             <a href="{{ $whatsappBuy }}" data-cta="comprar-whatsapp" data-product-id="{{ $product->id }}" target="_blank" rel="noopener noreferrer" class="w-full flex items-center justify-center gap-2 py-3 md:py-3.5 mt-1 bg-[#0EB45D] hover:bg-[#0aa550] text-white rounded-none font-bold text-[15px] md:text-base transition-all no-underline shadow-sm">
                                 <i class="fa-brands fa-whatsapp text-xl"></i> Comprar
                             </a>
                         </div>
@@ -212,7 +212,7 @@
                         <div>
                             <p class="text-center text-lg md:text-xl font-black text-red-600 dark:text-red-500">₡{{ number_format($cuotaQuincenal, 0) }}</p>
                             <p class="text-center text-sm font-bold text-gray-400 mt-1">A tres quincenas</p>
-                             <a href="{{ $whatsappApartado }}" data-cta="apartar-whatsapp" data-product-id="{{ $product->id }}" target="_blank" rel="noopener noreferrer" class="w-full flex items-center justify-center gap-2 py-3 md:py-3.5 mt-2 bg-[#B3E9FF] hover:bg-[#8FDDFF] text-[#0a0f1c] rounded-none font-bold text-[15px] md:text-base transition-all no-underline shadow-sm">
+                             <a href="{{ $whatsappApartado }}" data-cta="apartar-whatsapp" data-product-id="{{ $product->id }}" target="_blank" rel="noopener noreferrer" class="w-full flex items-center justify-center gap-2 py-3 md:py-3.5 mt-1 bg-[#B3E9FF] hover:bg-[#8FDDFF] text-[#0a0f1c] rounded-none font-bold text-[15px] md:text-base transition-all no-underline shadow-sm">
                                 <i class="fa-brands fa-whatsapp text-xl"></i> Apartar
                             </a>
                         </div>
