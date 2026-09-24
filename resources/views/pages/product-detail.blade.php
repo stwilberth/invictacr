@@ -189,7 +189,7 @@
                     {{-- Price & Action Buttons --}}
                     <div class="flex flex-col items-start gap-4 mb-5">
                         <div class="flex items-center justify-between gap-2 w-full">
-                            <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1 min-w-0">
+                            <div class="flex flex-wrap items-baseline justify-center gap-x-3 gap-y-1 min-w-0 flex-1 text-center">
                             <span class="text-2xl md:text-[40px] leading-none font-black text-red-600 dark:text-red-500 tracking-tight">₡{{ number_format($priceAfterDiscount, 0) }}</span>
                              <span class="text-sm font-bold text-gray-400 ml-2">Pago contra entrega*</span>
                             @if(($product->descuento ?? 0) > 0)
