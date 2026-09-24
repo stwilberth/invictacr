@@ -108,12 +108,9 @@
 
             <div class="md:hidden flex items-center gap-1">
                 <button @click="mobileMenuOpen = !mobileMenuOpen"
-                        class="text-white p-2 hover:bg-white/5 rounded-lg transition-colors"
-                        aria-label="Toggle Menu">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path x-show="!mobileMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
-                        <path x-show="mobileMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
+                        class="text-white px-3 py-2 hover:bg-white/5 rounded-lg transition-colors text-sm font-black uppercase tracking-tight"
+                        aria-label="Abrir menú">
+                    <span x-text="mobileMenuOpen ? 'Cerrar' : 'Menú'">Menú</span>
                 </button>
             </div>
         </div>
