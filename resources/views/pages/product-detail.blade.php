@@ -188,8 +188,9 @@
                 @elseif(!$isUpcoming)
                     {{-- Price & Action Buttons --}}
                     <div class="flex flex-col items-start gap-4 mb-5">
-                        <div class="flex items-center justify-between gap-2 w-full">
-                            <div class="flex flex-wrap items-baseline justify-center gap-x-3 gap-y-1 min-w-0 flex-1 text-center">
+                        {{-- Precio + Comprar --}}
+                        <div class="w-full">
+                            <div class="flex flex-wrap items-baseline justify-center gap-x-3 gap-y-1 min-w-0 text-center">
                             <span class="text-2xl md:text-[40px] leading-none font-black text-red-600 dark:text-red-500 tracking-tight">₡{{ number_format($priceAfterDiscount, 0) }}</span>
                              <span class="text-sm font-bold text-gray-400 ml-2">Pago contra entrega*</span>
                             @if(($product->descuento ?? 0) > 0)
@@ -199,19 +200,26 @@
                             </div>
                             @endif
                             </div>
-                            <button type="button" onclick="openShareModal()" aria-label="Compartir" class="flex-shrink-0 inline-flex items-center gap-1.5 h-9 px-6 rounded-full border border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-300 hover:text-[#00C4FF] hover:border-[#00C4FF] transition-colors text-xs font-bold uppercase tracking-wide" title="Compartir">
-                                <i class="fa-solid fa-share-nodes text-sm"></i> Compartir
-                            </button>
-                        </div>
-
-                        {{-- Action buttons --}}
-                        <div class="flex flex-row gap-3 w-full">
-                             <a href="{{ $whatsappApartado }}" data-cta="apartar-whatsapp" data-product-id="{{ $product->id }}" target="_blank" rel="noopener noreferrer" class="flex-1 flex items-center justify-center gap-2 py-3 md:py-3.5 bg-[#B3E9FF] hover:bg-[#8FDDFF] text-[#0a0f1c] rounded-none font-bold text-[15px] md:text-base transition-all no-underline shadow-sm">
-                                <i class="fa-brands fa-whatsapp text-xl"></i> Apartar
-                            </a>
-                             <a href="{{ $whatsappBuy }}" data-cta="comprar-whatsapp" data-product-id="{{ $product->id }}" target="_blank" rel="noopener noreferrer" class="flex-1 flex items-center justify-center gap-2 py-3 md:py-3.5 bg-[#0EB45D] hover:bg-[#0aa550] text-white rounded-none font-bold text-[15px] md:text-base transition-all no-underline shadow-sm">
+                             <a href="{{ $whatsappBuy }}" data-cta="comprar-whatsapp" data-product-id="{{ $product->id }}" target="_blank" rel="noopener noreferrer" class="w-full flex items-center justify-center gap-2 py-3 md:py-3.5 mt-3 bg-[#0EB45D] hover:bg-[#0aa550] text-white rounded-none font-bold text-[15px] md:text-base transition-all no-underline shadow-sm">
                                 <i class="fa-brands fa-whatsapp text-xl"></i> Comprar
                             </a>
+                        </div>
+
+                        {{-- Apartado + Apartar --}}
+                        @if((float) ($apartadoMinimo ?? 0) > 0)
+                        <div class="w-full">
+                            <p class="text-center text-lg md:text-xl font-black text-gray-900 dark:text-white">Aparta con <span class="text-red-600 dark:text-red-500">₡{{ number_format($apartadoMinimo, 0) }}</span></p>
+                             <a href="{{ $whatsappApartado }}" data-cta="apartar-whatsapp" data-product-id="{{ $product->id }}" target="_blank" rel="noopener noreferrer" class="w-full flex items-center justify-center gap-2 py-3 md:py-3.5 mt-2 bg-[#B3E9FF] hover:bg-[#8FDDFF] text-[#0a0f1c] rounded-none font-bold text-[15px] md:text-base transition-all no-underline shadow-sm">
+                                <i class="fa-brands fa-whatsapp text-xl"></i> Apartar
+                            </a>
+                        </div>
+                        @endif
+
+                        {{-- Compartir centrado --}}
+                        <div class="flex justify-center w-full">
+                            <button type="button" onclick="openShareModal()" aria-label="Compartir" class="inline-flex items-center gap-1.5 h-9 px-6 rounded-full border border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-300 hover:text-[#00C4FF] hover:border-[#00C4FF] transition-colors text-xs font-bold uppercase tracking-wide" title="Compartir">
+                                <i class="fa-solid fa-share-nodes text-sm"></i> Compartir
+                            </button>
                         </div>
 
                         <x-product-benefits :apartadoMinimo="$apartadoMinimo" :apartadoWhatsapp="$whatsappApartado" />
