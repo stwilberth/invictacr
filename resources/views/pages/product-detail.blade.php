@@ -98,7 +98,7 @@
         $priceAfterDiscount = $product->precio_final;
         $priceBaseFinal = \App\Models\Product::precioConIva($product->precio_venta ?? 0);
         $apartadoMinimo = (float) $priceAfterDiscount > 0 ? round($priceAfterDiscount * 0.2, -3) : 0;
-        $cuotaQuincenal = $apartadoMinimo > 0 ? (int) (ceil(($apartadoMinimo / 3) / 500) * 500) : 0;
+        $cuotaQuincenal = (float) $priceAfterDiscount > 0 ? (int) (ceil(($priceAfterDiscount / 3) / 500) * 500) : 0;
         $refCode = strtoupper(substr((string) ($visitorUuid ?? ''), -6));
         $refUrl = route('products.show', $product->slug) . ($refCode ? '?ref=' . $refCode : '');
         $whatsappBuy = 'https://wa.me/50686711422?text=' . urlencode("¡Hola! Me interesa el reloj Invicta {$product->modelo}: {$refUrl}");
