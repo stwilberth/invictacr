@@ -153,8 +153,8 @@
                                 <i class="fa-solid fa-shield-halved text-xs sm:text-sm"></i> ORIGINAL
                             </span>
                         </div>
-                        {{-- Compartir sobre la imagen --}}
-                        <div class="absolute bottom-2.5 left-2.5 z-30 sm:bottom-4 sm:left-4">
+                        {{-- Compartir sobre la imagen, lado derecho --}}
+                        <div class="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 z-30">
                             <button type="button" onclick="openShareModal()" aria-label="Compartir" class="inline-flex items-center gap-1.5 h-9 px-6 rounded-full bg-white/90 border border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-300 hover:text-[#00C4FF] hover:border-[#00C4FF] transition-colors text-xs font-bold uppercase tracking-wide shadow-md" title="Compartir">
                                 <i class="fa-solid fa-share-nodes text-sm"></i> Compartir
                             </button>
