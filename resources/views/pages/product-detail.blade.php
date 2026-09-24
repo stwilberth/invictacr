@@ -143,7 +143,7 @@
                 <div class="lg:sticky lg:top-5">
                     <div class="relative group/image">
                         {{-- Columna derecha: descuento + compartir --}}
-                        <div class="absolute top-2.5 right-2.5 sm:top-4 sm:right-4 z-30 flex flex-col items-end gap-2">
+                        <div class="absolute top-2.5 right-3 sm:top-4 sm:right-4 z-30 flex flex-col items-end gap-2">
                             @if(($product->descuento ?? 0) > 0)
                             <span class="bg-red-500 text-white text-xs font-black px-3 py-1.5 rounded-lg shadow-sm">-{{ $product->descuento }}%</span>
                             @endif
