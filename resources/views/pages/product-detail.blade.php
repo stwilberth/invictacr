@@ -98,6 +98,7 @@
         $priceAfterDiscount = $product->precio_final;
         $priceBaseFinal = \App\Models\Product::precioConIva($product->precio_venta ?? 0);
         $apartadoMinimo = (float) $priceAfterDiscount > 0 ? round($priceAfterDiscount * 0.2, -3) : 0;
+        $cuotaQuincenal = $apartadoMinimo > 0 ? (int) (ceil(($apartadoMinimo / 3) / 500) * 500) : 0;
         $refCode = strtoupper(substr((string) ($visitorUuid ?? ''), -6));
         $refUrl = route('products.show', $product->slug) . ($refCode ? '?ref=' . $refCode : '');
         $whatsappBuy = 'https://wa.me/50686711422?text=' . urlencode("¡Hola! Me interesa el reloj Invicta {$product->modelo}: {$refUrl}");
@@ -193,7 +194,7 @@
                         <div class="{{ (float) ($apartadoMinimo ?? 0) > 0 ? '' : 'col-span-2' }}">
                             <div class="min-w-0 text-center">
                             <span class="text-2xl md:text-[40px] leading-none font-black text-red-600 dark:text-red-500 tracking-tight">₡{{ number_format($priceAfterDiscount, 0) }}</span>
-                             <span class="block text-sm font-bold text-gray-400 mt-1">Pago contra entrega*</span>
+                             <span class="block text-sm font-bold text-gray-400 mt-1">De contado*</span>
                             @if(($product->descuento ?? 0) > 0)
                             <div class="flex items-center justify-center gap-2 mt-1">
                                 <span class="text-sm text-gray-400 line-through font-medium">₡{{ number_format($priceBaseFinal, 0) }}</span>
@@ -209,8 +210,8 @@
                         {{-- Apartado + Apartar --}}
                         @if((float) ($apartadoMinimo ?? 0) > 0)
                         <div>
-                            <p class="text-center text-lg md:text-xl font-black text-red-600 dark:text-red-500">₡{{ number_format($apartadoMinimo, 0) }}</p>
-                            <p class="text-center text-sm font-bold text-gray-400 mt-1">monto de apartado</p>
+                            <p class="text-center text-lg md:text-xl font-black text-red-600 dark:text-red-500">₡{{ number_format($cuotaQuincenal, 0) }}</p>
+                            <p class="text-center text-sm font-bold text-gray-400 mt-1">cuota quincenal</p>
                              <a href="{{ $whatsappApartado }}" data-cta="apartar-whatsapp" data-product-id="{{ $product->id }}" target="_blank" rel="noopener noreferrer" class="w-full flex items-center justify-center gap-2 py-3 md:py-3.5 mt-2 bg-[#B3E9FF] hover:bg-[#8FDDFF] text-[#0a0f1c] rounded-none font-bold text-[15px] md:text-base transition-all no-underline shadow-sm">
                                 <i class="fa-brands fa-whatsapp text-xl"></i> Apartar
                             </a>
