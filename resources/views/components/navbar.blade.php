@@ -142,37 +142,34 @@
             <div class="px-4 py-4 border-b border-white/5">
                 <x-search-bar />
             </div>
-            <a href="/relojes"
-               class="{{ str_starts_with($currentPath, 'relojes') ? 'text-[#00C4FF] bg-white/5' : 'text-white' }} hover:text-white block px-4 py-4 text-lg font-black uppercase tracking-tight border-b border-white/5">
-                Relojes
-            </a>
-            <a href="/garantia"
-               class="{{ $currentPath === 'garantia' ? 'text-[#00C4FF] bg-white/5' : 'text-white' }} hover:text-white block px-4 py-4 text-lg font-black uppercase tracking-tight border-b border-white/5">
-                Garantía
-            </a>
-            <a href="/resenas"
-               class="{{ $currentPath === 'resenas' ? 'text-[#00C4FF] bg-white/5' : 'text-white' }} hover:text-white block px-4 py-4 text-lg font-black uppercase tracking-tight border-b border-white/5">
-                Reseñas
-            </a>
-
-            <div class="border-b border-white/5" x-data="{ mobileSupportOpen: false }">
-                <button @click="mobileSupportOpen = !mobileSupportOpen"
-                        class="text-white hover:text-white w-full text-left px-4 py-4 text-lg font-black uppercase tracking-tight border-b border-white/5 flex justify-between items-center">
-                    <span>Soporte</span>
-                    <svg class="w-5 h-5 transition-transform duration-300" :class="{ 'rotate-180': mobileSupportOpen }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                    </svg>
-                </button>
-                <div x-show="mobileSupportOpen"
-                     x-transition:enter="transition ease-out duration-300"
-                     x-transition:enter-start="max-h-0"
-                     x-transition:enter-end="max-h-60"
-                     style="display: none;">
-                    <div class="pl-6 space-y-3 py-3">
-                        <a href="/como-comprar" class="text-white hover:text-white block py-1 text-base font-medium transition-colors">Cómo Comprar</a>
-                        <a href="/sobre-nosotros" class="text-white hover:text-white block py-1 text-base font-medium transition-colors">Sobre Nosotros</a>
-                        <a href="/resistencia-agua" class="text-white hover:text-white block py-1 text-base font-medium transition-colors">Resistencia al Agua</a>
-                        <a href="https://correos.go.cr/rastreo/" target="_blank" class="text-white hover:text-white block py-1 text-base font-medium transition-colors">Rastrear Envío</a>
+            <div class="px-4 py-4 border-b border-white/5" x-data="{ mobileSupportOpen: false }">
+                <div class="grid grid-cols-2 gap-2">
+                    <a href="/relojes"
+                       class="{{ str_starts_with($currentPath, 'relojes') ? 'text-[#00C4FF] bg-[#00C4FF]/10' : 'text-white bg-white/5' }} hover:bg-white/10 flex items-center justify-center py-4 rounded-xl text-sm font-black uppercase tracking-tight transition-colors">
+                        Relojes
+                    </a>
+                    <a href="/garantia"
+                       class="{{ $currentPath === 'garantia' ? 'text-[#00C4FF] bg-[#00C4FF]/10' : 'text-white bg-white/5' }} hover:bg-white/10 flex items-center justify-center py-4 rounded-xl text-sm font-black uppercase tracking-tight transition-colors">
+                        Garantía
+                    </a>
+                    <a href="/resenas"
+                       class="{{ $currentPath === 'resenas' ? 'text-[#00C4FF] bg-[#00C4FF]/10' : 'text-white bg-white/5' }} hover:bg-white/10 flex items-center justify-center py-4 rounded-xl text-sm font-black uppercase tracking-tight transition-colors">
+                        Reseñas
+                    </a>
+                    <button @click="mobileSupportOpen = !mobileSupportOpen"
+                            class="flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 text-white py-4 rounded-xl text-sm font-black uppercase tracking-tight transition-colors">
+                        <span>Soporte</span>
+                        <svg class="w-4 h-4 opacity-60 transition-transform duration-300" :class="{ 'rotate-180': mobileSupportOpen }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </button>
+                </div>
+                <div x-show="mobileSupportOpen" style="display: none;">
+                    <div class="grid grid-cols-2 gap-2 mt-2">
+                        <a href="/como-comprar" class="flex items-center justify-center bg-white/5 hover:bg-white/10 text-white py-3 rounded-xl text-sm font-bold transition-colors">Cómo Comprar</a>
+                        <a href="/sobre-nosotros" class="flex items-center justify-center bg-white/5 hover:bg-white/10 text-white py-3 rounded-xl text-sm font-bold transition-colors">Sobre Nosotros</a>
+                        <a href="/resistencia-agua" class="flex items-center justify-center bg-white/5 hover:bg-white/10 text-white py-3 rounded-xl text-sm font-bold transition-colors">Resistencia al Agua</a>
+                        <a href="https://correos.go.cr/rastreo/" target="_blank" class="flex items-center justify-center bg-white/5 hover:bg-white/10 text-white py-3 rounded-xl text-sm font-bold transition-colors">Rastrear Envío</a>
                     </div>
                 </div>
             </div>
@@ -188,8 +185,6 @@
                     </div>
                     <div class="grid grid-cols-2 gap-2 px-4">
                         <a href="/dashboard" class="flex items-center justify-center bg-white/5 hover:bg-white/10 text-white py-3 rounded-xl font-bold transition-colors">Mi Cuenta</a>
-                        <a href="/mis-pedidos" class="flex items-center justify-center bg-[#00C4FF]/10 hover:bg-[#00C4FF]/20 text-[#00C4FF] py-3 rounded-xl font-bold transition-colors">Mis Pedidos</a>
-                        <a href="{{ route('profile.show') }}" class="flex items-center justify-center bg-white/5 hover:bg-white/10 text-white py-3 rounded-xl font-bold transition-colors">Mi Perfil</a>
                         <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class="flex items-center justify-center bg-red-500/10 hover:bg-red-500/20 text-red-400 py-3 rounded-xl font-bold transition-colors">Salir</a>
                     </div>
                     <form id="logout-form" action="{{ route('logout') }}" method="POST" class="hidden">@csrf</form>
