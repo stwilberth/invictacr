@@ -142,22 +142,20 @@
             <div class="lg:col-span-1">
                 <div class="lg:sticky lg:top-5">
                     <div class="relative group/image">
-                        @if(($product->descuento ?? 0) > 0)
-                        <div class="absolute top-4 right-4 z-30">
+                        {{-- Columna derecha: descuento + compartir --}}
+                        <div class="absolute top-2.5 right-2.5 sm:top-4 sm:right-4 z-30 flex flex-col items-end gap-2">
+                            @if(($product->descuento ?? 0) > 0)
                             <span class="bg-red-500 text-white text-xs font-black px-3 py-1.5 rounded-lg shadow-sm">-{{ $product->descuento }}%</span>
+                            @endif
+                            <button type="button" onclick="openShareModal()" aria-label="Compartir" class="inline-flex items-center gap-1.5 h-9 px-6 rounded-full bg-white/90 border border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-300 hover:text-[#00C4FF] hover:border-[#00C4FF] transition-colors text-xs font-bold uppercase tracking-wide shadow-md" title="Compartir">
+                                <i class="fa-solid fa-share-nodes text-sm"></i> Compartir
+                            </button>
                         </div>
-                        @endif
                         {{-- Badge ORIGINAL (mockup style) --}}
                         <div class="absolute top-2.5 left-2.5 z-30 sm:top-4 sm:left-4">
                             <span class="flex items-center gap-1.5 sm:gap-2 bg-gray-300 text-gray-900 text-[11px] sm:text-xs font-extrabold px-3 py-1.5 sm:px-4 sm:py-2 rounded-full shadow-md">
                                 <i class="fa-solid fa-shield-halved text-xs sm:text-sm"></i> ORIGINAL
                             </span>
-                        </div>
-                        {{-- Compartir sobre la imagen, lado derecho --}}
-                        <div class="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 z-30">
-                            <button type="button" onclick="openShareModal()" aria-label="Compartir" class="inline-flex items-center gap-1.5 h-9 px-6 rounded-full bg-white/90 border border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-300 hover:text-[#00C4FF] hover:border-[#00C4FF] transition-colors text-xs font-bold uppercase tracking-wide shadow-md" title="Compartir">
-                                <i class="fa-solid fa-share-nodes text-sm"></i> Compartir
-                            </button>
                         </div>
                         <x-product-gallery :galleryItems="$galleryItems" :title="$displayTitle" />
                     </div>
