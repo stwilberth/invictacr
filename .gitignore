@@ -49,3 +49,6 @@ graphify-out/
 /storage/framework/views
 /storage/framework/testing
 /bootstrap/cache
+
+# Livewire runtime files
+/storage/framework/lsp-*.php

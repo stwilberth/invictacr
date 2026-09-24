@@ -45,3 +45,13 @@ imágenes o config de Livewire.
 - Apache usa `mod_php` 8.3 (`/etc/php/8.3/apache2/php.ini`); php8.1-fpm NO
   sirve este sitio. Límites web actuales: `upload_max_filesize=20M`,
   `post_max_size=64M`.
+
+## Comandos y crons: ejecutarlos, no pedirlos
+
+- Antes de pedirle al usuario que ejecute un comando (`php artisan ...`,
+  `tinker`, `tail`, cron), el agente debe intentarlo él mismo con sus
+  herramientas (bash, etc.) y mostrar el output real.
+- Solo si falla por falta de acceso al servidor/producción, pedir al usuario
+  el comando exacto listo para copiar/pegar y qué output se necesita de vuelta.
+- Nunca dar una lista de comandos para que el usuario los corra sin haberlos
+  intentado primero.

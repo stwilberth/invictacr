@@ -98,7 +98,8 @@
         $priceAfterDiscount = $product->precio_final;
         $priceBaseFinal = \App\Models\Product::precioConIva($product->precio_venta ?? 0);
         $apartadoMinimo = (float) $priceAfterDiscount > 0 ? round($priceAfterDiscount * 0.2, -3) : 0;
-        $cuotaQuincenal = (float) $priceAfterDiscount > 0 ? (int) (ceil(($priceAfterDiscount / 3) / 500) * 500) : 0;
+        $cuotaQuincenal = (float) $priceAfterDiscount > 0 ? (int) (ceil(($priceAfterDiscount / 4) / 500) * 500) : 0;
+        $cuotaQuincenalBase = (float) $priceBaseFinal > 0 ? (int) (ceil(($priceBaseFinal / 4) / 500) * 500) : 0;
         $refCode = strtoupper(substr((string) ($visitorUuid ?? ''), -6));
         $refUrl = route('products.show', $product->slug) . ($refCode ? '?ref=' . $refCode : '');
         $whatsappBuy = 'https://wa.me/50686711422?text=' . urlencode("¡Hola! Me interesa el reloj Invicta {$product->modelo}: {$refUrl}");
@@ -115,7 +116,7 @@
         }
     @endphp
 
-    <div class="max-w-[1472px] mx-auto px-4 sm:px-6 lg:px-8 py-4 lg:py-5">
+    <div class="w-full max-w-[1472px] mx-auto px-4 sm:px-6 lg:px-8 py-4 lg:py-5">
         {{-- Breadcrumbs 
         <nav class="flex items-center gap-1.5 text-xs lg:text-sm text-slate-400 dark:text-gray-500 mb-1.5 overflow-x-auto whitespace-nowrap pb-1">
             <a href="/" class="hover:text-[#00C4FF] transition-colors">Inicio</a>
@@ -139,13 +140,13 @@
         {{-- Main Product Layout (vista única responsive) --}}
         <div class="grid grid-cols-1 lg:grid-cols-2 items-start gap-4 lg:gap-10 xl:gap-14">
             {{-- Left Column: Media --}}
-            <div class="lg:col-span-1">
+            <div class="lg:col-span-1 min-w-0">
                 <div class="lg:sticky lg:top-5">
                     <div class="relative group/image">
                         {{-- Columna derecha: descuento + compartir --}}
                         <div class="absolute top-2.5 right-3 sm:top-4 sm:right-4 z-30 flex flex-col items-end gap-2">
                             @if(($product->descuento ?? 0) > 0)
-                            <span class="bg-red-500 text-white text-xs font-black px-3 py-1.5 rounded-lg shadow-sm">-{{ $product->descuento }}%</span>
+                            <span class="flex h-14 w-14 items-center justify-center bg-red-500 text-white text-xs font-black drop-shadow-[0_2px_2px_rgba(0,0,0,0.2)] [clip-path:polygon(50%_0%,56%_13%,63%_3%,67%_17%,77%_8%,77%_23%,91%_18%,85%_32%,100%_34%,88%_44%,100%_50%,88%_56%,100%_66%,85%_68%,91%_82%,77%_77%,77%_92%,67%_83%,63%_97%,56%_87%,50%_100%,44%_87%,37%_97%,33%_83%,23%_92%,23%_77%,9%_82%,15%_68%,0%_66%,12%_56%,0%_50%,12%_44%,0%_34%,15%_32%,9%_18%,23%_23%,23%_8%,33%_17%,37%_3%,44%_13%)]">-{{ $product->descuento }}%</span>
                             @endif
                             {{-- Compartir oculto temporalmente --}}
                             {{--
@@ -156,7 +157,7 @@
                         </div>
                         {{-- Badge ORIGINAL (mockup style) --}}
                         <div class="absolute top-2.5 left-2.5 z-30 sm:top-4 sm:left-4">
-                            <span class="flex items-center gap-1 bg-gray-300 text-gray-900 text-[10px] font-extrabold px-2.5 py-1 rounded-full shadow-md">
+                            <span class="flex items-center gap-1 bg-[#D4AF37] text-[#3D2E05] text-[10px] font-extrabold px-2.5 py-1 rounded-full shadow-md">
                                 <i class="fa-solid fa-shield-halved text-[10px]"></i> ORIGINAL
                             </span>
                         </div>
@@ -167,7 +168,7 @@
             </div>
 
             {{-- Right Column: Buy Box --}}
-            <div class="lg:col-span-1 flex flex-col">
+            <div class="lg:col-span-1 min-w-0 flex flex-col">
                 {{-- Title Header --}}
                 <div class="mb-3">
                     <div class="flex items-start gap-2 sm:gap-3 mb-2">
@@ -198,16 +199,19 @@
                     <div class="flex flex-col items-start gap-2 mb-3">
                         <div class="grid grid-cols-2 gap-3 w-full items-stretch">
                         {{-- Precio + Comprar --}}
-                        <div class="{{ (float) ($apartadoMinimo ?? 0) > 0 ? '' : 'col-span-2' }} flex flex-col">
+                        <div class="{{ (float) ($apartadoMinimo ?? 0) > 0 ? '' : 'col-span-2' }} flex flex-col min-w-0">
                             <div class="min-w-0 text-center">
                             <p class="text-2xl md:text-[40px] leading-none font-black text-red-600 dark:text-red-500 tracking-tight">₡{{ number_format($priceAfterDiscount, 0) }}</p>
-                             <p class="text-sm font-bold text-gray-400 mt-1 mb-1">Pago contra entrega*</p>
-                            @if(($product->descuento ?? 0) > 0)
-                            <div class="flex items-center justify-center gap-2 mt-1">
-                                <span class="text-sm text-gray-400 line-through font-medium">₡{{ number_format($priceBaseFinal, 0) }}</span>
-                                <span class="bg-red-500 text-white text-[11px] font-black px-2.5 py-1 rounded-lg shadow-sm">-{{ $product->descuento }}% OFF</span>
+                            <div class="h-5 flex items-center justify-center">
+                                @if(($product->descuento ?? 0) > 0)
+                                <div class="flex items-center justify-center gap-2 mt-1">
+                                    <span class="text-sm text-gray-400 line-through font-medium">₡{{ number_format($priceBaseFinal, 0) }}</span>
+                                </div>
+                                @endif
                             </div>
-                            @endif
+                            <div class="h-7 flex items-end justify-center">
+                                <p class="text-sm font-bold text-gray-700 dark:text-gray-300 mt-2 mb-2">Pago contra entrega*</p>
+                            </div>
                             </div>
                              <a href="{{ $whatsappBuy }}" data-cta="comprar-whatsapp" data-product-id="{{ $product->id }}" target="_blank" rel="noopener noreferrer" class="w-full flex items-center justify-center gap-2 py-3 md:py-3.5 mt-auto bg-[#0EB45D] hover:bg-[#0aa550] text-white rounded-none font-bold text-[15px] md:text-base transition-all no-underline shadow-sm">
                                 <i class="fa-brands fa-whatsapp text-xl"></i> Comprar
@@ -216,9 +220,16 @@
 
                         {{-- Apartado + Apartar --}}
                         @if((float) ($apartadoMinimo ?? 0) > 0)
-                        <div class="flex flex-col">
-                            <p class="text-center text-2xl md:text-[40px] leading-none font-black text-gray-600 dark:text-gray-300 tracking-tight">₡{{ number_format($cuotaQuincenal, 0) }}</p>
-                            <p class="text-center text-sm font-bold text-gray-400 mt-1 mb-1">A tres quincenas</p>
+                        <div class="flex flex-col min-w-0">
+                            <p class="text-center text-2xl md:text-[40px] leading-none font-black text-gray-800 dark:text-gray-300 tracking-tight">₡{{ number_format($cuotaQuincenal, 0) }}</p>
+                            <div class="h-5 flex items-center justify-center">
+                                @if(($product->descuento ?? 0) > 0)
+                                <span class="text-sm text-gray-400 line-through font-medium mt-1">₡{{ number_format($cuotaQuincenalBase, 0) }}</span>
+                                @endif
+                            </div>
+                            <div class="h-7 flex items-end justify-center">
+                                <p class="text-center text-sm font-bold text-gray-700 dark:text-gray-300 mt-2 mb-2">Monto de apartado</p>
+                            </div>
                              <a href="{{ $whatsappApartado }}" data-cta="apartar-whatsapp" data-product-id="{{ $product->id }}" target="_blank" rel="noopener noreferrer" class="w-full flex items-center justify-center gap-2 py-3 md:py-3.5 mt-auto bg-[#B3E9FF] hover:bg-[#8FDDFF] text-[#0a0f1c] rounded-none font-bold text-[15px] md:text-base transition-all no-underline shadow-sm">
                                 <i class="fa-brands fa-whatsapp text-xl"></i> Apartar
                             </a>
@@ -226,81 +237,77 @@
                         @endif
                         </div>
 
-                        <x-product-benefits :apartadoMinimo="$apartadoMinimo" :apartadoWhatsapp="$whatsappApartado" />
-
-                        {{-- Métodos de pago aceptados --}}
-                        <x-payment-methods />
-
+                        
                     </div>
                 @else
-                    {{-- Action buttons (no price for upcoming / agotado) --}}
-                    <div class="flex flex-col items-center gap-2.5 mb-3.5">
-                        <div class="flex flex-col gap-2 w-full">
-                            <a href="{{ $whatsappBuy }}" data-cta="ver-disponibilidad" data-product-id="{{ $product->id }}" target="_blank" rel="noopener noreferrer" class="flex-1 flex items-center justify-center gap-1 py-2 bg-[#00C4FF] hover:bg-[#00a3d6] text-white rounded-none font-extrabold uppercase tracking-tight text-xs transition-all hover:-translate-y-0.5 active:scale-95 no-underline shadow-sm hover:shadow-md">
-                                <i class="fa-solid fa-circle-info text-base"></i> Ver disponibilidad
-                            </a>
-                            <a href="{{ $whatsappBuy }}" data-cta="comprar-whatsapp" data-product-id="{{ $product->id }}" target="_blank" rel="noopener noreferrer" class="flex-1 flex items-center justify-center gap-1 py-2 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-none font-extrabold uppercase tracking-tight text-xs transition-all hover:-translate-y-0.5 active:scale-95 no-underline shadow-sm hover:shadow-md">
-                                <i class="fa-brands fa-whatsapp text-base"></i> Contactar
-                            </a>
-                        </div>
+                {{-- Action buttons (no price for upcoming / agotado) --}}
+                <div class="flex flex-col items-center gap-2.5 mb-3.5">
+                    <div class="flex flex-col gap-2 w-full">
+                        <a href="{{ $whatsappBuy }}" data-cta="ver-disponibilidad" data-product-id="{{ $product->id }}" target="_blank" rel="noopener noreferrer" class="flex-1 flex items-center justify-center gap-1 py-2 bg-[#00C4FF] hover:bg-[#00a3d6] text-white rounded-none font-extrabold uppercase tracking-tight text-xs transition-all hover:-translate-y-0.5 active:scale-95 no-underline shadow-sm hover:shadow-md">
+                            <i class="fa-solid fa-circle-info text-base"></i> Ver disponibilidad
+                        </a>
+                        <a href="{{ $whatsappBuy }}" data-cta="comprar-whatsapp" data-product-id="{{ $product->id }}" target="_blank" rel="noopener noreferrer" class="flex-1 flex items-center justify-center gap-1 py-2 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-none font-extrabold uppercase tracking-tight text-xs transition-all hover:-translate-y-0.5 active:scale-95 no-underline shadow-sm hover:shadow-md">
+                            <i class="fa-brands fa-whatsapp text-base"></i> Contactar
+                        </a>
                     </div>
+                </div>
                 @endif
-
+                
                 {{-- Especificaciones (siempre visible) --}}
                 <div class="w-full mb-3.5 mt-1">
-                    <div class="grid grid-cols-2 gap-x-4 lg:gap-x-6 gap-y-4 lg:gap-y-5">
+                    <div class="grid min-w-0 grid-cols-2 gap-x-4 lg:gap-x-6 gap-y-4 lg:gap-y-5">
                         <div class="flex items-center gap-3">
                             <div class="flex-shrink-0 w-10 h-10 md:w-11 md:h-11 rounded-[10px] bg-[#EEF3FA] dark:bg-gray-800 flex items-center justify-center text-[#14325E] dark:text-gray-300">
                                 <i class="fa-solid fa-venus-mars text-base"></i>
                             </div>
-                            <div>
+                            <div class="min-w-0">
                                 <p class="text-[11px] text-gray-400 font-semibold uppercase tracking-wide">Para</p>
-                                <p class="text-[13px] md:text-sm font-bold text-[#14325E] dark:text-white capitalize">{{ $product->genero === 'mujer' ? 'Mujer' : ($product->genero ?? 'Unisex') }}</p>
+                                <p class="text-[13px] md:text-sm font-bold text-[#14325E] dark:text-white capitalize break-words">{{ $product->genero === 'mujer' ? 'Mujer' : ($product->genero ?? 'Unisex') }}</p>
                             </div>
                         </div>
                         <div class="flex items-center gap-3">
                             <div class="flex-shrink-0 w-10 h-10 md:w-11 md:h-11 rounded-[10px] bg-[#EEF3FA] dark:bg-gray-800 flex items-center justify-center text-[#14325E] dark:text-gray-300">
                                 <i class="fa-solid fa-arrows-up-down-left-right text-base"></i>
                             </div>
-                            <div>
+                            <div class="min-w-0">
                                 <p class="text-[11px] text-gray-400 font-semibold uppercase tracking-wide">Tamaño de caja</p>
-                                <p class="text-[13px] md:text-sm font-bold text-[#14325E] dark:text-white">{{ $size ? $size . 'mm' : 'N/A' }}</p>
+                                <p class="text-[13px] md:text-sm font-bold text-[#14325E] dark:text-white break-words">{{ $size ? $size . 'mm' : 'N/A' }}</p>
                             </div>
                         </div>
                         <div class="flex items-center gap-3">
                             <div class="flex-shrink-0 w-10 h-10 md:w-11 md:h-11 rounded-[10px] bg-[#EEF3FA] dark:bg-gray-800 flex items-center justify-center text-[#14325E] dark:text-gray-300">
                                 <i class="fa-solid fa-gear text-base"></i>
                             </div>
-                            <div>
+                            <div class="min-w-0">
                                 <p class="text-[11px] text-gray-400 font-semibold uppercase tracking-wide">Movimiento</p>
-                                <p class="text-[13px] md:text-sm font-bold text-[#14325E] dark:text-white capitalize line-clamp-1">{{ $product->tipo_movimiento === 'cuarzo' ? 'Batería' : ($product->tipo_movimiento ?? 'Especial') }}</p>
+                                <p class="text-[13px] md:text-sm font-bold text-[#14325E] dark:text-white capitalize line-clamp-1 break-words">{{ $product->tipo_movimiento === 'cuarzo' ? 'Batería' : ($product->tipo_movimiento ?? 'Especial') }}</p>
                             </div>
                         </div>
                         <div class="flex items-center gap-3">
                             <div class="flex-shrink-0 w-10 h-10 md:w-11 md:h-11 rounded-[10px] bg-[#EEF3FA] dark:bg-gray-800 flex items-center justify-center text-[#14325E] dark:text-gray-300">
                                 <i class="fa-solid fa-droplet text-base"></i>
                             </div>
-                            <div>
+                            <div class="min-w-0">
                                 <p class="text-[11px] text-gray-400 font-semibold uppercase tracking-wide">Resistencia al agua</p>
-                                <p class="text-[13px] md:text-sm font-bold text-[#14325E] dark:text-white whitespace-nowrap">{{ $product->resistencia_agua ? $product->resistencia_agua . 'm' : 'Resistente' }}</p>
+                                <p class="text-[13px] md:text-sm font-bold text-[#14325E] dark:text-white whitespace-normal break-words">{{ $product->resistencia_agua ? $product->resistencia_agua . 'm' : 'Resistente' }}</p>
                             </div>
                         </div>
                         <div class="flex items-center gap-3">
                             <div class="flex-shrink-0 w-10 h-10 md:w-11 md:h-11 rounded-[10px] bg-[#EEF3FA] dark:bg-gray-800 flex items-center justify-center text-[#14325E] dark:text-gray-300">
                                 <i class="fa-solid fa-clock text-base"></i>
                             </div>
-                            <div>
+                            <div class="min-w-0">
                                 <p class="text-[11px] text-gray-400 font-semibold uppercase tracking-wide">Colección</p>
-                                <p class="text-[13px] md:text-sm font-bold text-[#14325E] dark:text-white">{{ $product->coleccion ?? '—' }}</p>
+                                <p class="text-[13px] md:text-sm font-bold text-[#14325E] dark:text-white break-words">{{ $product->coleccion ?? '—' }}</p>
                             </div>
                         </div>
                         <div class="flex items-center gap-3">
                             <div class="flex-shrink-0 w-10 h-10 md:w-11 md:h-11 rounded-[10px] bg-[#EEF3FA] dark:bg-gray-800 flex items-center justify-center text-[#14325E] dark:text-gray-300">
                                 <i class="fa-solid fa-stopwatch text-base"></i>
                             </div>
-                            <div>
+                            <div class="min-w-0">
                                 <p class="text-[11px] text-gray-400 font-semibold uppercase tracking-wide">Brazalete</p>
-                                <p class="text-[13px] md:text-sm font-bold text-[#14325E] dark:text-white capitalize">{{ $product->brazalete ?? '—' }}</p>
+                                <p class="text-[13px] md:text-sm font-bold text-[#14325E] dark:text-white capitalize break-words">{{ $product->brazalete ?? '—' }}</p>
                             </div>
                         </div>
                     </div>
@@ -318,6 +325,10 @@
                             </div>
                         </div>
                 </div>
+                <x-product-benefits :apartadoMinimo="$apartadoMinimo" :apartadoWhatsapp="$whatsappApartado" />
+    
+                {{-- Métodos de pago aceptados --}}
+                <x-payment-methods />
             </div>
         </div>
 

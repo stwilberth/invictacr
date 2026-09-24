@@ -102,10 +102,10 @@
                 <p class="text-xs md:text-base text-gray-500 dark:text-gray-400">Entrega inmediata en el GAM</p>
             </div>
             <div class="relative group">
-                <button onclick="event.stopPropagation();this.parentElement.querySelector('.scroll-container').scrollBy({left: -400, behavior: 'smooth'});" class="absolute left-0 top-1/2 -translate-y-1/2 z-50 w-12 h-12 bg-white dark:bg-gray-800 rounded-full shadow-xl flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-700 transition-all opacity-0 group-hover:opacity-100 -ml-5 border border-gray-200 dark:border-gray-700 cursor-pointer" aria-label="Anterior">
+                <button onclick="event.stopPropagation();this.parentElement.querySelector('.scroll-container').scrollBy({left: -400, behavior: 'smooth'});" class="absolute left-0 top-1/2 -translate-y-1/2 z-50 w-12 h-12 bg-white dark:bg-gray-800 rounded-full shadow-xl flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-700 transition-all opacity-0 group-hover:opacity-100 -ml-4 border border-gray-200 dark:border-gray-700 cursor-pointer" aria-label="Anterior">
                     <i class="fa-solid fa-chevron-left text-gray-700 dark:text-gray-300 text-base"></i>
                 </button>
-                <button onclick="event.stopPropagation();this.parentElement.querySelector('.scroll-container').scrollBy({left: 400, behavior: 'smooth'});" class="absolute right-0 top-1/2 -translate-y-1/2 z-50 w-12 h-12 bg-white dark:bg-gray-800 rounded-full shadow-xl flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-700 transition-all opacity-0 group-hover:opacity-100 -mr-5 border border-gray-200 dark:border-gray-700 cursor-pointer" aria-label="Siguiente">
+                <button onclick="event.stopPropagation();this.parentElement.querySelector('.scroll-container').scrollBy({left: 400, behavior: 'smooth'});" class="absolute right-0 top-1/2 -translate-y-1/2 z-50 w-12 h-12 bg-white dark:bg-gray-800 rounded-full shadow-xl flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-700 transition-all opacity-0 group-hover:opacity-100 -mr-4 border border-gray-200 dark:border-gray-700 cursor-pointer" aria-label="Siguiente">
                     <i class="fa-solid fa-chevron-right text-gray-700 dark:text-gray-300 text-base"></i>
                 </button>
                 <div class="overflow-x-auto scrollbar-hide scroll-container flex gap-3 sm:gap-4 pb-2">

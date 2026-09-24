@@ -22,22 +22,4 @@
             <span class="text-xs font-medium text-gray-500 dark:text-gray-400 block">Garantía 6 meses</span>
         </span>
     </div>
-    <div class="flex items-center gap-3 px-3 py-2.5 md:px-4 md:py-3 bg-transparent dark:bg-transparent rounded-xl min-w-0">
-        <span class="block flex-shrink-0 text-[#14325E] dark:text-gray-200">
-            <i class="fa-solid fa-box md:text-xl"></i>
-        </span>
-        <span class="leading-tight min-w-0">
-            <span class="text-xs md:block md:text-[13px] font-extrabold text-[#14325E] dark:text-gray-100">Apartado desde</span>
-            <span class="text-xs font-medium text-gray-500 dark:text-gray-400 block">₡{{ number_format($apartadoMinimo, 0) }}</span>
-        </span>
-    </div>
-    <div class="flex items-center gap-3 px-3 py-2.5 md:px-4 md:py-3 bg-transparent dark:bg-transparent rounded-xl min-w-0">
-        <span class="block flex-shrink-0 text-[#14325E] dark:text-gray-200">
-            <i class="fa-solid fa-hand-holding-dollar md:text-xl"></i>
-        </span>
-        <span class="leading-tight min-w-0">
-            <span class="text-xs md:block md:text-[13px] font-extrabold text-[#14325E] dark:text-gray-100">Pago al recibir* </span>
-            <span class="text-xs font-medium text-gray-500 dark:text-gray-400 block">solo en el GAM</span>
-        </span>
-    </div>
 </div>
