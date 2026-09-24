@@ -194,7 +194,7 @@
                         <div class="{{ (float) ($apartadoMinimo ?? 0) > 0 ? '' : 'col-span-2' }}">
                             <div class="min-w-0 text-center">
                             <span class="text-2xl md:text-[40px] leading-none font-black text-red-600 dark:text-red-500 tracking-tight">₡{{ number_format($priceAfterDiscount, 0) }}</span>
-                             <span class="block text-sm font-bold text-gray-400 mt-1">De contado</span>
+                             <span class="block text-sm font-bold text-gray-400 mt-1">Pago contra entrega de contado*</span>
                             @if(($product->descuento ?? 0) > 0)
                             <div class="flex items-center justify-center gap-2 mt-1">
                                 <span class="text-sm text-gray-400 line-through font-medium">₡{{ number_format($priceBaseFinal, 0) }}</span>
