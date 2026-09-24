@@ -191,11 +191,11 @@
                         <div class="grid grid-cols-2 gap-3 w-full">
                         {{-- Precio + Comprar --}}
                         <div class="{{ (float) ($apartadoMinimo ?? 0) > 0 ? '' : 'col-span-2' }}">
-                            <div class="flex flex-wrap items-baseline justify-center gap-x-3 gap-y-1 min-w-0 text-center">
+                            <div class="min-w-0 text-center">
                             <span class="text-2xl md:text-[40px] leading-none font-black text-red-600 dark:text-red-500 tracking-tight">₡{{ number_format($priceAfterDiscount, 0) }}</span>
-                             <span class="text-sm font-bold text-gray-400 ml-2">Pago contra entrega*</span>
+                             <span class="block text-sm font-bold text-gray-400 mt-1">Pago contra entrega*</span>
                             @if(($product->descuento ?? 0) > 0)
-                            <div class="flex items-center gap-2">
+                            <div class="flex items-center justify-center gap-2 mt-1">
                                 <span class="text-sm text-gray-400 line-through font-medium">₡{{ number_format($priceBaseFinal, 0) }}</span>
                                 <span class="bg-red-500 text-white text-[11px] font-black px-2.5 py-1 rounded-lg shadow-sm">-{{ $product->descuento }}% OFF</span>
                             </div>
@@ -209,7 +209,8 @@
                         {{-- Apartado + Apartar --}}
                         @if((float) ($apartadoMinimo ?? 0) > 0)
                         <div>
-                            <p class="text-center text-lg md:text-xl font-black text-gray-900 dark:text-white">Aparta con <span class="text-red-600 dark:text-red-500">₡{{ number_format($apartadoMinimo, 0) }}</span></p>
+                            <p class="text-center text-lg md:text-xl font-black text-red-600 dark:text-red-500">₡{{ number_format($apartadoMinimo, 0) }}</p>
+                            <p class="text-center text-sm font-bold text-gray-400 mt-1">monto de apartado</p>
                              <a href="{{ $whatsappApartado }}" data-cta="apartar-whatsapp" data-product-id="{{ $product->id }}" target="_blank" rel="noopener noreferrer" class="w-full flex items-center justify-center gap-2 py-3 md:py-3.5 mt-2 bg-[#B3E9FF] hover:bg-[#8FDDFF] text-[#0a0f1c] rounded-none font-bold text-[15px] md:text-base transition-all no-underline shadow-sm">
                                 <i class="fa-brands fa-whatsapp text-xl"></i> Apartar
                             </a>
