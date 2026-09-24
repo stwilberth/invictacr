@@ -206,19 +206,8 @@
 
                         {{-- Action buttons --}}
                         <div class="flex flex-row gap-3 w-full">
-                            @if(!$isAgotado && !$isUpcoming && ($product->stock ?? 0) > 0)
-                                @if($inCart)
-                                <a href="{{ route('cart.show') }}" class="flex-1 flex items-center justify-center gap-2 py-3 md:py-3.5 bg-[#B3E9FF] hover:bg-[#8FDDFF] text-[#0a0f1c] rounded-none font-bold text-[15px] md:text-base transition-all shadow-sm">
-                                    <i class="fa-solid fa-cart-shopping text-lg"></i> Ver Carrito
-                                </a>
-                                @else
-                                <button type="button" data-cta="comprar-ahora" data-product-id="{{ $product->id }}" onclick="addToCart({{ $product->id }}, this)" class="flex-1 flex items-center justify-center gap-2 py-3 md:py-3.5 bg-[#B3E9FF] hover:bg-[#8FDDFF] text-[#0a0f1c] rounded-none font-bold text-[15px] md:text-base transition-all shadow-sm">
-                                    <i class="fa-solid fa-cart-shopping text-lg"></i> Comprar
-                                </button>
-                                @endif
-                            @endif
-                            <a href="{{ $whatsappBuy }}" data-cta="comprar-whatsapp" data-product-id="{{ $product->id }}" target="_blank" rel="noopener noreferrer" class="flex-1 flex items-center justify-center gap-2 py-3 md:py-3.5 bg-[#0EB45D] hover:bg-[#0aa550] text-white rounded-none font-bold text-[15px] md:text-base transition-all no-underline shadow-sm">
-                                <i class="fa-brands fa-whatsapp text-xl"></i> Contactar
+                             <a href="{{ $whatsappBuy }}" data-cta="comprar-whatsapp" data-product-id="{{ $product->id }}" target="_blank" rel="noopener noreferrer" class="flex-1 flex items-center justify-center gap-2 py-3 md:py-3.5 bg-[#B3E9FF] hover:bg-[#8FDDFF] text-[#0a0f1c] rounded-none font-bold text-[15px] md:text-base transition-all no-underline shadow-sm">
+                                <i class="fa-brands fa-whatsapp text-xl"></i> Comprar
                             </a>
                         </div>
 
