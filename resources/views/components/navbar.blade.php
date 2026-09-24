@@ -49,12 +49,7 @@
                 </a>
 
 
-                <a href="{{ route('cart.show') }}" class="relative text-white hover:text-[#00C4FF] p-2 rounded-full transition-all duration-300 hover:bg-white/5" title="Carrito">
-                    <i class="fa-solid fa-cart-shopping w-5 h-5"></i>
-                    @if($cartCount > 0)
-                     <span class="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center">{{ $cartCount > 9 ? '9+' : $cartCount }}</span>
-                    @endif
-                </a>
+                {{-- Carrito oculto: la compra ahora fluye por WhatsApp --}}
 
                 <button @click="toggleTheme"
                         class="text-white hover:text-[#00C4FF] p-2 rounded-full transition-all duration-300 hover:bg-white/5"
@@ -118,7 +113,6 @@
                             <a href="{{ route('profile.show') }}" class="block px-4 py-2 text-sm text-white hover:text-white hover:bg-white/5 transition-colors">Mi Perfil</a>
                             <a href="{{ route('profile.show') }}#direccion" class="block px-4 py-2 text-sm text-white hover:text-white hover:bg-white/5 transition-colors">Mi Dirección</a>
                             <a href="/mis-pedidos" class="block px-4 py-2 text-sm text-[#00C4FF] hover:bg-white/5 transition-colors font-bold">Mis Pedidos</a>
-                            <a href="{{ route('cart.show') }}" class="block px-4 py-2 text-sm text-white hover:text-white hover:bg-white/5 transition-colors">Mi Carrito</a>
                             <div class="border-t border-white/10 my-1"></div>
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
@@ -140,16 +134,6 @@
             </div>
 
             <div class="md:hidden flex items-center gap-1">
-                <a href="{{ route('cart.show') }}" class="relative text-white p-2 hover:bg-white/5 rounded-lg transition-colors" title="Carrito">
-                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg" aria-label="Carrito">
-                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
-                        <circle cx="9" cy="21" r="1" />
-                        <circle cx="20" cy="21" r="1" />
-                    </svg>
-                    @if($cartCount > 0)
-                    <span class="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center">{{ $cartCount > 9 ? '9+' : $cartCount }}</span>
-                    @endif
-                </a>
                 <button @click="mobileMenuOpen = !mobileMenuOpen"
                         class="text-white p-2 hover:bg-white/5 rounded-lg transition-colors"
                         aria-label="Toggle Menu">
@@ -221,13 +205,7 @@
             </div>
 
             <div class="px-4 py-4 border-b border-white/5">
-                <a href="{{ route('cart.show') }}" class="flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 text-white py-3 rounded-xl font-bold transition-colors">
-                    <i class="fa-solid fa-cart-shopping text-[#00C4FF]"></i>
-                    Mi Carrito
-                    @if($cartCount > 0)
-                        <span class="bg-[#00C4FF] text-[#0a0f1c] text-xs font-black px-2 py-0.5 rounded-full">{{ $cartCount > 9 ? '9+' : $cartCount }}</span>
-                    @endif
-                </a>
+                {{-- Carrito oculto: la compra ahora fluye por WhatsApp --}}
             </div>
             @auth
                 <div class="py-4 border-b border-white/5">
