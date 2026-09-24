@@ -210,7 +210,9 @@
 <body class="bg-white text-gray-900 dark:bg-[#121212] dark:text-gray-100" style="overflow-x: clip;">
     @unless($hideNav ?? false)
     <x-navbar :q="$q ?? null" />
+    @unless($hidePromoBanner ?? false)
     <x-promo-anillo-banner />
+    @endunless
     @endunless
 
     <main class="min-h-screen">
