@@ -14,6 +14,11 @@ class VisitorTrackController extends Controller
 
     public function event(Request $request)
     {
+        // Personal interno: no se registran sus eventos
+        if ($request->user()?->isStaff()) {
+            return response()->json(['ok' => false], 200);
+        }
+
         $visitor = Visitor::currentFromRequest($request);
         $isNewVisitor = false;
 
@@ -95,6 +100,10 @@ class VisitorTrackController extends Controller
 
     public function heartbeat(Request $request)
     {
+        if ($request->user()?->isStaff()) {
+            return response()->json(['ok' => false], 200);
+        }
+
         $visitor = Visitor::currentFromRequest($request);
 
         if (!$visitor) {

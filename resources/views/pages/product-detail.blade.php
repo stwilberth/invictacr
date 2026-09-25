@@ -74,7 +74,7 @@
         "@@type": "VideoObject",
         "name": {!! json_encode($productName) !!},
         "description": {!! json_encode($seoDescription) !!},
-        "thumbnailUrl": {!! json_encode('https://' . config('services.cloudflare.stream_customer_subdomain') . '.cloudflarestream.com/' . $product->video_uid . '/thumbnails/thumbnail.jpg') !!},
+        "thumbnailUrl": {!! json_encode('https://' . config('services.cloudflare.stream_customer_subdomain') . '.cloudflarestream.com/' . $product->video_uid . '/thumbnails/thumbnail.jpg' . (is_numeric($product->video_thumb_time) ? '?time=' . ((int) $product->video_thumb_time) . 's' : '')) !!},
         "contentUrl": {!! json_encode('https://' . config('services.cloudflare.stream_customer_subdomain') . '.cloudflarestream.com/' . $product->video_uid . '/iframe') !!},
         "embedUrl": {!! json_encode('https://' . config('services.cloudflare.stream_customer_subdomain') . '.cloudflarestream.com/' . $product->video_uid . '/iframe') !!},
         "uploadDate": {!! json_encode($product->created_at ? $product->created_at->toIso8601String() : date('c')) !!}
@@ -102,8 +102,8 @@
         $cuotaQuincenalBase = (float) $priceBaseFinal > 0 ? (int) (ceil(($priceBaseFinal / 4) / 500) * 500) : 0;
         $refCode = strtoupper(substr((string) ($visitorUuid ?? ''), -6));
         $refUrl = route('products.show', $product->slug) . ($refCode ? '?ref=' . $refCode : '');
-        $whatsappBuy = 'https://wa.me/50686711422?text=' . urlencode("¡Hola! Me interesa el reloj Invicta {$product->modelo}: {$refUrl}");
-        $whatsappApartado = 'https://wa.me/50686711422?text=' . urlencode("¡Hola! Quiero apartar el reloj Invicta {$product->modelo}: {$refUrl}");
+        $whatsappBuy = 'https://wa.me/50686711422?text=' . urlencode("¡Hola! Me interesa el reloj Invicta {$product->modelo}." . ($refCode ? " Mi código: {$refCode}." : '') . " {$refUrl}");
+        $whatsappApartado = 'https://wa.me/50686711422?text=' . urlencode("¡Hola! Quiero apartar el reloj Invicta {$product->modelo}." . ($refCode ? " Mi código: {$refCode}." : '') . " {$refUrl}");
         $shareLinkFor = fn(string $source): string => url()->current() . '?utm_source=' . $source . '&utm_medium=compartir&utm_campaign=ficha_producto';
         $shareUrl = urlencode($shareLinkFor('whatsapp'));
         $shareTitle = urlencode("¡Mira este reloj Invicta!: {$product->title}");
@@ -161,7 +161,7 @@
                                 <i class="fa-solid fa-shield-halved text-[10px]"></i> ORIGINAL
                             </span>
                         </div>
-                        <x-product-gallery :galleryItems="$galleryItems" :title="$displayTitle" />
+                        <x-product-gallery :galleryItems="$galleryItems" :title="$displayTitle" :refCode="$refCode" />
                     </div>
                 </div>
 
@@ -175,6 +175,11 @@
                         <h1 class="flex-1 text-lg sm:text-2xl lg:text-[28px] xl:text-[32px] font-black text-[#14325E] dark:text-white tracking-tight leading-[1.1] uppercase">
                             {{ $displayTitle }}
                         </h1>
+                        @if(auth()->check() && auth()->user()->is_admin)
+                        <a href="{{ route('admin.products.edit', $product->id) }}" class="flex-shrink-0 inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-gray-100 dark:bg-white/10 border border-gray-200 dark:border-white/15 text-gray-500 dark:text-gray-300 hover:text-[#00C4FF] hover:border-[#00C4FF] transition-colors text-[11px] font-bold uppercase tracking-wider no-underline" title="Editar producto">
+                            <i class="fa-solid fa-pen-to-square"></i> Editar
+                        </a>
+                        @endif
                     </div>
                     <div class="flex items-center justify-center md:justify-start gap-3">
                         @if($isUpcoming)

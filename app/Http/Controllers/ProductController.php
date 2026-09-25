@@ -338,20 +338,58 @@ class ProductController extends Controller
             });
 
             $galleryItems = collect();
+            if ($product->video_uid) {
+                $sub = config('services.cloudflare.stream_customer_subdomain');
+                $thumbSecond = is_numeric($product->video_thumb_time) ? (int) $product->video_thumb_time : null;
+                // Frames de galería en 16:9 como el video original (sin recorte)
+                $frameUrl = fn($sec) => "https://{$sub}.cloudflarestream.com/{$product->video_uid}/thumbnails/thumbnail.jpg?time={$sec}s&width=1280&height=720";
+                // Escena principal: primera foto de la galería
+                if ($thumbSecond !== null) {
+                    $frame = $frameUrl($thumbSecond);
+                    $galleryItems->push([
+                        'type' => 'image',
+                        'url' => $frame,
+                        'zoomUrl' => $frame,
+                    ]);
+                }
+                // Escenas extra: más fotos (sin duplicar la principal)
+                $extras = [];
+                foreach ((array) ($product->video_extra_scenes ?? []) as $s) {
+                    if (!is_numeric($s)) {
+                        continue;
+                    }
+                    $s = max(0, (int) $s);
+                    if ($s !== $thumbSecond && !in_array($s, $extras, true)) {
+                        $extras[] = $s;
+                    }
+                }
+                foreach ($extras as $sec) {
+                    $frame = $frameUrl($sec);
+                    $galleryItems->push([
+                        'type' => 'image',
+                        'url' => $frame,
+                        'zoomUrl' => $frame,
+                    ]);
+                }
+                // Video en último lugar, antes de las fotos por defecto
+                $thumbTime = $thumbSecond !== null ? $thumbSecond . 's' : null;
+                $timeParam = $thumbTime ? "&time={$thumbTime}" : '';
+                $videoThumb = "https://{$sub}.cloudflarestream.com/{$product->video_uid}/thumbnails/thumbnail.jpg?width=480{$timeParam}";
+                $galleryItems->push([
+                    'type' => 'video',
+                    'videoUid' => $product->video_uid,
+                    'thumbnail' => $videoThumb,
+                    'cover' => "https://{$sub}.cloudflarestream.com/{$product->video_uid}/thumbnails/thumbnail.jpg?width=1280&height=720{$timeParam}",
+                    'url' => $videoThumb,
+                    'poster' => $thumbTime ? $frameUrl($thumbSecond) : null,
+                    'startSecond' => $thumbSecond,
+                ]);
+            }
             foreach ($images as $i => $img) {
                 $galleryItems->push([
                     'type' => 'image',
                     'url' => $galleryImages[$i] ?? $img,
                     'zoomUrl' => $galleryImages[$i] ?? $img,
-                ]);
-            }
-            if ($product->video_uid) {
-                $videoThumb = "https://" . config('services.cloudflare.stream_customer_subdomain') . ".cloudflarestream.com/{$product->video_uid}/thumbnails/thumbnail.jpg?width=480";
-                $galleryItems->push([
-                    'type' => 'video',
-                    'videoUid' => $product->video_uid,
-                    'thumbnail' => $videoThumb,
-                    'url' => $videoThumb,
                 ]);
             }
 

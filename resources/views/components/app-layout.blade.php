@@ -211,7 +211,11 @@
     @unless($hideNav ?? false)
     <x-navbar :q="$q ?? null" />
     @unless($hidePromoBanner ?? false)
+    @if($isReturningVisitor ?? false)
+    <x-promo-recurrente-banner />
+    @else
     <x-promo-anillo-banner />
+    @endif
     @endunless
     @endunless
 
@@ -219,7 +223,11 @@
         {{ $slot }}
     </main>
 
+    @if($isReturningVisitor ?? false)
+    <x-promo-recurrente />
+    @else
     <x-promo-anillo />
+    @endif
     <x-footer />
     @unless($hideWhatsApp ?? false)
         <x-whatsapp-button />
@@ -323,10 +331,18 @@
         });
         if (modalSlides.length === 0 && src) modalSlides.push({ type: 'image', src: src });
         window.imageModalVideoUid = videoUid || null;
-        if (window.imageModalVideoUid) modalSlides.push({ type: 'video', uid: window.imageModalVideoUid });
+        if (window.imageModalVideoUid) {
+            // Video tras la última escena (igual que en la galería de la ficha);
+            // si no hay escenas, va de primero.
+            var vpos = 0;
+            for (var i = modalSlides.length - 1; i >= 0; i--) {
+                if (modalSlides[i].type === 'image' && modalSlides[i].src.indexOf('cloudflarestream.com') !== -1) { vpos = i + 1; break; }
+            }
+            modalSlides.splice(vpos, 0, { type: 'video', uid: window.imageModalVideoUid });
+        }
         modalIndex = 0;
         if (startVideo && window.imageModalVideoUid) {
-            modalIndex = modalSlides.length - 1;
+            modalIndex = modalVideoIndex();
         } else if (src) {
             var found = modalSlides.findIndex(function(sl) { return sl.type === 'image' && sl.src === src; });
             if (found !== -1) modalIndex = found;
@@ -368,13 +384,19 @@
         setImageModalVideoBtn(onVideo);
         updateNavButtons();
     }
+    function modalVideoIndex() {
+        for (var i = 0; i < modalSlides.length; i++) {
+            if (modalSlides[i] && modalSlides[i].type === 'video') return i;
+        }
+        return modalSlides.length - 1;
+    }
     function toggleImageModalVideo() {
         if (!window.imageModalVideoUid || modalSlides.length === 0) return;
         var sl = modalSlides[modalIndex];
         if (sl && sl.type === 'video') {
             modalIndex = 0;
         } else {
-            modalIndex = modalSlides.length - 1;
+            modalIndex = modalVideoIndex();
         }
         renderModalSlide();
     }

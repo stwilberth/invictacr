@@ -82,13 +82,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::get('/products', \App\Livewire\Admin\Products::class)->name('products');
     Route::get('/products/create', \App\Livewire\Admin\ProductForm::class)->name('products.create');
     Route::get('/products/{productId}/edit', \App\Livewire\Admin\ProductForm::class)->name('products.edit');
-    Route::get('/invoices', \App\Livewire\Admin\Invoices::class)->name('invoices');
-    Route::get('/invoices/create', \App\Livewire\Admin\InvoiceCreate::class)->name('invoices.create');
-    Route::get('/invoices/{id}', \App\Livewire\Admin\InvoiceDetail::class)->name('invoices.detail');
-    Route::post('/invoices/{invoice}/abonos', [\App\Http\Controllers\Admin\InvoiceReceiptController::class, 'storeAbono'])->name('invoices.abonos.store');
-    Route::post('/invoices/{invoice}/abonos/{abono}/receipt', [\App\Http\Controllers\Admin\InvoiceReceiptController::class, 'storeAbonoReceipt'])->name('invoices.abonos.receipt');
-    Route::post('/invoices/{invoice}/receipts', [\App\Http\Controllers\Admin\InvoiceReceiptController::class, 'storeReceipts'])->name('invoices.receipts.store');
     Route::get('/clients', \App\Livewire\Admin\Clients::class)->name('clients');
+    Route::get('/leads', \App\Livewire\Admin\Leads::class)->name('leads');
     Route::get('/users', \App\Livewire\Admin\Users::class)->name('users');
     Route::get('/subscribers', \App\Livewire\Admin\Subscribers::class)->name('subscribers');
     Route::get('/expenses', \App\Livewire\Admin\Expenses::class)->name('expenses');
@@ -113,6 +108,16 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
 
 Route::prefix('admin')->name('admin.')->middleware(['auth', \App\Http\Middleware\MessengerAccessMiddleware::class])->group(function () {
     Route::get('/messenger', \App\Livewire\Admin\Messenger::class)->name('messenger');
+});
+
+// Ventas: admin + vendedor (Lisbeth y equipo de ventas)
+Route::prefix('admin')->name('admin.')->middleware(['auth', 'seller'])->group(function () {
+    Route::get('/invoices', \App\Livewire\Admin\Invoices::class)->name('invoices');
+    Route::get('/invoices/create', \App\Livewire\Admin\InvoiceCreate::class)->name('invoices.create');
+    Route::get('/invoices/{id}', \App\Livewire\Admin\InvoiceDetail::class)->name('invoices.detail');
+    Route::post('/invoices/{invoice}/abonos', [\App\Http\Controllers\Admin\InvoiceReceiptController::class, 'storeAbono'])->name('invoices.abonos.store');
+    Route::post('/invoices/{invoice}/abonos/{abono}/receipt', [\App\Http\Controllers\Admin\InvoiceReceiptController::class, 'storeAbonoReceipt'])->name('invoices.abonos.receipt');
+    Route::post('/invoices/{invoice}/receipts', [\App\Http\Controllers\Admin\InvoiceReceiptController::class, 'storeReceipts'])->name('invoices.receipts.store');
 });
 
 require __DIR__ . '/auth.php';

@@ -6,7 +6,8 @@
         + ($filterStock !== 'all' ? 1 : 0)
         + ($filterActivo !== 'all' ? 1 : 0)
         + ($filterBloqueado !== 'all' ? 1 : 0)
-        + ($filterProximo !== 'all' ? 1 : 0);
+        + ($filterProximo !== 'all' ? 1 : 0)
+        + ($filterVideo !== 'all' ? 1 : 0);
 @endphp
 <div x-data="columnManager()" x-init="init()">
     <h2 class="text-xl font-black mb-3">Productos</h2>
@@ -109,6 +110,11 @@
             <option value="all">Próximos</option>
             <option value="yes">Sí</option>
             <option value="no">No</option>
+        </select>
+        <select wire:model.live="filterVideo" class="w-full sm:w-auto bg-white dark:bg-[#0a0f1c] border border-gray-200 dark:border-white/10 rounded-lg px-2 py-1.5 text-xs">
+            <option value="all">Video</option>
+            <option value="yes">Con video</option>
+            <option value="no">Sin video</option>
         </select>
     </div>
 
@@ -290,6 +296,17 @@ document.addEventListener('alpine:init', () => {
                 this.columns = defaults;
             }
             this.apply();
+            // Livewire re-renderiza la tabla al paginar/filtrar y los estilos
+            // aplicados se pierden: reaplicar visibilidad tras cada morph.
+            const reapply = () => { try { this.apply(); } catch (e) {} };
+            const registerHook = () => {
+                if (window.Livewire && typeof window.Livewire.hook === 'function') {
+                    window.Livewire.hook('morph.updated', reapply);
+                }
+            };
+            if (window.Livewire) registerHook();
+            else document.addEventListener('livewire:init', registerHook, { once: true });
+            document.addEventListener('livewire:morph-updated', reapply);
         },
         toggle(key) {
             const col = this.columns.find(c => c.key === key);

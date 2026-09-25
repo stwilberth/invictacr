@@ -35,4 +35,17 @@ class User extends Authenticatable
     {
         return $this->role === 'mensajero';
     }
+
+    public function isVendedor(): bool
+    {
+        return $this->role === 'vendedor';
+    }
+
+    /**
+     * Personal interno: su tráfico no debe contaminar métricas.
+     */
+    public function isStaff(): bool
+    {
+        return (bool) $this->is_admin || $this->isMessenger() || $this->isVendedor();
+    }
 }

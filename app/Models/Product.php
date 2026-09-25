@@ -21,6 +21,8 @@ class Product extends Model
         "caja",
         "resistencia_agua",
         "video_uid",
+        "video_thumb_time",
+        "video_extra_scenes",
         "precio_venta",
         "precio_original",
         "precio_costo",
@@ -44,6 +46,7 @@ class Product extends Model
         "stock" => "integer",
         "vistas" => "integer",
         "activo" => "boolean",
+        "video_extra_scenes" => "array",
         "bloqueado" => "boolean",
         "proximo" => "boolean",
         "manual_override" => "boolean",
@@ -101,15 +104,24 @@ class Product extends Model
      * Invalida todas las claves de caché relacionadas con producto
      * (galería, relacionados, filtros del catálogo y lista del catálogo en Redis).
      */
-    public static function forgetAllCache(?int $productId = null): void
+    public static function forgetAllCache(?int $productId = null, ?string $slug = null): void
     {
         if ($productId) {
             cache()->forget("product:gallery:{$productId}");
             cache()->forget("product:related:{$productId}");
         }
 
+        if ($slug === null && $productId) {
+            $slug = Product::whereKey($productId)->value('slug');
+        }
+        if ($slug) {
+            // Imagen OG generada y cacheada 7 días en OgImageController.
+            cache()->forget("og_product_jpg_{$slug}");
+        }
+
+        // Clave real usada por ProductController::buildFilters().
         foreach (['all', 'hombre', 'mujer', 'unisex'] as $g) {
-            cache()->forget("product:filters:{$g}");
+            cache()->forget("product:filters:v2:{$g}");
         }
 
         // Cambia la versión del catálogo: invalida la lista base y todos los grids cacheados

@@ -94,6 +94,10 @@ return [
         'zone_id' => env('CLOUDFLARE_ZONE_ID'),
         'stream_customer_subdomain' => env('CLOUDFLARE_STREAM_CUSTOMER_SUBDOMAIN', 'customer-8ybt5aiee4vaophw'),
         'stream_watermark_uid' => env('CLOUDFLARE_STREAM_WATERMARK_UID', ''),
+        // Dimensiones del frame usado como portada en /relojes y vista previa del admin.
+        // Cambiar aquí aplica a todos los productos sin reeditarlos.
+        'stream_thumb_width' => (int) env('CLOUDFLARE_STREAM_THUMB_WIDTH', 640),
+        'stream_thumb_height' => (int) env('CLOUDFLARE_STREAM_THUMB_HEIGHT', 850),
     ],
 
     'variedadescr' => [

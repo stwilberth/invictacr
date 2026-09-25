@@ -14,7 +14,12 @@
     $originalImg = $product->imagen;
     $mainSrc = $originalImg && $model !== '' ? "{$cdnBase}/relojes/medium/{$model}.webp" : null;
     if ($mainSrc === $originalImg) $mainSrc = null;
-    $primary = $mainSrc ?: $originalImg;
+    // Si se eligió una escena del video, esa es la portada en el catálogo.
+    // Dimensiones globales en config/services.php (stream_thumb_width/height).
+    $videoThumb = (!empty($product->video_uid) && is_numeric($product->video_thumb_time ?? null))
+        ? 'https://' . config('services.cloudflare.stream_customer_subdomain') . '.cloudflarestream.com/' . $product->video_uid . '/thumbnails/thumbnail.jpg?time=' . ((int) $product->video_thumb_time) . 's&width=' . config('services.cloudflare.stream_thumb_width', 640) . '&height=' . config('services.cloudflare.stream_thumb_height', 850)
+        : null;
+    $primary = $videoThumb ?: ($mainSrc ?: $originalImg);
 
     $coleccion = trim($product->coleccion ?? '');
     $cardTitle = 'Reloj Invicta';
@@ -36,16 +41,18 @@
     <div class="relative w-full pt-[100%] overflow-hidden bg-white">
         @if($primary)
         <a href="{{ $productUrl }}" class="absolute inset-0 flex items-center justify-center focus-visible:outline-none" aria-label="Ver {{ $cardTitle }}">
+            <div class="absolute inset-0 rounded-xl overflow-hidden">
             <img
                 src="{{ $primary }}"
                 alt="{{ $cardTitle }}"
                 class="absolute inset-0 w-full h-full object-contain p-1.5 select-none"
                 loading="{{ $priority ? 'eager' : 'lazy' }}"
                 {{ $priority ? 'fetchpriority="high"' : '' }}
-                @if($mainSrc && $originalImg) data-original="{{ $originalImg }}" @endif
+                @if($primary && $originalImg && $primary !== $originalImg) data-original="{{ $originalImg }}" @endif
                 draggable="false"
                 onerror="window.invictaImgFallback ? invictaImgFallback(this) : (this.style.display='none');"
             />
+            </div>
         </a>
         @else
         <div class="absolute inset-0 flex flex-col items-center justify-center">
@@ -67,6 +74,14 @@
         <div class="absolute top-1 right-1 md:top-2 md:right-2 z-10">
             <span class="inline-flex border border-gray-400 dark:border-gray-500 items-center rounded-full bg-[#facc15] dark:bg-[#facc15] px-1 py-0.5 text-[7px] md:px-2 md:py-1 md:text-[9px] font-black text-black dark:text-black shadow-lg uppercase tracking-wide">
                 Automático
+            </span>
+        </div>
+        @endif
+
+        @if(!empty($product->video_uid))
+        <div class="absolute bottom-1.5 left-1.5 z-10" title="Tiene video">
+            <span class="inline-flex items-center justify-center rounded-full bg-red-600 shadow-lg border border-white/20 w-5 h-5 md:w-6 md:h-6">
+                <i class="fa-solid fa-play text-white text-[7px] md:text-[8px] ml-0.5"></i>
             </span>
         </div>
         @endif

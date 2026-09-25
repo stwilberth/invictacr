@@ -6,13 +6,13 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class MessengerAccessMiddleware
+class SellerAccessMiddleware
 {
     public function handle(Request $request, Closure $next): Response
     {
         $user = $request->user();
 
-        if (!$user || (!$user->is_admin && !$user->isMessenger() && !$user->isVendedor())) {
+        if (!$user || (!$user->is_admin && !$user->isVendedor())) {
             abort(403, 'Acceso denegado.');
         }
 

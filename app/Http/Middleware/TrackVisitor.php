@@ -28,6 +28,7 @@ class TrackVisitor
 
             if ($visitor) {
                 View::share('visitorUuid', $visitor->uuid);
+                View::share('isReturningVisitor', $visitor->visits_count > 3);
             }
         } catch (\Throwable $e) {
             report($e);
@@ -61,6 +62,11 @@ class TrackVisitor
 
     private function shouldTrack(Request $request): bool
     {
+        // Personal interno: no se registra su navegación
+        if ($request->user()?->isStaff()) {
+            return false;
+        }
+
         if (!$request->isMethod('GET') && !$request->isMethod('HEAD')) {
             return false;
         }

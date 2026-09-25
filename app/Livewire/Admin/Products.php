@@ -25,12 +25,13 @@ class Products extends Component
     public $filterActivo = "all";
     public $filterBloqueado = "all";
     public $filterProximo = "all";
+    public $filterVideo = "all";
 
     public ?int $optimizingProductId = null;
 
     public function updating($property, $value)
     {
-        if (in_array($property, ['search', 'filterGender', 'filterColeccion', 'filterColor', 'filterCaja', 'filterBrazalete', 'filterResistencia', 'filterTamano', 'filterStock', 'filterActivo', 'filterBloqueado', 'filterProximo'])) {
+        if (in_array($property, ['search', 'filterGender', 'filterColeccion', 'filterColor', 'filterCaja', 'filterBrazalete', 'filterResistencia', 'filterTamano', 'filterStock', 'filterActivo', 'filterBloqueado', 'filterProximo', 'filterVideo'])) {
             $this->resetPage();
         }
     }
@@ -160,6 +161,14 @@ class Products extends Component
         } elseif ($this->filterProximo === "no") {
             $query->where("proximo", false)
                 ->where("precio_venta", ">", 0);
+        }
+
+        if ($this->filterVideo === "yes") {
+            $query->whereNotNull("video_uid")->where("video_uid", "!=", "");
+        } elseif ($this->filterVideo === "no") {
+            $query->where(function ($q) {
+                $q->whereNull("video_uid")->orWhere("video_uid", "");
+            });
         }
 
         $products = $query

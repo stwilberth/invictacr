@@ -46,6 +46,15 @@ imágenes o config de Livewire.
   sirve este sitio. Límites web actuales: `upload_max_filesize=20M`,
   `post_max_size=64M`.
 
+## Resumen del negocio: usar el comando, no tinker a mano
+
+- Para "visitas/ventas hoy" o resúmenes del negocio ejecutar
+  `php artisan stats:today` (`--json`, `--date=YYYY-MM-DD` para otro día).
+  Fuente: `app/Console/Commands/StatsToday.php`. Detalle en skill `negocio`
+  (`.opencode/skills/negocio/SKILL.md`).
+- "Visitas hoy" = visitantes únicos con actividad hoy; la app corre en UTC
+  (corte 00:00 UTC = 6pm del día anterior en CR).
+
 ## Comandos y crons: ejecutarlos, no pedirlos
 
 - Antes de pedirle al usuario que ejecute un comando (`php artisan ...`,

@@ -28,9 +28,11 @@ class LoginController extends Controller
         $oldSessionId = $request->session()->getId();
 
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
-            // Vincular perfil de visitante anónimo con el usuario
+            // Vincular perfil de visitante anónimo con el usuario (excepto staff)
             try {
-                \App\Models\Visitor::currentFromRequest($request)?->linkToUser(Auth::user());
+                if (!Auth::user()->isStaff()) {
+                    \App\Models\Visitor::currentFromRequest($request)?->linkToUser(Auth::user());
+                }
             } catch (\Throwable $e) {
                 report($e);
             }
@@ -47,7 +49,10 @@ class LoginController extends Controller
                 $guestCart->delete();
             }
 
-            return redirect()->intended('/dashboard');
+            $user = Auth::user();
+            $default = ($user->isVendedor() && !$user->is_admin) ? '/admin/invoices' : '/dashboard';
+
+            return redirect()->intended($default);
         }
 
         return back()->withErrors([

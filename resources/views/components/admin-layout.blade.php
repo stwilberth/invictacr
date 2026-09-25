@@ -7,16 +7,37 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
-    <style>[x-cloak] { display: none !important; }</style>
+    <style>
+        [x-cloak] { display: none !important; }
+        .sidebar-brand-icon { display: none; }
+        .sidebar-collapsed .sidebar-brand-text { display: none; }
+        .sidebar-collapsed .sidebar-brand-icon { display: inline-block; }
+        .sidebar-collapsed .sidebar-brand-link { justify-content: center; }
+        .sidebar-collapsed nav a { justify-content: center; padding-left: 0; padding-right: 0; font-size: 0; }
+        .sidebar-collapsed nav a > i { font-size: 1rem; }
+        .sidebar-collapsed nav a > span { display: none; }
+        .sidebar-collapsed nav > p { display: none; }
+        .sidebar-collapsed nav > hr { display: none; }
+    </style>
 </head>
-<body class="bg-gray-50 dark:bg-gray-900" x-data="{ sidebarOpen: false }">
+<body class="bg-gray-50 dark:bg-gray-900" x-data="{ sidebarOpen: false, sidebarCollapsed: localStorage.getItem('sidebarCollapsed') === 'true' }" x-init="$watch('sidebarCollapsed', val => localStorage.setItem('sidebarCollapsed', val))">
     <div class="flex h-screen overflow-hidden">
-        <aside class="w-64 bg-[#0a0f1c] text-white flex-shrink-0 hidden md:block overflow-y-auto">
+        <aside class="w-64 bg-[#0a0f1c] text-white flex-shrink-0 hidden md:block overflow-y-auto transition-all duration-200" :class="sidebarCollapsed ? 'md:w-20 sidebar-collapsed' : 'md:w-64'">
             <div class="p-4 border-b border-white/10">
-                <a href="/admin/dashboard" class="text-lg font-black text-[#00C4FF] uppercase tracking-tight">Invicta Admin</a>
+                <a href="/admin/dashboard" class="sidebar-brand-link flex items-center gap-2 text-lg font-black text-[#00C4FF] uppercase tracking-tight">
+                    <i class="fa-solid fa-crown sidebar-brand-icon text-base"></i>
+                    <span class="sidebar-brand-text whitespace-nowrap">Invicta Admin</span>
+                </a>
             </div>
             <nav class="p-4 space-y-1">
-                @if(auth()->user()->isMessenger() && !auth()->user()->is_admin)
+                    @if(auth()->user()->isVendedor() && !auth()->user()->is_admin)
+                    <a href="{{ route('admin.invoices') }}" @click="sidebarOpen = false" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors {{ request()->routeIs('admin.invoices*') ? 'bg-[#00C4FF]/10 text-[#00C4FF]' : 'text-white/70 hover:text-white hover:bg-white/5' }}">
+                        <i class="fa-solid fa-file-invoice w-5"></i> Facturas
+                    </a>
+                    <a href="{{ route('admin.messenger') }}" @click="sidebarOpen = false" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors {{ request()->routeIs('admin.messenger') ? 'bg-[#00C4FF]/10 text-[#00C4FF]' : 'text-white/70 hover:text-white hover:bg-white/5' }}">
+                        <i class="fa-solid fa-motorcycle w-5"></i> Mensajero
+                    </a>
+                    @elseif(auth()->user()->isMessenger() && !auth()->user()->is_admin)
                 <a href="{{ route('admin.messenger') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm bg-[#00C4FF]/10 text-[#00C4FF]">
                     <i class="fa-solid fa-motorcycle w-5"></i> Mensajero
                 </a>
@@ -52,6 +73,13 @@
                 </a>
                 <a href="{{ route('admin.clients') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors {{ request()->routeIs('admin.clients') ? 'bg-[#00C4FF]/10 text-[#00C4FF]' : 'text-white/70 hover:text-white hover:bg-white/5' }}">
                     <i class="fa-solid fa-users w-5"></i> Clientes
+                </a>
+                <a href="{{ route('admin.leads') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors {{ request()->routeIs('admin.leads') ? 'bg-[#00C4FF]/10 text-[#00C4FF]' : 'text-white/70 hover:text-white hover:bg-white/5' }}">
+                    <i class="fa-solid fa-user-clock w-5"></i> Leads
+                    @php $leadsPending = \App\Models\Lead::porRetomar()->count(); @endphp
+                    @if($leadsPending > 0)
+                    <span class="ml-auto text-[10px] font-black px-2 py-0.5 rounded-full bg-[#00C4FF] text-[#0a0f1c]">{{ $leadsPending }}</span>
+                    @endif
                 </a>
                 <a href="{{ route('admin.upcoming') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors {{ request()->routeIs('admin.upcoming') ? 'bg-[#00C4FF]/10 text-[#00C4FF]' : 'text-white/70 hover:text-white hover:bg-white/5' }}">
                     <i class="fa-solid fa-clock w-5"></i> Próximos
@@ -117,6 +145,9 @@
                     <button @click="sidebarOpen = true" class="md:hidden text-gray-600 dark:text-gray-300 text-xl">
                         <i class="fa-solid fa-bars"></i>
                     </button>
+                    <button @click="sidebarCollapsed = !sidebarCollapsed" class="hidden md:inline-flex text-gray-600 dark:text-gray-300 text-xl" :title="sidebarCollapsed ? 'Expandir menú' : 'Colapsar menú'">
+                        <i class="fa-solid fa-bars-staggered"></i>
+                    </button>
                 </div>
                 <div class="flex items-center gap-4">
                     <button @click="dark = !dark" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-white text-lg transition-colors" title="Cambiar modo">
@@ -160,7 +191,14 @@
                     </button>
                 </div>
                 <nav class="p-4 space-y-1">
-                    @if(auth()->user()->isMessenger() && !auth()->user()->is_admin)
+                @if(auth()->user()->isVendedor() && !auth()->user()->is_admin)
+                <a href="{{ route('admin.invoices') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors {{ request()->routeIs('admin.invoices*') ? 'bg-[#00C4FF]/10 text-[#00C4FF]' : 'text-white/70 hover:text-white hover:bg-white/5' }}">
+                    <i class="fa-solid fa-file-invoice w-5"></i> Facturas
+                </a>
+                <a href="{{ route('admin.messenger') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors {{ request()->routeIs('admin.messenger') ? 'bg-[#00C4FF]/10 text-[#00C4FF]' : 'text-white/70 hover:text-white hover:bg-white/5' }}">
+                    <i class="fa-solid fa-motorcycle w-5"></i> Mensajero
+                </a>
+                @elseif(auth()->user()->isMessenger() && !auth()->user()->is_admin)
                     <a href="{{ route('admin.messenger') }}" @click="sidebarOpen = false" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm bg-[#00C4FF]/10 text-[#00C4FF]">
                         <i class="fa-solid fa-motorcycle w-5"></i> Mensajero
                     </a>
@@ -195,6 +233,12 @@
                     </a>
                     <a href="{{ route('admin.clients') }}" @click="sidebarOpen = false" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors {{ request()->routeIs('admin.clients') ? 'bg-[#00C4FF]/10 text-[#00C4FF]' : 'text-white/70 hover:text-white hover:bg-white/5' }}">
                         <i class="fa-solid fa-users w-5"></i> Clientes
+                    </a>
+                    <a href="{{ route('admin.leads') }}" @click="sidebarOpen = false" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors {{ request()->routeIs('admin.leads') ? 'bg-[#00C4FF]/10 text-[#00C4FF]' : 'text-white/70 hover:text-white hover:bg-white/5' }}">
+                        <i class="fa-solid fa-user-clock w-5"></i> Leads
+                        @if(($leadsPending ?? 0) > 0)
+                        <span class="ml-auto text-[10px] font-black px-2 py-0.5 rounded-full bg-[#00C4FF] text-[#0a0f1c]">{{ $leadsPending }}</span>
+                        @endif
                     </a>
                     <a href="{{ route('admin.upcoming') }}" @click="sidebarOpen = false" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors {{ request()->routeIs('admin.upcoming') ? 'bg-[#00C4FF]/10 text-[#00C4FF]' : 'text-white/70 hover:text-white hover:bg-white/5' }}">
                         <i class="fa-solid fa-clock w-5"></i> Próximos

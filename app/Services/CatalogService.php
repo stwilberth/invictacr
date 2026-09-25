@@ -31,6 +31,7 @@ class CatalogService
         'disponibilidad',
         'tipo_movimiento',
         'video_uid',
+        'video_thumb_time',
         'genero',
         'color',
         'brazalete',
