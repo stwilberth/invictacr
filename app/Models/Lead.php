@@ -25,6 +25,7 @@ class Lead extends Model
         'source',
         'visitor_id',
         'invoice_id',
+        'fb_ad_id',
         'contacted_at',
     ];
 

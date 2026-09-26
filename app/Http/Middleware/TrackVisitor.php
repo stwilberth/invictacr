@@ -117,6 +117,47 @@ class TrackVisitor
             }
         }
 
+        // Sin cookie válida: los navegadores in-app de FB/IG y los privados
+        // pierden cookies y harían que cada página cuente como visitante
+        // nuevo. Reutilizar la sesión con misma IP + user_agent dentro de la
+        // ventana de sesión (fallback de sesionización).
+        $ip = $request->header('CF-Connecting-IP') ?: $request->ip();
+        $ua = \Illuminate\Support\Str::limit((string) $request->userAgent(), 1000, '');
+
+        $visitor = Visitor::where('ip', $ip)
+            ->where('user_agent', $ua)
+            ->where('last_seen_at', '>=', $now->copy()->subMinutes(self::SESSION_GAP_MINUTES))
+            ->orderByDesc('last_seen_at')
+            ->first();
+
+        if ($visitor) {
+            $updates = [];
+
+            if (!$visitor->last_seen_at || $visitor->last_seen_at->diffInMinutes($now) >= self::SESSION_GAP_MINUTES) {
+                $updates['visits_count'] = $visitor->visits_count + 1;
+            }
+
+            if (!$visitor->last_seen_at || $visitor->last_seen_at->diffInSeconds($now) >= 60 || !empty($updates)) {
+                $updates['last_seen_at'] = $now;
+                $visitor->fill($updates)->save();
+            }
+
+            if ($request->user() && !$visitor->user_id) {
+                $visitor->linkToUser($request->user());
+            }
+
+            return $visitor;
+        }
+
+        // Anti-ráfaga: si esta IP ya creó demasiados visitantes nuevos sin
+        // cookies en poco tiempo es un scraper/AI, no guardar nada más de ella.
+        $recentFromIp = Visitor::where('ip', $ip)
+            ->where('created_at', '>=', now()->subMinutes(10))
+            ->count();
+        if ($recentFromIp >= 10) {
+            return null;
+        }
+
         return Visitor::createFromRequest($request);
     }
 }

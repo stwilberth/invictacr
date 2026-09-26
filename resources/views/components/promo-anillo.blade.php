@@ -41,14 +41,7 @@
     </div>
 </div>
 
-{{-- Burbuja: solo circulito --}}
-<button id="promoAnilloBubble" type="button" onclick="openPromoAnillo()" aria-label="Ver promo anillo gratis"
-    style="z-index:9998;"
-    class="hidden fixed bottom-5 left-4 z-[105] w-12 h-12 items-center justify-center bg-yellow-400 hover:bg-yellow-300 text-gray-900 rounded-full shadow-2xl transition-all hover:scale-110">
-    <i class="fa-solid fa-gift text-xl"></i>
-    <span onclick="dismissPromoAnillo(event)" aria-label="Ocultar por hoy"
-        class="absolute -top-1.5 -right-1.5 w-5 h-5 flex items-center justify-center bg-gray-900 hover:bg-black text-white rounded-full text-[10px] border border-white/30">✕</span>
-</button>
+{{-- Burbuja flotante eliminada: no se ocupaba --}}
 
 <script>
 (function () {
@@ -69,16 +62,8 @@
         try { localStorage.setItem(SHOWN_KEY, todayStr()); } catch (e) {}
     }
     function showBubble() {
-        var b = document.getElementById('promoAnilloBubble');
-        if (!b || dismissedToday()) return;
-        b.classList.remove('hidden');
-        b.classList.add('flex');
     }
     function hideBubble() {
-        var b = document.getElementById('promoAnilloBubble');
-        if (!b) return;
-        b.classList.add('hidden');
-        b.classList.remove('flex');
     }
     window.openPromoAnillo = function () {
         var el = document.getElementById('promoAnilloModal');

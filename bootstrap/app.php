@@ -27,6 +27,10 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(append: [
             \App\Http\Middleware\TrackVisitor::class,
         ]);
+        // Anti-ráfagas: primero que nada en el grupo web, antes de sesiones/DB
+        $middleware->web(prepend: [
+            \App\Http\Middleware\RateLimitWeb::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

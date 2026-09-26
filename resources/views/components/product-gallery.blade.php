@@ -94,7 +94,7 @@
 
         {{-- Código ref del visitante: visible para que el cliente lo muestre por captura --}}
         @if($refCode)
-        <div class="absolute bottom-2 right-2 z-30 inline-flex items-center bg-black/40 text-white/80 text-[11px] font-black uppercase tracking-[0.2em] px-2.5 py-1 rounded-full shadow-lg md:text-xl md:px-5 md:py-2.5">
+        <div class="absolute bottom-2 right-2 z-30 inline-flex items-center bg-black/40 backdrop-blur-sm text-white text-[11px] font-black uppercase tracking-[0.2em] px-2.5 py-1 rounded-full shadow-lg md:text-xl md:px-5 md:py-2.5">
             {{ $refCode }}
         </div>
         @endif

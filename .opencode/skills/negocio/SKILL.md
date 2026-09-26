@@ -14,7 +14,12 @@ Fuente de verdad: `php artisan stats:today` (comando `App\Console\Commands\Stats
 php artisan stats:today              # resumen de hoy, legible
 php artisan stats:today --json       # salida JSON (para procesar o comparar días)
 php artisan stats:today --date=2026-09-23   # otro día (YYYY-MM-DD)
+
+php artisan stats:marketing --days=14   # marketing unificado por día (GA vs site vs Meta/Google Ads vs leads vs ventas)
+php artisan stats:marketing --json
 ```
+
+`stats:marketing` (`App\Console\Commands\StatsMarketing`) une por día: usuarios/sesiones de GA, visitantes del sitio, clics WhatsApp, gasto Meta Ads y Google Ads, leads creados (marcando los atribuidos a anuncio FB vía `fb_ad_id`), facturas y ventas. Ojo: "Site" cuenta todo el tráfico que ve el middleware (incluye bots sin JS); GA filtra bots, por eso GA suele ser menor.
 
 ## Qué devuelve
 

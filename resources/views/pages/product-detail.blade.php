@@ -316,19 +316,6 @@
                             </div>
                         </div>
                     </div>
-
-                        {{-- Banner informativo azul (mockup style) --}}
-                        <div class="w-full mt-6">
-                            <div class="bg-[#EAF2FF] dark:bg-blue-900/20 rounded-xl px-5 py-4 flex items-start gap-3">
-                                <span class="flex-shrink-0 w-8 h-8 flex items-center justify-center text-[#0A7CFF] mt-0.5">
-                                    <i class="fa-solid fa-award text-2xl"></i>
-                                </span>
-                                <div>
-                                    <p class="text-[13px] leading-snug font-medium text-[#14325E] dark:text-blue-100">Este modelo es solo uno de los más de 300 estilos Invicta que tenemos disponibles.</p>
-                                    <a href="/relojes" class="text-[13px] font-semibold text-[#0A7CFF] hover:underline no-underline">Ver catálogo completo →</a>
-                                </div>
-                            </div>
-                        </div>
                 </div>
                 <x-product-benefits :apartadoMinimo="$apartadoMinimo" :apartadoWhatsapp="$whatsappApartado" />
     

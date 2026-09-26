@@ -84,6 +84,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::get('/products/{productId}/edit', \App\Livewire\Admin\ProductForm::class)->name('products.edit');
     Route::get('/clients', \App\Livewire\Admin\Clients::class)->name('clients');
     Route::get('/leads', \App\Livewire\Admin\Leads::class)->name('leads');
+    Route::post('/leads/whatsapp-chats', [\App\Http\Controllers\Admin\WhatsappChatImportController::class, 'store'])->name('leads.whatsapp-chats.store');
+    Route::post('/leads/whatsapp-chats/{chat}/link', [\App\Http\Controllers\Admin\WhatsappChatImportController::class, 'link'])->name('leads.whatsapp-chats.link');
     Route::get('/users', \App\Livewire\Admin\Users::class)->name('users');
     Route::get('/subscribers', \App\Livewire\Admin\Subscribers::class)->name('subscribers');
     Route::get('/expenses', \App\Livewire\Admin\Expenses::class)->name('expenses');
